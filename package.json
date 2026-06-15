@@ -1,18 +1,19 @@
 {
-  "name": "tradementor-v2",
+  "name": "tradzfx-v2",
   "version": "2.0.0",
   "private": true,
-  "description": "TradeMentor V2 — Thin Events, Fat Queries",
+  "description": "tradzfx.com V2 — Thin Events, Fat Queries",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts",
-    "backtest": "tsx scripts/backtest.ts",
+    "db:seed": "node scripts/seed-strategy-specs.js",
+    "promote-live": "node scripts/promote-top3-live.js",
     "engine": "pnpm --filter @tm/engine dev",
-    "web": "pnpm --filter @tm/web dev"
+    "web": "pnpm --filter @tm/web dev",
+    "graphify": "powershell -ExecutionPolicy Bypass -File ops/graphify.ps1"
   },
   "devDependencies": {
     "tsx": "^4.0.0",
