@@ -39,10 +39,23 @@ export interface PortfolioSimulation {
   acceptedBySpec: Record<string, number>;
 }
 
-const SEED_DIR = path.join(process.cwd(), "data", "backtest-seed");
+function findRepoRoot(): string {
+  let dir = typeof __dirname !== "undefined" ? __dirname : process.cwd();
+  for (let i = 0; i < 12; i++) {
+    if (fs.existsSync(path.join(dir, "pnpm-workspace.yaml"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return process.cwd();
+}
+
+function seedDir(): string {
+  return path.join(findRepoRoot(), "data", "backtest-seed");
+}
 
 function readJSON<T>(...segments: string[]): T | null {
-  const file = path.join(SEED_DIR, ...segments);
+  const file = path.join(seedDir(), ...segments);
   if (!fs.existsSync(file)) return null;
   try {
     return JSON.parse(fs.readFileSync(file, "utf8")) as T;
@@ -133,10 +146,7 @@ export function loadWalkforward(specId: string) {
   const windows = Array.from(byWindow.entries())
     .map(([end, rs]) => {
       const agg = aggregateResults(rs);
-      return {
-        end,
-        ...agg,
-      };
+      return { end, ...agg };
     })
     .sort((a, b) => new Date(a.end).getTime() - new Date(b.end).getTime());
 
