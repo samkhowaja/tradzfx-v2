@@ -1,0 +1,107 @@
+id: doyle_sd
+name: "Doyle Supply/Demand"
+version: "1.1.0"
+description: >
+  Supply/Demand strategy with EMA trend filter.
+  Based on Doyle Exchange: 5m primary, NY session 7:30–11:30 AM ET (11:30–15:30 UTC),
+  price above/below 200 EMA, fresh zone, structure break.
+  Uses 50/200 EMA cross direction as proxy for 200 EMA trend until single EMA values are exposed.
+
+filters:
+  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
+  sessions: [LONDON, OVERLAP, NY]
+  timeWindows:
+    - { utcStart: "11:30", utcEnd: "15:30" }
+
+setup:
+  - id: bias
+    feature: features_bias
+    tf: 5m
+    predicate: "direction != 'neutral'"
+    required: true
+
+  - id: trend_ema
+    feature: features_ema_cross
+    tf: 5m
+    predicate: "fast_period = 50 AND slow_period = 200 AND direction = features_bias.direction"
+    required: true
+    groupBy: [fast_period, slow_period]
+
+  - id: sd_zone
+    feature: features_zone
+    tf: 5m
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND quality_score > 0.5"
+    required: true
+    groupBy: [zone_kind]
+
+entry:
+  - id: msb
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
+    required: true
+    groupBy: [event_type, direction]
+
+  - id: zone_retest
+    feature: features_zone_retest
+    tf: 5m
+    predicate: "wick_into_zone = true AND close_inside_zone = false AND direction = features_bias.direction"
+    required: true
+
+  - id: displacement
+    feature: features_displacement
+    tf: 5m
+    predicate: "grade IN ('MEDIUM', 'HIGH')"
+    required: false
+
+signalSource: zone
+
+risk:
+  sl: "atr(5m) * 1.2"
+  tp: "sl * 2.5"
+  minRR: 2.5
+  timeoutBars: 60
+  maxFillBars: 15
+
+gates:
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtr5: 2.0
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 4
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [LONDON, OVERLAP, NY]
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 5
+
+live:
+  mode: live
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 2
+  maxPositionsTotal: 6
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 15

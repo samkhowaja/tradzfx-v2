@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+.next-build/
+dist/
+*.tsbuildinfo
+
+# Local env / secrets
+.env
+.env.local
+.env.*.local
+
+# Runtime data
+logs/
+backups/
+downloads/
+reports/
+data/
+
+# Generated knowledge-graph workspace (curated snapshots live in docs/graphify)
+graphify-out/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Test coverage
+coverage/

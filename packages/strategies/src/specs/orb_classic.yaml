@@ -1,0 +1,101 @@
+id: orb_classic
+name: "ORB Classic"
+version: "1.1.0"
+description: >
+  Opening Range Breakout strategy.
+  Enters in the direction of the 15m bias after the opening range is established.
+  Based on the ORB ebook model: NY session 9:30–11:00 AM ET (13:30–15:00 UTC),
+  stop loss at ORB midpoint, target 2R (ebook uses 1 STDV).
+
+filters:
+  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
+  sessions: [LONDON, NY]
+  timeWindows:
+    - { utcStart: "13:30", utcEnd: "15:00" }
+
+setup:
+  - id: bias
+    feature: features_bias
+    tf: 15m
+    predicate: "direction != 'neutral'"
+    required: true
+
+  - id: session
+    feature: features_session
+    tf: 15m
+    predicate: "session IN ('LONDON', 'OVERLAP', 'NY')"
+    required: true
+
+  - id: orb
+    feature: features_opening_range
+    tf: 15m
+    predicate: "1 = 1"
+    required: true
+
+entry:
+  - id: displacement
+    feature: features_displacement
+    tf: 15m
+    predicate: "grade IN ('MEDIUM', 'HIGH')"
+    required: true
+
+signalSource: orb
+
+risk:
+  sl: "orb_midpoint"
+  tp: "sl * 2.0"
+  minRR: 2.0
+  timeoutBars: 16
+  maxFillBars: 4
+
+gates:
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtr5: 2.5
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [LONDON, OVERLAP, NY]
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 5
+
+  - id: daily_loss
+    name: dailyLoss
+    params:
+      maxLossesPerDay: 2
+
+  - id: daily_win
+    name: dailyWin
+    params:
+      maxWinsPerDay: 1
+
+live:
+  mode: live
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 2
+  maxPositionsTotal: 6
+  cooldownMinutes: 60

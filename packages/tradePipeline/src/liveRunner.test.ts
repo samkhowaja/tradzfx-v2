@@ -1,0 +1,225 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Pool, StrategySpec } from "@tm/shared";
+import { runLivePipeline, type LiveRunOptions } from "./liveRunner";
+
+const poolRef = { pool: null as unknown as Pool };
+
+vi.mock("@tm/shared", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@tm/shared")>();
+  return {
+    ...mod,
+    getPool: () => poolRef.pool,
+  };
+});
+
+interface QueryHandler {
+  match: RegExp;
+  rows: any[];
+}
+
+function createFakePool(handlers: QueryHandler[]): Pool {
+  const query = vi.fn(async (sql: string, _params?: any[]) => {
+    const handler = handlers.find((h) => h.match.test(sql));
+    if (!handler) {
+      throw new Error(`Unexpected query in test: ${sql.slice(0, 120)}`);
+    }
+    return { rows: handler.rows };
+  });
+  return { query } as unknown as Pool;
+}
+
+function freshnessHandlers(): QueryHandler[] {
+  const now = new Date().toISOString();
+  return [
+    { match: /SELECT MAX\(ts\).*FROM features_atr/i, rows: [{ max_ts: now }] },
+    { match: /SELECT MAX\(ts\).*FROM features_session/i, rows: [{ max_ts: now }] },
+  ];
+}
+
+function featureHandlers(session = "LONDON"): QueryHandler[] {
+  return [
+    { match: /FROM features_atr/i, rows: [{ period: 14, value: "0.0005" }] },
+    { match: /FROM features_session/i, rows: [{ session, utc_hour: 8 }] },
+    { match: /FROM features_pricing/i, rows: [{ position: "discount", in_ote: true, ote_low: "1.0900", ote_high: "1.0950" }] },
+    { match: /FROM features_bias/i, rows: [{ direction: "bullish", confidence: 0.8, reason: "htf bullish" }] },
+    { match: /FROM features_displacement/i, rows: [{ grade: "MEDIUM", direction: "bullish", body_pct: "0.65" }] },
+    { match: /FROM features_structure/i, rows: [{ event_type: "bos", direction: "bullish", level: "1.0890" }] },
+    { match: /FROM features_zone/i, rows: [{ zone_kind: "demand", top: "1.0905", bottom: "1.0900", fill_pct: "0.2", tapped: false }] },
+  ];
+}
+
+function baseSignalRow() {
+  return {
+    symbol: "EURUSD",
+    strategy_id: "test-strat",
+    side: "buy",
+    entry_price: "1.0950",
+    stop_loss: "1.0940",
+    take_profit: "1.0980",
+    ts: new Date().toISOString(),
+  };
+}
+
+function baseStrategy(gates: StrategySpec["gates"] = []): StrategySpec {
+  return {
+    id: "test-strat",
+    name: "Test Strategy",
+    version: "1",
+    signalSource: "zone",
+    filters: { symbols: ["EURUSD"] },
+    setup: [],
+    entry: [],
+    risk: {
+      sl: "0.001",
+      tp: "0.003",
+      minRR: 3,
+      timeoutBars: 10,
+    },
+    live: {
+      mode: "paper",
+      lotSize: 0.01,
+      riskPerTradePct: 1,
+      accountBalance: 10000,
+      accountCurrency: "USD",
+      signalTtlMinutes: 15,
+      maxSpreadPips: 3,
+      maxSlippagePoints: 20,
+      entryZonePips: 2,
+      maxPositionsPerSymbol: 1,
+      maxPositionsTotal: 6,
+      cooldownMinutes: 30,
+    },
+    gates,
+  };
+}
+
+function orderHandlers(): QueryHandler[] {
+  return [
+    { match: /FROM orders/i, rows: [] },
+    { match: /INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
+    { match: /UPDATE live_signal SET gate_trace_run_id/i, rows: [] },
+    { match: /INSERT INTO live_order/i, rows: [{ order_id: "live-order-1" }] },
+    { match: /INSERT INTO decision_trace/i, rows: [] },
+  ];
+}
+
+describe("runLivePipeline", () => {
+  let fakePool: Pool;
+  const mockCreateOrder = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCreateOrder.mockResolvedValue({ id: "order-1" });
+  });
+
+  it("returns no_signal and writes nothing when the strategy SQL returns no rows", async () => {
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [] },
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-1",
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.reason).toBe("no_signal");
+    expect(result.orderCreated).toBeUndefined();
+    expect(fakePool.query).toHaveBeenCalledTimes(3);
+  });
+
+  it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
+      ...featureHandlers("LONDON"),
+      ...orderHandlers(),
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-1",
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.orderCreated).toBe(true);
+    expect(result.orderId).toBe("order-1");
+    expect(result.liveSignalId).toBe("live-signal-1");
+    expect(result.liveOrderId).toBe("live-order-1");
+    expect(mockCreateOrder).toHaveBeenCalledTimes(1);
+
+    const insertSignal = fakePool.query.mock.calls.find((c) => /INSERT INTO live_signal/i.test(c[0] as string));
+    expect(insertSignal).toBeDefined();
+    const insertOrder = fakePool.query.mock.calls.find((c) => /INSERT INTO live_order/i.test(c[0] as string));
+    expect(insertOrder).toBeDefined();
+  });
+
+  it("does not write live_signal or live_order when deploymentId is omitted", async () => {
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
+      ...featureHandlers("LONDON"),
+      { match: /FROM orders/i, rows: [] },
+      { match: /INSERT INTO decision_trace/i, rows: [] },
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.orderCreated).toBe(true);
+    expect(result.liveSignalId).toBeUndefined();
+    expect(result.liveOrderId).toBeUndefined();
+
+    const insertSignal = fakePool.query.mock.calls.find((c) => /INSERT INTO live_signal/i.test(c[0] as string));
+    expect(insertSignal).toBeUndefined();
+    const insertOrder = fakePool.query.mock.calls.find((c) => /INSERT INTO live_order/i.test(c[0] as string));
+    expect(insertOrder).toBeUndefined();
+  });
+
+  it("writes live_signal but not live_order when a gate fails", async () => {
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
+      ...featureHandlers("LONDON"),
+      { match: /FROM orders/i, rows: [] },
+      { match: /INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
+      { match: /UPDATE live_signal SET gate_trace_run_id/i, rows: [] },
+      { match: /INSERT INTO decision_trace/i, rows: [] },
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy([
+        { id: "session_gate", name: "session", params: { allowed: ["NY"] } },
+      ]),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-1",
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.orderCreated).toBe(false);
+    expect(result.liveSignalId).toBe("live-signal-1");
+    expect(result.liveOrderId).toBeUndefined();
+    expect(mockCreateOrder).not.toHaveBeenCalled();
+
+    const insertOrder = fakePool.query.mock.calls.find((c) => /INSERT INTO live_order/i.test(c[0] as string));
+    expect(insertOrder).toBeUndefined();
+  });
+});
