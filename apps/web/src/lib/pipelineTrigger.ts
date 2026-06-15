@@ -167,16 +167,32 @@ async function runStrategyPipeline(
   }
 }
 
+async function getDefaultActiveStrategyId(pool: ReturnType<typeof getPool>): Promise<string | undefined> {
+  const { rows } = await pool.query(
+    `SELECT id FROM strategy_specs WHERE is_active = true AND mode = 'live' ORDER BY id LIMIT 1`
+  );
+  return rows[0]?.id ?? undefined;
+}
+
 /**
  * Call this after inserting new M1 candles.
  * If the latest candle crosses a 15m boundary, trigger the live pipeline
- * for a single strategy (default: waqar_v2 for backwards compatibility).
+ * for a single strategy. When no strategyId is provided, the first active
+ * live strategy is used (top-3 live specs: doyle_sd, orb_classic, watukushay_no1).
  */
 export async function checkAndTriggerPipeline(
   symbol: string,
-  strategyId: string = "waqar_v2"
+  strategyId?: string
 ): Promise<TriggerResult> {
   const pool = getPool();
+
+  let resolvedStrategyId = strategyId;
+  if (!resolvedStrategyId) {
+    resolvedStrategyId = await getDefaultActiveStrategyId(pool);
+    if (!resolvedStrategyId) {
+      return { symbol, triggered: false, reason: "no_active_live_strategy" };
+    }
+  }
 
   // Get the latest candle timestamp
   const { rows } = await pool.query(
@@ -215,7 +231,7 @@ export async function checkAndTriggerPipeline(
     );
   }
 
-  return runStrategyPipeline(symbol, latestTs, strategyId);
+  return runStrategyPipeline(symbol, latestTs, resolvedStrategyId);
 }
 
 /**
@@ -266,8 +282,13 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
 
   const results: TriggerResult[] = [];
   if (active.length === 0) {
-    // Backwards compatibility: if no deployment has been created yet, run the default strategy.
-    const result = await runStrategyPipeline(symbol, latestTs, "waqar_v2");
+    // Fallback: if no deployment has been created yet, run the first active live strategy.
+    const fallbackId = await getDefaultActiveStrategyId(pool);
+    if (!fallbackId) {
+      return [{ symbol, triggered: false, reason: "no_active_live_strategy" }];
+    }
+
+    const result = await runStrategyPipeline(symbol, latestTs, fallbackId);
     results.push(result);
   } else {
     for (const deployment of active) {
