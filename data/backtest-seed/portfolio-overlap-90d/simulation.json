@@ -1,0 +1,20 @@
+{
+  "accepted": 1893,
+  "dropped": 14,
+  "wins": 1152,
+  "losses": 631,
+  "timeouts": 110,
+  "winRate": 0.6461020751542345,
+  "netR": 1210.6764794121518,
+  "maxConcurrent": 6,
+  "droppedBySpec": {
+    "watukushay_no1": 5,
+    "orb_classic": 7,
+    "doyle_sd": 2
+  },
+  "acceptedBySpec": {
+    "watukushay_no1": 944,
+    "orb_classic": 409,
+    "doyle_sd": 540
+  }
+}

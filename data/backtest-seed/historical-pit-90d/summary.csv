@@ -1,0 +1,56 @@
+spec,symbol,rawSignals,executed,skipped,gateSkips,wins,losses,timeouts,noFills,winRate,netR,avgWinR,avgLossR,longCount,shortCount,avgHoldBars,queryMs
+doyle_sd,EURUSD,267,62,205,rateLimit=190; portfolioHeat=15,29,30,3,0,0.4915,44.3446,2.5000,-1.0000,31,31,14.08,49867
+doyle_sd,GBPUSD,312,79,233,portfolioHeat=18; rateLimit=215,56,20,3,0,0.7368,121.3172,2.5000,-1.0000,47,32,10.30,21105
+doyle_sd,AUDUSD,276,76,200,rateLimit=169; portfolioHeat=31,27,44,5,0,0.3803,27.9530,2.5000,-1.0000,43,33,12.63,36481
+doyle_sd,NZDUSD,225,64,161,rateLimit=121; portfolioHeat=40,29,30,5,0,0.4915,44.1513,2.5000,-1.0000,43,21,15.61,32724
+doyle_sd,USDCAD,237,62,175,portfolioHeat=41; rateLimit=134,27,28,7,0,0.4909,41.5774,2.5000,-1.0000,25,37,14.97,40380
+doyle_sd,USDCHF,291,67,224,portfolioHeat=60; rateLimit=164,32,26,9,0,0.5517,56.3952,2.5000,-1.0000,45,22,21.48,34991
+doyle_sd,USDJPY,399,89,310,portfolioHeat=95; rateLimit=215,35,38,16,0,0.4795,58.5569,2.5000,-1.0000,54,35,19.34,48389
+doyle_sd,XAUUSD,168,42,126,rateLimit=126,30,12,0,0,0.7143,63.0000,2.5000,-1.0000,18,24,5.14,22414
+orb_classic,EURUSD,55,37,18,dailyWin=16; rateLimit=2,22,15,0,0,0.5946,29.0000,2.0000,-1.0000,18,19,1.14,109
+orb_classic,GBPUSD,96,52,44,dailyWin=39; portfolioHeat=1; rateLimit=1; dailyLoss=3,34,13,5,0,0.7234,57.2640,2.0000,-1.0000,26,26,2.90,186
+orb_classic,AUDUSD,91,52,39,dailyWin=35; rateLimit=4,40,12,0,0,0.7692,68.0000,2.0000,-1.0000,32,20,1.42,168
+orb_classic,NZDUSD,82,52,30,dailyWin=26; rateLimit=3; dailyLoss=1,35,16,1,0,0.6863,54.2778,2.0000,-1.0000,29,23,2.25,260
+orb_classic,USDCAD,93,54,39,dailyWin=36; portfolioHeat=1; rateLimit=2,38,14,2,0,0.7308,63.7605,2.0000,-1.0000,25,29,1.80,174
+orb_classic,USDCHF,80,51,29,dailyWin=23; rateLimit=3; portfolioHeat=1; dailyLoss=2,35,15,1,0,0.7000,56.7143,2.0000,-1.0000,26,25,1.80,168
+orb_classic,USDJPY,170,65,105,dailyWin=68; rateLimit=21; dailyLoss=14; portfolioHeat=2,30,31,4,0,0.4918,31.5318,2.0000,-1.0000,31,34,2.62,191
+orb_classic,XAUUSD,90,53,37,rateLimit=9; dailyWin=28,35,18,0,0,0.6604,52.0000,2.0000,-1.0000,25,28,1.32,164
+watukushay_no1,EURUSD,131,79,52,session=50; rateLimit=2,45,32,2,0,0.5844,12.1893,1.0000,-1.0000,35,44,1.47,243
+watukushay_no1,GBPUSD,195,113,82,session=79; rateLimit=3,77,32,4,0,0.7064,43.9394,1.0000,-1.0000,56,57,1.55,341
+watukushay_no1,AUDUSD,194,106,88,session=84; rateLimit=4,67,31,8,0,0.6837,35.0310,1.0000,-1.0000,59,47,1.74,339
+watukushay_no1,NZDUSD,244,130,114,session=111; rateLimit=3,94,28,8,0,0.7705,63.5705,1.0000,-1.0000,58,72,1.62,351
+watukushay_no1,USDCAD,252,140,112,session=107; rateLimit=5,87,44,9,0,0.6641,42.3204,1.0000,-1.0000,84,56,1.80,343
+watukushay_no1,USDCHF,228,128,100,session=97; rateLimit=3,87,35,6,0,0.7131,52.7496,1.0000,-1.0000,69,59,1.65,342
+watukushay_no1,USDJPY,212,116,96,session=88; rateLimit=8,74,31,11,0,0.7048,41.7806,1.0000,-1.0000,82,34,1.89,373
+watukushay_no1,XAUUSD,259,137,122,session=119; rateLimit=3,90,44,3,0,0.6716,46.2571,1.0000,-1.0000,57,80,1.37,402
+watukushay_fe,EURUSD,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,GBPUSD,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,AUDUSD,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,NZDUSD,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,USDCAD,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,USDCHF,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,USDJPY,,,,,,,,,,,,,,,,error:exit code 1
+watukushay_fe,XAUUSD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,EURUSD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,GBPUSD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,AUDUSD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,NZDUSD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,USDCAD,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,USDCHF,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,USDJPY,,,,,,,,,,,,,,,,error:exit code 1
+forex_strategy_orb,XAUUSD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,EURUSD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,GBPUSD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,AUDUSD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,NZDUSD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,USDCAD,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,USDCHF,,,,,,,,,,,,,,,,error:exit code 1
+scarface_5m_orb,USDJPY,,,,,,,,,,,,,,,,error:exit code 1
+
+spec,symbols,rawSignals,executed,skipped,gateSkips,wins,losses,timeouts,noFills,winRate,netR,avgWinR,avgLossR,longCount,shortCount,avgHoldBars,errors
+doyle_sd,8,2175,541,1634,rateLimit=1334; portfolioHeat=300,265,228,48,0,0.5375,457.2956,2.5000,-1.0000,306,235,14.70,0
+orb_classic,8,757,416,341,dailyWin=271; rateLimit=45; portfolioHeat=5; dailyLoss=20,269,134,13,0,0.6675,412.5484,2.0000,-1.0000,212,204,1.95,0
+watukushay_no1,8,1715,949,766,session=735; rateLimit=31,621,277,51,0,0.6915,337.8378,1.0000,-1.0000,500,449,1.64,0
+watukushay_fe,0,0,0,0,,0,0,0,0,0.0000,0.0000,0.0000,0.0000,0,0,0.00,8
+forex_strategy_orb,0,0,0,0,,0,0,0,0,0.0000,0.0000,0.0000,0.0000,0,0,0.00,8
+scarface_5m_orb,0,0,0,0,,0,0,0,0,0.0000,0.0000,0.0000,0.0000,0,0,0.00,7
