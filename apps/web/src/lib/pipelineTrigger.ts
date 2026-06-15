@@ -169,7 +169,7 @@ async function runStrategyPipeline(
 
 async function getDefaultActiveStrategyId(pool: ReturnType<typeof getPool>): Promise<string | undefined> {
   const { rows } = await pool.query(
-    `SELECT id FROM strategy_specs WHERE is_active = true AND mode = 'live' ORDER BY id LIMIT 1`
+    `SELECT id FROM strategy_specs WHERE is_active = true AND spec_json->'live'->>'mode' = 'live' ORDER BY id LIMIT 1`
   );
   return rows[0]?.id ?? undefined;
 }
