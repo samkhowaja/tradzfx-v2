@@ -1,17 +1,19 @@
-id: waqar_v2
-name: "Waqar Asim Scalp V2"
-version: "2.0.0"
+id: xauusd_v1
+name: "XAUUSD Engine-First Scalp V1"
+version: "1.0.0"
 description: >
-  ICT-based supply/demand scalp strategy.
-  1H decisional context, 15m trend bias, 1m entry after MSB/BOS + zone retest.
-  Only long in discount, only short in premium.
+  Gold-specific scalp strategy that leverages the engine-level improvements
+  from the XAUUSD analysis review: time-of-day edge, structural liquidity
+  pools, and higher minimum execution timeframe.
+  DXY alignment is optional; overlap session is excluded.
 
 filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP]
+  symbols: [XAUUSD]
+  sessions: [LONDON, NY, LATE_NY]
   timeWindows:
-    - { utcStart: "08:00", utcEnd: "09:00" }
-    - { utcStart: "14:00", utcEnd: "15:00" }
+    - { utcStart: "07:00", utcEnd: "09:00" }   # London continuation / Asia-range breakout
+    - { utcStart: "15:00", utcEnd: "16:30" }   # Late NY onset (avoid 13:00-14:30 NY open chop)
+    - { utcStart: "18:00", utcEnd: "21:00" }   # Late NY trend window
 
 setup:
   - id: htf_zone
@@ -38,24 +40,38 @@ setup:
     required: true
     weight: 10
 
+  - id: time_of_day_edge
+    feature: features_time_of_day_edge
+    tf: 15m
+    predicate: "edge IN ('STRONG', 'GOOD', 'NEUTRAL')"
+    required: true
+    weight: 9
+
 entry:
   - id: structure_break
     feature: features_structure
-    tf: 1m
+    tf: 5m
     predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
     required: true
     weight: 10
 
   - id: zone_retest
     feature: features_zone
-    tf: 1m
+    tf: 5m
     predicate: "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND tapped = false"
     required: true
     weight: 10
 
+  - id: liquidity_pool_sweep
+    feature: features_liquidity_pools
+    tf: 5m
+    predicate: "recent_sweep_matched = true"
+    required: true
+    weight: 9
+
   - id: displacement_confirm
     feature: features_displacement
-    tf: 1m
+    tf: 5m
     predicate: "grade IN ('MEDIUM', 'HIGH')"
     required: false
     weight: 5
@@ -65,12 +81,12 @@ entry:
     tf: 15m
     predicate: "reference_symbol = 'DXY' AND divergence_detected = false"
     required: false
-    weight: 6
+    weight: 4
 
 risk:
-  sl: "atr(1m) * 1.2"
+  sl: "atr(5m) * 1.5"
   tp: "sl * 3.0"
-  minRR: 3.0
+  minRR: 2.5
   timeoutBars: 180
   maxFillBars: 45
 
@@ -78,23 +94,23 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 2.0
+      maxAtr5: 3.0
 
   - id: spread_gate
     name: spread
     params:
-      maxSpreadPips: 3.0
+      maxSpreadPips: 5.0
 
   - id: portfolio_heat
     name: portfolioHeat
     params:
-      maxConcurrentPerSymbol: 2
-      maxConcurrentTotal: 6
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 4
 
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP]
+      allowed: [LONDON, NY, LATE_NY]
 
 live:
   mode: paper
@@ -103,17 +119,16 @@ live:
   accountBalance: 10000
   accountCurrency: USD
   signalTtlMinutes: 15
-  maxSpreadPips: 3.0
-  maxSlippagePoints: 20
-  entryZonePips: null  # disabled for market orders; zone guard only makes sense for limit orders
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  entryZonePips: null
   maxPositionsPerSymbol: 1
-  maxPositionsTotal: 6
+  maxPositionsTotal: 4
   cooldownMinutes: 30
   structureFreshnessMinutes: 30
 
 notes:
-  - " STRICT EBOOK TRANSLATION"
-  - "Symbols: All 8 major pairs + gold"
-  - "Directional zone check is REQUIRED — replaces two optional zone checks"
-  - "SL uses ATR * 1.2 (~5-8 pips on forex during London)"
-  - "Single TP at 3R (no partials)"
+  - "Engine-first design: most logic lives in deterministic engine features."
+  - "Requires V2 DAG features: features_time_of_day_edge, features_liquidity_pools."
+  - "Overlap session excluded due to 22% WR in backtests."
+  - "Minimum execution TF raised to 5m to reduce 1m noise on Gold."

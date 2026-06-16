@@ -4,48 +4,49 @@
  */
 
 import type { Signal, StrategySpec, LiveExecutionConfig } from "@tm/shared";
+import { getPairCharacteristics, getPipValuePerLot } from "@tm/shared";
 
 export interface OrderExecutorConfig {
   /** Default live config (can be overridden per strategy) */
   defaultLive: LiveExecutionConfig;
 }
 
+function normalizeSide(side?: Signal["side"]): "buy" | "sell" | null {
+  if (side === "buy") return "buy";
+  if (side === "sell") return "sell";
+  return null;
+}
+
 /** Compute lot size from risk parameters */
 export function computeLotSize(
   entryPrice: number,
   stopLoss: number,
-  liveConfig: Partial<LiveExecutionConfig>
+  liveConfig: Partial<LiveExecutionConfig>,
+  symbol?: string,
+  side?: Signal["side"]
 ): number {
-  const { riskPerTradePct, accountBalance, lotSize: fixedLotSize, accountCurrency } = liveConfig;
+  const { riskPerTradePct, accountBalance, lotSize: fixedLotSize } = liveConfig;
 
   // If risk-based sizing is disabled or no balance, use fixed lot size
   if (!riskPerTradePct || !accountBalance || riskPerTradePct <= 0) {
     return fixedLotSize ?? 0.01;
   }
 
-  const riskAmount = accountBalance * (riskPerTradePct / 100);
+  let effectiveRiskPct = riskPerTradePct;
+  if (symbol) {
+    const pc = getPairCharacteristics(symbol);
+    const normalizedSide = side ? normalizeSide(side) : null;
+    if (pc.sideAsymmetry && normalizedSide === "buy") {
+      effectiveRiskPct = riskPerTradePct * (pc.sideAsymmetry.longSizePct / 100);
+    }
+  }
+
+  const riskAmount = accountBalance * (effectiveRiskPct / 100);
   const slDistance = Math.abs(entryPrice - stopLoss);
 
-  // Pip value calculation (simplified for forex majors)
-  // For most pairs: 1 pip = 0.0001, 1 standard lot = $10/pip
-  // For JPY pairs: 1 pip = 0.01, 1 standard lot = ~$10/pip
-  // For XAUUSD: 1 pip = 0.01, 1 standard lot = ~$10/pip (0.01 = $0.01/oz, 100 oz = $1/pip)
-  const isJpy = entryPrice > 50 && entryPrice < 200; // JPY pairs
-  const isGold = entryPrice > 1000; // XAUUSD
-
-  let pipSize: number;
-  let pipValuePerLot: number;
-
-  if (isGold) {
-    pipSize = 0.01;
-    pipValuePerLot = 1.0; // Approximate for XAUUSD with 0.01 lot
-  } else if (isJpy) {
-    pipSize = 0.01;
-    pipValuePerLot = 10.0; // $10 per pip per standard lot
-  } else {
-    pipSize = 0.0001;
-    pipValuePerLot = 10.0; // $10 per pip per standard lot
-  }
+  const pc = symbol ? getPairCharacteristics(symbol) : null;
+  const pipSize = pc?.pipSize ?? (entryPrice > 1000 ? 0.01 : entryPrice > 50 && entryPrice < 200 ? 0.01 : 0.0001);
+  const pipValuePerLot = symbol ? getPipValuePerLot(symbol) : 10.0;
 
   const slPips = slDistance / pipSize;
   if (slPips <= 0) return fixedLotSize ?? 0.01;
@@ -81,10 +82,8 @@ export function buildOrderInput(
 ) {
   const live: Partial<LiveExecutionConfig> = { ...DEFAULT_LIVE, ...spec.live, ...overrides };
 
-  const lotSize = computeLotSize(signal.entryPrice, signal.stopLoss, live);
-  const expiresAt = new Date(
-    Date.now() + (live.signalTtlMinutes ?? 15) * 60 * 1000
-  );
+  const lotSize = computeLotSize(signal.entryPrice, signal.stopLoss, live, signal.symbol, signal.side);
+  const expiresAt = new Date(Date.now() + (live.signalTtlMinutes ?? 15) * 60 * 1000);
 
   return {
     symbol: signal.symbol,

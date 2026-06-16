@@ -30,6 +30,8 @@ import { bollingerFeature } from "./features/bollinger";
 import { keltnerFeature } from "./features/keltner";
 import { ifvgFeature } from "./features/ifvg";
 import { correlationFeature } from "./features/correlation";
+import { timeOfDayEdgeFeature } from "./features/timeOfDayEdge";
+import { liquidityPoolsFeature } from "./features/liquidityPools";
 
 globalDAG.register(atrFeature);
 globalDAG.register(pivotFeature);
@@ -52,6 +54,8 @@ globalDAG.register(bollingerFeature);
 globalDAG.register(keltnerFeature);
 globalDAG.register(ifvgFeature);
 globalDAG.register(correlationFeature);
+globalDAG.register(timeOfDayEdgeFeature);
+globalDAG.register(liquidityPoolsFeature);
 
 export { globalDAG, DAGRunner };
 export * from "./features/atr";
@@ -75,6 +79,8 @@ export * from "./features/bollinger";
 export * from "./features/keltner";
 export * from "./features/ifvg";
 export * from "./features/correlation";
+export * from "./features/timeOfDayEdge";
+export * from "./features/liquidityPools";
 
 // CLI entry point
 async function main() {

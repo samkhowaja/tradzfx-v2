@@ -5,3 +5,4 @@ export * from "./utils/db";
 export * from "./utils/hash";
 export * from "./utils/snapshots";
 export * from "./utils/time";
+export * from "./pairs/pairCharacteristics";

@@ -128,6 +128,45 @@ export interface SessionOutput {
   utcHour: number;
 }
 
+export type TimeOfDayEdge = "STRONG" | "GOOD" | "NEUTRAL" | "WEAK" | "AVOID";
+
+export interface TimeOfDayEdgeOutput {
+  edge: TimeOfDayEdge;
+  score: number; // 0-100
+  session: "ASIA" | "LONDON" | "OVERLAP" | "NY" | "LATE_NY";
+  reasons: string[];
+  lowSample?: boolean;
+}
+
+export type LiquidityPoolKind =
+  | "asian_high"
+  | "asian_low"
+  | "london_high"
+  | "london_low"
+  | "prev_day_high"
+  | "prev_day_low"
+  | "prev_week_high"
+  | "prev_week_low"
+  | "round_number";
+
+export interface LiquidityPool {
+  kind: LiquidityPoolKind;
+  label: string;
+  price: number;
+  distance: number;
+  strength: number;
+  interval?: number;
+}
+
+export interface LiquidityPoolsOutput {
+  pools: LiquidityPool[];
+  nearestAbove: LiquidityPool | null;
+  nearestBelow: LiquidityPool | null;
+  roundNumbers: LiquidityPool[];
+  /** True if the most recent sweep touched a recognized structural pool. */
+  recentSweepMatched?: boolean;
+}
+
 export interface DisplacementOutput {
   grade: "NONE" | "LOW" | "MEDIUM" | "HIGH";
   direction: Direction;
