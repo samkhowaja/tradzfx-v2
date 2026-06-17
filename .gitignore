@@ -20,6 +20,7 @@ backups/
 downloads/
 reports/
 data/
+temp/
 
 # Generated knowledge-graph workspace (curated snapshots live in docs/graphify)
 graphify-out/
