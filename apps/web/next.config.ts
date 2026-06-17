@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
       { source: "/api/ingest/mt5/work/:path*", destination: "/api/ingest/work/:path*" },
       // V1 EA compat: trade sync endpoint
       { source: "/api/mt5/trades", destination: "/api/mt5/trades-compat" },
-      // V1 EA compat: commands endpoint
-      { source: "/api/mt5/commands", destination: "/api/mt5/commands-compat" },
       // V1 EA compat: commands ack endpoint
       { source: "/api/mt5/commands/ack", destination: "/api/mt5/commands-ack-compat" },
     ];

@@ -103,6 +103,8 @@ export interface LiveExecutionConfig {
   maxPositionsTotal: number;
   /** Cooldown in minutes — no re-entry on same symbol after close */
   cooldownMinutes: number;
+  /** Hard cap on individual order lot size (safety guard for small accounts) */
+  maxLot?: number;
   /** Max age of structure events (minutes) for live SQL freshness. 0 = disabled. */
   structureFreshnessMinutes?: number;
 }

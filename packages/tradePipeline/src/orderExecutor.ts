@@ -54,8 +54,15 @@ export function computeLotSize(
   const riskPerPip = riskAmount / slPips;
   const lots = riskPerPip / pipValuePerLot;
 
-  // Clamp to reasonable bounds
-  return Math.max(0.01, Math.min(lots, 50.0));
+  // Clamp to reasonable bounds. Allow strategies/env to enforce a smaller max
+  // lot size — critical for small accounts where tight stops + risk% can
+  // otherwise compute multi-lot orders.
+  const envMaxLot = process.env.MAX_LOT_PER_ORDER
+    ? Number(process.env.MAX_LOT_PER_ORDER)
+    : undefined;
+  const maxLot = liveConfig.maxLot ?? envMaxLot ?? 50.0;
+
+  return Math.max(0.01, Math.min(lots, maxLot));
 }
 
 /** Build createOrder input from a signal + strategy spec */

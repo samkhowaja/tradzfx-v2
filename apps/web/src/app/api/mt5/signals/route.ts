@@ -60,6 +60,8 @@ export async function GET(req: NextRequest) {
 
   // 5. Mark as sent and build EA response
   const signals: EaSignal[] = [];
+  let hasLive = false;
+  let hasPaper = false;
   for (const order of orders) {
     try {
       await markOrderSent(order.id);
@@ -67,6 +69,9 @@ export async function GET(req: NextRequest) {
       const expiresInSeconds = order.expires_at
         ? Math.max(0, Math.round((new Date(order.expires_at).getTime() - Date.now()) / 1000))
         : 0;
+
+      if (order.trade_mode === "live") hasLive = true;
+      else hasPaper = true;
 
       signals.push({
         signalId: order.id,
@@ -90,10 +95,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // If any order is live, report live so the EA does not paper-fill it.
+  const responseMode = hasLive ? "live" : hasPaper ? "paper" : "paper";
+
   return NextResponse.json({
     ok: true,
     signals,
     count: signals.length,
-    mode: "paper", // V2 starts in paper mode by default
+    mode: responseMode,
   });
 }

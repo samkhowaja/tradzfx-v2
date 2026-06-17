@@ -165,7 +165,18 @@ BEGIN
       meta.bucket_seconds,
       meta.offset_seconds
     );
-    RAISE NOTICE 'Backfilling candles_%', meta.tf;
-    EXECUTE sql_template;
+    -- Skip backfill if the target is already a continuous aggregate/view.
+    -- This makes the migration safe to re-run after migration 013 converts
+    -- the plain tables into TimescaleDB continuous aggregates.
+    PERFORM 1 FROM pg_class
+    WHERE relname = format('candles_%s', meta.tf)
+      AND relkind = 'r';
+
+    IF FOUND THEN
+      RAISE NOTICE 'Backfilling candles_%', meta.tf;
+      EXECUTE sql_template;
+    ELSE
+      RAISE NOTICE 'Skipping candles_% backfill (not a plain table)', meta.tf;
+    END IF;
   END LOOP;
 END $$;

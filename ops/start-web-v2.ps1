@@ -5,13 +5,13 @@
 
 .DESCRIPTION
   Assumes the V2 workspace has already been built (pnpm -r build).
-  Uses v2/ecosystem.config.js. If a tm-web-v2 process is already running,
+  Uses C:\tradzfx-v2\ecosystem.config.js. If a tm-web-v2 process is already running,
   this script will fail — use restart-web-v2.ps1 instead.
 #>
 
 $ErrorActionPreference = 'Stop'
 
-$V2Root = 'C:\TradeMentor\v2'
+$V2Root = 'C:\tradzfx-v2'
 
 # Ensure log directory exists
 $LogsDir = Join-Path $V2Root 'logs'

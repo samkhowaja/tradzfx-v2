@@ -6,15 +6,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
 
-export async function GET(request: NextRequest) {
-  const EXPECTED_API_KEY =
-    process.env.TM_MT5_API_KEY ??
-    process.env.MT5_API_KEY ??
-    "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+const EXPECTED_API_KEY =
+  process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+
+function auth(request: NextRequest) {
   const apiKey = request.headers.get("X-API-Key");
   if (apiKey !== EXPECTED_API_KEY) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const denied = auth(request);
+  if (denied) return denied;
 
   const symbol = request.nextUrl.searchParams.get("symbol") ?? "";
   const cleanSymbol = symbol.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
@@ -39,4 +46,22 @@ export async function GET(request: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  const denied = auth(request);
+  if (denied) return denied;
+
+  // Fire-and-forget status snapshot from the EA. We currently just ack it;
+  // future versions can persist terminal errors/symbols here.
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (body && typeof body === "object" && Array.isArray(body.errors) && body.errors.length > 0) {
+      console.warn("[mt5-status] EA reported errors:", body.errors);
+    }
+  } catch {
+    // ignore malformed body
+  }
+
+  return NextResponse.json({ ok: true });
 }

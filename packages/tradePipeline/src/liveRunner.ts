@@ -8,6 +8,7 @@
 
 import type { Pool } from "@tm/shared";
 import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig } from "@tm/shared";
+import { checkSmallAccountGate } from "@tm/shared";
 import { DecisionGraph } from "./decisionGraph";
 import { buildOrderInput } from "./orderExecutor";
 import { createVolatilityGate } from "./gates/volatilityGate";
@@ -336,7 +337,21 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     };
   }
 
-  // 6. Create order
+  // 6. Small-account safety guard (V1-inspired position manager).
+  //    Enforces max 1 position per symbol / 1 total, daily loss limit,
+  //    cooldown, and consecutive-loss circuit breaker.
+  const smallAccountGate = await checkSmallAccountGate(pool, symbol);
+  if (!smallAccountGate.ok) {
+    return {
+      trace,
+      signal,
+      orderCreated: false,
+      liveSignalId,
+      reason: smallAccountGate.reason,
+    };
+  }
+
+  // 7. Create order
   try {
     const orderInput = buildOrderInput(signal, strategySpec, trace.runId, liveOverrides);
     const order = await createOrder(orderInput);

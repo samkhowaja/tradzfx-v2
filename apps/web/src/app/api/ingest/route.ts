@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
 import { checkAndTriggerAllActive } from "@/lib/pipelineTrigger";
+import { emitNinjaTurtleSignals } from "@/lib/robots/ninjaTurtleEmitter";
+import { runNinjaTurtleTrailMonitor } from "@/lib/robots/ninjaTurtleTrailMonitor";
 
 interface V2Bar {
   time: number;
@@ -163,6 +165,16 @@ export async function POST(request: NextRequest) {
     // Iterates all active live deployments (falls back to waqar_v2 if none).
     checkAndTriggerAllActive(cleanSymbol).catch((err) => {
       console.error("[ingest] Pipeline trigger failed:", err.message);
+    });
+
+    // Run robot strategies (e.g., Ninja Turtle Scalper) asynchronously.
+    emitNinjaTurtleSignals(pool, cleanSymbol).catch((err) => {
+      console.error("[ingest] Ninja Turtle emitter failed:", err.message);
+    });
+
+    // Update server-side trailing stops for robot positions.
+    runNinjaTurtleTrailMonitor().catch((err) => {
+      console.error("[ingest] Ninja Turtle trail monitor failed:", err.message);
     });
 
     return NextResponse.json({

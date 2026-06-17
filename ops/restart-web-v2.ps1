@@ -6,7 +6,7 @@
 .DESCRIPTION
   1. Builds the entire V2 workspace (pnpm -r build).
   2. Stops any existing tm-web-v2 PM2 process.
-  3. Starts tm-web-v2 via v2/ecosystem.config.js.
+  3. Starts tm-web-v2 via C:\tradzfx-v2\ecosystem.config.js.
 
   Run this after code or migration changes. Total build time is several minutes,
   so consider running it in a background task during quiet hours.
@@ -14,7 +14,7 @@
 
 $ErrorActionPreference = 'Stop'
 
-$V2Root = 'C:\TradeMentor\v2'
+$V2Root = 'C:\tradzfx-v2'
 
 # Ensure log directory exists
 $LogsDir = Join-Path $V2Root 'logs'
@@ -33,6 +33,7 @@ if ($LASTEXITCODE -ne 0) { throw "pnpm -r build failed" }
 
 Write-Host "Restarting tm-web-v2 under PM2..." -ForegroundColor Cyan
 & pm2 delete tm-web-v2
+& pm2 delete tm-web-v2-ninja-trail
 # pm2 delete returns non-zero if the process does not exist; ignore that.
 
 & pm2 start ecosystem.config.js
