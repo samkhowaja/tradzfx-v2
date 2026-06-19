@@ -1,0 +1,113 @@
+id: waqar_v2_loose
+active: true
+name: "Waqar Asim Scalp V2 — No Time Window"
+version: "2.1.0"
+description: >
+  Same multi-timeframe logic as waqar_v2, but removes the tight 08:00-09:00 /
+  14:00-15:00 UTC windows so it can fire throughout the London and overlap sessions.
+
+filters:
+  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
+  sessions: [LONDON, OVERLAP]
+
+setup:
+  - id: htf_zone
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind IN ('demand', 'supply')"
+    required: true
+    weight: 8
+
+  - id: trend_bias
+    feature: features_bias
+    tf: 15m
+    predicate: "direction != 'neutral'"
+    required: true
+    weight: 8
+
+  - id: directional_zone
+    feature: features_pricing
+    tf: 4h
+    predicate: |
+      (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
+      OR
+      (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
+    required: true
+    weight: 10
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
+    required: true
+    weight: 10
+
+  - id: zone_retest
+    feature: features_zone
+    tf: 1m
+    predicate: "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND tapped = false"
+    required: true
+    weight: 10
+
+  - id: displacement_confirm
+    feature: features_displacement
+    tf: 1m
+    predicate: "grade IN ('MEDIUM', 'HIGH')"
+    required: false
+    weight: 5
+
+  - id: dxy_alignment
+    feature: features_correlation
+    tf: 15m
+    predicate: "reference_symbol = 'DXY' AND divergence_detected = false"
+    required: false
+    weight: 6
+
+risk:
+  sl: "atr(1m) * 1.2"
+  tp: "sl * 3.0"
+  minRR: 3.0
+  timeoutBars: 180
+  maxFillBars: 45
+
+gates:
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtr5: 2.0
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 2
+      maxConcurrentTotal: 6
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [LONDON, OVERLAP]
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 6
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 30
+
+notes:
+  - "Removes the narrow time windows from the base spec"
+  - "Trades the full London / overlap window"

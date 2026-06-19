@@ -3,7 +3,7 @@
  * Applies SQL migrations from v2/infra/migrations/ in order.
  */
 
-import { getPool, closePool } from "@tm/shared";
+import { getPool, closePool } from "../packages/shared/src/utils/db";
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 

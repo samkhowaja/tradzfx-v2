@@ -56,7 +56,7 @@ function findPivots(candles: Candle[], lookback: number = 5): PivotOutput["pivot
 
 export const pivotFeature: FeatureDefinition<PivotInput, PivotOutput> = {
   name: "features_pivot",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): PivotOutput {

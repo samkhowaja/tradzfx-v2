@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Panel } from "@/components/ui/Panel";
 import { formatNumber } from "@/lib/format";
 
@@ -13,9 +14,7 @@ export function EquityChart({ equity }: { equity: EquityPoint[] }) {
   if (equity.length < 2) {
     return (
       <Panel title="Equity Curve (30d)">
-        <div className="py-8 text-center text-text-dim text-sm">
-          Not enough data
-        </div>
+        <div className="py-8 text-center text-sm text-text-dim">Not enough data</div>
       </Panel>
     );
   }
@@ -40,10 +39,11 @@ export function EquityChart({ equity }: { equity: EquityPoint[] }) {
   const points = cumulative.map((v, i) => {
     const x = padding.left + (i / (cumulative.length - 1)) * chartW;
     const y = padding.top + chartH - ((v - min) / range) * chartH;
-    return `${x},${y}`;
+    return { x, y };
   });
 
-  const areaPoints = `${points[0].split(",")[0]},${padding.top + chartH} ${points.join(" ")} ${points[points.length - 1].split(",")[0]},${padding.top + chartH}`;
+  const lineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const areaPoints = `${points[0].x},${padding.top + chartH} ${points.map((p) => `${p.x},${p.y}`).join(" ")} ${points[points.length - 1].x},${padding.top + chartH}`;
 
   const yTicks = 4;
   const yLines = Array.from({ length: yTicks + 1 }, (_, i) => {
@@ -87,19 +87,25 @@ export function EquityChart({ equity }: { equity: EquityPoint[] }) {
           ))}
 
           {/* Area */}
-          <polygon
+          <motion.polygon
             points={areaPoints}
             fill="rgba(59, 130, 246, 0.08)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           />
 
           {/* Line */}
-          <polyline
+          <motion.path
+            d={lineD}
             fill="none"
             stroke="#3b82f6"
             strokeWidth={1.5}
-            points={points.join(" ")}
             strokeLinecap="round"
             strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
           />
 
           {/* X labels */}
@@ -109,8 +115,7 @@ export function EquityChart({ equity }: { equity: EquityPoint[] }) {
               const i = idx * xStep;
               const x =
                 padding.left +
-                (Math.min(i, equity.length - 1) / (equity.length - 1)) *
-                  chartW;
+                (Math.min(i, equity.length - 1) / (equity.length - 1)) * chartW;
               return (
                 <text
                   key={i}

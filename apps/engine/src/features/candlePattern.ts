@@ -244,7 +244,7 @@ function detectPatterns(candles: Candle[]): CandlePatternOutput["patterns"] {
 
 export const candlePatternFeature: FeatureDefinition<CandlePatternInput, CandlePatternOutput> = {
   name: "features_candle_pattern",
-  version: "1.2.0",
+  version: "1.3.0",
   dependencies: [],
 
   compute(input): CandlePatternOutput {

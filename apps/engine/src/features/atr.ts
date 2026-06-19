@@ -32,7 +32,7 @@ function computeATR(candles: Candle[], period: number): number {
 
 export const atrFeature: FeatureDefinition<AtrInput, AtrOutput> = {
   name: "features_atr",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): AtrOutput {

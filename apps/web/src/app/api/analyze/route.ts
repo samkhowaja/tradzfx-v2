@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
 
+async function safeQuery(
+  pool: any,
+  text: string,
+  params: any[],
+  fallback: { rows: any[] } = { rows: [] }
+): Promise<{ rows: any[] }> {
+  try {
+    return await pool.query(text, params);
+  } catch (err: any) {
+    // 42P01 = undefined table, 42703 = undefined column
+    if (err?.code === "42P01" || err?.code === "42703") {
+      console.warn(`[analyze] skipping query: ${err.message}`);
+      return fallback;
+    }
+    throw err;
+  }
+}
+
 const VALID_TFS = ["1m", "5m", "15m", "1h", "4h", "1d"];
 const TF_MS: Record<string, number> = {
   "1m": 60_000,
@@ -75,36 +93,109 @@ export async function GET(request: Request) {
       : aggregateCandles(deduped, tf);
 
   // ── Features from V2 feature tables ──
-  const [{ rows: biasRows }, { rows: structureRows }, { rows: zoneRows },
-         { rows: pricingRows }, { rows: pivotRows }, { rows: atrRows },
-         { rows: sweepRows }] = await Promise.all([
-    pool.query(
-      `SELECT direction, confidence, reason FROM features_bias WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
-      [symbol]
+  const [
+    { rows: biasRows },
+    { rows: structureRows },
+    { rows: zoneRows },
+    { rows: ifvgRows },
+    { rows: pricingRows },
+    { rows: pivotRows },
+    { rows: atrRows },
+    { rows: sweepRows },
+    { rows: liquidityPoolRows },
+    { rows: displacementRows },
+    { rows: candlePatternRows },
+    { rows: movingAverageRows },
+    { rows: bollingerRows },
+    { rows: keltnerRows },
+    { rows: zoneRetestRows },
+    { rows: orderBlockRows },
+    { rows: eqLiquidityRows },
+  ] = await Promise.all([
+    safeQuery(
+      pool,
+      `SELECT direction, confidence, reason FROM features_bias WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 1`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT ts, event_type, direction, level FROM features_structure WHERE symbol = $1 ORDER BY ts DESC LIMIT 5`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT ts, event_type, direction, level, invalidated_at FROM features_structure WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 5`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT ts, zone_kind, top, bottom, fill_pct, tapped FROM features_zone WHERE symbol = $1 AND tapped = false ORDER BY ts DESC LIMIT 10`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT ts, zone_kind, direction, top, bottom, fill_pct, tapped, mitigated_at, invalidated_at FROM features_zone WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT position, in_ote FROM features_pricing WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT ts, direction, top, bottom, fill_pct, tapped, originating_zone_ts, mitigated_at, invalidated_at FROM features_ifvg WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT ts, kind, price, confidence FROM features_pivot WHERE symbol = $1 ORDER BY ts DESC LIMIT 10`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT position, in_ote, ote_low, ote_high FROM features_pricing WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 1`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT period, value FROM features_atr WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT ts, kind, price, confidence FROM features_pivot WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
     ),
-    pool.query(
-      `SELECT ts, direction, level FROM features_sweep WHERE symbol = $1 ORDER BY ts DESC LIMIT 5`,
-      [symbol]
+    safeQuery(
+      pool,
+      `SELECT period, value FROM features_atr WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 1`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, direction, level, mitigated_at FROM features_sweep WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 5`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT kind, side, label, price, distance, strength, interval, recent_sweep_matched FROM features_liquidity_pools WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 20`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, grade, direction, body_pct, consecutive_count, sequence_grade FROM features_displacement WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 5`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, pattern_name, direction, confidence, body_pct_of_atr, shadow_pct_of_atr FROM features_candle_pattern WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ma_type, period, value FROM features_moving_average WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT period, multiplier, upper_band, middle_band, lower_band, bandwidth, percent_b FROM features_bollinger WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 5`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ema_period, atr_period, multiplier, upper_channel, middle_channel, lower_channel FROM features_keltner WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 5`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, zone_kind, top, bottom, wick_into_zone, close_inside_zone, engulfing_at_zone, direction FROM features_zone_retest WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, ob_kind, degree, top, bottom, formation_ts, age_bars, is_fresh, strength_score, mitigated_at, invalidated_at FROM features_order_block WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 10`,
+      [symbol, tf]
+    ),
+    safeQuery(
+      pool,
+      `SELECT ts, kind, price, strength, touched FROM features_eq_liquidity WHERE symbol = $1 AND tf = $2 ORDER BY ts DESC LIMIT 20`,
+      [symbol, tf]
     ),
   ]);
 
@@ -117,7 +208,12 @@ export async function GET(request: Request) {
         }
       : null,
     pricing: pricingRows[0]
-      ? { position: pricingRows[0].position, in_ote: !!pricingRows[0].in_ote }
+      ? {
+          position: pricingRows[0].position,
+          in_ote: !!pricingRows[0].in_ote,
+          ote_low: pricingRows[0].ote_low,
+          ote_high: pricingRows[0].ote_high,
+        }
       : null,
     atr: atrRows[0] ? { value: atrRows[0].value, period: atrRows[0].period } : null,
     structure: structureRows.map((r: any) => ({
@@ -125,14 +221,29 @@ export async function GET(request: Request) {
       event_type: r.event_type,
       direction: r.direction,
       level: r.level,
+      invalidated_at: r.invalidated_at?.toISOString() ?? null,
     })),
     zones: zoneRows.map((r: any) => ({
       ts: r.ts.toISOString(),
       zone_kind: r.zone_kind,
+      direction: r.direction ?? null,
       top: r.top,
       bottom: r.bottom,
       fill_pct: r.fill_pct ?? 0,
       tapped: !!r.tapped,
+      mitigated_at: r.mitigated_at?.toISOString() ?? null,
+      invalidated_at: r.invalidated_at?.toISOString() ?? null,
+    })),
+    ifvgs: ifvgRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      originating_zone_ts: r.originating_zone_ts?.toISOString() ?? r.ts.toISOString(),
+      direction: r.direction,
+      top: r.top,
+      bottom: r.bottom,
+      fill_pct: r.fill_pct ?? 0,
+      tapped: !!r.tapped,
+      mitigated_at: r.mitigated_at?.toISOString() ?? null,
+      invalidated_at: r.invalidated_at?.toISOString() ?? null,
     })),
     pivots: pivotRows.map((r: any) => ({
       ts: r.ts.toISOString(),
@@ -144,11 +255,95 @@ export async function GET(request: Request) {
       ts: r.ts.toISOString(),
       direction: r.direction,
       level: r.level,
+      mitigated_at: r.mitigated_at?.toISOString() ?? null,
+    })),
+    liquidityPools: liquidityPoolRows.map((r: any) => ({
+      kind: r.kind,
+      side: r.side ?? null,
+      label: r.label,
+      price: r.price,
+      distance: r.distance,
+      strength: r.strength,
+      interval: r.interval,
+      recent_sweep_matched: !!r.recent_sweep_matched,
+    })),
+    displacement: displacementRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      grade: r.grade,
+      direction: r.direction,
+      body_pct: r.body_pct,
+      consecutive_count: r.consecutive_count,
+      sequence_grade: r.sequence_grade,
+    })),
+    candlePatterns: candlePatternRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      pattern_name: r.pattern_name,
+      direction: r.direction,
+      confidence: r.confidence,
+      body_pct_of_atr: r.body_pct_of_atr,
+      shadow_pct_of_atr: r.shadow_pct_of_atr,
+    })),
+    movingAverages: movingAverageRows.map((r: any) => ({
+      ma_type: r.ma_type,
+      period: r.period,
+      value: r.value,
+    })),
+    bollinger: bollingerRows[0]
+      ? {
+          period: bollingerRows[0].period,
+          multiplier: bollingerRows[0].multiplier,
+          upper: bollingerRows[0].upper_band,
+          middle: bollingerRows[0].middle_band,
+          lower: bollingerRows[0].lower_band,
+          bandwidth: bollingerRows[0].bandwidth,
+          percent_b: bollingerRows[0].percent_b,
+        }
+      : null,
+    keltner: keltnerRows[0]
+      ? {
+          ema_period: keltnerRows[0].ema_period,
+          atr_period: keltnerRows[0].atr_period,
+          multiplier: keltnerRows[0].multiplier,
+          upper: keltnerRows[0].upper_channel,
+          middle: keltnerRows[0].middle_channel,
+          lower: keltnerRows[0].lower_channel,
+        }
+      : null,
+    zoneRetests: zoneRetestRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      zone_kind: r.zone_kind,
+      top: r.top,
+      bottom: r.bottom,
+      wick_into_zone: !!r.wick_into_zone,
+      close_inside_zone: !!r.close_inside_zone,
+      engulfing_at_zone: !!r.engulfing_at_zone,
+      direction: r.direction,
+    })),
+    orderBlocks: orderBlockRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      ob_kind: r.ob_kind,
+      degree: r.degree,
+      top: r.top,
+      bottom: r.bottom,
+      formation_ts: r.formation_ts?.toISOString() ?? r.ts.toISOString(),
+      age_bars: r.age_bars ?? 0,
+      is_fresh: !!r.is_fresh,
+      strength_score: r.strength_score ?? 0,
+      mitigated_at: r.mitigated_at?.toISOString() ?? null,
+      invalidated_at: r.invalidated_at?.toISOString() ?? null,
+    })),
+    eqLiquidity: eqLiquidityRows.map((r: any) => ({
+      ts: r.ts.toISOString(),
+      kind: r.kind,
+      price: r.price,
+      strength: r.strength ?? 0,
+      touched: !!r.touched,
     })),
   };
 
   // ── Signals ──
-  const { rows: signals } = await pool.query(
+  const { rows: signals } = await safeQuery(
+    pool,
     `
     SELECT id, side, entry_price, stop_loss, take_profit, status, outcome, outcome_r, created_at, filled_at, closed_at
     FROM orders

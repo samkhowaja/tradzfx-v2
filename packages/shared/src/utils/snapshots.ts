@@ -133,6 +133,13 @@ export async function getOrCreateLiveDeployment(
   mode: "paper" | "live" = "paper",
   metadata?: Record<string, unknown>
 ): Promise<DeploymentMatch> {
+  // Serialize per strategy/mode so concurrent ingest triggers can't create
+  // multiple active deployments.
+  await pool.query("SELECT pg_advisory_xact_lock(hashtext($1 || ':' || $2))", [
+    strategyId,
+    mode,
+  ]);
+
   // Look for an active deployment with the exact same snapshots.
   const { rows: active } = await pool.query(
     `SELECT deployment_id

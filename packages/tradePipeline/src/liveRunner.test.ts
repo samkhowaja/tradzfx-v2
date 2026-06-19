@@ -33,11 +33,13 @@ function freshnessHandlers(): QueryHandler[] {
   return [
     { match: /SELECT MAX\(ts\).*FROM features_atr/i, rows: [{ max_ts: now }] },
     { match: /SELECT MAX\(ts\).*FROM features_session/i, rows: [{ max_ts: now }] },
+    { match: /SELECT MAX\(ts\).*FROM features_spread/i, rows: [{ max_ts: now }] },
   ];
 }
 
 function featureHandlers(session = "LONDON"): QueryHandler[] {
   return [
+    { match: /FROM mt5_terminals/i, rows: [{ balance: 10000 }] },
     { match: /FROM features_atr/i, rows: [{ period: 14, value: "0.0005" }] },
     { match: /FROM features_session/i, rows: [{ session, utc_hour: 8 }] },
     { match: /FROM features_pricing/i, rows: [{ position: "discount", in_ote: true, ote_low: "1.0900", ote_high: "1.0950" }] },
@@ -130,7 +132,7 @@ describe("runLivePipeline", () => {
 
     expect(result.reason).toBe("no_signal");
     expect(result.orderCreated).toBeUndefined();
-    expect(fakePool.query).toHaveBeenCalledTimes(3);
+    expect(fakePool.query).toHaveBeenCalledTimes(4);
   });
 
   it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {

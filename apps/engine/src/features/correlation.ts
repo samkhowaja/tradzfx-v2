@@ -120,7 +120,7 @@ function computeCorrelation(
 
 export const correlationFeature: FeatureDefinition<CorrelationInput, CorrelationOutput> = {
   name: "features_correlation",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
   referenceSymbols: ["DXY"],
 

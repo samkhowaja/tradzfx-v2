@@ -10,6 +10,15 @@ export interface PricingInput {
   candles: Candle[];
 }
 
+function getPipSize(symbol: string, digits?: number): number {
+  if (typeof digits === "number" && digits > 0) {
+    return Math.pow(10, 1 - digits);
+  }
+  if (symbol.includes("JPY")) return 0.01;
+  if (symbol.includes("XAU") || symbol.includes("GOLD")) return 0.1;
+  return 0.0001;
+}
+
 function computePricing(candles: Candle[]): PricingOutput {
   if (candles.length < 20) return {};
 
@@ -61,12 +70,13 @@ function computePricing(candles: Candle[]): PricingOutput {
     oteHigh,
     lltTarget,
     balanced,
+    pipSize: getPipSize(last.symbol, last.digits),
   };
 }
 
 export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
   name: "features_pricing",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): PricingOutput {
@@ -83,7 +93,7 @@ export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
 
   hashOutput(output): string {
     return sha256(
-      `${output.position}:${output.fibPosition}:${output.inOte}:${output.oteLow}:${output.oteHigh}`
+      `${output.position}:${output.fibPosition}:${output.inOte}:${output.oteLow}:${output.oteHigh}:${output.pipSize}`
     );
   },
 
@@ -97,6 +107,7 @@ export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
         ote_high: output.oteHigh,
         llt_target: output.lltTarget ?? null,
         balanced: output.balanced ?? null,
+        pip_size: output.pipSize ?? null,
       },
     ];
   },
@@ -112,6 +123,7 @@ export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
       oteHigh: r.ote_high as number,
       lltTarget: r.llt_target as number | undefined,
       balanced: r.balanced as boolean | undefined,
+      pipSize: r.pip_size as number | undefined,
     };
   },
 };

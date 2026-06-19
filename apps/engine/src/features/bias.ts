@@ -80,7 +80,7 @@ function detectBias(
 
 export const biasFeature: FeatureDefinition<BiasInput, BiasOutput> = {
   name: "features_bias",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: ["features_structure"],
 
   compute(input): BiasOutput {

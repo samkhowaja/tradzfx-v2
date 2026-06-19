@@ -172,7 +172,7 @@ function computeEdge(symbol: string, utcHour: number): TimeOfDayEdgeOutput {
 
 export const timeOfDayEdgeFeature: FeatureDefinition<TimeOfDayEdgeInput, TimeOfDayEdgeOutput> = {
   name: "features_time_of_day_edge",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): TimeOfDayEdgeOutput {

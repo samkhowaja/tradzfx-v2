@@ -4,7 +4,7 @@
  */
 
 import type { Candle, FeatureDefinition, SweepOutput, Direction } from "@tm/shared";
-import { sha256 } from "@tm/shared";
+import { sha256, computeSweepLifecycle } from "@tm/shared";
 import type { PivotOutput } from "@tm/shared";
 
 export interface SweepInput {
@@ -61,11 +61,23 @@ function detectSweeps(
 
 export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
   name: "features_sweep",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: ["features_pivot"],
 
   compute(input): SweepOutput {
-    return { sweeps: detectSweeps(input.candles, input.features_pivot.pivots) };
+    const sweeps = detectSweeps(input.candles, input.features_pivot.pivots);
+    for (const sweep of sweeps) {
+      const idx = input.candles.findIndex((c) => c.ts.getTime() === sweep.ts.getTime());
+      if (idx >= 0) {
+        const lifecycle = computeSweepLifecycle(
+          { direction: sweep.direction, level: sweep.level },
+          input.candles,
+          idx
+        );
+        sweep.mitigatedAt = lifecycle.mitigatedAt;
+      }
+    }
+    return { sweeps };
   },
 
   hashInput(input): string {
@@ -82,7 +94,12 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
 
   hashOutput(output): string {
     return sha256(
-      output.sweeps.map((s) => `${s.ts.toISOString()}:${s.direction}:${s.level}:${s.extreme}:${s.close}`).join("|")
+      output.sweeps
+        .map(
+          (s) =>
+            `${s.ts.toISOString()}:${s.direction}:${s.level}:${s.extreme}:${s.close}:${s.mitigatedAt?.toISOString() ?? ""}`
+        )
+        .join("|")
     );
   },
 
@@ -94,6 +111,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       close: s.close,
       ts: s.ts,
       evidence: s.evidence ? JSON.stringify(s.evidence) : null,
+      mitigated_at: s.mitigatedAt ?? null,
     }));
   },
 
@@ -106,6 +124,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
         close: r.close as number,
         ts: new Date(r.ts as string),
         evidence: r.evidence ? JSON.parse(r.evidence as string) : undefined,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
       })),
     };
   },

@@ -31,7 +31,7 @@ const SESSION_WINDOWS = parseSessionWindows(process.env.SESSION_WINDOWS);
 
 export const sessionFeature: FeatureDefinition<SessionInput, SessionOutput> = {
   name: "features_session",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: [],
 
   compute(input): SessionOutput {

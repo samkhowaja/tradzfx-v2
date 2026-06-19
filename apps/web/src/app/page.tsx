@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { PageShell } from "@/components/layout/PageShell";
-import { Button } from "@/components/ui/Button";
+import { MotionButton } from "@/components/ui/MotionButton";
+import { SkeletonPanel } from "@/components/ui/Skeleton";
 import { PositionsTable } from "@/components/dashboard/PositionsTable";
 import { PerformanceSummary } from "@/components/dashboard/PerformanceSummary";
 import { EquityChart } from "@/components/dashboard/EquityChart";
@@ -10,6 +12,7 @@ import { SignalStream } from "@/components/dashboard/SignalStream";
 import { ActivityLog } from "@/components/dashboard/ActivityLog";
 import { StrategyStatus } from "@/components/dashboard/StrategyStatus";
 import { RejectionAnalytics } from "@/components/dashboard/RejectionAnalytics";
+import { staggerContainer, slideUp } from "@/lib/motion";
 
 interface DashboardData {
   positions: any[];
@@ -45,15 +48,23 @@ export default function DashboardPage() {
         ]);
 
       setData({
-        positions: positions.positions,
-        performance,
-        signals: signals.signals,
-        activity,
-        strategies: strategies.strategies,
-        rejections,
+        positions: positions.positions ?? [],
+        performance: performance ?? { summary: null, equity: [], byPair: [] },
+        signals: signals.signals ?? [],
+        activity: activity ?? { events: [] },
+        strategies: strategies.strategies ?? [],
+        rejections: rejections ?? {
+          overall: { total: "0", rejected: "0", filled: "0", closed: "0" },
+          byReason: [],
+          bySymbol: [],
+          byStrategy: [],
+          dailyTrend: [],
+          recent: [],
+        },
       });
     } catch (e) {
       console.error("Dashboard fetch failed:", e);
+      setData(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -70,15 +81,15 @@ export default function DashboardPage() {
     return (
       <PageShell title="Command Center" subtitle="Loading...">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          <div className="lg:col-span-3 space-y-4">
+          <div className="space-y-4 lg:col-span-3">
             <SkeletonPanel />
             <SkeletonPanel />
           </div>
-          <div className="lg:col-span-6 space-y-4">
+          <div className="space-y-4 lg:col-span-6">
             <SkeletonPanel tall />
             <SkeletonPanel />
           </div>
-          <div className="lg:col-span-3 space-y-4">
+          <div className="space-y-4 lg:col-span-3">
             <SkeletonPanel />
             <SkeletonPanel />
           </div>
@@ -100,44 +111,54 @@ export default function DashboardPage() {
       title="Command Center"
       subtitle={`${data.positions.length} open · ${data.signals.length} recent signals · ${data.strategies.filter((s: any) => s.isActive).length} active strategies`}
       actions={
-        <Button onClick={fetchData} disabled={refreshing}>
+        <MotionButton onClick={fetchData} disabled={refreshing}>
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4"
+            animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+            transition={{
+              repeat: refreshing ? Infinity : 0,
+              duration: 1,
+              ease: "linear",
+            }}
+          >
+            <path
+              fillRule="evenodd"
+              d="M15.312 11.424a5 5 0 0 0-9.224-3.036A.75.75 0 0 1 4.992 7.65a6.5 6.5 0 1 1 9.874 3.892l.977 2.146a.75.75 0 0 1-1.365.622l-1.406-3.09a.75.75 0 0 1 .357-.992 5.001 5.001 0 0 0 1.873-1.804Z"
+              clipRule="evenodd"
+            />
+          </motion.svg>
           {refreshing ? "Refreshing…" : "Refresh"}
-        </Button>
+        </MotionButton>
       }
     >
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <motion.div
+        className="grid grid-cols-1 gap-4 lg:grid-cols-12"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
         {/* Left column */}
-        <div className="space-y-4 lg:col-span-3">
+        <motion.div className="space-y-4 lg:col-span-3" variants={slideUp}>
           <StrategyStatus strategies={data.strategies} />
           <PerformanceSummary summary={data.performance.summary} />
-        </div>
+        </motion.div>
 
         {/* Center column */}
-        <div className="space-y-4 lg:col-span-6">
+        <motion.div className="space-y-4 lg:col-span-6" variants={slideUp}>
           <PositionsTable positions={data.positions} />
           <EquityChart equity={data.performance.equity} />
-        </div>
+        </motion.div>
 
         {/* Right column */}
-        <div className="space-y-4 lg:col-span-3">
-          <SignalStream signals={data.signals} />
+        <motion.div className="space-y-4 lg:col-span-3" variants={slideUp}>
+          <SignalStream signals={data.signals.slice(0, 8)} />
           <ActivityLog events={data.activity.events} />
           <RejectionAnalytics data={data.rejections} />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </PageShell>
-  );
-}
-
-function SkeletonPanel({ tall = false }: { tall?: boolean }) {
-  return (
-    <div className="rounded-lg border border-border bg-panel p-4">
-      <div className="h-4 w-1/3 rounded bg-elevated animate-pulse" />
-      <div className={`mt-3 space-y-2 ${tall ? "h-32" : "h-16"}`}>
-        <div className="h-3 w-full rounded bg-elevated animate-pulse" />
-        <div className="h-3 w-2/3 rounded bg-elevated animate-pulse" />
-        <div className="h-3 w-3/4 rounded bg-elevated animate-pulse" />
-      </div>
-    </div>
   );
 }

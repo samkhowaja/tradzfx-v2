@@ -67,7 +67,7 @@ function computeCrosses(candles: Candle[]): EmaCrossOutput["crosses"] {
 
 export const emaCrossFeature: FeatureDefinition<EmaCrossInput, EmaCrossOutput> = {
   name: "features_ema_cross",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: [],
 
   compute(input): EmaCrossOutput {

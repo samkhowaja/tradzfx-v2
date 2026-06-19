@@ -42,7 +42,7 @@ function computeEMA(candles: Candle[], period: number): number {
 
 export const movingAverageFeature: FeatureDefinition<MovingAverageInput, MovingAverageOutput> = {
   name: "features_moving_average",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): MovingAverageOutput {

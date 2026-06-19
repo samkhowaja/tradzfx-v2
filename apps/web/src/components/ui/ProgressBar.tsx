@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { transitions } from "@/lib/motion";
+
 export function ProgressBar({
   value,
   max = 100,
@@ -33,9 +38,11 @@ export function ProgressBar({
         </div>
       )}
       <div className={`w-full rounded-full bg-elevated ${height}`}>
-        <div
-          className={`${height} rounded-full transition-all duration-500 ${toneClass}`}
-          style={{ width: `${pct}%` }}
+        <motion.div
+          className={`${height} rounded-full ${toneClass}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={transitions.springSoft}
         />
       </div>
     </div>

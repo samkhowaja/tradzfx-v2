@@ -10,8 +10,22 @@ import type {
   Candle,
   TimeFrame,
 } from "@tm/shared";
+
+const CANDLE_TABLE_BY_TF: Record<TimeFrame, string> = {
+  "1m": "candles_1m",
+  "5m": "candles_5m",
+  "15m": "candles_15m",
+  "1h": "candles_1h",
+  "4h": "candles_4h",
+  "1d": "candles_1d_utc",
+};
+
+export function getCandleTableForTf(tf: TimeFrame): string {
+  return CANDLE_TABLE_BY_TF[tf] ?? "candles_1m";
+}
 import { FeatureDAG, globalDAG } from "./graph";
 import { FeatureCache } from "./cache";
+import { updateLifecycleForSymbol } from "../lifecycleUpdater";
 
 export interface RunOptions {
   symbol: string;
@@ -74,10 +88,11 @@ export class DAGRunner {
 
     for (const feature of sorted) {
       const input = await this.buildInput(feature, opts, results);
-      // Include tf in the input hash so daily features cache per-tf
+      // Include symbol/tf/endTs in the input hash so context-sensitive features
+      // (e.g. HTF bias) do not collide across symbols or timestamps.
       const inputHash = opts.skipCache
-        ? `bulk:${opts.endTs.toISOString()}`
-        : `${feature.hashInput(input)}:${opts.tf}`;
+        ? `bulk:${opts.symbol}:${opts.tf}:${opts.endTs.toISOString()}`
+        : `${feature.hashInput(input)}:${opts.symbol}:${opts.tf}:${opts.endTs.toISOString()}`;
 
       // Try cache unless disabled
       if (!opts.skipCache) {
@@ -88,9 +103,16 @@ export class DAGRunner {
         }
       }
 
-      // Compute
+      // Compute (allow async features, e.g. HTF bias that queries the DB)
       const start = performance.now();
-      const output = feature.compute(input, { tf: opts.tf });
+      const output = await Promise.resolve(
+        feature.compute(input, {
+          tf: opts.tf,
+          pool: this.pool,
+          symbol: opts.symbol,
+          endTs: opts.endTs,
+        })
+      );
       const latency = performance.now() - start;
 
       const outputHash = opts.skipCache ? "" : feature.hashOutput(output);
@@ -118,6 +140,24 @@ export class DAGRunner {
           `[engine] Slow feature: ${feature.name} took ${latency.toFixed(1)}ms`
         );
       }
+    }
+
+    // Persist any batched rows before refreshing lifecycle so the refresh sees
+    // the latest feature rows.
+    await this.flush();
+
+    // Refresh lifecycle columns for all features that were just computed.
+    try {
+      await updateLifecycleForSymbol(this.pool, opts.symbol, {
+        asOf: opts.endTs,
+        lookbackDays: 10,
+        limit: 10000,
+      });
+    } catch (err: any) {
+      console.error(
+        `[engine] Lifecycle refresh failed for ${opts.symbol}:`,
+        err.message
+      );
     }
 
     return results;
@@ -163,7 +203,7 @@ export class DAGRunner {
 
   private async fetchCandles(
     symbol: string,
-    tf: string,
+    tf: TimeFrame,
     endTs: Date,
     count: number
   ): Promise<Candle[]> {
@@ -171,9 +211,10 @@ export class DAGRunner {
     const cached = this.candlesCache.get(key);
     if (cached) return cached;
 
+    const table = getCandleTableForTf(tf);
     const { rows } = await this.pool.query(
       `SELECT symbol, ts, o, h, l, c, v
-       FROM candles_1m
+       FROM ${table}
        WHERE symbol = $1 AND ts <= $2
        ORDER BY ts DESC
        LIMIT $3`,
@@ -190,6 +231,8 @@ export class DAGRunner {
           l: parseFloat(r.l),
           c: parseFloat(r.c),
           v: r.v ? parseInt(r.v, 10) : undefined,
+          spread: r.spread ? parseFloat(r.spread) : undefined,
+          digits: r.digits ? parseInt(r.digits, 10) : undefined,
         })
       )
       .reverse();

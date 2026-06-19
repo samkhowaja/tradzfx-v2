@@ -57,11 +57,13 @@ export interface StrategyCondition {
 }
 
 export interface RiskRules {
-  sl: string;           // formula: "atr(1m) * 1.2"
-  tp: string;           // formula: "sl * 3.0"
+  sl: string;           // formula: "atr(1m) * 1.2" or a price token
+  tp: string;           // formula: "sl * 3.0" or a price token
   minRR: number;
   timeoutBars: number;
   maxFillBars?: number;
+  /** Optional TP offset in pips (positive = beyond level, negative = inside level). */
+  tpOffsetPips?: number;
 }
 
 export interface GateConfig {

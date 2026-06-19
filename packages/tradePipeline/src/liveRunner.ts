@@ -7,8 +7,8 @@
  */
 
 import type { Pool } from "@tm/shared";
-import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig } from "@tm/shared";
-import { checkSmallAccountGate } from "@tm/shared";
+import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig, TimeFrame } from "@tm/shared";
+import { checkSmallAccountGate, sendTelegramMessage } from "@tm/shared";
 import { DecisionGraph } from "./decisionGraph";
 import { buildOrderInput } from "./orderExecutor";
 import { createVolatilityGate } from "./gates/volatilityGate";
@@ -83,14 +83,47 @@ async function fetchLatestSignal(
     return null;
   }
 
+  const entryPrice = parseFloat(r.entry_price);
+  const stopLoss = parseFloat(r.stop_loss);
+  const takeProfit = parseFloat(r.take_profit);
+
+  if (
+    !Number.isFinite(entryPrice) ||
+    !Number.isFinite(stopLoss) ||
+    !Number.isFinite(takeProfit) ||
+    entryPrice <= 0 ||
+    stopLoss <= 0 ||
+    takeProfit <= 0
+  ) {
+    console.warn(`[liveRunner] Invalid risk levels for ${r.symbol}:`, r);
+    return null;
+  }
+
+  if (entryPrice === stopLoss) {
+    console.warn(`[liveRunner] Zero SL distance for ${r.symbol}:`, r);
+    return null;
+  }
+
+  if (r.side === "buy") {
+    if (stopLoss >= entryPrice || takeProfit <= entryPrice) {
+      console.warn(`[liveRunner] Invalid long risk geometry for ${r.symbol}:`, r);
+      return null;
+    }
+  } else if (r.side === "sell") {
+    if (stopLoss <= entryPrice || takeProfit >= entryPrice) {
+      console.warn(`[liveRunner] Invalid short risk geometry for ${r.symbol}:`, r);
+      return null;
+    }
+  }
+
   return {
     symbol: r.symbol,
     strategyId: r.strategy_id ?? "unknown",
     side: r.side,
     entryType,
-    entryPrice: parseFloat(r.entry_price),
-    stopLoss: parseFloat(r.stop_loss),
-    takeProfit: parseFloat(r.take_profit),
+    entryPrice,
+    stopLoss,
+    takeProfit,
     ts: new Date(r.ts),
     confidence: 70,
     source: r as Record<string, unknown>,
@@ -230,6 +263,12 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   if (deploymentId) {
     try {
       liveSignalId = await insertLiveSignal(pool, deploymentId, signal);
+      await sendTelegramMessage(
+        `🟡 <b>Signal</b> ${signal.symbol} ${signal.side.toUpperCase()}\n` +
+          `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
+          `Entry: ${signal.entryPrice}\nSL: ${signal.stopLoss}\nTP: ${signal.takeProfit}`,
+        { disableNotification: true }
+      );
     } catch (err: any) {
       console.warn(`[liveRunner] failed to persist live_signal: ${err.message}`);
     }
@@ -265,7 +304,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   }
 
   // 3. Fetch latest features for gate evaluation
-  const features = await fetchLatestFeatures(pool, symbol, signal.ts);
+  const features = await fetchLatestFeatures(pool, symbol, signal.ts, strategySpec);
 
   // 3b. Fetch recent orders (last 24h) for rate-limit and daily P&L gates,
   //      plus active orders for portfolio heat gate.
@@ -366,6 +405,14 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       }
     }
 
+    await sendTelegramMessage(
+      `🟢 <b>Order created</b> ${orderInput.symbol} ${orderInput.side.toUpperCase()}\n` +
+        `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
+        `Mode: ${orderInput.trade_mode}\n` +
+        `Entry: ${orderInput.entry_price}\nSL: ${orderInput.stop_loss}\nTP: ${orderInput.take_profit}\n` +
+        `Lot: ${orderInput.lot_size}`
+    );
+
     return {
       trace,
       signal,
@@ -375,6 +422,11 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       liveOrderId,
     };
   } catch (err: any) {
+    await sendTelegramMessage(
+      `🔴 <b>Order creation failed</b> ${signal.symbol} ${signal.side.toUpperCase()}\n` +
+        `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
+        `Error: ${err.message}`
+    );
     return {
       trace,
       signal,
@@ -396,25 +448,29 @@ async function checkFeatureFreshness(
 ): Promise<{ ok: boolean; reason?: string; latencyMs: number }> {
   const start = performance.now();
 
-  // Extract unique (feature, tf) pairs from setup + entry + filters
-  const required = new Map<string, string>(); // featureName -> tf
+  // Extract every unique (feature, tf) pair from setup + entry + filters.
+  // Using a Set keyed by "feature@tf" ensures strategies that reference the
+  // same feature on multiple timeframes are all checked.
+  const required = new Set<string>();
 
   for (const item of strategySpec.setup ?? []) {
-    if (item.feature && item.tf) required.set(item.feature, item.tf);
+    if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
   }
   for (const item of strategySpec.entry ?? []) {
-    if (item.feature && item.tf) required.set(item.feature, item.tf);
+    if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
   }
 
   // Also always check core features used by gates
-  required.set("features_atr", "15m");
-  required.set("features_session", "1m");
+  required.add("features_atr@15m");
+  required.add("features_session@1m");
+  required.add("features_spread@1m");
 
   const maxAgeMinutes = 5;
   const now = new Date();
   const staleFeatures: string[] = [];
 
-  for (const [featureName, tf] of required) {
+  for (const key of required) {
+    const [featureName, tf] = key.split("@");
     // Skip if table doesn't exist (new migration not yet applied)
     try {
       const { rows } = await pool.query(
@@ -454,20 +510,33 @@ async function checkFeatureFreshness(
   return { ok: true, latencyMs };
 }
 
+function featureTf(
+  featureName: string,
+  spec: StrategySpec,
+  defaultTf: TimeFrame
+): TimeFrame {
+  for (const item of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
+    if (item.feature === featureName && item.tf) return item.tf;
+  }
+  return defaultTf;
+}
+
 /** Fetch latest feature values from DB for gate evaluation */
 async function fetchLatestFeatures(
   pool: Pool,
   symbol: string,
-  ts: Date
+  ts: Date,
+  spec: StrategySpec
 ): Promise<Record<string, unknown>> {
   const features: Record<string, unknown> = {};
 
-  // ATR (use 15m — same tf as batch compute)
+  // ATR
+  const atrTf = featureTf("features_atr", spec, "15m");
   const { rows: atrRows } = await pool.query(
     `SELECT period, value FROM features_atr
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
      ORDER BY ts DESC, period ASC`,
-    [symbol, ts]
+    [symbol, ts, atrTf]
   );
   if (atrRows.length > 0) {
     features["features_atr"] = {
@@ -490,11 +559,12 @@ async function fetchLatestFeatures(
   }
 
   // Pricing
+  const pricingTf = featureTf("features_pricing", spec, "15m");
   const { rows: pricingRows } = await pool.query(
     `SELECT position, in_ote, ote_low, ote_high FROM features_pricing
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
      ORDER BY ts DESC LIMIT 1`,
-    [symbol, ts]
+    [symbol, ts, pricingTf]
   );
   if (pricingRows.length > 0) {
     features["features_pricing"] = {
@@ -506,11 +576,12 @@ async function fetchLatestFeatures(
   }
 
   // Bias
+  const biasTf = featureTf("features_bias", spec, "15m");
   const { rows: biasRows } = await pool.query(
     `SELECT direction, confidence, reason FROM features_bias
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
      ORDER BY ts DESC LIMIT 1`,
-    [symbol, ts]
+    [symbol, ts, biasTf]
   );
   if (biasRows.length > 0) {
     features["features_bias"] = {
@@ -521,11 +592,12 @@ async function fetchLatestFeatures(
   }
 
   // Displacement
+  const dispTf = featureTf("features_displacement", spec, "15m");
   const { rows: dispRows } = await pool.query(
     `SELECT grade, direction, body_pct FROM features_displacement
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
      ORDER BY ts DESC LIMIT 1`,
-    [symbol, ts]
+    [symbol, ts, dispTf]
   );
   if (dispRows.length > 0) {
     features["features_displacement"] = {
@@ -536,11 +608,12 @@ async function fetchLatestFeatures(
   }
 
   // Structure
+  const structureTf = featureTf("features_structure", spec, "15m");
   const { rows: structRows } = await pool.query(
-    `SELECT event_type, direction, level FROM features_structure
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+    `SELECT event_type, direction, level, invalidated_at FROM features_structure
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3 AND invalidated_at IS NULL
      ORDER BY ts DESC LIMIT 1`,
-    [symbol, ts]
+    [symbol, ts, structureTf]
   );
   if (structRows.length > 0) {
     features["features_structure"] = {
@@ -548,16 +621,20 @@ async function fetchLatestFeatures(
         eventType: r.event_type,
         direction: r.direction,
         level: parseFloat(r.level),
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at) : undefined,
       })),
     };
   }
 
   // Zone
+  const zoneTf = featureTf("features_zone", spec, "15m");
   const { rows: zoneRows } = await pool.query(
-    `SELECT zone_kind, top, bottom, fill_pct, tapped FROM features_zone
-     WHERE symbol = $1 AND ts <= $2 AND tf = '15m'
+    `SELECT zone_kind, top, bottom, fill_pct, tapped, mitigated_at, invalidated_at FROM features_zone
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
+       AND mitigated_at IS NULL
+       AND invalidated_at IS NULL
      ORDER BY ts DESC LIMIT 1`,
-    [symbol, ts]
+    [symbol, ts, zoneTf]
   );
   if (zoneRows.length > 0) {
     features["features_zone"] = {
@@ -567,6 +644,8 @@ async function fetchLatestFeatures(
         bottom: parseFloat(r.bottom),
         fillPct: parseFloat(r.fill_pct),
         tapped: r.tapped,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at) : undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at) : undefined,
       })),
     };
   }

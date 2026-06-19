@@ -1,45 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces */
-  --color-bg: #0c0c0e;
-  --color-panel: #141416;
-  --color-panel-hover: #1a1a1d;
-  --color-elevated: #1f1f23;
-  --color-input: #26262a;
+  /* ── Surfaces ───────────────────────────────────────────── */
+  --color-bg: #050507;
+  --color-panel: #0e0e12;
+  --color-panel-hover: #15151b;
+  --color-elevated: #1b1b22;
+  --color-input: #24242c;
 
-  /* Borders */
-  --color-border: #27272a;
-  --color-border-strong: #3f3f46;
+  /* ── Borders ────────────────────────────────────────────── */
+  --color-border: #2a2a35;
+  --color-border-strong: #404050;
 
-  /* Text */
-  --color-text: #f4f4f5;
-  --color-text-muted: #a1a1aa;
-  --color-text-dim: #71717a;
-  --color-text-subtle: #52525b;
+  /* ── Text ───────────────────────────────────────────────── */
+  --color-text: #f6f6f8;
+  --color-text-muted: #b9b9c6;
+  --color-text-dim: #858599;
+  --color-text-subtle: #555564;
 
-  /* Accent */
-  --color-brand: #3b82f6;
-  --color-brand-dim: #2563eb;
-  --color-brand-soft: rgba(59, 130, 246, 0.15);
+  /* ── Accent (indigo-violet) ─────────────────────────────── */
+  --color-brand: #818cf8;
+  --color-brand-dim: #6366f1;
+  --color-brand-soft: rgba(99, 102, 241, 0.16);
 
-  /* Trading */
-  --color-long: #22c55e;
-  --color-long-dim: #16a34a;
-  --color-long-soft: rgba(34, 197, 94, 0.12);
-  --color-short: #ef4444;
-  --color-short-dim: #dc2626;
-  --color-short-soft: rgba(239, 68, 68, 0.12);
-  --color-warn: #f59e0b;
-  --color-warn-soft: rgba(245, 158, 11, 0.12);
-  --color-info: #0ea5e9;
-  --color-info-soft: rgba(14, 165, 233, 0.12);
+  /* ── Trading ────────────────────────────────────────────── */
+  --color-long: #34d399;
+  --color-long-dim: #10b981;
+  --color-long-soft: rgba(52, 211, 153, 0.14);
+  --color-short: #fb7185;
+  --color-short-dim: #f43f5e;
+  --color-short-soft: rgba(251, 113, 133, 0.14);
+  --color-warn: #fbbf24;
+  --color-warn-soft: rgba(251, 191, 36, 0.14);
+  --color-info: #38bdf8;
+  --color-info-soft: rgba(56, 189, 248, 0.14);
 
-  /* Status */
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
+  /* ── Status ─────────────────────────────────────────────── */
+  --color-success: #34d399;
+  --color-danger: #fb7185;
 
-  /* Font */
+  /* ── Font ───────────────────────────────────────────────── */
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -53,6 +53,10 @@
 
   body {
     background-color: var(--color-bg);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 35%),
+      radial-gradient(circle at 85% 100%, rgba(56, 189, 248, 0.04) 0%, transparent 35%);
+    background-attachment: fixed;
     color: var(--color-text);
     font-family: var(--font-sans);
     font-size: 13px;
@@ -68,11 +72,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #3f3f46;
+    background: #3f3f50;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #52525b;
+    background: #525264;
   }
 
   @keyframes fade-in {
@@ -82,5 +86,20 @@
 
   .animate-fade-in {
     animation: fade-in 0.35s ease-out both;
+  }
+
+  /* Subtle glass treatment for floating elements */
+  .glass {
+    background: rgba(20, 20, 26, 0.72);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(64, 64, 80, 0.5);
+  }
+
+  /* Modern gradient text */
+  .text-gradient {
+    background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

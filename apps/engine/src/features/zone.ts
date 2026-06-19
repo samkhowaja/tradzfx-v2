@@ -5,6 +5,7 @@
 
 import type { Candle, FeatureDefinition, ZoneOutput, Direction } from "@tm/shared";
 import { sha256 } from "@tm/shared";
+import { computeZoneLifecycle } from "@tm/shared";
 import type { PivotOutput } from "@tm/shared";
 
 export interface ZoneInput {
@@ -98,12 +99,21 @@ function detectZones(
     if (c1.h < c3.l) {
       const zone: ZoneOutput["zones"][number] = {
         zoneKind: "fvg",
+        direction: "bullish",
         top: c3.l,
         bottom: c1.h,
         fillPct: 0,
         tapped: false,
         ts: c3.ts,
       };
+      const lifecycle = computeZoneLifecycle(
+        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bullish" },
+        candles,
+        i
+      );
+      zone.mitigatedAt = lifecycle.mitigatedAt;
+      zone.invalidatedAt = lifecycle.invalidatedAt;
+      zone.tapped = !!lifecycle.mitigatedAt;
       computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
@@ -113,12 +123,21 @@ function detectZones(
     if (c1.l > c3.h) {
       const zone: ZoneOutput["zones"][number] = {
         zoneKind: "fvg",
+        direction: "bearish",
         top: c1.l,
         bottom: c3.h,
         fillPct: 0,
         tapped: false,
         ts: c3.ts,
       };
+      const lifecycle = computeZoneLifecycle(
+        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bearish" },
+        candles,
+        i
+      );
+      zone.mitigatedAt = lifecycle.mitigatedAt;
+      zone.invalidatedAt = lifecycle.invalidatedAt;
+      zone.tapped = !!lifecycle.mitigatedAt;
       computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
@@ -142,12 +161,21 @@ function detectZones(
       if (nearbyLow) {
         const zone: ZoneOutput["zones"][number] = {
           zoneKind: "demand",
+          direction: "bullish",
           top: candle.h,
           bottom: nearbyLow.price,
           fillPct: 0,
           tapped: false,
           ts: candle.ts,
         };
+        const lifecycle = computeZoneLifecycle(
+          { zoneKind: "demand", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bullish" },
+          candles,
+          i
+        );
+        zone.mitigatedAt = lifecycle.mitigatedAt;
+        zone.invalidatedAt = lifecycle.invalidatedAt;
+        zone.tapped = !!lifecycle.mitigatedAt;
         computeZoneQuality(zone, candles, i, candle);
         zone.formation = classifyFormation("demand", candle, prev, pivots);
         zones.push(zone);
@@ -162,12 +190,21 @@ function detectZones(
       if (nearbyHigh) {
         const zone: ZoneOutput["zones"][number] = {
           zoneKind: "supply",
+          direction: "bearish",
           top: nearbyHigh.price,
           bottom: candle.l,
           fillPct: 0,
           tapped: false,
           ts: candle.ts,
         };
+        const lifecycle = computeZoneLifecycle(
+          { zoneKind: "supply", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bearish" },
+          candles,
+          i
+        );
+        zone.mitigatedAt = lifecycle.mitigatedAt;
+        zone.invalidatedAt = lifecycle.invalidatedAt;
+        zone.tapped = !!lifecycle.mitigatedAt;
         computeZoneQuality(zone, candles, i, candle);
         zone.formation = classifyFormation("supply", candle, prev, pivots);
         zones.push(zone);
@@ -180,7 +217,7 @@ function detectZones(
 
 export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   name: "features_zone",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: ["features_pivot"],
 
   compute(input): ZoneOutput {
@@ -201,13 +238,19 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
 
   hashOutput(output): string {
     return sha256(
-      output.zones.map((z) => `${z.ts.toISOString()}:${z.zoneKind}:${z.top}:${z.bottom}`).join("|")
+      output.zones
+        .map(
+          (z) =>
+            `${z.ts.toISOString()}:${z.zoneKind}:${z.top}:${z.bottom}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+        )
+        .join("|")
     );
   },
 
   serialize(output): Record<string, unknown>[] {
     return output.zones.map((z) => ({
       zone_kind: z.zoneKind,
+      direction: z.direction ?? null,
       top: z.top,
       bottom: z.bottom,
       fill_pct: z.fillPct,
@@ -219,6 +262,8 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       quality_score: z.qualityScore ?? null,
       formation: z.formation ?? null,
       strength_score: z.strengthScore ?? null,
+      mitigated_at: z.mitigatedAt ?? null,
+      invalidated_at: z.invalidatedAt ?? null,
     }));
   },
 
@@ -235,6 +280,10 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         departureCandles: r.departure_candles as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         qualityScore: r.quality_score as number | undefined,
+        formation: r.formation as ZoneOutput["zones"][number]["formation"] | undefined,
+        strengthScore: r.strength_score as number | undefined,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),
     };
   },

@@ -50,7 +50,7 @@ function computeATR(candles: Candle[], period: number): number {
 
 export const keltnerFeature: FeatureDefinition<KeltnerInput, KeltnerOutput> = {
   name: "features_keltner",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): KeltnerOutput {

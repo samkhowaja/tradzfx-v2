@@ -18,7 +18,7 @@ import {
 import { compileStrategy } from "@tm/strategies";
 import { loadStrategyFromDB } from "@tm/strategies";
 import { runLiveExecution } from "./liveRunner";
-import { DAGRunner, globalDAG } from "@tm/engine";
+import { DAGRunner, globalDAG, updateLifecycleForSymbol } from "@tm/engine";
 
 // In-memory tracking of last processed 15m boundary per symbol
 const lastProcessed = new Map<string, number>();
@@ -46,7 +46,10 @@ async function getCompiledStrategy(strategyId: string) {
     if (!spec) {
       throw new Error(`Strategy not found in DB: ${strategyId}`);
     }
-    compiledCache.set(strategyId, compileStrategy(spec));
+    compiledCache.set(
+      strategyId,
+      compileStrategy(spec, { trustStoredLifecycle: true })
+    );
   }
   return compiledCache.get(strategyId)!;
 }
@@ -152,6 +155,7 @@ async function runStrategyPipeline(
       console.log(`[pipelineTrigger] Order created for ${symbol}/${strategyId}: ${result.orderId}`);
       return { symbol, triggered: true, orderId: result.orderId };
     } else {
+      console.log(`[pipelineTrigger] No order for ${symbol}/${strategyId}: ${result.reason ?? "no_order"}`);
       return {
         symbol,
         triggered: true,
@@ -228,6 +232,20 @@ export async function checkAndTriggerPipeline(
   } else {
     console.warn(
       `[pipelineTrigger] Feature engine failed for ${symbol} — proceeding with potentially stale features`
+    );
+  }
+
+  // ── Phase 0b: Incrementally refresh lifecycle columns for zones/OBs/etc. ──
+  try {
+    const pool = getPool();
+    const lifecycleResult = await updateLifecycleForSymbol(pool, symbol, { asOf: latestTs });
+    const totalUpdated = lifecycleResult.reduce((s, r) => s + r.rowsUpdated, 0);
+    console.log(
+      `[pipelineTrigger] Lifecycle refresh for ${symbol}: ${totalUpdated} rows updated`
+    );
+  } catch (err: any) {
+    console.warn(
+      `[pipelineTrigger] Lifecycle refresh failed for ${symbol}: ${err.message}`
     );
   }
 

@@ -12,7 +12,7 @@
  */
 
 import type { Candle, FeatureDefinition, IfvgOutput, Direction } from "@tm/shared";
-import { sha256 } from "@tm/shared";
+import { sha256, computeIfvgLifecycle } from "@tm/shared";
 
 export interface IfvgInput {
   candles: Candle[];
@@ -71,7 +71,7 @@ function isReversed(fvg: RawFvg, last: Candle): boolean {
 
 export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
   name: "features_ifvg",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): IfvgOutput {
@@ -91,17 +91,24 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       if (!isReversed(fvg, last)) continue;
 
       const strengthScore = Math.min(1, fillPct * 0.6 + (ageBars < 10 ? 0.4 : 0));
+      const lifecycle = computeIfvgLifecycle(
+        { direction: fvg.direction, top: fvg.top, bottom: fvg.bottom },
+        candles,
+        fvg.formationIndex
+      );
       ifvgs.push({
         direction: fvg.direction,
         top: fvg.top,
         bottom: fvg.bottom,
         fillPct,
-        tapped: false,
+        tapped: !!lifecycle.mitigatedAt,
         originatingZoneTs: candles[fvg.formationIndex].ts,
         ts: last.ts,
         ageBars,
-        isFresh: true,
+        isFresh: !lifecycle.mitigatedAt && !lifecycle.invalidatedAt,
         strengthScore,
+        mitigatedAt: lifecycle.mitigatedAt,
+        invalidatedAt: lifecycle.invalidatedAt,
       });
     }
 
@@ -116,7 +123,12 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
 
   hashOutput(output): string {
     return sha256(
-      output.ifvgs.map((z) => `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}`).join("|")
+      output.ifvgs
+        .map(
+          (z) =>
+            `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+        )
+        .join("|")
     );
   },
 
@@ -130,7 +142,10 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       age_bars: z.ageBars ?? null,
       is_fresh: z.isFresh ?? true,
       strength_score: z.strengthScore ?? null,
+      originating_zone_ts: z.originatingZoneTs ?? null,
       ts: z.ts,
+      mitigated_at: z.mitigatedAt ?? null,
+      invalidated_at: z.invalidatedAt ?? null,
     }));
   },
 
@@ -147,6 +162,8 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         ageBars: r.age_bars as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         strengthScore: r.strength_score as number | undefined,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),
     };
   },

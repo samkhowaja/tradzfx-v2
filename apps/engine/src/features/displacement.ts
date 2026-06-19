@@ -94,7 +94,7 @@ function gradeRank(grade: DisplacementOutput["grade"]): number {
 
 export const displacementFeature: FeatureDefinition<DisplacementInput, DisplacementOutput> = {
   name: "features_displacement",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: [],
 
   compute(input): DisplacementOutput {

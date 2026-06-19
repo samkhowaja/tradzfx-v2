@@ -18,6 +18,7 @@ interface V2Bar {
   low: number;
   close: number;
   tick_volume: number;
+  spread?: number;
 }
 
 interface V1Bar {
@@ -62,6 +63,7 @@ function normalizeBars(bars: BarPayload["bars"]): V2Bar[] {
       low: b.l,
       close: b.c,
       tick_volume: b.tickVol,
+      spread: b.spread,
     }));
   }
   return bars as V2Bar[];
@@ -108,18 +110,19 @@ export async function POST(request: NextRequest) {
         l: bar.low,
         c: bar.close,
         v: bar.tick_volume,
+        spread: bar.spread,
       };
     });
 
     const values = rows
       .map(
         (r) =>
-          `('${cleanSymbol}', '${r.ts.toISOString()}', ${r.o}, ${r.h}, ${r.l}, ${r.c}, ${r.v}, ${broker === null ? "NULL" : `'${broker.replace(/'/g, "''")}'`}, ${digits === null ? "NULL" : digits})`,
+          `('${cleanSymbol}', '${r.ts.toISOString()}', ${r.o}, ${r.h}, ${r.l}, ${r.c}, ${r.v}, ${r.spread === undefined || r.spread === null ? "NULL" : r.spread}, ${broker === null ? "NULL" : `'${broker.replace(/'/g, "''")}'`}, ${digits === null ? "NULL" : digits})`,
       )
       .join(",");
 
     await pool.query(
-      `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, broker, digits)
+      `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, spread, broker, digits)
        VALUES ${values}
        ON CONFLICT (symbol, ts) DO UPDATE SET
          o = EXCLUDED.o,
@@ -127,6 +130,7 @@ export async function POST(request: NextRequest) {
          l = EXCLUDED.l,
          c = EXCLUDED.c,
          v = EXCLUDED.v,
+         spread = EXCLUDED.spread,
          broker = EXCLUDED.broker,
          digits = EXCLUDED.digits`,
     );
@@ -162,7 +166,7 @@ export async function POST(request: NextRequest) {
 
     // Trigger live pipeline asynchronously (non-blocking)
     // Only runs when a 15m boundary is crossed.
-    // Iterates all active live deployments (falls back to waqar_v2 if none).
+    // Iterates all active live deployments (falls back to waqar_v2_15m if none).
     checkAndTriggerAllActive(cleanSymbol).catch((err) => {
       console.error("[ingest] Pipeline trigger failed:", err.message);
     });

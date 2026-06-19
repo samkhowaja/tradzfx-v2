@@ -1,6 +1,6 @@
 /**
  * Spread Gate.
- * Blocks entry when spread exceeds max allowed pips.
+ * Blocks entry when spread exceeds max allowed pips or when spread data is missing.
  */
 
 import type { MarketContext } from "@tm/shared";
@@ -11,12 +11,14 @@ export interface SpreadGateConfig {
 
 export function createSpreadGate(config: SpreadGateConfig) {
   return async (ctx: MarketContext): Promise<{ passed: boolean; reason?: string }> => {
-    // Try to get spread from features or signal context
-    const spread = (ctx.features["features_pricing"] as any)?.spread;
+    const spreadData = (ctx.features["features_spread"] as any);
+    const spread = spreadData?.spread;
 
-    if (typeof spread !== "number") {
-      // No spread data available — pass but warn
-      return { passed: true };
+    if (typeof spread !== "number" || !Number.isFinite(spread)) {
+      return {
+        passed: false,
+        reason: "Spread data unavailable",
+      };
     }
 
     if (spread > config.maxSpreadPips) {

@@ -37,7 +37,7 @@ function computeStdDev(values: number[], period: number, sma: number): number {
 
 export const bollingerFeature: FeatureDefinition<BollingerInput, BollingerOutput> = {
   name: "features_bollinger",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): BollingerOutput {

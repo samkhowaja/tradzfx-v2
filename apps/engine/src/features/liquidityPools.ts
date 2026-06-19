@@ -178,6 +178,13 @@ function computeAtr(candles: Candle[]): number {
   return sum / lookback;
 }
 
+function sideForPool(kind: LiquidityPool["kind"], price: number, currentPrice: number): LiquidityPool["side"] {
+  if (kind.includes("_high") || kind === "eqh") return "sell_side";
+  if (kind.includes("_low") || kind === "eql") return "buy_side";
+  if (kind === "round_number") return price >= currentPrice ? "sell_side" : "buy_side";
+  return undefined;
+}
+
 function computePools(input: LiquidityPoolsInput): LiquidityPoolsOutput {
   const candles = input.candles;
   const sweeps = input.features_sweep?.sweeps ?? [];
@@ -229,6 +236,7 @@ function computePools(input: LiquidityPoolsInput): LiquidityPoolsOutput {
 
   for (const pool of pools) {
     pool.strength = computeStrength(pool.distance, atr);
+    pool.side = sideForPool(pool.kind, pool.price, currentPrice);
   }
 
   pools.sort((a, b) => b.strength - a.strength);
@@ -254,7 +262,7 @@ function computePools(input: LiquidityPoolsInput): LiquidityPoolsOutput {
 
 export const liquidityPoolsFeature: FeatureDefinition<LiquidityPoolsInput, LiquidityPoolsOutput> = {
   name: "features_liquidity_pools",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: ["features_sweep"],
 
   compute(input): LiquidityPoolsOutput {
@@ -285,6 +293,7 @@ export const liquidityPoolsFeature: FeatureDefinition<LiquidityPoolsInput, Liqui
     return output.pools.map((p) => ({
       ...base,
       kind: p.kind,
+      side: p.side ?? null,
       label: p.label,
       price: p.price,
       distance: p.distance,
@@ -297,6 +306,7 @@ export const liquidityPoolsFeature: FeatureDefinition<LiquidityPoolsInput, Liqui
     const first = rows[0];
     const pools = rows.map((r) => ({
       kind: r.kind as LiquidityPool["kind"],
+      side: (r.side as LiquidityPool["side"]) ?? undefined,
       label: r.label as string,
       price: r.price as number,
       distance: r.distance as number,

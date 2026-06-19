@@ -32,6 +32,10 @@ import { ifvgFeature } from "./features/ifvg";
 import { correlationFeature } from "./features/correlation";
 import { timeOfDayEdgeFeature } from "./features/timeOfDayEdge";
 import { liquidityPoolsFeature } from "./features/liquidityPools";
+import { orderBlockFeature } from "./features/orderBlock";
+import { eqLiquidityFeature } from "./features/eqLiquidity";
+import { htfBiasFeature } from "./features/htfBias";
+import { spreadFeature } from "./features/spread";
 
 globalDAG.register(atrFeature);
 globalDAG.register(pivotFeature);
@@ -56,8 +60,13 @@ globalDAG.register(ifvgFeature);
 globalDAG.register(correlationFeature);
 globalDAG.register(timeOfDayEdgeFeature);
 globalDAG.register(liquidityPoolsFeature);
+globalDAG.register(orderBlockFeature);
+globalDAG.register(eqLiquidityFeature);
+globalDAG.register(htfBiasFeature);
+globalDAG.register(spreadFeature);
 
 export { globalDAG, DAGRunner };
+export { updateLifecycleForSymbol, updateLifecycleForAllSymbols } from "./lifecycleUpdater";
 export * from "./features/atr";
 export * from "./features/pivot";
 export * from "./features/structure";
@@ -81,6 +90,10 @@ export * from "./features/ifvg";
 export * from "./features/correlation";
 export * from "./features/timeOfDayEdge";
 export * from "./features/liquidityPools";
+export * from "./features/orderBlock";
+export * from "./features/eqLiquidity";
+export * from "./features/htfBias";
+export * from "./features/spread";
 
 // CLI entry point
 async function main() {
@@ -111,6 +124,8 @@ async function main() {
     "features_bollinger",
     "features_keltner",
     "features_ifvg",
+    "features_order_block",
+    "features_eq_liquidity",
   ];
 
   const start = performance.now();

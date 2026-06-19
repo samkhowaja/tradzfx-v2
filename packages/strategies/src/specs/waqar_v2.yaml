@@ -1,4 +1,5 @@
 id: waqar_v2
+active: true
 name: "Waqar Asim Scalp V2"
 version: "2.0.0"
 description: >
@@ -22,9 +23,9 @@ setup:
     weight: 8
 
   - id: trend_bias
-    feature: features_bias
+    feature: features_htf_bias
     tf: 15m
-    predicate: "direction != 'neutral'"
+    predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
     required: true
     weight: 8
 
@@ -32,9 +33,9 @@ setup:
     feature: features_pricing
     tf: 4h
     predicate: |
-      (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
+      (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
       OR
-      (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
+      (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
     required: true
     weight: 10
 
@@ -42,7 +43,7 @@ entry:
   - id: structure_break
     feature: features_structure
     tf: 1m
-    predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
+    predicate: "event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction"
     required: true
     weight: 10
 

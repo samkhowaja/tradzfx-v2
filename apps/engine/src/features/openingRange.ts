@@ -94,7 +94,7 @@ function computeAllOpeningRanges(candles: Candle[], tf: TimeFrame): OpeningRange
 
 export const openingRangeFeature: FeatureDefinition<OpeningRangeInput, OpeningRangeOutput> = {
   name: "features_opening_range",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: [],
 
   compute(input, opts?: { tf?: TimeFrame }): OpeningRangeOutput {

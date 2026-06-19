@@ -1,0 +1,81 @@
+id: keylevel_bounce_v1_limit
+active: true
+name: "Key-Level Bounce V1 (limit entry)"
+version: "1.0.0"
+description: >
+  Same key-level setup as v1, but uses a limit order placed at the zone edge.
+  Avoids chasing price and only enters on a genuine retest.
+
+filters:
+  symbols: [XAUUSD]
+  sessions: [LONDON, OVERLAP, NY]
+
+setup:
+  - id: trend_bias
+    feature: features_bias
+    tf: 1h
+    predicate: "direction != 'neutral'"
+    required: true
+
+  - id: directional_zone
+    feature: features_pricing
+    tf: 15m
+    predicate: |
+      (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))
+      OR
+      (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))
+    required: true
+
+  - id: htf_zone
+    feature: features_zone
+    tf: 15m
+    predicate: "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95"
+    required: true
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 15m
+    predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
+    required: true
+
+  - id: zone_retest
+    feature: features_zone
+    tf: 15m
+    predicate: "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95"
+    required: true
+
+entryConfig:
+  type: limit
+  zonePips: 0
+
+risk:
+  sl: "0.50"
+  tp: "sl * 4.0"
+  minRR: 4.0
+  timeoutBars: 480
+  maxFillBars: 120
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [LONDON, OVERLAP, NY]
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+live:
+  mode: paper
+  structureFreshnessMinutes: 120
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null

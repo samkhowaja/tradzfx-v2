@@ -4,7 +4,7 @@
  */
 
 import type { Candle, FeatureDefinition, StructureOutput, Direction } from "@tm/shared";
-import { sha256 } from "@tm/shared";
+import { sha256, computeStructureLifecycle } from "@tm/shared";
 import type { PivotOutput } from "@tm/shared";
 
 export interface StructureInput {
@@ -107,11 +107,23 @@ function detectStructure(
 
 export const structureFeature: FeatureDefinition<StructureInput, StructureOutput> = {
   name: "features_structure",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: ["features_pivot"],
 
   compute(input): StructureOutput {
-    return { events: detectStructure(input.candles, input.features_pivot.pivots) };
+    const events = detectStructure(input.candles, input.features_pivot.pivots);
+    for (const event of events) {
+      const idx = input.candles.findIndex((c) => c.ts.getTime() === event.ts.getTime());
+      if (idx >= 0) {
+        const lifecycle = computeStructureLifecycle(
+          { direction: event.direction, level: event.level },
+          input.candles,
+          idx
+        );
+        event.invalidatedAt = lifecycle.invalidatedAt;
+      }
+    }
+    return { events };
   },
 
   hashInput(input): string {
@@ -128,7 +140,12 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
 
   hashOutput(output): string {
     return sha256(
-      output.events.map((e) => `${e.ts.toISOString()}:${e.eventType}:${e.direction}:${e.level}`).join("|")
+      output.events
+        .map(
+          (e) =>
+            `${e.ts.toISOString()}:${e.eventType}:${e.direction}:${e.level}:${e.invalidatedAt?.toISOString() ?? ""}`
+        )
+        .join("|")
     );
   },
 
@@ -139,6 +156,7 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
       level: e.level,
       ts: e.ts,
       is_cisd: e.isCisd ?? false,
+      invalidated_at: e.invalidatedAt ?? null,
     }));
   },
 
@@ -150,6 +168,7 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
         level: r.level as number,
         ts: new Date(r.ts as string),
         isCisd: r.is_cisd as boolean | undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),
     };
   },

@@ -10,6 +10,7 @@ import type { StrategyDetail } from "./types";
 interface Family {
   id: string;
   name: string;
+  activeCount: number;
   strategies: {
     id: string;
     name: string;

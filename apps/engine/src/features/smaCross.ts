@@ -63,7 +63,7 @@ function computeCrosses(candles: Candle[]): SmaCrossOutput["crosses"] {
 
 export const smaCrossFeature: FeatureDefinition<SmaCrossInput, SmaCrossOutput> = {
   name: "features_sma_cross",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): SmaCrossOutput {

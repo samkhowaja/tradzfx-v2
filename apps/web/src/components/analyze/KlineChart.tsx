@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo, useCallback } from "react";
 import { init, dispose, LineType } from "klinecharts";
+import type { Chart } from "klinecharts";
+import "./overlays/tradePlan";
+import "./overlays/rectZone";
+import { useReducedMotion } from "framer-motion";
+import type { ChartLayers } from "@/components/chart/ChartLayerToggles";
 
 interface Candle {
   ts: string;
@@ -12,11 +17,14 @@ interface Candle {
   v?: number;
 }
 
-interface ChartSignal {
+interface Signal {
+  id: string;
   entry_price: number;
   stop_loss: number;
   take_profit: number;
   side: string;
+  status: string;
+  created_at: string;
 }
 
 interface StructureEvent {
@@ -24,6 +32,130 @@ interface StructureEvent {
   event_type: string;
   direction: string;
   level: number;
+  invalidated_at?: string | null;
+}
+
+interface Zone {
+  ts: string;
+  zone_kind: string;
+  direction?: string | null;
+  top: number;
+  bottom: number;
+  fill_pct?: number;
+  tapped: boolean;
+  mitigated_at?: string | null;
+  invalidated_at?: string | null;
+}
+
+interface Ifvg {
+  ts: string;
+  originating_zone_ts?: string;
+  direction: string;
+  top: number;
+  bottom: number;
+  fill_pct?: number;
+  tapped: boolean;
+  mitigated_at?: string | null;
+  invalidated_at?: string | null;
+}
+
+interface SweepEvent {
+  ts: string;
+  direction: string;
+  level: number;
+  mitigated_at?: string | null;
+}
+
+interface LiquidityPool {
+  kind: string;
+  side?: "buy_side" | "sell_side" | null;
+  label?: string;
+  price: number;
+  distance?: number;
+  strength?: number;
+}
+
+interface DisplacementEvent {
+  ts: string;
+  grade: string;
+  direction: string;
+  body_pct: number;
+}
+
+interface CandlePattern {
+  ts: string;
+  pattern_name: string;
+  direction: string;
+  confidence: number;
+}
+
+interface MovingAverage {
+  ma_type: string;
+  period: number;
+  value: number;
+}
+
+interface BandSet {
+  upper: number;
+  middle: number;
+  lower: number;
+}
+
+interface Pivot {
+  ts: string;
+  kind: "high" | "low";
+  price: number;
+  confidence: number;
+}
+
+interface OrderBlock {
+  ts: string;
+  ob_kind: "bullish" | "bearish";
+  degree: "internal" | "swing";
+  top: number;
+  bottom: number;
+  formation_ts: string;
+  age_bars: number;
+  is_fresh: boolean;
+  strength_score: number;
+  mitigated_at?: string | null;
+  invalidated_at?: string | null;
+}
+
+interface EqLiquidity {
+  ts: string;
+  kind: "eqh" | "eql";
+  price: number;
+  strength: number;
+  touched: boolean;
+}
+
+interface FeatureShape {
+  bias?: { direction: string; confidence?: number } | null;
+  structure?: StructureEvent[];
+  zones?: Zone[];
+  ifvgs?: Ifvg[];
+  sweep?: SweepEvent[];
+  liquidityPools?: LiquidityPool[];
+  eqLiquidity?: EqLiquidity[];
+  displacement?: DisplacementEvent[];
+  candlePatterns?: CandlePattern[];
+  movingAverages?: MovingAverage[];
+  bollinger?: BandSet | null;
+  keltner?: BandSet | null;
+  pivots?: Pivot[];
+  orderBlocks?: OrderBlock[];
+}
+
+interface KlineChartProps {
+  symbol: string;
+  candles: Candle[];
+  signals: Signal[];
+  structure: StructureEvent[];
+  features?: FeatureShape;
+  layers?: ChartLayers;
+  activeSignalId?: string | null;
+  height?: number;
 }
 
 function getPricePrecision(symbol: string): number {
@@ -32,22 +164,287 @@ function getPricePrecision(symbol: string): number {
   return 5;
 }
 
+function normalizeSide(raw: string): "long" | "short" | "neutral" {
+  const s = raw.toLowerCase();
+  if (s === "buy" || s === "long" || s === "bullish") return "long";
+  if (s === "sell" || s === "short" || s === "bearish") return "short";
+  return "neutral";
+}
+
+function sideColor(side: "long" | "short" | "neutral", alpha = 1): string {
+  if (side === "long") return `rgba(52, 211, 153, ${alpha})`;
+  if (side === "short") return `rgba(251, 113, 133, ${alpha})`;
+  return `rgba(129, 140, 248, ${alpha})`;
+}
+
+function directionColor(direction: string, alpha = 1): string {
+  const d = direction.toLowerCase();
+  if (d === "bullish" || d === "long" || d === "buy") return `rgba(52, 211, 153, ${alpha})`;
+  if (d === "bearish" || d === "short" || d === "sell") return `rgba(251, 113, 133, ${alpha})`;
+  return `rgba(251, 191, 36, ${alpha})`;
+}
+
+function liquiditySideColor(side?: string | null, alpha = 0.85): string {
+  const s = (side ?? "").toLowerCase();
+  if (s === "sell_side") return `rgba(251, 113, 133, ${alpha})`;
+  if (s === "buy_side") return `rgba(52, 211, 153, ${alpha})`;
+  return `rgba(129, 140, 248, ${alpha})`;
+}
+
+function obColor(kind: "bullish" | "bearish", alphaFill = 0.16, alphaBorder = 0.7): { fill: string; border: string } {
+  if (kind === "bullish") {
+    return {
+      fill: `rgba(52, 211, 153, ${alphaFill})`,
+      border: `rgba(52, 211, 153, ${alphaBorder})`,
+    };
+  }
+  return {
+    fill: `rgba(251, 113, 133, ${alphaFill})`,
+    border: `rgba(251, 113, 133, ${alphaBorder})`,
+  };
+}
+
+function zoneColor(kind: string, direction?: string | null, alphaFill = 0.14, alphaBorder = 0.55): { fill: string; border: string } {
+  const k = kind.toLowerCase();
+  const d = (direction ?? "").toLowerCase();
+  const isBullish = d === "bullish" || d === "long" || d === "buy";
+  const isBearish = d === "bearish" || d === "short" || d === "sell";
+
+  if (k === "demand" || (k === "ob" && isBullish) || (k === "fvg" && isBullish)) {
+    return {
+      fill: `rgba(52, 211, 153, ${alphaFill})`,
+      border: `rgba(52, 211, 153, ${alphaBorder})`,
+    };
+  }
+  if (k === "supply" || (k === "ob" && isBearish) || (k === "fvg" && isBearish)) {
+    return {
+      fill: `rgba(251, 113, 133, ${alphaFill})`,
+      border: `rgba(251, 113, 133, ${alphaBorder})`,
+    };
+  }
+  if (k === "fvg") {
+    return {
+      fill: `rgba(251, 191, 36, ${alphaFill})`,
+      border: `rgba(251, 191, 36, ${alphaBorder})`,
+    };
+  }
+  if (k === "breaker") {
+    return {
+      fill: `rgba(56, 189, 248, ${alphaFill})`,
+      border: `rgba(56, 189, 248, ${alphaBorder})`,
+    };
+  }
+  return {
+    fill: `rgba(129, 140, 248, ${alphaFill})`,
+    border: `rgba(129, 140, 248, ${alphaBorder})`,
+  };
+}
+
+function buildKLineData(candles: Candle[]) {
+  const mergedMap = new Map<
+    number,
+    { timestamp: number; open: number; high: number; low: number; close: number; volume: number }
+  >();
+  for (const c of candles) {
+    const key = Math.round(new Date(c.ts).getTime() / 60000) * 60000;
+    const existing = mergedMap.get(key);
+    if (!existing) {
+      mergedMap.set(key, {
+        timestamp: key,
+        open: c.o,
+        high: c.h,
+        low: c.l,
+        close: c.c,
+        volume: c.v ?? 0,
+      });
+    } else {
+      existing.high = Math.max(existing.high, c.h);
+      existing.low = Math.min(existing.low, c.l);
+      existing.close = c.c;
+      existing.volume += c.v ?? 0;
+    }
+  }
+  return Array.from(mergedMap.values()).sort((a, b) => a.timestamp - b.timestamp);
+}
+
 export function KlineChart({
   symbol,
   candles,
   signals,
   structure,
-}: {
-  symbol: string;
-  candles: Candle[];
-  signals: ChartSignal[];
-  structure: StructureEvent[];
-}) {
+  features,
+  layers = {
+    price: true,
+    structure: true,
+    liquidity: false,
+    zones: true,
+    ifvgs: false,
+    patterns: false,
+    movingAverages: false,
+    bands: false,
+    orderBlocks: false,
+    eqLiquidity: false,
+    signals: false,
+  },
+  activeSignalId,
+  height = 560,
+}: KlineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<Chart | null>(null);
+  const overlayIdsRef = useRef<string[]>([]);
+  const hasFittedRef = useRef(false);
+  const reducedMotion = useReducedMotion();
+
+  const activeSignal = useMemo(
+    () => signals.find((s) => s.id === activeSignalId) ?? signals[0] ?? null,
+    [activeSignalId, signals]
+  );
+
+  const data = useMemo(() => {
+    const lastClose = candles.length ? candles[candles.length - 1].c : 0;
+    return {
+      rows: buildKLineData(candles),
+      firstTs: candles.length ? new Date(candles[0].ts).getTime() : 0,
+      lastTs: candles.length ? new Date(candles[candles.length - 1].ts).getTime() : 0,
+      lastClose,
+    };
+  }, [candles]);
+
+  const clearOverlays = useCallback(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    for (const id of overlayIdsRef.current) {
+      if (id) chart.removeOverlay(id);
+    }
+    overlayIdsRef.current = [];
+  }, []);
+
+  const addOverlay = useCallback((chart: Chart, overlay: any) => {
+    const id = chart.createOverlay(overlay);
+    if (id) overlayIdsRef.current.push(id as string);
+  }, []);
+
+  const createPriceLine = useCallback(
+    (chart: Chart, value: number, color: string, label: string, dashed = true) => {
+      addOverlay(chart, {
+        name: "priceLine",
+        points: [{ value }],
+        styles: {
+          line: {
+            color,
+            size: 1,
+            dashedValue: dashed ? [5, 4] : [],
+            style: dashed ? LineType.Dashed : LineType.Solid,
+          },
+          text: {
+            color,
+            backgroundColor: "rgba(5, 5, 7, 0.85)",
+            size: 10,
+            borderColor: color.replace(/[^,]+(?=\))/, "0.35"),
+            borderSize: 1,
+          },
+        },
+        extendData: label,
+      });
+    },
+    [addOverlay]
+  );
+
+  const createTag = useCallback(
+    (chart: Chart, ts: number, value: number, text: string, color: string) => {
+      addOverlay(chart, {
+        name: "simpleTag",
+        points: [{ timestamp: ts, value }],
+        styles: {
+          text: {
+            color,
+            backgroundColor: "rgba(5, 5, 7, 0.9)",
+            size: 10,
+            borderColor: color.replace(/[^,]+(?=\))/, "0.45"),
+            borderSize: 1,
+          },
+        },
+        extendData: text,
+      });
+    },
+    [addOverlay]
+  );
+
+  const createRect = useCallback(
+    (
+      chart: Chart,
+      startTs: number,
+      endTs: number,
+      top: number,
+      bottom: number,
+      fill: string,
+      border: string,
+      label?: string
+    ) => {
+      const alphaMatch = fill.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([0-9.]+)\)/);
+      const fillAlpha = alphaMatch ? Number(alphaMatch[1]) : 0.25;
+      addOverlay(chart, {
+        name: "rectZone",
+        points: [
+          { timestamp: startTs, value: top },
+          { timestamp: endTs, value: bottom },
+        ],
+        extendData: { label, color: border, fillAlpha },
+      });
+    },
+    [addOverlay]
+  );
+
+  const createSegment = useCallback(
+    (
+      chart: Chart,
+      startTs: number,
+      endTs: number,
+      startPrice: number,
+      endPrice: number,
+      color: string,
+      dashed = true,
+      width = 1
+    ) => {
+      addOverlay(chart, {
+        name: "segment",
+        points: [
+          { timestamp: startTs, value: startPrice },
+          { timestamp: endTs, value: endPrice },
+        ],
+        styles: {
+          line: {
+            color,
+            size: width,
+            dashedValue: dashed ? [4, 4] : [],
+            style: dashed ? LineType.Dashed : LineType.Solid,
+          },
+        },
+      });
+    },
+    [addOverlay]
+  );
+
+  const createCircle = useCallback(
+    (chart: Chart, ts: number, value: number, color: string, radius = 4) => {
+      addOverlay(chart, {
+        name: "circle",
+        points: [{ timestamp: ts, value }],
+        styles: {
+          circle: {
+            color,
+            borderColor: "rgba(5, 5, 7, 0.85)",
+            borderSize: 1,
+            radius,
+          },
+        },
+      });
+    },
+    [addOverlay]
+  );
 
   useEffect(() => {
-    if (!containerRef.current || candles.length === 0) return;
+    if (!containerRef.current || chartRef.current) return;
 
     const chart = init(containerRef.current, {
       styles: {
@@ -56,55 +453,40 @@ export function KlineChart({
           horizontal: {
             show: true,
             size: 1,
-            color: "#27272a",
+            color: "#2a2a35",
             style: LineType.Dashed,
-            dashedValue: [2, 2],
+            dashedValue: [3, 3],
           },
           vertical: {
             show: true,
             size: 1,
-            color: "#27272a",
+            color: "#2a2a35",
             style: LineType.Dashed,
-            dashedValue: [2, 2],
+            dashedValue: [3, 3],
           },
         },
         candle: {
           bar: {
-            upColor: "#22c55e",
-            downColor: "#ef4444",
-            noChangeColor: "#71717a",
-            upBorderColor: "#22c55e",
-            downBorderColor: "#ef4444",
-            noChangeBorderColor: "#71717a",
-            upWickColor: "#22c55e",
-            downWickColor: "#ef4444",
-            noChangeWickColor: "#71717a",
+            upColor: "#34d399",
+            downColor: "#fb7185",
+            noChangeColor: "#858599",
+            upBorderColor: "#34d399",
+            downBorderColor: "#fb7185",
+            noChangeBorderColor: "#858599",
+            upWickColor: "#34d399",
+            downWickColor: "#fb7185",
+            noChangeWickColor: "#858599",
           },
           priceMark: {
             show: true,
-            high: {
-              show: true,
-              color: "#a1a1aa",
-              textSize: 10,
-              textFamily: "ui-monospace, monospace",
-            },
-            low: {
-              show: true,
-              color: "#a1a1aa",
-              textSize: 10,
-              textFamily: "ui-monospace, monospace",
-            },
+            high: { show: true, color: "#858599", textSize: 10, textFamily: "ui-monospace, monospace" },
+            low: { show: true, color: "#858599", textSize: 10, textFamily: "ui-monospace, monospace" },
             last: {
               show: true,
-              upColor: "#22c55e",
-              downColor: "#ef4444",
-              noChangeColor: "#71717a",
-              line: {
-                show: true,
-                style: LineType.Dashed,
-                dashedValue: [4, 4],
-                size: 1,
-              },
+              upColor: "#34d399",
+              downColor: "#fb7185",
+              noChangeColor: "#858599",
+              line: { show: true, style: LineType.Dashed, dashedValue: [4, 4], size: 1 },
               text: {
                 show: true,
                 size: 10,
@@ -113,99 +495,56 @@ export function KlineChart({
                 paddingTop: 2,
                 paddingRight: 4,
                 paddingBottom: 2,
-                color: "#f4f4f5",
+                color: "#f6f6f8",
               },
             },
           },
         },
         xAxis: {
-          axisLine: {
-            show: true,
-            color: "#27272a",
-            size: 1,
-          },
-          tickLine: {
-            show: true,
-            size: 3,
-            color: "#27272a",
-          },
-          tickText: {
-            show: true,
-            color: "#71717a",
-            size: 10,
-            family: "ui-sans-serif, system-ui",
-          },
+          axisLine: { show: true, color: "#2a2a35", size: 1 },
+          tickLine: { show: true, size: 3, color: "#2a2a35" },
+          tickText: { show: true, color: "#555564", size: 10, family: "ui-sans-serif, system-ui" },
         },
         yAxis: {
-          axisLine: {
-            show: true,
-            color: "#27272a",
-            size: 1,
-          },
-          tickLine: {
-            show: true,
-            size: 3,
-            color: "#27272a",
-          },
-          tickText: {
-            show: true,
-            color: "#a1a1aa",
-            size: 10,
-            family: "ui-monospace, monospace",
-          },
+          axisLine: { show: true, color: "#2a2a35", size: 1 },
+          tickLine: { show: true, size: 3, color: "#2a2a35" },
+          tickText: { show: true, color: "#858599", size: 10, family: "ui-monospace, monospace" },
         },
-        separator: {
-          size: 1,
-          color: "#27272a",
-          fill: true,
-          activeBackgroundColor: "#1a1a1d",
-        },
+        separator: { size: 1, color: "#2a2a35", fill: true, activeBackgroundColor: "#0e0e12" },
         crosshair: {
           show: true,
           horizontal: {
             show: true,
-            line: {
-              show: true,
-              style: LineType.Dashed,
-              dashedValue: [4, 4],
-              size: 1,
-              color: "#71717a",
-            },
+            line: { show: true, style: LineType.Dashed, dashedValue: [4, 4], size: 1, color: "#555564" },
             text: {
               show: true,
-              color: "#f4f4f5",
+              color: "#f6f6f8",
               size: 10,
               family: "ui-monospace, monospace",
               paddingLeft: 4,
               paddingTop: 2,
               paddingRight: 4,
               paddingBottom: 2,
-              backgroundColor: "#1f1f23",
-              borderColor: "#3f3f46",
+              backgroundColor: "#15151b",
+              borderColor: "#404050",
               borderSize: 1,
               borderRadius: 2,
             },
           },
           vertical: {
             show: true,
-            line: {
-              show: true,
-              style: LineType.Dashed,
-              dashedValue: [4, 4],
-              size: 1,
-              color: "#71717a",
-            },
+            line: { show: true, style: LineType.Dashed, dashedValue: [4, 4], size: 1, color: "#555564" },
             text: {
               show: true,
-              color: "#f4f4f5",
+              color: "#f6f6f8",
               size: 10,
               family: "ui-sans-serif, system-ui",
               paddingLeft: 4,
               paddingTop: 2,
               paddingRight: 4,
               paddingBottom: 2,
-              backgroundColor: "#1f1f23",
-              borderColor: "#3f3f46",
+              backgroundColor: "#15151b",
+              borderColor: "#404050",
               borderSize: 1,
               borderRadius: 2,
             },
@@ -213,28 +552,25 @@ export function KlineChart({
         },
         overlay: {
           point: {
-            color: "#3b82f6",
-            borderColor: "#0c0c0e",
+            color: "#818cf8",
+            borderColor: "#050507",
             borderSize: 1,
             radius: 4,
-            activeColor: "#3b82f6",
-            activeBorderColor: "#0c0c0e",
+            activeColor: "#818cf8",
+            activeBorderColor: "#050507",
             activeBorderSize: 1,
             activeRadius: 6,
           },
-          line: {
-            color: "#3b82f6",
-            size: 1,
-            dashedValue: [4, 4],
-          },
+          line: { color: "#818cf8", size: 1, dashedValue: [4, 4] },
+          segment: { color: "#818cf8", size: 1, dashedValue: [4, 4] },
           rect: {
-            color: "rgba(59, 130, 246, 0.15)",
-            borderColor: "rgba(59, 130, 246, 0.4)",
+            color: "rgba(129, 140, 248, 0.14)",
+            borderColor: "rgba(129, 140, 248, 0.55)",
             borderSize: 1,
             borderRadius: 0,
           },
           text: {
-            color: "#f4f4f5",
+            color: "#f6f6f8",
             size: 10,
             family: "ui-sans-serif, system-ui",
             paddingLeft: 4,
@@ -244,152 +580,304 @@ export function KlineChart({
             borderSize: 0,
             borderColor: "transparent",
             borderRadius: 2,
-            backgroundColor: "rgba(12, 12, 14, 0.8)",
+            backgroundColor: "rgba(5, 5, 7, 0.85)",
           },
         },
       },
     });
 
     if (!chart) return;
-
-    chartRef.current = chart;
-
-    // Set price precision based on symbol
     chart.setPriceVolumePrecision(getPricePrecision(symbol), 0);
-
-    // Load data — deduplicate by minute (MT5 sends each 1m bar at both xx:59 and xx:00)
-    const dedupedMap = new Map<number, { timestamp: number; open: number; high: number; low: number; close: number; volume: number }>();
-    for (const c of candles) {
-      // Round to nearest minute so xx:59 and xx:00 collapse to the same key
-      const key = Math.round(new Date(c.ts).getTime() / 60000) * 60000;
-      const existing = dedupedMap.get(key);
-      const candidate = {
-        timestamp: key,
-        open: c.o,
-        high: c.h,
-        low: c.l,
-        close: c.c,
-        volume: c.v ?? 0,
-      };
-      if (!existing || candidate.volume > existing.volume) {
-        dedupedMap.set(key, candidate);
-      }
-    }
-    const data = Array.from(dedupedMap.values()).sort((a, b) => a.timestamp - b.timestamp);
-
-    chart.applyNewData(data);
-
-    // Add signal lines
-    signals.forEach((s) => {
-      chart.createOverlay({
-        name: "priceLine",
-        points: [{ value: s.entry_price }],
-        styles: {
-          line: { color: "#3b82f6", size: 1, dashedValue: [4, 4] },
-          text: {
-            color: "#3b82f6",
-            backgroundColor: "rgba(12, 12, 14, 0.8)",
-            size: 10,
-          },
-        },
-        extendData: "ENTRY",
-      });
-      chart.createOverlay({
-        name: "priceLine",
-        points: [{ value: s.stop_loss }],
-        styles: {
-          line: { color: "#ef4444", size: 1, dashedValue: [4, 4] },
-          text: {
-            color: "#ef4444",
-            backgroundColor: "rgba(12, 12, 14, 0.8)",
-            size: 10,
-          },
-        },
-        extendData: "SL",
-      });
-      chart.createOverlay({
-        name: "priceLine",
-        points: [{ value: s.take_profit }],
-        styles: {
-          line: { color: "#22c55e", size: 1, dashedValue: [4, 4] },
-          text: {
-            color: "#22c55e",
-            backgroundColor: "rgba(12, 12, 14, 0.8)",
-            size: 10,
-          },
-        },
-        extendData: "TP",
-      });
-    });
-
-    // Add structure annotations
-    structure.forEach((s) => {
-      const ts = new Date(s.ts).getTime();
-      chart.createOverlay({
-        name: "simpleTag",
-        points: [{ timestamp: ts, value: s.level }],
-        styles: {
-          text: {
-            color:
-              s.direction === "bullish"
-                ? "#22c55e"
-                : s.direction === "bearish"
-                ? "#ef4444"
-                : "#f59e0b",
-            backgroundColor: "rgba(12, 12, 14, 0.9)",
-            size: 10,
-            borderColor:
-              s.direction === "bullish"
-                ? "rgba(34, 197, 94, 0.4)"
-                : s.direction === "bearish"
-                ? "rgba(239, 68, 68, 0.4)"
-                : "rgba(245, 158, 11, 0.4)",
-            borderSize: 1,
-          },
-        },
-        extendData: s.event_type.toUpperCase(),
-      });
-    });
-
-    // Fit data into view
-    chart.zoomAtCoordinate(0.8, { x: 0, y: 0 });
+    chartRef.current = chart;
 
     return () => {
       dispose(chart);
       chartRef.current = null;
+      overlayIdsRef.current = [];
+      hasFittedRef.current = false;
     };
-  }, [candles, signals, structure]);
+  }, [symbol]);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart || data.rows.length === 0) return;
+
+    const { rows, firstTs, lastTs, lastClose } = data;
+
+    const barSpace = chart.getBarSpace();
+    const offsetRight = chart.getOffsetRightDistance();
+
+    clearOverlays();
+    chart.applyNewData(rows);
+
+    if (!hasFittedRef.current) {
+      chart.zoomAtCoordinate(reducedMotion ? 1 : 0.85, { x: 0, y: 0 });
+      hasFittedRef.current = true;
+    } else {
+      chart.setBarSpace(barSpace);
+      chart.setOffsetRightDistance(offsetRight);
+    }
+
+    const clampTs = (ts: number) => Math.max(firstTs, Math.min(ts, lastTs));
+
+    // ── Structure: BOS/MSS as rays from the break candle ──
+    if (layers.structure) {
+      const events = (features?.structure ?? structure).filter((s) => !s.invalidated_at).slice(0, 5);
+      for (const s of events) {
+        const startTs = clampTs(new Date(s.ts).getTime());
+        const endTs = s.invalidated_at
+          ? clampTs(new Date(s.invalidated_at).getTime())
+          : lastTs;
+        const color = directionColor(s.direction, 0.85);
+        createSegment(chart, startTs, endTs, s.level, s.level, color, true, s.event_type.toLowerCase() === "mss" ? 1.5 : 1);
+        createTag(chart, startTs, s.level, s.event_type.toUpperCase(), color);
+      }
+    }
+
+    // ── Pivots: dots + zigzag trendline ──
+    if (layers.structure && features?.pivots) {
+      const sorted = [...features.pivots]
+        .filter((p) => p.ts && Number.isFinite(p.price))
+        .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime())
+        .slice(-16);
+
+      for (const p of sorted) {
+        const ts = new Date(p.ts).getTime();
+        const color = p.kind === "high" ? "#fb7185" : "#34d399";
+        createCircle(chart, ts, p.price, color, p.kind === "high" ? 3.5 : 3.5);
+      }
+
+      // Zigzag: connect consecutive pivots
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const a = sorted[i];
+        const b = sorted[i + 1];
+        const color = b.price > a.price ? "rgba(52, 211, 153, 0.75)" : "rgba(251, 113, 133, 0.75)";
+        createSegment(
+          chart,
+          new Date(a.ts).getTime(),
+          new Date(b.ts).getTime(),
+          a.price,
+          b.price,
+          color,
+          false,
+          2
+        );
+      }
+    }
+
+    // ── Zones / FVGs / OBs: rectangles, start → mitigated ──
+    if (layers.zones && features?.zones) {
+      const zones = features.zones
+        .filter((z) => !z.invalidated_at)
+        .slice(0, 6);
+      for (const z of zones) {
+        const startTs = clampTs(new Date(z.ts).getTime());
+        const endTs = z.mitigated_at
+          ? clampTs(new Date(z.mitigated_at).getTime())
+          : lastTs;
+        if (endTs <= startTs) continue;
+        const { fill, border } = zoneColor(z.zone_kind, z.direction ?? undefined);
+        createRect(chart, startTs, endTs, z.top, z.bottom, fill, border, z.zone_kind.toUpperCase());
+      }
+    }
+
+    // ── iFVGs: rectangles, start → mitigated ──
+    if (layers.ifvgs && features?.ifvgs) {
+      const ifvgs = features.ifvgs.filter((z) => !z.invalidated_at).slice(0, 6);
+      for (const z of ifvgs) {
+        const startTs = clampTs(new Date(z.originating_zone_ts ?? z.ts).getTime());
+        const endTs = z.mitigated_at
+          ? clampTs(new Date(z.mitigated_at).getTime())
+          : lastTs;
+        if (endTs <= startTs) continue;
+        const { fill, border } = zoneColor("ifvg", z.direction, 0.12, 0.6);
+        createRect(chart, startTs, endTs, z.top, z.bottom, fill, border, "iFVG");
+      }
+    }
+
+    // ── Order Blocks: last opposing candle before a displacement break ──
+    if (layers.orderBlocks && features?.orderBlocks) {
+      (window as any).__debugOrderBlocks = features.orderBlocks;
+      const barInterval = rows.length > 1 ? rows[1].timestamp - rows[0].timestamp : 60_000;
+      const maxAgeBars = 100;
+      const allCandidates = features.orderBlocks
+        .filter((ob) => {
+          const startTs = new Date(ob.formation_ts).getTime();
+          const barsAgo = (lastTs - startTs) / barInterval;
+          return barsAgo >= 0 && barsAgo < maxAgeBars && ob.strength_score > 0.15;
+        })
+        .sort((a, b) => b.strength_score - a.strength_score);
+      // Prefer fresh blocks; fall back to recently invalidated if none are fresh
+      const fresh = allCandidates.filter((ob) => !ob.invalidated_at && !ob.mitigated_at);
+      const candidates = fresh.length > 0 ? fresh : allCandidates;
+      // Deduplicate overlapping same-direction blocks so the chart stays readable
+      const pricePrecision = getPricePrecision(symbol);
+      const minPriceSep = Math.pow(10, -pricePrecision);
+      const obs: typeof features.orderBlocks = [];
+      for (const ob of candidates) {
+        const tooClose = obs.some(
+          (o) =>
+            o.ob_kind === ob.ob_kind &&
+            Math.abs((o.top + o.bottom) / 2 - (ob.top + ob.bottom) / 2) < minPriceSep * 5
+        );
+        if (!tooClose) obs.push(ob);
+        if (obs.length >= 4) break;
+      }
+      for (const ob of obs) {
+        const startTs = clampTs(new Date(ob.formation_ts).getTime());
+        if (startTs >= lastTs) continue;
+        const isInvalidated = !!ob.invalidated_at;
+        const isMitigated = !!ob.mitigated_at;
+        const endTsRaw = isInvalidated
+          ? new Date(ob.invalidated_at!).getTime()
+          : isMitigated
+          ? new Date(ob.mitigated_at!).getTime()
+          : lastTs;
+        const endTs = clampTs(endTsRaw);
+        if (endTs <= startTs) continue;
+        // Extend fresh blocks a couple bars so the label is readable
+        const rightPadTs = isInvalidated || isMitigated ? endTs : Math.min(lastTs, endTs + 2 * barInterval);
+        const { fill, border } = obColor(
+          ob.ob_kind,
+          isInvalidated ? 0.12 : isMitigated ? 0.22 : 0.38,
+          isInvalidated ? 0.5 : isMitigated ? 0.75 : 1
+        );
+        createRect(chart, startTs, rightPadTs, ob.top, ob.bottom, fill, border, ob.degree === "internal" ? "iOB" : "OB");
+      }
+    }
+
+    // ── Sweeps: small tick at sweep candle ──
+    if (layers.liquidity && features?.sweep) {
+      for (const s of features.sweep.slice(0, 5)) {
+        const ts = clampTs(new Date(s.ts).getTime());
+        const color = directionColor(s.direction, 0.9);
+        createCircle(chart, ts, s.level, color, 4);
+        createTag(chart, ts, s.level, "SWEEP", color);
+      }
+    }
+
+    // ── Liquidity pools: only nearest distinct levels, short right-side rays ──
+    if (layers.liquidity && features?.liquidityPools) {
+      const pricePrecision = getPricePrecision(symbol);
+      const seen = new Set<number>();
+      const unique: LiquidityPool[] = [];
+      for (const p of features.liquidityPools) {
+        const key = Math.round(p.price * Math.pow(10, pricePrecision));
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(p);
+      }
+
+      const barInterval = rows.length > 1 ? rows[1].timestamp - rows[0].timestamp : 60_000;
+      const rayBars = 30;
+      const rayStartTs = Math.max(firstTs, lastTs - rayBars * barInterval);
+      const labelTs = Math.max(firstTs, lastTs - Math.floor(rayBars / 3) * barInterval);
+
+      unique
+        .sort((a, b) => Math.abs(a.price - lastClose) - Math.abs(b.price - lastClose))
+        .slice(0, 4)
+        .forEach((p) => {
+          const color = liquiditySideColor(p.side, 0.75);
+          createSegment(chart, rayStartTs, lastTs, p.price, p.price, color, true, 1);
+          createTag(chart, labelTs, p.price, p.label ?? p.kind, color);
+        });
+    }
+
+    // ── Equal highs / equal lows: short right-side rays + label ──
+    if (layers.eqLiquidity && features?.eqLiquidity) {
+      const barInterval = rows.length > 1 ? rows[1].timestamp - rows[0].timestamp : 60_000;
+      const rayBars = 30;
+      const rayStartTs = Math.max(firstTs, lastTs - rayBars * barInterval);
+      const labelTs = Math.max(firstTs, lastTs - Math.floor(rayBars / 3) * barInterval);
+      for (const l of features.eqLiquidity.slice(0, 5)) {
+        const color = l.kind === "eqh" ? "rgba(251, 113, 133, 0.8)" : "rgba(52, 211, 153, 0.8)";
+        createSegment(chart, rayStartTs, lastTs, l.price, l.price, color, true, 1);
+        createTag(chart, labelTs, l.price, `${l.kind.toUpperCase()} ${l.strength ?? ""}`, color);
+      }
+    }
+
+    // ── Displacement + candle patterns: markers at event candle ──
+    if (layers.patterns && features?.displacement) {
+      for (const d of features.displacement.slice(0, 6)) {
+        const ts = clampTs(new Date(d.ts).getTime());
+        const candle = rows.find((c) => c.timestamp === ts);
+        const value = candle ? candle.high : d.body_pct;
+        createTag(chart, ts, value, d.grade, "#fbbf24");
+      }
+    }
+    if (layers.patterns && features?.candlePatterns) {
+      for (const p of features.candlePatterns.slice(0, 8)) {
+        const ts = clampTs(new Date(p.ts).getTime());
+        const candle = rows.find((c) => c.timestamp === ts);
+        const value = candle ? candle.high : p.confidence;
+        createTag(chart, ts, value, p.pattern_name, "#a78bfa");
+      }
+    }
+
+    // ── Moving averages: lines across chart ──
+    if (layers.movingAverages && features?.movingAverages) {
+      for (const ma of features.movingAverages.slice(0, 6)) {
+        const color = ma.ma_type.toLowerCase() === "ema" ? "#38bdf8" : "#f472b6";
+        createSegment(chart, firstTs, lastTs, ma.value, ma.value, color, true, 1);
+      }
+    }
+
+    // ── Bands: Bollinger / Keltner channels ──
+    if (layers.bands && features?.bollinger) {
+      const b = features.bollinger;
+      createSegment(chart, firstTs, lastTs, b.upper, b.upper, "rgba(129, 140, 248, 0.55)", true, 1);
+      createSegment(chart, firstTs, lastTs, b.middle, b.middle, "rgba(129, 140, 248, 0.85)", false, 1.5);
+      createSegment(chart, firstTs, lastTs, b.lower, b.lower, "rgba(129, 140, 248, 0.55)", true, 1);
+    }
+    if (layers.bands && features?.keltner) {
+      const k = features.keltner;
+      createSegment(chart, firstTs, lastTs, k.upper, k.upper, "rgba(56, 189, 248, 0.55)", true, 1);
+      createSegment(chart, firstTs, lastTs, k.middle, k.middle, "rgba(56, 189, 248, 0.85)", false, 1.5);
+      createSegment(chart, firstTs, lastTs, k.lower, k.lower, "rgba(56, 189, 248, 0.55)", true, 1);
+    }
+
+    // ── Signals: TradingView-style Long/Short trade-plan overlay ──
+    if (layers.signals && activeSignal) {
+      const side = normalizeSide(activeSignal.side);
+      const entry = activeSignal.entry_price;
+      const sl = activeSignal.stop_loss;
+      const tp = activeSignal.take_profit;
+      const rr =
+        side === "long"
+          ? Math.abs((tp - entry) / (entry - sl))
+          : Math.abs((entry - tp) / (sl - entry));
+      addOverlay(chart, {
+        name: "tradePlan",
+        points: [
+          { timestamp: new Date(activeSignal.created_at).getTime(), value: entry },
+          { timestamp: new Date(activeSignal.created_at).getTime(), value: sl },
+          { timestamp: new Date(activeSignal.created_at).getTime(), value: tp },
+        ],
+        extendData: { side, rr: Number.isFinite(rr) ? rr : 0 },
+      });
+    }
+  }, [
+    data,
+    structure,
+    features,
+    layers,
+    activeSignal,
+    clearOverlays,
+    createPriceLine,
+    createTag,
+    createRect,
+    createSegment,
+    createCircle,
+    reducedMotion,
+  ]);
 
   return (
     <div className="w-full">
       <div
         ref={containerRef}
         className="rounded-lg border border-border bg-panel"
-        style={{ width: "100%", height: 420 }}
+        style={{ width: "100%", height }}
       />
-      <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-text-dim">
-        <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-sm bg-long" /> Bullish
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-sm bg-short" /> Bearish
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-3 rounded bg-brand" style={{ opacity: 0.6 }} /> Entry
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-3 rounded bg-short" style={{ opacity: 0.6 }} /> SL
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-1.5 w-3 rounded bg-long" style={{ opacity: 0.6 }} /> TP
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-long" /> BOS/MSS bullish
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-short" /> BOS/MSS bearish
-        </span>
-      </div>
     </div>
   );
 }

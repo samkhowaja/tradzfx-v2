@@ -72,7 +72,7 @@ function detectRetests(candles: Candle[], zones: ZoneOutput["zones"]): ZoneRetes
 
 export const zoneRetestFeature: FeatureDefinition<ZoneRetestInput, ZoneRetestOutput> = {
   name: "features_zone_retest",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: ["features_zone"],
 
   compute(input): ZoneRetestOutput {

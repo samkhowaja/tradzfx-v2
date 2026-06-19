@@ -76,7 +76,7 @@ function computeSessionHL(candles: Candle[]): SessionHlOutput["sessions"] {
 
 export const sessionHlFeature: FeatureDefinition<SessionHlInput, SessionHlOutput> = {
   name: "features_session_hl",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): SessionHlOutput {

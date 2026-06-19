@@ -11,6 +11,8 @@ export interface Candle {
   l: number;
   c: number;
   v?: number;
+  spread?: number;
+  digits?: number;
 }
 
 export type TimeFrame = "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
@@ -29,10 +31,15 @@ export interface FeatureDefinition<Input, Output> {
    * into `input.referenceCandles` (keyed by symbol).
    */
   referenceSymbols?: string[];
-  /** Pure computation function */
-  compute: (input: Input, context?: { tf: TimeFrame }) => Output;
+  /** Pure computation function. May be async for features that query the DB. */
+  compute: (
+    input: Input,
+    context?: { tf: TimeFrame; pool?: any; symbol?: string; endTs?: Date }
+  ) => Output | Promise<Output>;
   /** Hash inputs for cache lookup */
   hashInput: (input: Input) => string;
+  // Note: the runner appends symbol/tf/endTs to the input hash automatically,
+  // so feature-level hashes only need to cover input contents.
   /** Hash outputs for cache storage */
   hashOutput: (output: Output) => string;
   /** Serialize output for database storage */
@@ -63,6 +70,7 @@ export interface StructureOutput {
     level: number;
     ts: Date;
     isCisd?: boolean;
+    invalidatedAt?: Date;
   }>;
 }
 
@@ -74,12 +82,14 @@ export interface SweepOutput {
     close: number;
     ts: Date;
     evidence?: Record<string, unknown>;
+    mitigatedAt?: Date;
   }>;
 }
 
 export interface ZoneOutput {
   zones: Array<{
     zoneKind: "demand" | "supply" | "fvg" | "breaker" | "ifvg";
+    direction?: Direction;
     top: number;
     bottom: number;
     fillPct?: number;
@@ -91,6 +101,8 @@ export interface ZoneOutput {
     qualityScore?: number;
     formation?: "rbr" | "dbd" | "dbu" | "rbd" | "fvg" | "breaker" | "ifvg" | "other";
     strengthScore?: number;
+    mitigatedAt?: Date;
+    invalidatedAt?: Date;
   }>;
 }
 
@@ -115,6 +127,7 @@ export interface PricingOutput {
   oteHigh?: number;
   lltTarget?: number;
   balanced?: boolean;
+  pipSize?: number;
 }
 
 export interface BiasOutput {
@@ -147,10 +160,13 @@ export type LiquidityPoolKind =
   | "prev_day_low"
   | "prev_week_high"
   | "prev_week_low"
-  | "round_number";
+  | "round_number"
+  | "eqh"
+  | "eql";
 
 export interface LiquidityPool {
   kind: LiquidityPoolKind;
+  side?: "buy_side" | "sell_side";
   label: string;
   price: number;
   distance: number;
@@ -298,6 +314,34 @@ export interface IfvgOutput {
     ageBars?: number;
     isFresh?: boolean;
     strengthScore?: number;
+    mitigatedAt?: Date;
+    invalidatedAt?: Date;
+  }>;
+}
+
+export interface OrderBlockOutput {
+  orderBlocks: Array<{
+    obKind: "bullish" | "bearish";
+    degree: "internal" | "swing";
+    top: number;
+    bottom: number;
+    ts: Date;
+    formationTs?: Date;
+    ageBars?: number;
+    isFresh?: boolean;
+    strengthScore?: number;
+    mitigatedAt?: Date;
+    invalidatedAt?: Date;
+  }>;
+}
+
+export interface EqLiquidityOutput {
+  levels: Array<{
+    kind: "eqh" | "eql";
+    price: number;
+    ts: Date;
+    strength: number;
+    touched: boolean;
   }>;
 }
 

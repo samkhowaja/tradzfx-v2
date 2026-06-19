@@ -114,7 +114,7 @@ export async function GET() {
     return a.name.localeCompare(b.name);
   });
 
-  return NextResponse.json({ families });
+  return NextResponse.json({ families, strategies });
 }
 
 function formatFamilyName(id: string): string {

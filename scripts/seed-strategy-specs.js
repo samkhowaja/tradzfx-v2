@@ -37,7 +37,7 @@ async function seedSpec(filePath) {
       spec.version,
       spec.description ?? null,
       JSON.stringify(spec),
-      true,
+      spec.active === true,
     ]
   );
 

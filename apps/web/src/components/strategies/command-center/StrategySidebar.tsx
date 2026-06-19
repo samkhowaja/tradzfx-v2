@@ -20,6 +20,7 @@ interface Strategy {
 interface Family {
   id: string;
   name: string;
+  activeCount: number;
   strategies: Strategy[];
 }
 
@@ -36,6 +37,7 @@ export function StrategySidebar({
 }) {
   const [query, setQuery] = useState("");
   const [activeOnly, setActiveOnly] = useState(false);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const filteredFamilies = useMemo(() => {
     const q = query.toLowerCase();
@@ -77,22 +79,53 @@ export function StrategySidebar({
       </div>
 
       <div className="flex-1 overflow-auto p-2">
-        {filteredFamilies.map((family) => (
-          <div key={family.id} className="mb-4">
-            <div className="mb-1 px-2 text-[10px] font-bold uppercase tracking-wider text-text-subtle">{family.name}</div>
-            <div className="space-y-1">
-              {family.strategies.map((s) => (
-                <SidebarRow
-                  key={s.id}
-                  strategy={s}
-                  selected={selectedId === s.id}
-                  onSelect={() => onSelect(s.id)}
-                  onToggle={() => onToggle(s.id, s.isActive)}
-                />
-              ))}
+        {filteredFamilies.map((family) => {
+          const isCollapsed = collapsed.has(family.id);
+          return (
+            <div key={family.id} className="mb-3">
+              <button
+                onClick={() =>
+                  setCollapsed((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(family.id)) next.delete(family.id);
+                    else next.add(family.id);
+                    return next;
+                  })
+                }
+                className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors hover:bg-panel-hover"
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">{family.name}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-text-dim">
+                    {family.activeCount}/{family.strategies.length}
+                  </span>
+                  <svg
+                    className={`h-3 w-3 text-text-dim transition-transform ${isCollapsed ? "-rotate-90" : ""}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </button>
+              {!isCollapsed && (
+                <div className="mt-1 space-y-1">
+                  {family.strategies.map((s) => (
+                    <SidebarRow
+                      key={s.id}
+                      strategy={s}
+                      selected={selectedId === s.id}
+                      onSelect={() => onSelect(s.id)}
+                      onToggle={() => onToggle(s.id, s.isActive)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
         {filteredFamilies.length === 0 && (
           <div className="px-2 py-6 text-center text-xs text-text-dim">No strategies match</div>
         )}

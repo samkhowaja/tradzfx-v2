@@ -10,7 +10,12 @@
  */
 
 const { Pool } = require("pg");
-const { loadStrategyFromDB } = require("../packages/strategies/dist/index.js");
+const {
+  loadStrategyFromDB,
+  buildEntryPriceSql,
+  buildSlSql,
+  buildTpSql,
+} = require("../packages/strategies/dist/index.js");
 const { getSession } = require("../packages/shared/dist/index.js");
 const {
   createSessionGate,
@@ -33,7 +38,10 @@ function translatePredicate(predicate, tableRef, context) {
   const biasRef = context === "setup" ? "b.direction" : "s.bias_direction";
   let sql = predicate
     .replace(/features_bias\.direction/g, "__BIAS_DIRECTION__")
-    .replace(/features_bias\b/g, "__BIAS_TABLE__");
+    .replace(/features_bias\b/g, "__BIAS_TABLE__")
+    .replace(/features_htf_bias\.direction/g, "__BIAS_DIRECTION__")
+    .replace(/features_htf_bias\.state/g, "__BIAS_STATE__")
+    .replace(/features_htf_bias\b/g, "__BIAS_TABLE__");
   // Use word boundaries so period/fast_period/etc don't overlap.
   sql = sql
     .replace(/\bzone_kind\b/g, `${tableRef}.zone_kind`)
@@ -43,6 +51,11 @@ function translatePredicate(predicate, tableRef, context) {
     .replace(/\bfill_pct\b/g, `${tableRef}.fill_pct`)
     .replace(/\btapped\b/g, `${tableRef}.tapped`)
     .replace(/\bgrade\b/g, `${tableRef}.grade`)
+    .replace(/\bob_kind\b/g, `${tableRef}.ob_kind`)
+    .replace(/\bdegree\b/g, `${tableRef}.degree`)
+    .replace(/\bage_bars\b/g, `${tableRef}.age_bars`)
+    .replace(/\bformation_ts\b/g, `${tableRef}.formation_ts`)
+    .replace(/\bstrength_score\b/g, `${tableRef}.strength_score`)
     .replace(/\bis_fresh\b/g, `${tableRef}.is_fresh`)
     .replace(/\bquality_score\b/g, `${tableRef}.quality_score`)
     .replace(/\bindicator_name\b/g, `${tableRef}.indicator_name`)
@@ -68,148 +81,25 @@ function translatePredicate(predicate, tableRef, context) {
     .replace(/\bcorrelation_1d\b/g, `${tableRef}.correlation_1d`)
     .replace(/\bdivergence_detected\b/g, `${tableRef}.divergence_detected`)
     .replace(/\bdivergence_type\b/g, `${tableRef}.divergence_type`)
-    .replace(/\breference_symbol\b/g, `${tableRef}.reference_symbol`);
+    .replace(/\breference_symbol\b/g, `${tableRef}.reference_symbol`)
+    .replace(/\btop\b/g, `${tableRef}.top`)
+    .replace(/\bbottom\b/g, `${tableRef}.bottom`)
+    .replace(/\bmitigated_at\b/g, `${tableRef}.mitigated_at`)
+    .replace(/\binvalidated_at\b/g, `${tableRef}.invalidated_at`)
+    .replace(/\bhigh\b/g, `${tableRef}.high`)
+    .replace(/\blow\b/g, `${tableRef}.low`)
+    .replace(/\bopen\b/g, `${tableRef}.open`)
+    .replace(/\bclose\b/g, `${tableRef}.close`)
+    .replace(/\bdate\b/g, `${tableRef}.date`);
   sql = sql
     .replace(/__BIAS_DIRECTION__/g, biasRef)
     .replace(/__BIAS_TABLE__/g, context === "setup" ? "b" : "s");
   return sql;
 }
 
-function pipSize(symbol) {
-  if (/^(USDJPY|EURJPY|GBPJPY|AUDJPY|CADJPY|CHFJPY|NZDJPY)/i.test(symbol)) return 0.01;
-  if (/^(XAU|XAG|BCO|USO|BTC|ETH)/i.test(symbol)) return 0.01;
-  return 0.0001;
-}
-
-function buildEntryPriceSql(spec, tfs, symbol) {
-  const signalSource = spec.signalSource ?? "zone";
-  const cfg = spec.entryConfig;
-  const pip = pipSize(symbol);
-  const offset = cfg?.zonePips != null ? cfg.zonePips * pip : 0;
-  const base = buildEntryPriceSqlBase(signalSource);
-
-  if (offset === 0 || !cfg || cfg.type === "market") {
-    return base;
-  }
-
-  if (cfg.type === "limit") {
-    return `CASE
-      WHEN e.bias_direction = 'bullish' THEN (${base}) - ${offset}
-      WHEN e.bias_direction = 'bearish' THEN (${base}) + ${offset}
-      ELSE (${base})
-    END`;
-  }
-
-  // stop
-  return `CASE
-    WHEN e.bias_direction = 'bullish' THEN (${base}) + ${offset}
-    WHEN e.bias_direction = 'bearish' THEN (${base}) - ${offset}
-    ELSE (${base})
-  END`;
-}
-
 function buildEntryTypeColumn(spec) {
   const type = spec.entryConfig?.type ?? "market";
   return `'${type}' as entry_type`;
-}
-
-const PRICE_TOKENS =
-  /\b(orb_midpoint|orb_high|orb_low|zone_top|zone_bottom|ema_fast|ema_slow|sma_fast|sma_slow|ma_fast|ma_slow|ote_low|ote_high)\b/gi;
-
-function isPriceExpression(expr) {
-  return expr.search(PRICE_TOKENS) !== -1;
-}
-
-function tokenizeRiskExpr(expr, signalSource) {
-  const entrySql = buildEntryPriceSqlBase(signalSource);
-  return expr
-    .replace(/\batr\s*\([^)]*\)/gi, "a.value")
-    .replace(/\borb_midpoint\b/gi, "o.midpoint")
-    .replace(/\borb_high\b/gi, "o.high")
-    .replace(/\borb_low\b/gi, "o.low")
-    .replace(/\bzone_top\b/gi, "z.top")
-    .replace(/\bzone_bottom\b/gi, "z.bottom")
-    .replace(/\bema_fast\b/gi, "ema.fast_value")
-    .replace(/\bema_slow\b/gi, "ema.slow_value")
-    .replace(/\bsma_fast\b/gi, "sma.fast_value")
-    .replace(/\bsma_slow\b/gi, "sma.slow_value")
-    .replace(/\bma_fast\b/gi, "fast_ma.value")
-    .replace(/\bma_slow\b/gi, "slow_ma.value")
-    .replace(/\bote_low\b/gi, "p.ote_low")
-    .replace(/\bote_high\b/gi, "p.ote_high")
-    .replace(/\bentry\b/gi, entrySql);
-}
-
-function buildSlSql(spec, signalSource, symbol) {
-  const slExpr = (spec.risk?.sl ?? "atr(15m) * 1.2").trim();
-  if (slExpr.length === 0) return "NULL";
-
-  const entrySql = buildEntryPriceSql(spec, resolveTimeframes(spec), symbol);
-  const raw = tokenizeRiskExpr(slExpr, signalSource);
-
-  if (isPriceExpression(slExpr)) {
-    return raw;
-  }
-
-  return `CASE
-    WHEN e.bias_direction = 'bullish' THEN (${entrySql}) - (${raw})
-    WHEN e.bias_direction = 'bearish' THEN (${entrySql}) + (${raw})
-  END`;
-}
-
-function buildTpSql(spec, signalSource, symbol) {
-  const tpExpr = (spec.risk?.tp ?? `sl * ${(spec.risk?.minRR ?? 3.0).toFixed(1)}`).trim();
-  if (tpExpr.length === 0) return "NULL";
-
-  const entrySql = buildEntryPriceSql(spec, resolveTimeframes(spec), symbol);
-  const slSql = buildSlSql(spec, signalSource, symbol);
-  const slExpr = (spec.risk?.sl ?? "atr(15m) * 1.2").trim();
-
-  const rrMatch = tpExpr.match(/^sl\s*([*/])\s*([0-9.]+)$/i);
-  if (rrMatch) {
-    const op = rrMatch[1];
-    let ratio = parseFloat(rrMatch[2]);
-    if (op === "/") ratio = 1 / ratio;
-    const distance = isPriceExpression(slExpr)
-      ? `ABS((${entrySql}) - (${slSql}))`
-      : `(${tokenizeRiskExpr(slExpr, signalSource)})`;
-    return `CASE
-      WHEN e.bias_direction = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
-      WHEN e.bias_direction = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
-    END`;
-  }
-
-  const raw = tokenizeRiskExpr(tpExpr, signalSource);
-
-  if (isPriceExpression(tpExpr)) {
-    return raw;
-  }
-
-  return `CASE
-    WHEN e.bias_direction = 'bullish' THEN (${entrySql}) + (${raw})
-    WHEN e.bias_direction = 'bearish' THEN (${entrySql}) - (${raw})
-  END`;
-}
-
-function buildEntryPriceSqlBase(signalSource) {
-  switch (signalSource) {
-    case "orb":
-      return `CASE
-      WHEN e.bias_direction = 'bullish' THEN o.high
-      WHEN e.bias_direction = 'bearish' THEN o.low
-    END`;
-    case "ema_cross":
-      return "ema.fast_value";
-    case "sma_cross":
-      return "sma.fast_value";
-    case "indicator":
-      return `CASE WHEN e.bias_direction = 'bullish' THEN p.ote_low WHEN e.bias_direction = 'bearish' THEN p.ote_high END`;
-    case "moving_average":
-      return "fast_ma.value";
-    case "zone":
-    default:
-      return `CASE WHEN e.bias_direction = 'bullish' THEN z.bottom WHEN e.bias_direction = 'bearish' THEN z.top END`;
-  }
 }
 
 function resolveTimeframes(spec) {
@@ -239,13 +129,13 @@ function resolveTimeframes(spec) {
 function buildPITSignalSelect(spec, tfs, symbol) {
   const signalSource = spec.signalSource ?? "zone";
   const { pricingTf, zoneTf, atrTf, emaCrossTf, smaCrossTf, orbTf, indicatorTf, movingAverageTf } = tfs;
-  const minRR = spec.risk?.minRR ?? 3.0;
-  const entryPriceSql = buildEntryPriceSql(spec, tfs, symbol);
   const entryTypeCol = buildEntryTypeColumn(spec);
+  const riskCtx = { signalAlias: "e" };
 
   if (signalSource === "orb") {
-    const slSql = buildSlSql(spec, "orb", symbol);
-    const tpSql = buildTpSql(spec, "orb", symbol);
+    const entryPriceSql = buildEntryPriceSql(spec, "orb", riskCtx);
+    const slSql = buildSlSql(spec, "orb", riskCtx);
+    const tpSql = buildTpSql(spec, "orb", riskCtx);
     return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -268,8 +158,9 @@ ORDER BY e.ts`;
   }
 
   if (signalSource === "ema_cross") {
-    const slSql = buildSlSql(spec, "ema_cross", symbol);
-    const tpSql = buildTpSql(spec, "ema_cross", symbol);
+    const entryPriceSql = buildEntryPriceSql(spec, "ema_cross", riskCtx);
+    const slSql = buildSlSql(spec, "ema_cross", riskCtx);
+    const tpSql = buildTpSql(spec, "ema_cross", riskCtx);
     return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -292,8 +183,9 @@ ORDER BY e.ts`;
   }
 
   if (signalSource === "indicator") {
-    const slSql = buildSlSql(spec, "indicator", symbol);
-    const tpSql = buildTpSql(spec, "indicator", symbol);
+    const entryPriceSql = buildEntryPriceSql(spec, "indicator", riskCtx);
+    const slSql = buildSlSql(spec, "indicator", riskCtx);
+    const tpSql = buildTpSql(spec, "indicator", riskCtx);
     return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -320,8 +212,9 @@ ORDER BY e.ts`;
     const maType = cfg.maType ?? "sma";
     const fastPeriod = cfg.fastPeriod ?? 9;
     const slowPeriod = cfg.slowPeriod ?? 21;
-    const slSql = buildSlSql(spec, "moving_average", symbol);
-    const tpSql = buildTpSql(spec, "moving_average", symbol);
+    const entryPriceSql = buildEntryPriceSql(spec, "moving_average", riskCtx);
+    const slSql = buildSlSql(spec, "moving_average", riskCtx);
+    const tpSql = buildTpSql(spec, "moving_average", riskCtx);
     return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -352,8 +245,9 @@ ORDER BY e.ts`;
   }
 
   if (signalSource === "sma_cross") {
-    const slSql = buildSlSql(spec, "sma_cross", symbol);
-    const tpSql = buildTpSql(spec, "sma_cross", symbol);
+    const entryPriceSql = buildEntryPriceSql(spec, "sma_cross", riskCtx);
+    const slSql = buildSlSql(spec, "sma_cross", riskCtx);
+    const tpSql = buildTpSql(spec, "sma_cross", riskCtx);
     return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -376,8 +270,22 @@ ORDER BY e.ts`;
   }
 
   // zone (default)
-  const slSql = buildSlSql(spec, "zone", symbol);
-  const tpSql = buildTpSql(spec, "zone", symbol);
+  const entryPriceSql = buildEntryPriceSql(spec, "zone", riskCtx);
+  const slSql = buildSlSql(spec, "zone", riskCtx);
+  const tpSql = buildTpSql(spec, "zone", riskCtx);
+  // Use the strategy's pricing predicate if it exists, otherwise fall back to strict discount/premium.
+  const pricingCond = spec.setup?.find((c) => c.feature === "features_pricing" && c.required);
+  let pricingFilter;
+  if (pricingCond?.predicate) {
+    pricingFilter = pricingCond.predicate
+      .replace(/features_bias\.direction/g, "e.bias_direction")
+      .replace(/features_htf_bias\.direction/g, "e.bias_direction")
+      .replace(/\bposition\b/g, "p.position");
+  } else {
+    pricingFilter = `CASE WHEN e.bias_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
+           WHEN e.bias_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium') END`;
+  }
+
   return `
 SELECT
   e.symbol, e.ts, e.bias_direction,
@@ -392,12 +300,17 @@ FROM entry_passed e
 JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
   AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
 JOIN features_zone z ON e.symbol = z.symbol AND z.tf = '${zoneTf}'
-  AND z.ts = (SELECT MAX(ts) FROM features_zone WHERE symbol = e.symbol AND tf = '${zoneTf}' AND ts <= e.ts)
+  AND z.ts = (
+    SELECT ts FROM features_zone
+    WHERE symbol = e.symbol AND tf = '${zoneTf}' AND ts <= e.ts
+      AND is_band_fresh(symbol, ts, top, bottom, CASE WHEN zone_kind = 'demand' THEN 'bullish' WHEN zone_kind = 'supply' THEN 'bearish' ELSE 'bullish' END, e.ts)
+    ORDER BY ts DESC, strength_score DESC NULLS LAST
+    LIMIT 1
+  )
 JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
   AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
 WHERE e.bias_direction IN ('bullish', 'bearish')
-  AND CASE WHEN e.bias_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
-           WHEN e.bias_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium') END
+  AND (${pricingFilter})
 ORDER BY e.ts`;
 }
 
@@ -413,45 +326,93 @@ function timeWindowsToSql(windows) {
   return "  AND (" + clauses.join("\n    OR ") + ")";
 }
 
+const LIFECYCLE_FEATURES = new Set([
+  "features_zone",
+  "features_ifvg",
+  "features_order_block",
+  "features_sweep",
+  "features_structure",
+]);
+
+function needsLifecycleCheck(feature) {
+  return LIFECYCLE_FEATURES.has(feature);
+}
+
+function buildFreshnessPredicate(cond, tableRef, asOfRef) {
+  switch (cond.feature) {
+    case "features_zone":
+      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, CASE WHEN ${tableRef}.zone_kind = 'demand' THEN 'bullish' WHEN ${tableRef}.zone_kind = 'supply' THEN 'bearish' ELSE 'bullish' END, ${asOfRef})`;
+    case "features_ifvg":
+      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.direction, ${asOfRef})`;
+    case "features_order_block":
+      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.ob_kind, ${asOfRef})`;
+    case "features_structure":
+    case "features_sweep":
+      return `AND is_structure_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.level, ${tableRef}.direction, ${asOfRef})`;
+    default:
+      return "";
+  }
+}
+
+function orderByTieBreaker(feature) {
+  if (feature === "features_zone" || feature === "features_ifvg" || feature === "features_order_block") {
+    return ", strength_score DESC NULLS LAST";
+  }
+  return "";
+}
+
 function compilePITSQL(spec, symbol, from, to, overrides = {}) {
   const setupConds = spec.setup.filter((c) => c.required);
   const entryConds = spec.entry.filter((c) => c.required);
-  const biasTf = spec.setup.find((c) => c.feature === "features_bias")?.tf ?? "15m";
+  const biasCond = setupConds.find(
+    (c) => c.feature === "features_bias" || c.feature === "features_htf_bias"
+  );
+  const biasTf = biasCond?.tf ?? "15m";
+  const biasTable = biasCond?.feature ?? "features_bias";
   const timeFilter = timeWindowsToSql(spec.filters?.timeWindows);
 
   const setupPIT = setupConds
-    .filter((c) => c.feature !== "features_bias")
+    .filter((c) => c.feature !== "features_bias" && c.feature !== "features_htf_bias")
     .map((cond) => {
       const groupCols = cond.groupBy ?? [];
       const distinctOn = ["symbol", ...groupCols].join(", ");
+      const tieBreaker = orderByTieBreaker(cond.feature);
       return `
       LATERAL (
         SELECT DISTINCT ON (${distinctOn}) *
         FROM ${cond.feature}
         WHERE symbol = b.symbol AND tf = '${cond.tf}' AND ts <= b.ts
-        ORDER BY ${distinctOn}, ts DESC
+        ORDER BY ${distinctOn}, ts DESC${tieBreaker}
       ) AS pit_${cond.id}`;
     });
 
   const setupWheres = setupConds.map((cond) => {
-    const ref = cond.feature === "features_bias" ? "b" : `pit_${cond.id}`;
-    return `(${translatePredicate(cond.predicate, ref, "setup")})`;
+    const ref = cond.feature === "features_bias" || cond.feature === "features_htf_bias" ? "b" : `pit_${cond.id}`;
+    const freshness = needsLifecycleCheck(cond.feature)
+      ? buildFreshnessPredicate(cond, ref, "b.ts")
+      : "";
+    return `(${translatePredicate(cond.predicate, ref, "setup")} ${freshness})`;
   });
 
   const entryPIT = entryConds.map((cond) => {
     const groupCols = cond.groupBy ?? [];
     const distinctOn = ["symbol", ...groupCols].join(", ");
+    const tieBreaker = orderByTieBreaker(cond.feature);
     return `
       LATERAL (
         SELECT DISTINCT ON (${distinctOn}) *
         FROM ${cond.feature}
         WHERE symbol = s.symbol AND tf = '${cond.tf}' AND ts <= s.ts
-        ORDER BY ${distinctOn}, ts DESC
+        ORDER BY ${distinctOn}, ts DESC${tieBreaker}
       ) AS pit_${cond.id}`;
   });
 
   const entryWheres = entryConds.map((cond) => {
-    return `(${translatePredicate(cond.predicate, `pit_${cond.id}`, "entry")})`;
+    const ref = `pit_${cond.id}`;
+    const freshness = needsLifecycleCheck(cond.feature)
+      ? buildFreshnessPredicate(cond, ref, "s.ts")
+      : "";
+    return `(${translatePredicate(cond.predicate, ref, "entry")} ${freshness})`;
   });
 
   const structureFreshnessMin = overrides.structureFreshnessMinutes ?? spec.live?.structureFreshnessMinutes ?? 30;
@@ -487,8 +448,8 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}) {
 
   return `
 WITH bias_times AS (
-  SELECT symbol, ts, direction
-  FROM features_bias
+  SELECT symbol, ts, direction${biasTable === "features_htf_bias" ? ", state" : ", NULL::text as state"}
+  FROM ${biasTable}
   WHERE symbol = '${symbol}'
     AND tf = '${biasTf}'
     AND ts >= '${from.toISOString()}'::timestamp
@@ -705,6 +666,10 @@ async function main() {
   const strategyId = args[2] || "doyle_sd";
 
   const spec = await loadStrategyFromDB(pool, strategyId);
+  if (!spec) {
+    console.error(`[backtest-pit-v2] Strategy "${strategyId}" not found or not active. Run: node scripts/load-waqar-spec.mjs`);
+    process.exit(1);
+  }
   const symbols = symbolArg === "ALL" ? spec.filters.symbols : [symbolArg];
 
   let to;
@@ -814,6 +779,9 @@ async function main() {
             side: t.side,
             ts: t.ts instanceof Date ? t.ts.toISOString() : t.ts,
             closeTs: new Date(new Date(t.ts).getTime() + (t.holdBars ?? 0) * 60000).toISOString(),
+            entry: t.entry,
+            stopLoss: t.sl,
+            takeProfit: t.tp,
             outcome: t.outcome,
             r: t.r,
             holdBars: t.holdBars,

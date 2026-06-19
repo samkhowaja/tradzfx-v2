@@ -110,7 +110,7 @@ function computeOBV(candles: Candle[]): number {
 
 export const indicatorFeature: FeatureDefinition<IndicatorInput, IndicatorOutput> = {
   name: "features_indicator",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
 
   compute(input): IndicatorOutput {

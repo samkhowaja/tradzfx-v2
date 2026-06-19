@@ -1,4 +1,5 @@
 id: orb_classic
+active: true
 name: "ORB Classic"
 version: "1.1.0"
 description: >

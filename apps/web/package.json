@@ -13,6 +13,7 @@
     "@tm/shared": "workspace:*",
     "@tm/strategies": "workspace:*",
     "@tm/trade-pipeline": "workspace:*",
+    "framer-motion": "^12.40.0",
     "klinecharts": "9.8.12",
     "next": "^15.0.0",
     "pg": "^8.11.0",
