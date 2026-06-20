@@ -354,6 +354,7 @@ function buildFreshnessPredicate(cond, tableRef, asOfRef) {
   }
 }
 
+
 function orderByTieBreaker(feature) {
   if (feature === "features_zone" || feature === "features_ifvg" || feature === "features_order_block") {
     return ", strength_score DESC NULLS LAST";
