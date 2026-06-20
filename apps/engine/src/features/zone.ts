@@ -48,8 +48,8 @@ function computeZoneQuality(
   // Age: bars since zone formation
   zone.ageBars = candles.length - zoneIndex;
 
-  // Freshness: not tapped
-  zone.isFresh = !zone.tapped;
+  // Freshness: not invalidated (tapped zones are still valid retest candidates)
+  zone.isFresh = !zone.invalidatedAt;
 
   // Departure candles: strong impulse candles after zone
   let departures = 0;
@@ -111,9 +111,11 @@ function detectZones(
         candles,
         i
       );
+      zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
-      zone.tapped = !!lifecycle.mitigatedAt;
+      zone.fillPct = lifecycle.fillPct ?? 0;
+      zone.tapped = !!lifecycle.firstTouchAt;
       computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
@@ -135,9 +137,11 @@ function detectZones(
         candles,
         i
       );
+      zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
-      zone.tapped = !!lifecycle.mitigatedAt;
+      zone.fillPct = lifecycle.fillPct ?? 0;
+      zone.tapped = !!lifecycle.firstTouchAt;
       computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
@@ -173,9 +177,11 @@ function detectZones(
           candles,
           i
         );
+        zone.firstTouchAt = lifecycle.firstTouchAt;
         zone.mitigatedAt = lifecycle.mitigatedAt;
         zone.invalidatedAt = lifecycle.invalidatedAt;
-        zone.tapped = !!lifecycle.mitigatedAt;
+        zone.fillPct = lifecycle.fillPct ?? 0;
+        zone.tapped = !!lifecycle.firstTouchAt;
         computeZoneQuality(zone, candles, i, candle);
         zone.formation = classifyFormation("demand", candle, prev, pivots);
         zones.push(zone);
@@ -202,9 +208,11 @@ function detectZones(
           candles,
           i
         );
+        zone.firstTouchAt = lifecycle.firstTouchAt;
         zone.mitigatedAt = lifecycle.mitigatedAt;
         zone.invalidatedAt = lifecycle.invalidatedAt;
-        zone.tapped = !!lifecycle.mitigatedAt;
+        zone.fillPct = lifecycle.fillPct ?? 0;
+        zone.tapped = !!lifecycle.firstTouchAt;
         computeZoneQuality(zone, candles, i, candle);
         zone.formation = classifyFormation("supply", candle, prev, pivots);
         zones.push(zone);
@@ -262,6 +270,7 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       quality_score: z.qualityScore ?? null,
       formation: z.formation ?? null,
       strength_score: z.strengthScore ?? null,
+      first_touch_at: z.firstTouchAt ?? null,
       mitigated_at: z.mitigatedAt ?? null,
       invalidated_at: z.invalidatedAt ?? null,
     }));
@@ -282,6 +291,7 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         qualityScore: r.quality_score as number | undefined,
         formation: r.formation as ZoneOutput["zones"][number]["formation"] | undefined,
         strengthScore: r.strength_score as number | undefined,
+        firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),

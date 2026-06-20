@@ -49,7 +49,7 @@ function computeOrderBlockLifecycle(
   ob: OrderBlockOutput["orderBlocks"][number],
   candles: Candle[],
   fromIndex: number
-): { mitigatedAt?: Date; invalidatedAt?: Date } {
+): { firstTouchAt?: Date; mitigatedAt?: Date; invalidatedAt?: Date; fillPct?: number } {
   return computeZoneLifecycle(
     {
       zoneKind: ob.obKind === "bullish" ? "demand" : "supply",
@@ -105,9 +105,11 @@ function detectOrderBlocks(
     };
 
     const lifecycle = computeOrderBlockLifecycle(ob, candles, index);
+    ob.firstTouchAt = lifecycle.firstTouchAt;
     ob.mitigatedAt = lifecycle.mitigatedAt;
     ob.invalidatedAt = lifecycle.invalidatedAt;
-    ob.isFresh = !lifecycle.mitigatedAt && !lifecycle.invalidatedAt;
+    ob.fillPct = lifecycle.fillPct ?? 0;
+    ob.isFresh = !lifecycle.invalidatedAt;
 
     // Strength: body/range of the opposing candle + recency + freshness.
     const range = top - bottom;
@@ -149,7 +151,7 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       output.orderBlocks
         .map(
           (ob) =>
-            `${ob.ts.toISOString()}:${ob.obKind}:${ob.top}:${ob.bottom}:${ob.mitigatedAt?.toISOString() ?? ""}:${ob.invalidatedAt?.toISOString() ?? ""}`
+            `${ob.ts.toISOString()}:${ob.obKind}:${ob.top}:${ob.bottom}:${ob.firstTouchAt?.toISOString() ?? ""}:${ob.mitigatedAt?.toISOString() ?? ""}:${ob.invalidatedAt?.toISOString() ?? ""}`
         )
         .join("|")
     );
@@ -165,7 +167,9 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       age_bars: ob.ageBars ?? null,
       is_fresh: ob.isFresh ?? true,
       strength_score: ob.strengthScore ?? null,
+      fill_pct: ob.fillPct ?? 0,
       ts: ob.ts,
+      first_touch_at: ob.firstTouchAt ?? null,
       mitigated_at: ob.mitigatedAt ?? null,
       invalidated_at: ob.invalidatedAt ?? null,
     }));
@@ -183,6 +187,8 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
         ageBars: r.age_bars as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         strengthScore: r.strength_score as number | undefined,
+        fillPct: r.fill_pct as number | undefined,
+        firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),

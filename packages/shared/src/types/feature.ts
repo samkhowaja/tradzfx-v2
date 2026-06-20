@@ -101,6 +101,7 @@ export interface ZoneOutput {
     qualityScore?: number;
     formation?: "rbr" | "dbd" | "dbu" | "rbd" | "fvg" | "breaker" | "ifvg" | "other";
     strengthScore?: number;
+    firstTouchAt?: Date;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
   }>;
@@ -314,6 +315,7 @@ export interface IfvgOutput {
     ageBars?: number;
     isFresh?: boolean;
     strengthScore?: number;
+    firstTouchAt?: Date;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
   }>;
@@ -330,6 +332,8 @@ export interface OrderBlockOutput {
     ageBars?: number;
     isFresh?: boolean;
     strengthScore?: number;
+    firstTouchAt?: Date;
+    fillPct?: number;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
   }>;

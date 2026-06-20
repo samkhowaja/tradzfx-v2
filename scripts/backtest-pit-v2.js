@@ -303,7 +303,7 @@ JOIN features_zone z ON e.symbol = z.symbol AND z.tf = '${zoneTf}'
   AND z.ts = (
     SELECT ts FROM features_zone
     WHERE symbol = e.symbol AND tf = '${zoneTf}' AND ts <= e.ts
-      AND is_band_fresh(symbol, ts, top, bottom, CASE WHEN zone_kind = 'demand' THEN 'bullish' WHEN zone_kind = 'supply' THEN 'bearish' ELSE 'bullish' END, e.ts)
+      AND (invalidated_at IS NULL OR invalidated_at > e.ts)
     ORDER BY ts DESC, strength_score DESC NULLS LAST
     LIMIT 1
   )
@@ -339,16 +339,17 @@ function needsLifecycleCheck(feature) {
 }
 
 function buildFreshnessPredicate(cond, tableRef, asOfRef) {
+  // Use stored lifecycle columns instead of the expensive is_band_fresh / is_structure_fresh
+  // helpers. The lifecycle refresh functions keep these columns up to date.
   switch (cond.feature) {
     case "features_zone":
-      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, CASE WHEN ${tableRef}.zone_kind = 'demand' THEN 'bullish' WHEN ${tableRef}.zone_kind = 'supply' THEN 'bearish' ELSE 'bullish' END, ${asOfRef})`;
     case "features_ifvg":
-      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.direction, ${asOfRef})`;
     case "features_order_block":
-      return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.ob_kind, ${asOfRef})`;
-    case "features_structure":
+      return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
     case "features_sweep":
-      return `AND is_structure_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.level, ${tableRef}.direction, ${asOfRef})`;
+      return `AND (${tableRef}.mitigated_at IS NULL OR ${tableRef}.mitigated_at > ${asOfRef})`;
+    case "features_structure":
+      return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
     default:
       return "";
   }

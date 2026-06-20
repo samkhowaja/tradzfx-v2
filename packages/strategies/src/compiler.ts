@@ -120,31 +120,19 @@ function compileFullSQL(spec: StrategySpec, opts: CompileOptions = {}): string {
     asOfRef: string,
     trustStored: boolean
   ): string {
-    if (trustStored) {
-      switch (cond.feature) {
-        case "features_zone":
-        case "features_ifvg":
-        case "features_order_block":
-          return `AND ${tableRef}.mitigated_at IS NULL AND ${tableRef}.invalidated_at IS NULL`;
-        case "features_sweep":
-          return `AND ${tableRef}.mitigated_at IS NULL`;
-        case "features_structure":
-          return `AND ${tableRef}.invalidated_at IS NULL`;
-        default:
-          return "";
-      }
-    }
-
+    // Use the stored lifecycle columns for both live (trustStored=true) and PIT
+    // backtests. The lifecycle refresh functions keep these columns up to date,
+    // so the expensive is_band_fresh / is_structure_fresh helpers are no longer
+    // needed on the hot path.
     switch (cond.feature) {
       case "features_zone":
-        return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, CASE WHEN ${tableRef}.zone_kind = 'demand' THEN 'bullish' WHEN ${tableRef}.zone_kind = 'supply' THEN 'bearish' ELSE 'bullish' END, ${asOfRef})`;
       case "features_ifvg":
-        return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.direction, ${asOfRef})`;
       case "features_order_block":
-        return `AND is_band_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.top, ${tableRef}.bottom, ${tableRef}.ob_kind, ${asOfRef})`;
-      case "features_structure":
+        return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
       case "features_sweep":
-        return `AND is_structure_fresh(${tableRef}.symbol, ${tableRef}.ts, ${tableRef}.level, ${tableRef}.direction, ${asOfRef})`;
+        return `AND (${tableRef}.mitigated_at IS NULL OR ${tableRef}.mitigated_at > ${asOfRef})`;
+      case "features_structure":
+        return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
       default:
         return "";
     }

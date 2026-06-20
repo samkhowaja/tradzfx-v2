@@ -1,8 +1,10 @@
 import type { Candle, Direction } from "./types/feature";
 
 export interface EventLifecycle {
+  firstTouchAt?: Date;
   mitigatedAt?: Date;
   invalidatedAt?: Date;
+  fillPct?: number;
 }
 
 function isDirection(d: Direction): d is "bullish" | "bearish" {
@@ -11,20 +13,34 @@ function isDirection(d: Direction): d is "bullish" | "bearish" {
 
 /**
  * Find the first candle after `fromIndex` whose range intersects a price band.
+ * Returns both the timestamp and the deepest fill percentage reached up to that
+ * point. Fill percentage is normalized to [0, 1] relative to the band height.
  */
-export function findBandMitigation(
+export function findBandFirstTouch(
   candles: Candle[],
   fromIndex: number,
   top: number,
-  bottom: number
-): Date | undefined {
+  bottom: number,
+  direction: "bullish" | "bearish"
+): { ts?: Date; fillPct: number } {
+  let firstTouchAt: Date | undefined;
+  let deepest = 0;
+  const height = top - bottom;
   for (let i = fromIndex + 1; i < candles.length; i++) {
     const c = candles[i];
     if (c.h >= bottom && c.l <= top) {
-      return c.ts;
+      if (!firstTouchAt) firstTouchAt = c.ts;
+      if (height > 0) {
+        const penetration =
+          direction === "bullish"
+            ? Math.max(0, Math.min(top, c.h) - bottom) // price entering from top down
+            : Math.max(0, top - Math.max(bottom, c.l)); // price entering from bottom up
+        deepest = Math.max(deepest, penetration);
+      }
     }
   }
-  return undefined;
+  const fillPct = height > 0 ? Math.min(1, deepest / height) : 0;
+  return { ts: firstTouchAt, fillPct };
 }
 
 /**
@@ -69,7 +85,15 @@ export function findCloseCross(
 
 /**
  * Compute lifecycle for a supply/demand/FVG zone.
- * Mitigation = first touch. Invalidation = close beyond the far side.
+ *
+ * Semantics:
+ * - firstTouchAt: first wick/body intersection (informational; used for retest logic).
+ * - mitigatedAt: first wick/body intersection (kept for backward compatibility).
+ * - invalidatedAt: close beyond the far side.
+ * - fillPct: deepest penetration into the zone as a ratio of zone height.
+ *
+ * A zone is considered "fresh" for PIT/live trading as long as it has not been
+ * invalidated; first-touch / mitigated rows are still valid retest candidates.
  */
 export function computeZoneLifecycle(
   zone: {
@@ -82,7 +106,6 @@ export function computeZoneLifecycle(
   candles: Candle[],
   fromIndex: number
 ): EventLifecycle {
-  // Determine direction for invalidation.
   let direction: "bullish" | "bearish" | undefined;
   if (zone.direction && isDirection(zone.direction)) {
     direction = zone.direction;
@@ -91,11 +114,16 @@ export function computeZoneLifecycle(
   } else if (zone.zoneKind === "supply") {
     direction = "bearish";
   } else {
-    // FVG / breaker / ifvg: default to bullish. Caller can override via direction.
     direction = "bullish";
   }
 
-  const mitigatedAt = findBandMitigation(candles, fromIndex, zone.top, zone.bottom);
+  const { ts: firstTouchAt, fillPct } = findBandFirstTouch(
+    candles,
+    fromIndex,
+    zone.top,
+    zone.bottom,
+    direction
+  );
   const invalidatedAt = findBandInvalidation(
     candles,
     fromIndex,
@@ -104,12 +132,7 @@ export function computeZoneLifecycle(
     direction
   );
 
-  // If invalidated before any mitigation, the zone was never tested.
-  if (invalidatedAt && mitigatedAt && invalidatedAt < mitigatedAt) {
-    return { invalidatedAt };
-  }
-
-  return { mitigatedAt, invalidatedAt };
+  return { firstTouchAt, mitigatedAt: firstTouchAt, invalidatedAt, fillPct };
 }
 
 /**
@@ -127,6 +150,14 @@ export function computeIfvgLifecycle(
   fromIndex: number
 ): EventLifecycle {
   if (!isDirection(ifvg.direction)) return {};
+
+  const { ts: firstTouchAt, fillPct } = findBandFirstTouch(
+    candles,
+    fromIndex,
+    ifvg.top,
+    ifvg.bottom,
+    ifvg.direction
+  );
 
   const mitigatedAt = findBandInvalidation(
     candles,
@@ -147,10 +178,10 @@ export function computeIfvgLifecycle(
   );
 
   if (invalidatedAt && mitigatedAt && invalidatedAt < mitigatedAt) {
-    return { invalidatedAt };
+    return { firstTouchAt, invalidatedAt, fillPct };
   }
 
-  return { mitigatedAt, invalidatedAt };
+  return { firstTouchAt, mitigatedAt, invalidatedAt, fillPct };
 }
 
 /**
@@ -164,15 +195,15 @@ export function computeSweepLifecycle(
   },
   candles: Candle[],
   fromIndex: number
-): { mitigatedAt?: Date } {
+): { firstTouchAt?: Date; mitigatedAt?: Date } {
   if (!isDirection(sweep.direction)) return {};
-  const mitigatedAt = findCloseCross(
+  const firstTouchAt = findCloseCross(
     candles,
     fromIndex,
     sweep.level,
     sweep.direction
   );
-  return { mitigatedAt };
+  return { firstTouchAt, mitigatedAt: firstTouchAt };
 }
 
 /**

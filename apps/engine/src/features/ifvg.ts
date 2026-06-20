@@ -100,13 +100,14 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         direction: fvg.direction,
         top: fvg.top,
         bottom: fvg.bottom,
-        fillPct,
-        tapped: !!lifecycle.mitigatedAt,
+        fillPct: lifecycle.fillPct ?? fillPct,
+        tapped: !!lifecycle.firstTouchAt,
         originatingZoneTs: candles[fvg.formationIndex].ts,
         ts: last.ts,
         ageBars,
-        isFresh: !lifecycle.mitigatedAt && !lifecycle.invalidatedAt,
+        isFresh: !lifecycle.invalidatedAt,
         strengthScore,
+        firstTouchAt: lifecycle.firstTouchAt,
         mitigatedAt: lifecycle.mitigatedAt,
         invalidatedAt: lifecycle.invalidatedAt,
       });
@@ -126,7 +127,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       output.ifvgs
         .map(
           (z) =>
-            `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+            `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}:${z.firstTouchAt?.toISOString() ?? ""}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
         )
         .join("|")
     );
@@ -144,6 +145,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       strength_score: z.strengthScore ?? null,
       originating_zone_ts: z.originatingZoneTs ?? null,
       ts: z.ts,
+      first_touch_at: z.firstTouchAt ?? null,
       mitigated_at: z.mitigatedAt ?? null,
       invalidated_at: z.invalidatedAt ?? null,
     }));
@@ -162,6 +164,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         ageBars: r.age_bars as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         strengthScore: r.strength_score as number | undefined,
+        firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),
