@@ -361,7 +361,7 @@ function orderByTieBreaker(feature) {
   return "";
 }
 
-function compilePITSQL(spec, symbol, from, to, overrides = {}) {
+function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
   const setupConds = spec.setup.filter((c) => c.required);
   const entryConds = spec.entry.filter((c) => c.required);
   const biasCond = setupConds.find(
@@ -445,6 +445,36 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}) {
 
   const setupPITJoins = setupPIT.length > 0 ? ",\n" + setupPIT.join(",\n") : "";
   const entryPITJoins = entryPIT.length > 0 ? ",\n" + entryPIT.join(",\n") : "";
+
+  if (debug) {
+    return `
+WITH bias_times AS (
+  SELECT symbol, ts, direction${biasTable === "features_htf_bias" ? ", state" : ", NULL::text as state"}
+  FROM ${biasTable}
+  WHERE symbol = '${symbol}'
+    AND tf = '${biasTf}'
+    AND ts >= '${from.toISOString()}'::timestamp
+    AND ts <= '${to.toISOString()}'::timestamp
+    AND direction != 'neutral'
+    ${timeFilter ? timeFilter + "\n" : ""}),
+setup_passed AS (
+  SELECT b.symbol, b.ts, b.direction as bias_direction
+  FROM bias_times b
+  ${setupPITJoins}
+  WHERE ${setupWheres.join("\n    AND ")}
+),
+entry_passed AS (
+  SELECT s.symbol, s.ts, s.bias_direction
+  FROM setup_passed s
+  ${entryPITJoins}
+  WHERE ${entryWheres.join("\n    AND ")}
+)
+SELECT
+  (SELECT COUNT(*) FROM bias_times) AS bias_rows,
+  (SELECT COUNT(*) FROM setup_passed) AS setup_rows,
+  (SELECT COUNT(*) FROM entry_passed) AS entry_rows
+`;
+  }
 
   return `
 WITH bias_times AS (
@@ -650,6 +680,7 @@ async function applyGates(trades, spec) {
 
 const jsonMode = process.argv.includes("--json");
 const includeTrades = process.argv.includes("--trades");
+const debugMode = process.argv.includes("--debug");
 const stdoutLog = console.log;
 if (jsonMode) {
   // Route normal logs to stderr so stdout stays pure JSON.
@@ -658,6 +689,7 @@ if (jsonMode) {
 
 async function main() {
   const jsonMode = process.argv.includes("--json");
+  const debugMode = process.argv.includes("--debug");
   const endArg = process.argv.find((a) => a.startsWith("--end="));
   const endDate = endArg ? new Date(endArg.slice("--end=".length)) : null;
   const args = process.argv.slice(2).filter((a) => a !== "--json" && !a.startsWith("--end="));
@@ -693,6 +725,15 @@ async function main() {
 
   for (const symbol of symbols) {
     const sql = compilePITSQL(spec, symbol, from, to);
+    if (debugMode) {
+      const debugSql = compilePITSQL(spec, symbol, from, to, {}, true);
+      try {
+        const { rows: debugRows } = await pool.query(debugSql);
+        console.log(`  DEBUG ${symbol}:`, debugRows[0]);
+      } catch (err) {
+        console.error(`  DEBUG ${symbol} ERROR:`, err.message);
+      }
+    }
     const t0 = performance.now();
     const { rows: signals } = await pool.query(sql);
     const tQuery = performance.now();
