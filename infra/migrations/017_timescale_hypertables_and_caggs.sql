@@ -144,23 +144,14 @@ BEGIN
   END IF;
 END $$;
 
--- 4. Backfill all aggregates from historical 1m data.
--- Only refresh caggs that are empty, avoiding a full re-backfill on re-runs.
-DO $$
-DECLARE
-  cagg_name TEXT;
-  row_count BIGINT;
-BEGIN
-  FOREACH cagg_name IN ARRAY ARRAY['candles_5m','candles_15m','candles_1h','candles_4h','candles_1d_utc','candles_1d_ny']
-  LOOP
-    IF EXISTS (SELECT 1 FROM pg_views WHERE viewname = cagg_name) THEN
-      EXECUTE format('SELECT COUNT(*) FROM %I', cagg_name) INTO row_count;
-      IF row_count = 0 THEN
-        EXECUTE format('CALL refresh_continuous_aggregate(%L, NULL, NULL)', cagg_name);
-      END IF;
-    END IF;
-  END LOOP;
-END $$;
+-- 4. Backfill
+-- We intentionally do not CALL refresh_continuous_aggregate() here because it
+-- cannot run inside a transaction block, and the migration runner executes each
+-- migration as a single transaction. On a fresh DB there is no 1m history to
+-- backfill; the real-time aggregates above answer queries from the underlying
+-- table until the refresh policies below populate the materializations. For an
+-- existing DB with historical data, run the refresh calls manually after the
+-- migration completes (or let the continuous-aggregate policies catch up).
 
 -- 5. Refresh policies keep the materializations warm incrementally.
 --    Real-time aggregation covers the latest incomplete buckets automatically.
