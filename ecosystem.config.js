@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'tm-web-v2',
+      name: 'tz-web-v2',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3003',
       cwd: 'C:\\tradzfx-v2\\apps\\web',
@@ -13,12 +13,13 @@ module.exports = {
         PORT: '3003',
         TM_DB_HOST: 'localhost',
         TM_DB_PORT: '5432',
-        TM_DB_NAME: 'tradementor_v2',
+        TM_DB_NAME: 'tradzfx_v2',
         TM_DB_USER: 'postgres',
-        TM_DB_PASSWORD: '2k16Dub@i',
+        TM_DB_PASSWORD: process.env.TM_DB_PASSWORD,
         TM_DB_POOL_MAX: '20',
         TM_DB_STATEMENT_TIMEOUT: '60000',
-        TM_MT5_API_KEY: 'tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef',
+        TM_MT5_API_KEY: process.env.TM_MT5_API_KEY,
+        MT5_SYMBOLS: 'EURUSD,GBPUSD,USDJPY,USDCHF,USDCAD,USDSEK,AUDUSD,NZDUSD,XAUUSD',
         NINJA_LIVE_ENABLED: 'true',
         NINJA_LIVE_MODE: 'paper',
         NINJA_SYMBOLS: 'XAUUSD',
@@ -45,11 +46,13 @@ module.exports = {
       shutdown_with_message: true,
       watch: false,
     },
+    // NOTE: tm-web-v2-ninja-trail removed because scripts/run-ninja-trail-cron.ts
+    // does not exist and PM2 on Windows cannot execute node_modules/.bin/tsx.cmd.
+    // Re-add as a compiled JS entry if the cron is revived.
     {
-      name: 'tm-web-v2-ninja-trail',
-      script: 'C:\\tradzfx-v2\\node_modules\\.bin\\tsx.cmd',
-      args: 'scripts/run-ninja-trail-cron.ts',
-      cwd: 'C:\\tradzfx-v2\\apps\\web',
+      name: 'tz-dxy-synthetic',
+      script: 'C:\\tradzfx-v2\\scripts\\run-dxy-synthetic-cron.js',
+      cwd: 'C:\\tradzfx-v2',
       instances: 1,
       exec_mode: 'fork',
       interpreter: 'node',
@@ -57,17 +60,14 @@ module.exports = {
         NODE_ENV: 'production',
         TM_DB_HOST: 'localhost',
         TM_DB_PORT: '5432',
-        TM_DB_NAME: 'tradementor_v2',
+        TM_DB_NAME: 'tradzfx_v2',
         TM_DB_USER: 'postgres',
-        TM_DB_PASSWORD: '2k16Dub@i',
-        TM_DB_POOL_MAX: '5',
-        TM_MT5_API_KEY: 'tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef',
-        NINJA_LIVE_ENABLED: 'true',
-        NINJA_TRAIL_INTERVAL_MS: '10000',
+        TM_DB_PASSWORD: process.env.TM_DB_PASSWORD,
+        TM_DB_POOL_MAX: '2',
       },
-      error_file: 'C:\\tradzfx-v2\\logs\\pm2-ninja-trail-error.log',
-      out_file: 'C:\\tradzfx-v2\\logs\\pm2-ninja-trail-out.log',
-      log_file: 'C:\\tradzfx-v2\\logs\\pm2-ninja-trail-combined.log',
+      error_file: 'C:\\tradzfx-v2\\logs\\pm2-dxy-synthetic-error.log',
+      out_file: 'C:\\tradzfx-v2\\logs\\pm2-dxy-synthetic-out.log',
+      log_file: 'C:\\tradzfx-v2\\logs\\pm2-dxy-synthetic-combined.log',
       time: true,
       autorestart: true,
       max_restarts: 10,
@@ -75,5 +75,9 @@ module.exports = {
       kill_timeout: 5000,
       watch: false,
     },
+    // NOTE: tm-mt5-python-backfill is intentionally not managed by PM2 because
+    // MetaTrader5's Python API must run in the same interactive Windows session
+    // as the MT5 terminal (RDP session 3). It is started via
+    // scripts/run-mt5-python-backfill.bat in that session.
   ],
 };

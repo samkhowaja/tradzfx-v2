@@ -180,12 +180,12 @@ async function main() {
   const pool = new Pool({
     host: process.env.TM_DB_HOST || "localhost",
     port: parseInt(process.env.TM_DB_PORT || "5432", 10),
-    database: process.env.TM_DB_NAME || "tradementor_v2",
+    database: process.env.TM_DB_NAME || (process.env.TM_DB_NAME || "tradzfx_v2"),
     user: process.env.TM_DB_USER || "postgres",
     password:
       process.env.TM_DB_PASSWORD ||
       process.env.PGPASSWORD ||
-      "2k16Dub@i",
+      process.env.TM_DB_PASSWORD,
     max: 2,
   });
 

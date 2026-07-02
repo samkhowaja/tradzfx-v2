@@ -1,4 +1,4 @@
-# TradeMentor V2 — Improvement Proposal
+# tradzfx V2 — Improvement Proposal
 
 Date: 2026-06-20
 Scope: zone model, HTF bias, PIT backtest performance, live pipeline, strategy optimization architecture
@@ -315,6 +315,6 @@ CREATE TABLE optimization_results (
 - `scripts/backtest-pit-v2.js`
 - `apps/web/src/app/api/ingest/route.ts`
 - `apps/web/src/lib/pipelineTrigger.ts`
-- `mt5-ea/TradeMentorManager_MT4.mq4`
+- `mt5-ea/tradzfxManager_MT4_v5_0_1.mq4`
 - `infra/migrations/026_pit_freshness.sql`
 - `infra/migrations/027_incremental_lifecycle.sql`

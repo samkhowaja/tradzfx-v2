@@ -3,7 +3,7 @@ import yaml from "js-yaml";
 import fs from "fs";
 import path from "path";
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, database: "tradementor_v2", user: "postgres", password: "2k16Dub@i" });
+const pool = new pg.Pool({ host: "localhost", port: 5432, database: (process.env.TM_DB_NAME || "tradzfx_v2"), user: "postgres", password: process.env.TM_DB_PASSWORD });
 
 const specId = process.argv[2] || "waqar_v2_fvg";
 const symbol = process.argv[3] || "EURUSD";

@@ -19,50 +19,44 @@ export interface SpreadOutput {
   samples: number;
 }
 
+interface SpreadSample {
+  spreadPips: number;
+}
+
 async function fetchLatest1mSpreads(
   pool: Pool,
   symbol: string,
   endTs: Date,
   limit: number
-): Promise<Candle[]> {
+): Promise<SpreadSample[]> {
   const { rows } = await pool.query(
-    `SELECT ts, o, h, l, c, v, spread
-     FROM candles_1m
-     WHERE symbol = $1 AND ts <= $2 AND spread IS NOT NULL
-     ORDER BY ts DESC
-     LIMIT $3`,
+    `SELECT spread, digits
+       FROM candles_1m
+      WHERE symbol = $1 AND ts <= $2 AND spread IS NOT NULL
+      ORDER BY ts DESC
+      LIMIT $3`,
     [symbol, endTs, limit]
   );
 
   return rows
-    .map(
-      (r): Candle => ({
-        symbol: r.symbol,
-        ts: new Date(r.ts),
-        o: parseFloat(r.o),
-        h: parseFloat(r.h),
-        l: parseFloat(r.l),
-        c: parseFloat(r.c),
-        v: r.v ? parseInt(r.v, 10) : undefined,
-        spread: r.spread ? parseFloat(r.spread) : undefined,
-      })
-    )
+    .map((r): SpreadSample | null => {
+      const spread = r.spread == null ? null : Number(r.spread);
+      if (spread == null || !Number.isFinite(spread)) return null;
+      return { spreadPips: spread };
+    })
+    .filter((s): s is SpreadSample => s != null)
     .reverse();
 }
 
-function computeSpread(candles: Candle[]): SpreadOutput {
-  const withSpread = candles.filter(
-    (c) => typeof c.spread === "number" && Number.isFinite(c.spread)
-  );
-
-  if (withSpread.length === 0) {
+function computeSpread(samples: SpreadSample[]): SpreadOutput {
+  if (samples.length === 0) {
     return { spread: null, samples: 0 };
   }
 
-  const avg =
-    withSpread.reduce((sum, c) => sum + (c.spread ?? 0), 0) / withSpread.length;
+  const avgPips =
+    samples.reduce((sum, s) => sum + s.spreadPips, 0) / samples.length;
 
-  return { spread: avg, samples: withSpread.length };
+  return { spread: avgPips, samples: samples.length };
 }
 
 export const spreadFeature: FeatureDefinition<SpreadInput, SpreadOutput> = {
@@ -84,7 +78,8 @@ export const spreadFeature: FeatureDefinition<SpreadInput, SpreadOutput> = {
 
   hashInput(): string {
     // Runner appends symbol/tf/endTs to the input hash.
-    return sha256("spread");
+    // v1.2.0: candles_1m.spread is already in pips, so we average directly.
+    return sha256("spread:v1.2.0");
   },
 
   hashOutput(output): string {

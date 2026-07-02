@@ -20,10 +20,10 @@ export function TopNav() {
       <div className="mx-auto flex h-12 max-w-[1600px] items-center px-4">
         <Link href="/" className="mr-8 flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded bg-brand text-[10px] font-bold text-white">
-            TM
+            TZ
           </div>
           <span className="text-sm font-semibold tracking-tight text-text">
-            TradeMentor
+            tradzfx
           </span>
         </Link>
 

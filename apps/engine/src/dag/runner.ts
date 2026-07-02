@@ -9,20 +9,11 @@ import type {
   FeatureOutputs,
   Candle,
   TimeFrame,
+  CanonicalMarketLevel,
 } from "@tm/shared";
+import { getCandleTableForTf } from "@tm/shared";
+import crypto from "node:crypto";
 
-const CANDLE_TABLE_BY_TF: Record<TimeFrame, string> = {
-  "1m": "candles_1m",
-  "5m": "candles_5m",
-  "15m": "candles_15m",
-  "1h": "candles_1h",
-  "4h": "candles_4h",
-  "1d": "candles_1d_utc",
-};
-
-export function getCandleTableForTf(tf: TimeFrame): string {
-  return CANDLE_TABLE_BY_TF[tf] ?? "candles_1m";
-}
 import { FeatureDAG, globalDAG } from "./graph";
 import { FeatureCache } from "./cache";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
@@ -36,6 +27,10 @@ export interface RunOptions {
   skipCache?: boolean;
   batchInserts?: boolean;
   batchSize?: number;
+  skipLifecycle?: boolean;
+  /** Live runs should use a short window; backfills can widen it. */
+  lifecycleLookbackDays?: number;
+  lifecycleLimit?: number;
 }
 
 export class DAGRunner {
@@ -43,6 +38,7 @@ export class DAGRunner {
   private tableColumnsCache = new Map<string, string[]>();
   private candlesCache = new Map<string, Candle[]>();
   private pendingInserts = new Map<string, Record<string, unknown>[]>();
+  private pendingMarketLevels: CanonicalMarketLevel[] = [];
   private defaultBatchSize = 1000;
 
   constructor(
@@ -58,7 +54,10 @@ export class DAGRunner {
       await this.insertRows(tableName, rows);
       rows.length = 0;
     }
+    await this.insertMarketLevels();
   }
+
+  private tablePKCache = new Map<string, string[]>();
 
   private async getTableColumns(tableName: string): Promise<string[]> {
     if (this.tableColumnsCache.has(tableName)) {
@@ -75,6 +74,31 @@ export class DAGRunner {
     } catch {
       // Fallback: assume standard columns
       return ["symbol", "tf", "ts", "engine_ver", "input_hash"];
+    }
+  }
+
+  private async getTablePK(tableName: string): Promise<string[]> {
+    if (this.tablePKCache.has(tableName)) {
+      return this.tablePKCache.get(tableName)!;
+    }
+    try {
+      const { rows } = await this.pool.query(
+        `SELECT kcu.column_name
+           FROM information_schema.table_constraints tc
+           JOIN information_schema.key_column_usage kcu
+             ON tc.constraint_name = kcu.constraint_name
+            AND tc.table_schema = kcu.table_schema
+          WHERE tc.table_schema = 'public'
+            AND tc.table_name = $1
+            AND tc.constraint_type = 'PRIMARY KEY'
+          ORDER BY kcu.ordinal_position`,
+        [tableName]
+      );
+      const pk = rows.map((r) => r.column_name as string);
+      this.tablePKCache.set(tableName, pk);
+      return pk;
+    } catch {
+      return ["symbol", "tf", "ts"];
     }
   }
 
@@ -129,8 +153,9 @@ export class DAGRunner {
       } else {
         await this.persist(feature, opts, output, inputHash, outputHash);
       }
+      this.stageMarketLevels(feature, opts, output);
       if (!opts.skipCache) {
-        await this.cache.set(feature.name, inputHash, outputHash);
+        await this.cache.set(feature.name, inputHash, output, outputHash);
       }
 
       results[feature.name] = output;
@@ -147,17 +172,20 @@ export class DAGRunner {
     await this.flush();
 
     // Refresh lifecycle columns for all features that were just computed.
-    try {
-      await updateLifecycleForSymbol(this.pool, opts.symbol, {
-        asOf: opts.endTs,
-        lookbackDays: 10,
-        limit: 10000,
-      });
-    } catch (err: any) {
-      console.error(
-        `[engine] Lifecycle refresh failed for ${opts.symbol}:`,
-        err.message
-      );
+    // Backfill callers can skip this per-bar refresh and run it once at the end.
+    if (!opts.skipLifecycle) {
+      try {
+        await updateLifecycleForSymbol(this.pool, opts.symbol, {
+          asOf: opts.endTs,
+          lookbackDays: opts.lifecycleLookbackDays ?? 10,
+          limit: opts.lifecycleLimit ?? 10000,
+        });
+      } catch (err: any) {
+        console.error(
+          `[engine] Lifecycle refresh failed for ${opts.symbol}:`,
+          err.message
+        );
+      }
     }
 
     return results;
@@ -283,29 +311,47 @@ export class DAGRunner {
     rows: Record<string, unknown>[]
   ): Promise<void> {
     if (rows.length === 0) return;
-    const columns = Object.keys(rows[0]);
-    const placeholders = rows
+    const pk = await this.getTablePK(tableName);
+    const seen = new Set<string>();
+    const uniqueRows = rows.filter((row) => {
+      const key = pk.length > 0 ? pk.map((c) => String(row[c])).join("|") : JSON.stringify(row);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (uniqueRows.length === 0) return;
+    const columns = Object.keys(uniqueRows[0]);
+    const placeholders = uniqueRows
       .map(
         (_, i) =>
           `(${columns.map((_, j) => `$${i * columns.length + j + 1}`).join(", ")})`
       )
       .join(", ");
 
-    const values = rows.flatMap((row) => {
+    const values = uniqueRows.flatMap((row) => {
       return columns.map((col) => {
         const v = row[col];
         if (v instanceof Date) return v.toISOString();
         if (v === null || v === undefined) return null;
         if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return v;
+        if (Array.isArray(v) || typeof v === "object") return JSON.stringify(v);
         return v;
       });
     });
+
+    const conflictClause =
+      pk.length > 0
+        ? `ON CONFLICT (${pk.join(", ")}) DO UPDATE SET ${columns
+            .filter((c) => !pk.includes(c))
+            .map((c) => `${c} = EXCLUDED.${c}`)
+            .join(", ")}`
+        : "ON CONFLICT DO NOTHING";
 
     try {
       await this.pool.query(
         `INSERT INTO ${tableName} (${columns.join(", ")})
          VALUES ${placeholders}
-         ON CONFLICT DO NOTHING`,
+         ${conflictClause}`,
         values
       );
     } catch (err: any) {
@@ -341,5 +387,113 @@ export class DAGRunner {
     const tableColumns = await this.getTableColumns(tableName);
     const rows = this.buildRows(feature, opts, output, inputHash);
     await this.insertRows(tableName, rows);
+  }
+
+  private stageMarketLevels(
+    feature: FeatureDefinition<any, any>,
+    opts: RunOptions,
+    output: unknown
+  ): void {
+    if (!feature.publishLevels) return;
+    const levels = feature.publishLevels(output, {
+      tf: opts.tf,
+      symbol: opts.symbol,
+      endTs: opts.endTs,
+    });
+    if (!levels || levels.length === 0) return;
+    for (const level of levels) {
+      if (!level.symbol) level.symbol = opts.symbol;
+      if (!level.tf) level.tf = opts.tf;
+      if (!level.ts) level.ts = opts.endTs;
+    }
+    this.pendingMarketLevels.push(...levels);
+  }
+
+  private async insertMarketLevels(): Promise<void> {
+    if (this.pendingMarketLevels.length === 0) return;
+
+    const seen = new Set<string>();
+    const uniqueLevels: CanonicalMarketLevel[] = [];
+    for (const level of this.pendingMarketLevels) {
+      const hash = crypto
+        .createHash("sha256")
+        .update(
+          `${level.symbol}:${level.tf}:${level.level_type}:${level.kind}:${level.top}:${level.bottom}:${level.ts.toISOString()}`
+        )
+        .digest("hex");
+      if (seen.has(hash)) continue;
+      seen.add(hash);
+      uniqueLevels.push(level);
+    }
+    this.pendingMarketLevels.length = 0;
+
+    if (uniqueLevels.length === 0) return;
+
+    const columns = [
+      "level_hash",
+      "symbol",
+      "tf",
+      "level_type",
+      "kind",
+      "top",
+      "bottom",
+      "strength",
+      "invalidated_at",
+      "tapped_at",
+      "touch_count",
+      "source_id",
+      "source_json",
+      "ts",
+    ];
+
+    const placeholders = uniqueLevels
+      .map(
+        (_, i) =>
+          `(${columns.map((_, j) => `$${i * columns.length + j + 1}`).join(", ")})`
+      )
+      .join(", ");
+
+    const values = uniqueLevels.flatMap((level) => {
+      const hash = crypto
+        .createHash("sha256")
+        .update(
+          `${level.symbol}:${level.tf}:${level.level_type}:${level.kind}:${level.top}:${level.bottom}:${level.ts.toISOString()}`
+        )
+        .digest("hex");
+      return [
+        hash,
+        level.symbol,
+        level.tf,
+        level.level_type,
+        level.kind,
+        level.top,
+        level.bottom,
+        level.strength ?? null,
+        level.invalidated_at ?? null,
+        level.tapped_at ?? null,
+        level.touch_count ?? 0,
+        level.source_id ?? null,
+        level.source_json ? JSON.stringify(level.source_json) : null,
+        level.ts,
+      ];
+    });
+
+    try {
+      await this.pool.query(
+        `INSERT INTO market_levels (${columns.join(", ")})
+         VALUES ${placeholders}
+         ON CONFLICT (level_hash) DO UPDATE SET
+           strength = EXCLUDED.strength,
+           invalidated_at = EXCLUDED.invalidated_at,
+           tapped_at = EXCLUDED.tapped_at,
+           touch_count = EXCLUDED.touch_count,
+           source_id = EXCLUDED.source_id,
+           source_json = EXCLUDED.source_json,
+           updated_at = NOW()`,
+        values
+      );
+    } catch (err: any) {
+      console.error("[engine] Failed to persist market_levels:", err.message);
+    }
   }
 }

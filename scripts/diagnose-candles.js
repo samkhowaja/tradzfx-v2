@@ -9,9 +9,9 @@ const symbol = process.argv[2] || process.env.SYMBOL || 'XAUUSD';
 const pool = new Pool({
   host: 'localhost',
   port: 5432,
-  database: 'tradementor_v2',
+  database: (process.env.TM_DB_NAME || "tradzfx_v2"),
   user: 'postgres',
-  password: '2k16Dub@i',
+  password: process.env.TM_DB_PASSWORD,
 });
 
 async function main() {

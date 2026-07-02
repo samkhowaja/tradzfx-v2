@@ -23,9 +23,9 @@ export function getPool(): Pool {
     const config: PoolConfig = {
       host: process.env.TM_DB_HOST ?? "localhost",
       port: parseInt(process.env.TM_DB_PORT ?? "5432", 10),
-      database: process.env.TM_DB_NAME ?? "tradementor_v2",
+      database: process.env.TM_DB_NAME || "tradzfx_v2",
       user: process.env.TM_DB_USER ?? "postgres",
-      password: process.env.TM_DB_PASSWORD ?? "2k16Dub@i",
+      password: process.env.TM_DB_PASSWORD || (() => { throw new Error("TM_DB_PASSWORD is not set"); })(),
       max: parseInt(process.env.TM_DB_POOL_MAX ?? "20", 10),
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,

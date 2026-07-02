@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Build and restart the TradeMentor V2 web app under PM2 on port 3003.
+  Build and restart the tradzfx-v2 web app under PM2 on port 3003.
 
 .DESCRIPTION
   1. Builds the entire V2 workspace (pnpm -r build).

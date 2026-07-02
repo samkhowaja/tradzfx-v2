@@ -1,6 +1,9 @@
 /**
  * Spread Gate.
- * Blocks entry when spread exceeds max allowed pips or when spread data is missing.
+ * Blocks entry when spread (in pips) exceeds the max allowed pips.
+ *
+ * Spread is stored in pips in candles_1m and features_spread, so this gate
+ * compares pips directly to maxSpreadPips without unit conversion.
  */
 
 import type { MarketContext } from "@tm/shared";
@@ -12,19 +15,19 @@ export interface SpreadGateConfig {
 export function createSpreadGate(config: SpreadGateConfig) {
   return async (ctx: MarketContext): Promise<{ passed: boolean; reason?: string }> => {
     const spreadData = (ctx.features["features_spread"] as any);
-    const spread = spreadData?.spread;
+    const spreadPips = spreadData?.spread;
 
-    if (typeof spread !== "number" || !Number.isFinite(spread)) {
+    if (typeof spreadPips !== "number" || !Number.isFinite(spreadPips)) {
       return {
         passed: false,
         reason: "Spread data unavailable",
       };
     }
 
-    if (spread > config.maxSpreadPips) {
+    if (spreadPips > config.maxSpreadPips) {
       return {
         passed: false,
-        reason: `Spread=${spread.toFixed(2)}pips exceeds max=${config.maxSpreadPips}`,
+        reason: `Spread=${spreadPips.toFixed(2)}pips exceeds max=${config.maxSpreadPips}`,
       };
     }
 

@@ -28,16 +28,50 @@ const LEVEL_TOKENS = [
   "nearest_supply_top",
   "nearest_demand_bottom",
   "opposing_zone_profit",
+  "opposing_zone_profit_beyond_min_rr",
+  "opposing_order_block_beyond_min_rr",
 ] as const;
 
 const COMPOSITE_TOKENS: Record<string, string[]> = {
   nearest_profit_pivot: ["nearest_swing_high", "nearest_swing_low"],
   nearest_loss_pivot: ["nearest_swing_high", "nearest_swing_low"],
   opposing_zone_profit: ["nearest_supply_top", "nearest_demand_bottom"],
+  opposing_zone_profit_beyond_min_rr: ["nearest_supply_top_beyond_min_rr", "nearest_demand_bottom_beyond_min_rr"],
+  opposing_order_block_beyond_min_rr: ["nearest_bearish_ob_bottom_beyond_min_rr", "nearest_bullish_ob_top_beyond_min_rr"],
 };
 
-const PRICE_TOKENS =
-  /\b(orb_midpoint|orb_high|orb_low|zone_top|zone_bottom|ema_fast|ema_slow|ma_fast|ma_slow|ote_low|ote_high|nearest_swing_high|nearest_swing_low|nearest_profit_pivot|nearest_loss_pivot|nearest_supply_top|nearest_demand_bottom|opposing_zone_profit)\b/gi;
+const KNOWN_TFS: TimeFrame[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
+
+function parseTokenTf(token: string): { base: string; tf?: TimeFrame } {
+  const lower = token.toLowerCase();
+  for (const tf of KNOWN_TFS) {
+    const suffix = `_${tf}`;
+    if (lower.endsWith(suffix)) {
+      return { base: lower.slice(0, -suffix.length), tf };
+    }
+  }
+  return { base: lower };
+}
+
+function withTf(baseToken: string, tf?: TimeFrame): string {
+  return tf ? `${baseToken}_${tf}` : baseToken;
+}
+
+const PRICE_TOKENS = new RegExp(
+  "\\b(" +
+    [
+      "orb_midpoint", "orb_high", "orb_low",
+      "zone_top", "zone_bottom",
+      "ema_fast", "ema_slow", "ma_fast", "ma_slow",
+      "ote_low", "ote_high",
+      ...Object.keys(COMPOSITE_TOKENS),
+      ...LEVEL_TOKENS.filter((t) => !COMPOSITE_TOKENS[t]),
+    ].join("|") +
+    ")(_(" +
+    KNOWN_TFS.join("|") +
+    "))?\\b",
+  "gi"
+);
 
 function getSignalAlias(ctx?: RiskCompileContext): string {
   return ctx?.signalAlias ?? "s";
@@ -101,9 +135,13 @@ export function buildEntryPriceSql(
 }
 
 function buildPipSizeSql(entrySql: string): string {
-  // Prefer the per-symbol pip_size stored in features_pricing; fall back to the
-  // old hardcoded heuristic only when the column is missing/null.
-  return `COALESCE(p.pip_size, CASE WHEN (${entrySql}) > 1000 THEN 0.01 ELSE 0.0001 END)`;
+  // Prefer the per-symbol pip_size stored in features_pricing; fall back to a
+  // symbol-aware lookup using the signal row's symbol when pricing is unavailable.
+  return `COALESCE(p.pip_size, (CASE
+    WHEN s.symbol LIKE '%JPY%' OR s.symbol LIKE '%XAU%' OR s.symbol LIKE '%GOLD%' THEN 0.01
+    WHEN s.symbol LIKE '%NAS100%' OR s.symbol LIKE '%NDX%' OR s.symbol LIKE '%US30%' OR s.symbol LIKE '%DJI%' OR s.symbol LIKE '%DE40%' OR s.symbol LIKE '%DAX%' OR s.symbol LIKE '%UK100%' OR s.symbol LIKE '%FTSE%' THEN 1.0
+    ELSE 0.0001
+  END))`;
 }
 
 interface LevelTokenCtx extends RiskCompileContext {
@@ -117,14 +155,15 @@ function buildLevelSubquery(
   signalSource: StrategySpec["signalSource"],
   ctx?: LevelTokenCtx
 ): string {
+  const { base: baseToken, tf } = parseTokenTf(token);
   const a = getSignalAlias(ctx);
   const sym = `${a}.symbol`;
   const ts = `${a}.ts`;
-  const zoneTf = ctx?.zoneTf ?? "15m";
-  const pivotTf = ctx?.pivotTf ?? "15m";
+  const zoneTf = tf ?? ctx?.zoneTf ?? "15m";
+  const pivotTf = tf ?? ctx?.pivotTf ?? "15m";
   const entrySql = buildEntryPriceSql(spec, signalSource, ctx);
 
-  switch (token.toLowerCase()) {
+  switch (baseToken) {
     case "nearest_swing_high":
       return `(SELECT ph.price FROM features_pivot ph
          WHERE ph.symbol = ${sym} AND ph.tf = '${pivotTf}' AND ph.kind = 'high' AND ph.ts <= ${ts}
@@ -149,6 +188,42 @@ function buildLevelSubquery(
            AND dz.bottom < (${entrySql})
          ORDER BY ABS(dz.bottom - (${entrySql})) ASC, dz.ts DESC
          LIMIT 1)`;
+    case "nearest_supply_top_beyond_min_rr": {
+      const minRRSupply = spec.risk.minRR ?? 3.0;
+      const slDistanceSupply = buildSlDistanceSql(spec, signalSource, ctx);
+      return `(SELECT sz.top FROM features_zone sz
+         WHERE sz.symbol = ${sym} AND sz.tf = '${zoneTf}' AND sz.zone_kind = 'supply' AND sz.ts <= ${ts}
+           AND sz.top >= (${entrySql}) + (${slDistanceSupply}) * ${minRRSupply.toFixed(2)}
+         ORDER BY ABS(sz.top - (${entrySql})) ASC, sz.ts DESC
+         LIMIT 1)`;
+    }
+    case "nearest_demand_bottom_beyond_min_rr": {
+      const minRRDemand = spec.risk.minRR ?? 3.0;
+      const slDistanceDemand = buildSlDistanceSql(spec, signalSource, ctx);
+      return `(SELECT dz.bottom FROM features_zone dz
+         WHERE dz.symbol = ${sym} AND dz.tf = '${zoneTf}' AND dz.zone_kind = 'demand' AND dz.ts <= ${ts}
+           AND dz.bottom <= (${entrySql}) - (${slDistanceDemand}) * ${minRRDemand.toFixed(2)}
+         ORDER BY ABS(dz.bottom - (${entrySql})) ASC, dz.ts DESC
+         LIMIT 1)`;
+    }
+    case "nearest_bearish_ob_bottom_beyond_min_rr": {
+      const minRRBearish = spec.risk.minRR ?? 3.0;
+      const slDistanceBearish = buildSlDistanceSql(spec, signalSource, ctx);
+      return `(SELECT ob.bottom FROM features_order_block ob
+         WHERE ob.symbol = ${sym} AND ob.tf = '${zoneTf}' AND ob.ob_kind = 'bearish' AND ob.ts <= ${ts}
+           AND ob.bottom >= (${entrySql}) + (${slDistanceBearish}) * ${minRRBearish.toFixed(2)}
+         ORDER BY ABS(ob.bottom - (${entrySql})) ASC, ob.ts DESC
+         LIMIT 1)`;
+    }
+    case "nearest_bullish_ob_top_beyond_min_rr": {
+      const minRRBullish = spec.risk.minRR ?? 3.0;
+      const slDistanceBullish = buildSlDistanceSql(spec, signalSource, ctx);
+      return `(SELECT ob.top FROM features_order_block ob
+         WHERE ob.symbol = ${sym} AND ob.tf = '${zoneTf}' AND ob.ob_kind = 'bullish' AND ob.ts <= ${ts}
+           AND ob.top <= (${entrySql}) - (${slDistanceBullish}) * ${minRRBullish.toFixed(2)}
+         ORDER BY ABS(ob.top - (${entrySql})) ASC, ob.ts DESC
+         LIMIT 1)`;
+    }
     default:
       return token;
   }
@@ -160,22 +235,36 @@ function buildCompositeCase(
   signalSource: StrategySpec["signalSource"],
   ctx?: LevelTokenCtx
 ): string {
+  const { base, tf } = parseTokenTf(token);
   const a = getSignalAlias(ctx);
-  switch (token.toLowerCase()) {
+  const components = COMPOSITE_TOKENS[base];
+  if (!components) return token;
+
+  switch (base) {
     case "nearest_profit_pivot":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery("nearest_swing_high", spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery("nearest_swing_low", spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     case "nearest_loss_pivot":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery("nearest_swing_low", spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery("nearest_swing_high", spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
     END`;
     case "opposing_zone_profit":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery("nearest_supply_top", spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery("nearest_demand_bottom", spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+    END`;
+    case "opposing_zone_profit_beyond_min_rr":
+      return `CASE
+      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+    END`;
+    case "opposing_order_block_beyond_min_rr":
+      return `CASE
+      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     default:
       return token;
@@ -189,8 +278,11 @@ export function tokenizeRiskExpr(
   ctx?: LevelTokenCtx
 ): string {
   const entrySql = buildBaseEntryPriceSql(signalSource, ctx);
-  return expr
-    .replace(/\batr\s*\([^)]*\)/gi, "a.value")
+  const pipSizeSql = buildPipSizeSql(entrySql);
+  let out = expr
+    .replace(/\b(\d+(?:\.\d+)?)\s*pips?\b/gi, (_, n) => `(${n} * (${pipSizeSql}))`)
+    // ATR timeframe references (e.g. atr(15m)) are left intact here so the
+    // compiler can replace them with the correct per-TF joined alias.
     .replace(/\borb_midpoint\b/gi, "o.midpoint")
     .replace(/\borb_high\b/gi, "o.high")
     .replace(/\borb_low\b/gi, "o.low")
@@ -202,14 +294,24 @@ export function tokenizeRiskExpr(
     .replace(/\bma_slow\b/gi, "slow_ma.value")
     .replace(/\bote_low\b/gi, "p.ote_low")
     .replace(/\bote_high\b/gi, "p.ote_high")
-    .replace(/\bnearest_profit_pivot\b/gi, buildCompositeCase("nearest_profit_pivot", spec, signalSource, ctx))
-    .replace(/\bnearest_loss_pivot\b/gi, buildCompositeCase("nearest_loss_pivot", spec, signalSource, ctx))
-    .replace(/\bopposing_zone_profit\b/gi, buildCompositeCase("opposing_zone_profit", spec, signalSource, ctx))
-    .replace(/\bnearest_swing_high\b/gi, buildLevelSubquery("nearest_swing_high", spec, signalSource, ctx))
-    .replace(/\bnearest_swing_low\b/gi, buildLevelSubquery("nearest_swing_low", spec, signalSource, ctx))
-    .replace(/\bnearest_supply_top\b/gi, buildLevelSubquery("nearest_supply_top", spec, signalSource, ctx))
-    .replace(/\bnearest_demand_bottom\b/gi, buildLevelSubquery("nearest_demand_bottom", spec, signalSource, ctx))
     .replace(/\bentry\b/gi, entrySql);
+
+  // Composite / level tokens are only replaced when present. This avoids infinite
+  // recursion for level tokens that themselves depend on SL distance (e.g.
+  // opposing_zone_profit_beyond_min_rr). Timeframe suffixes (_5m, _1h, etc.)
+  // are honoured.
+  for (const base of LEVEL_TOKENS) {
+    const tokenRe = new RegExp(`\\b${base}(_(${KNOWN_TFS.join("|")}))?\\b`, "gi");
+    if (!tokenRe.test(out)) continue;
+    out = out.replace(tokenRe, (match) => {
+      if (base in COMPOSITE_TOKENS) {
+        return buildCompositeCase(match, spec, signalSource, ctx);
+      }
+      return buildLevelSubquery(match, spec, signalSource, ctx);
+    });
+  }
+
+  return out;
 }
 
 export function isPriceExpression(expr: string): boolean {

@@ -1,13 +1,13 @@
 /**
  * POST /api/mt5/signal-acked
  * MT5 EA sends acknowledgment when signal is received.
- * V2 implementation — updates the orders table in tradementor_v2.
+ * V2 implementation — updates the orders table in tradzfx_v2.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { markOrderAcked } from "@/lib/orderService";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -33,12 +33,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing signalId" }, { status: 400 });
     }
 
-    await markOrderAcked(body.signalId);
+    const acked = await markOrderAcked(body.signalId);
 
     return NextResponse.json({
-      ok: true,
+      ok: acked,
       signal_id: body.signalId,
-      status: "SENT",
+      status: acked ? "SENT" : "IGNORED",
     });
   } catch (error: any) {
     console.error("[signal-acked] Error:", error.message);

@@ -5,7 +5,7 @@
  * Uses LATERAL lookups so each signal only sees features available at that time.
  *
  * Usage:
- *   node backtest-pit-v2.js [symbol] [days] [specId] [--optimize]
+ *   node backtest-pit-v2.js [symbol] [days] [specId] [--json] [--trades] [--debug] [--start=YYYY-MM-DD] [--end=YYYY-MM-DD]
  *   node backtest-pit-v2.js EURUSD 7 doyle_sd
  */
 
@@ -28,9 +28,9 @@ const {
 const pool = new Pool({
   host: "localhost",
   port: 5432,
-  database: "tradementor_v2",
+  database: (process.env.TM_DB_NAME || "tradzfx_v2"),
   user: "postgres",
-  password: "2k16Dub@i",
+  password: process.env.TM_DB_PASSWORD,
   max: 5,
 });
 
@@ -516,7 +516,43 @@ function isFill(side, entryType, entry, high, low) {
   return true;
 }
 
-async function simulateTrade(signal, timeoutBars) {
+function hashToFloat(str) {
+  // FNV-1a 32-bit hash -> [0,1)
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  return (h >>> 0) / 4294967296;
+}
+
+function resolveIntrabar(side, entry, sl, tp, high, low, close, mode, seed) {
+  if (mode === "sl_first") return "loss";
+  if (mode === "tp_first") return "win";
+  if (mode === "close") {
+    // whichever barrier the close is closer to
+    if (side === "buy") {
+      return close >= (sl + tp) / 2 ? "win" : "loss";
+    }
+    return close <= (sl + tp) / 2 ? "win" : "loss";
+  }
+  const risk = Math.abs(entry - sl);
+  const reward = Math.abs(tp - entry);
+  const total = Math.abs(tp - sl);
+  let pWin;
+  if (mode === "random_walk") {
+    // Barrier hitting probability for a driftless random walk
+    pWin = risk / total;
+  } else if (mode === "momentum") {
+    // Assumes continuation: probability weighted by target distance
+    pWin = reward / total;
+  } else {
+    return "loss";
+  }
+  return hashToFloat(seed) <= pWin ? "win" : "loss";
+}
+
+async function simulateTrade(signal, timeoutBars, intrabarMode = "sl_first") {
   const tsStr = signal.ts instanceof Date ? signal.ts.toISOString() : String(signal.ts);
   const { rows: candles } = await pool.query(
     `SELECT ts, h, l, c FROM candles_1m
@@ -545,28 +581,76 @@ async function simulateTrade(signal, timeoutBars) {
     }
     if (fillIndex === -1) {
       const lastClose = candles.length > 0 ? parseFloat(candles[candles.length - 1].c) : entry;
-      return { outcome: "no_fill", r: 0, holdBars: candles.length, closePrice: lastClose };
+      return { outcome: "no_fill", r: 0, holdBars: candles.length, closePrice: lastClose, maxAdverse: null, maxFavorable: null };
     }
   }
 
   const rr = Math.abs((tp - entry) / (entry - sl));
+  let maxAdverse = side === "buy" ? entry : entry;
+  let maxFavorable = side === "buy" ? entry : entry;
 
   for (let i = fillIndex; i < candles.length; i++) {
     const high = parseFloat(candles[i].h);
     const low = parseFloat(candles[i].l);
+    const close = parseFloat(candles[i].c);
     if (side === "buy") {
-      if (low <= sl) return { outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl };
-      if (high >= tp) return { outcome: "win", r: rr, holdBars: i + 1, closePrice: tp };
+      if (low < maxAdverse) maxAdverse = low;
+      if (high > maxFavorable) maxFavorable = high;
+      const slHit = low <= sl;
+      const tpHit = high >= tp;
+      if (slHit && tpHit) {
+        const outcome = resolveIntrabar(side, entry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        return {
+          outcome, r: outcome === "win" ? rr : -1.0, holdBars: i + 1,
+          closePrice: outcome === "win" ? tp : sl, maxAdverse, maxFavorable,
+        };
+      }
+      if (slHit) {
+        return {
+          outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl,
+          maxAdverse, maxFavorable,
+        };
+      }
+      if (tpHit) {
+        return {
+          outcome: "win", r: rr, holdBars: i + 1, closePrice: tp,
+          maxAdverse, maxFavorable,
+        };
+      }
     } else {
-      if (high >= sl) return { outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl };
-      if (low <= tp) return { outcome: "win", r: rr, holdBars: i + 1, closePrice: tp };
+      if (high > maxAdverse) maxAdverse = high;
+      if (low < maxFavorable) maxFavorable = low;
+      const slHit = high >= sl;
+      const tpHit = low <= tp;
+      if (slHit && tpHit) {
+        const outcome = resolveIntrabar(side, entry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        return {
+          outcome, r: outcome === "win" ? rr : -1.0, holdBars: i + 1,
+          closePrice: outcome === "win" ? tp : sl, maxAdverse, maxFavorable,
+        };
+      }
+      if (slHit) {
+        return {
+          outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl,
+          maxAdverse, maxFavorable,
+        };
+      }
+      if (tpHit) {
+        return {
+          outcome: "win", r: rr, holdBars: i + 1, closePrice: tp,
+          maxAdverse, maxFavorable,
+        };
+      }
     }
   }
 
   const lastClose = candles.length > 0 ? parseFloat(candles[candles.length - 1].c) : entry;
   const risk = Math.abs(entry - sl);
   const r = risk > 0 ? (side === "buy" ? lastClose - entry : entry - lastClose) / risk : 0;
-  return { outcome: "timeout", r, holdBars: candles.length, closePrice: lastClose };
+  return {
+    outcome: "timeout", r, holdBars: candles.length, closePrice: lastClose,
+    maxAdverse, maxFavorable,
+  };
 }
 
 function computeStats(trades) {
@@ -636,11 +720,9 @@ async function applyGates(trades, spec) {
   for (const t of sorted) {
     const ts = new Date(t.ts);
 
-    // Expire active orders whose close time has passed
-    const stillActive = [];
-    for (const o of activeOrders) {
-      if (o.closedAt > ts) stillActive.push(o);
-    }
+    // Expire positions whose close time has passed or which never filled.
+    // An open position is active from entry (ts) until its close time.
+    const stillActive = activeOrders.filter((o) => o.closedAt > ts);
     activeOrders.length = 0;
     activeOrders.push(...stillActive);
 
@@ -661,7 +743,10 @@ async function applyGates(trades, spec) {
       continue;
     }
 
-    const closeTs = new Date(ts.getTime() + (t.holdBars ?? 0) * 60000);
+    // no_fill means the order never opened a position, so it is not active and closes immediately.
+    const isNoFill = t.outcome === "no_fill";
+    const holdBars = isNoFill ? 0 : (t.holdBars ?? 0);
+    const closeTs = new Date(ts.getTime() + holdBars * 60000);
     const order = {
       strategyId: spec.id,
       symbol: t.symbol,
@@ -671,7 +756,8 @@ async function applyGates(trades, spec) {
       realizedPnl: t.r ?? 0,
     };
     executedOrders.push(order);
-    if (t.outcome !== "win" && t.outcome !== "loss" && closeTs > ts) {
+    if (!isNoFill && closeTs > ts) {
+      // Track open positions for portfolio-heat calculations.
       activeOrders.push(order);
     }
     executed.push(t);
@@ -693,15 +779,28 @@ async function main() {
   const jsonMode = process.argv.includes("--json");
   const debugMode = process.argv.includes("--debug");
   const endArg = process.argv.find((a) => a.startsWith("--end="));
+  const startArg = process.argv.find((a) => a.startsWith("--start="));
   const endDate = endArg ? new Date(endArg.slice("--end=".length)) : null;
-  const args = process.argv.slice(2).filter((a) => a !== "--json" && !a.startsWith("--end="));
+  const startDate = startArg ? new Date(startArg.slice("--start=".length)) : null;
+  const intrabarArg = process.argv.find((a) => a.startsWith("--intrabar="));
+  const args = process.argv.slice(2).filter(
+    (a) => a !== "--json" && a !== "--trades" && !a.startsWith("--end=") && !a.startsWith("--start=") && !a.startsWith("--intrabar=")
+  );
   const symbolArg = args[0] || "EURUSD";
   const days = parseInt(args[1] || "7", 10);
   const strategyId = args[2] || "doyle_sd";
 
   const spec = await loadStrategyFromDB(pool, strategyId);
   if (!spec) {
-    console.error(`[backtest-pit-v2] Strategy "${strategyId}" not found or not active. Run: node scripts/load-waqar-spec.mjs`);
+    console.error(`[backtest-pit-v2] Strategy "${strategyId}" not found or not active. Run: node scripts/seed-strategy-specs.js`);
+    process.exit(1);
+  }
+  const intrabarMode = intrabarArg
+    ? intrabarArg.slice("--intrabar=".length)
+    : (spec.risk?.intrabarAssumption ?? "sl_first");
+  const validIntrabarModes = new Set(["sl_first", "tp_first", "close", "random_walk", "momentum"]);
+  if (!validIntrabarModes.has(intrabarMode)) {
+    console.error(`[backtest-pit-v2] Unknown intrabar mode "${intrabarMode}". Use: ${[...validIntrabarModes].join(", ")}`);
     process.exit(1);
   }
   const symbols = symbolArg === "ALL" ? spec.filters.symbols : [symbolArg];
@@ -716,7 +815,31 @@ async function main() {
     );
     to = latestRows.length > 0 ? new Date(latestRows[0].ts) : new Date();
   }
-  const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+
+  let from;
+  if (startDate) {
+    from = startDate;
+  } else {
+    from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+  }
+
+  // Sanity check: the requested window cannot extend before the available feature data.
+  const biasCond = spec.setup?.find((c) => c.feature === "features_bias" || c.feature === "features_htf_bias");
+  const biasTf = biasCond?.tf ?? "15m";
+  for (const symbol of symbols) {
+    const { rows } = await pool.query(
+      `SELECT ts FROM features_bias WHERE symbol = $1 AND tf = $2 ORDER BY ts ASC LIMIT 1`,
+      [symbol, biasTf]
+    );
+    if (rows.length > 0) {
+      const earliest = new Date(rows[0].ts);
+      if (from < earliest) {
+        const msg = `[backtest-pit-v2] Warning: requested start ${from.toISOString()} is before earliest features_bias row for ${symbol} ${biasTf} (${earliest.toISOString()}). Backtest will be limited to available feature data. Run backfill-features.js to extend history.`;
+        if (jsonMode) console.error(msg);
+        else console.log(msg);
+      }
+    }
+  }
 
   console.log(`[backtest-pit-v2] Strategy: ${strategyId} | signalSource: ${spec.signalSource || "zone"}`);
   console.log(`[backtest-pit-v2] Range: ${from.toISOString().slice(0, 10)} → ${to.toISOString().slice(0, 10)} (${days} days)`);
@@ -772,7 +895,7 @@ async function main() {
     const timeoutBars = spec.risk?.timeoutBars ?? 24;
     const rawTrades = [];
     for (const sig of signals) {
-      const out = await simulateTrade(sig, timeoutBars);
+      const out = await simulateTrade(sig, timeoutBars, intrabarMode);
       rawTrades.push({
         symbol: sig.symbol,
         side: sig.side,
@@ -780,6 +903,7 @@ async function main() {
         sl: parseFloat(sig.stop_loss),
         tp: parseFloat(sig.take_profit),
         ts: sig.ts,
+        entryType: sig.entry_type ?? "market",
         ...out,
       });
     }
@@ -825,9 +949,12 @@ async function main() {
             entry: t.entry,
             stopLoss: t.sl,
             takeProfit: t.tp,
+            entryType: t.entryType,
             outcome: t.outcome,
             r: t.r,
             holdBars: t.holdBars,
+            maxAdverse: t.maxAdverse,
+            maxFavorable: t.maxFavorable,
           }))
         : undefined,
     };

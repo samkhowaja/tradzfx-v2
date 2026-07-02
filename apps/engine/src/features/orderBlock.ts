@@ -74,7 +74,7 @@ function detectOrderBlocks(
   const seen = new Set<string>();
 
   for (const event of structure) {
-    if (event.eventType !== "bos" && event.eventType !== "mss") continue;
+    if (event.eventType !== "bos" && event.eventType !== "mss" && event.eventType !== "choch") continue;
 
     const direction: Direction =
       event.direction === "bullish" || event.direction === "bearish"
@@ -91,12 +91,16 @@ function detectOrderBlocks(
 
     const top = candle.h;
     const bottom = candle.l;
+    const bodyTop = Math.max(candle.o, candle.c);
+    const bodyBottom = Math.min(candle.o, candle.c);
 
     const ob: OrderBlockOutput["orderBlocks"][number] = {
       obKind: direction,
-      degree: "swing",
+      degree: event.eventType === "choch" ? "internal" : "swing",
       top,
       bottom,
+      bodyTop,
+      bodyBottom,
       ts: candle.ts,
       formationTs: candle.ts,
       ageBars: candles.length - index,
@@ -127,7 +131,7 @@ function detectOrderBlocks(
 
 export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOutput> = {
   name: "features_order_block",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: ["features_structure"],
 
   compute(input): OrderBlockOutput {
@@ -163,6 +167,8 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       degree: ob.degree,
       top: ob.top,
       bottom: ob.bottom,
+      body_top: ob.bodyTop ?? null,
+      body_bottom: ob.bodyBottom ?? null,
       formation_ts: ob.formationTs ?? null,
       age_bars: ob.ageBars ?? null,
       is_fresh: ob.isFresh ?? true,
@@ -182,6 +188,8 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
         degree: (r.degree as "internal" | "swing") ?? "swing",
         top: r.top as number,
         bottom: r.bottom as number,
+        bodyTop: r.body_top as number | undefined,
+        bodyBottom: r.body_bottom as number | undefined,
         formationTs: r.formation_ts ? new Date(r.formation_ts as string) : undefined,
         ts: new Date(r.ts as string),
         ageBars: r.age_bars as number | undefined,

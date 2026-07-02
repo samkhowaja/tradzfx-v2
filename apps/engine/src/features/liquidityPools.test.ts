@@ -25,7 +25,7 @@ describe("liquidityPoolsFeature", () => {
     expect(out.recentSweepMatched).toBe(false);
   });
 
-  it("detects recent sweep matched a pool", () => {
+  it("detects bearish sweep matched a round-number resistance pool", () => {
     const candles = makeCandles("XAUUSD", 100, 2545.0);
     const sweep: SweepOutput = {
       sweeps: [
@@ -34,12 +34,48 @@ describe("liquidityPoolsFeature", () => {
           level: 2550.0,
           extreme: 2550.0,
           close: 2549.5,
-          ts: new Date(Date.UTC(2026, 0, 5, 14, 99)),
+          ts: candles[candles.length - 1].ts,
         },
       ],
     };
     const out = liquidityPoolsFeature.compute({ candles, features_sweep: sweep });
     expect(out.recentSweepMatched).toBe(true);
+  });
+
+  it("detects bullish sweep matched a round-number support pool", () => {
+    const candles = makeCandles("XAUUSD", 100, 2545.0);
+    const sweep: SweepOutput = {
+      sweeps: [
+        {
+          direction: "bullish",
+          level: 2500.0,
+          extreme: 2500.0,
+          close: 2500.5,
+          ts: candles[candles.length - 1].ts,
+        },
+      ],
+    };
+    const out = liquidityPoolsFeature.compute({ candles, features_sweep: sweep });
+    expect(out.recentSweepMatched).toBe(true);
+  });
+
+  it("does not match bullish sweep against a high structural pool", () => {
+    // A bullish sweep is a low-side sweep; an extreme up near the highs should not match.
+    const candles = makeCandles("XAUUSD", 100, 2545.0);
+    const lastHigh = candles[candles.length - 1].h;
+    const sweep: SweepOutput = {
+      sweeps: [
+        {
+          direction: "bullish",
+          level: lastHigh - 0.2,
+          extreme: lastHigh,
+          close: lastHigh - 0.3,
+          ts: candles[candles.length - 1].ts,
+        },
+      ],
+    };
+    const out = liquidityPoolsFeature.compute({ candles, features_sweep: sweep });
+    expect(out.recentSweepMatched).toBe(false);
   });
 
   it("serializes and deserializes output", () => {

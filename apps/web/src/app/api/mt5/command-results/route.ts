@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { markCommandCompleted } from "@/lib/positionCommandService";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -26,8 +26,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "commandId required" }, { status: 400 });
     }
 
-    await markCommandCompleted(commandId, success, error);
-    return NextResponse.json({ ok: true });
+    const result = await markCommandCompleted(commandId, success, error);
+
+    if (result.ok) {
+      return NextResponse.json({
+        ok: true,
+        alreadyCompleted: result.alreadyCompleted,
+        previousStatus: result.previousStatus,
+      });
+    }
+
+    if (!result.previousStatus) {
+      return NextResponse.json({ ok: false, error: "Command not found" }, { status: 404 });
+    }
+
+    // Invalid transition (e.g. duplicate with mismatched success or terminal lag).
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `Invalid status transition from ${result.previousStatus}`,
+        previousStatus: result.previousStatus,
+      },
+      { status: 409 }
+    );
   } catch (err: any) {
     console.error("[mt5-command-results] Error:", err.message);
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });

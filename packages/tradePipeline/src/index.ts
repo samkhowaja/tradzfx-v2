@@ -9,3 +9,5 @@ export * from "./gates/dailyLossGate";
 export * from "./gates/dailyWinGate";
 export * from "./orderExecutor";
 export * from "./liveRunner";
+export * from "./notify";
+export * from "./postFill";

@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Start the TradeMentor V2 web app under PM2 on port 3003.
+  Start the tradzfx-v2 web app under PM2 on port 3003.
 
 .DESCRIPTION
   Assumes the V2 workspace has already been built (pnpm -r build).

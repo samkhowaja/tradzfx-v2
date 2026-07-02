@@ -10,7 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@tm/shared": "workspace:*"
+    "@tm/shared": "workspace:*",
+    "@tm/setup-engine": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

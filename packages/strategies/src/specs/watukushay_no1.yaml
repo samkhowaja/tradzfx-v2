@@ -81,7 +81,7 @@ gates:
       maxSignalsPerDay: 5
 
 live:
-  mode: live
+  mode: paper
   lotSize: 0.01
   riskPerTradePct: 1.0
   accountBalance: 10000

@@ -1,0 +1,40 @@
+{
+  "files.exclude": {
+    ".next": true,
+    ".next-build": true,
+    "dist": true,
+    "node_modules": true,
+    "*.tsbuildinfo": true,
+    "logs": true,
+    "backups": true,
+    "downloads": true,
+    "data": true,
+    "temp": true,
+    "graphify-out": true,
+    ".venv": true
+  },
+  "files.watcherExclude": {
+    "**/.next/**": true,
+    "**/.next-build/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    "**/*.tsbuildinfo": true,
+    "**/logs/**": true,
+    "**/backups/**": true,
+    "**/graphify-out/**": true,
+    "**/.venv/**": true
+  },
+  "search.exclude": {
+    ".next": true,
+    ".next-build": true,
+    "dist": true,
+    "node_modules": true,
+    "*.tsbuildinfo": true,
+    "logs": true,
+    "backups": true,
+    "graphify-out": true,
+    ".venv": true
+  },
+  "editor.formatOnSave": false,
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

@@ -33,8 +33,8 @@ export function findBandFirstTouch(
       if (height > 0) {
         const penetration =
           direction === "bullish"
-            ? Math.max(0, Math.min(top, c.h) - bottom) // price entering from top down
-            : Math.max(0, top - Math.max(bottom, c.l)); // price entering from bottom up
+            ? Math.max(0, top - Math.max(bottom, c.l)) // price entering from top down
+            : Math.max(0, Math.min(top, c.h) - bottom); // price entering from bottom up
         deepest = Math.max(deepest, penetration);
       }
     }
@@ -159,6 +159,10 @@ export function computeIfvgLifecycle(
     ifvg.direction
   );
 
+  const invalidDirection: "bullish" | "bearish" =
+    ifvg.direction === "bullish" ? "bearish" : "bullish";
+
+  // Mitigation = price closes beyond the iFVG in the iFVG direction.
   const mitigatedAt = findBandInvalidation(
     candles,
     fromIndex,
@@ -167,8 +171,7 @@ export function computeIfvgLifecycle(
     ifvg.direction
   );
 
-  const invalidDirection: "bullish" | "bearish" =
-    ifvg.direction === "bullish" ? "bearish" : "bullish";
+  // Invalidation = price closes beyond the far side (opposite direction).
   const invalidatedAt = findBandInvalidation(
     candles,
     fromIndex,
@@ -185,7 +188,27 @@ export function computeIfvgLifecycle(
 }
 
 /**
+ * Find the first candle after `fromIndex` whose wick crosses `level`
+ * in the given direction.
+ * direction = "bullish" means high > level (wick above); "bearish" means low < level.
+ */
+function findWickTouch(
+  candles: Candle[],
+  fromIndex: number,
+  level: number,
+  direction: "bullish" | "bearish"
+): Date | undefined {
+  for (let i = fromIndex + 1; i < candles.length; i++) {
+    const c = candles[i];
+    if (direction === "bullish" && c.h > level) return c.ts;
+    if (direction === "bearish" && c.l < level) return c.ts;
+  }
+  return undefined;
+}
+
+/**
  * Compute lifecycle for a liquidity sweep.
+ * firstTouchAt = first wick piercing beyond the swept level (not close cross).
  * Mitigation = price later closes beyond the swept level in the sweep direction.
  */
 export function computeSweepLifecycle(
@@ -197,13 +220,19 @@ export function computeSweepLifecycle(
   fromIndex: number
 ): { firstTouchAt?: Date; mitigatedAt?: Date } {
   if (!isDirection(sweep.direction)) return {};
-  const firstTouchAt = findCloseCross(
+  const firstTouchAt = findWickTouch(
     candles,
     fromIndex,
     sweep.level,
     sweep.direction
   );
-  return { firstTouchAt, mitigatedAt: firstTouchAt };
+  const mitigatedAt = findCloseCross(
+    candles,
+    fromIndex,
+    sweep.level,
+    sweep.direction
+  );
+  return { firstTouchAt, mitigatedAt };
 }
 
 /**

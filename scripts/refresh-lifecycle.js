@@ -21,12 +21,29 @@ const STATEMENT_TIMEOUT = process.env.TM_DB_STATEMENT_TIMEOUT
   ? Number(process.env.TM_DB_STATEMENT_TIMEOUT)
   : 600_000; // 10 minutes
 
+const ALL_TABLES = [
+  { name: "features_zone", fn: "refresh_zone_lifecycle" },
+  { name: "features_order_block", fn: "refresh_order_block_lifecycle" },
+  { name: "features_ifvg", fn: "refresh_ifvg_lifecycle" },
+  { name: "features_sweep", fn: "refresh_sweep_lifecycle" },
+  { name: "features_structure", fn: "refresh_structure_lifecycle" },
+];
+
+const skipTables = new Set(
+  (process.env.TM_LIFECYCLE_SKIP_TABLES ?? "features_ifvg")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+);
+
+const enabledTables = ALL_TABLES.filter((t) => !skipTables.has(t.name));
+
 const pool = new Pool({
   host: "localhost",
   port: 5432,
-  database: "tradementor_v2",
+  database: (process.env.TM_DB_NAME || "tradzfx_v2"),
   user: "postgres",
-  password: "2k16Dub@i",
+  password: process.env.TM_DB_PASSWORD,
   max: 5,
   options: `--statement_timeout=${STATEMENT_TIMEOUT}`,
 });
@@ -42,29 +59,38 @@ async function refreshSymbol(symbol, lookbackDays, limit) {
     return 0;
   }
 
-  // Reset incremental state so the full lookback window is scanned.
+  // Reset per-table incremental state so the full lookback window is re-scanned.
   await pool.query(
-    `INSERT INTO lifecycle_refresh_state (symbol, last_processed_ts)
-     VALUES ($1, $2)
-     ON CONFLICT (symbol) DO UPDATE SET last_processed_ts = EXCLUDED.last_processed_ts`,
-    [symbol, new Date(Date.parse(maxTs) - lookbackDays * 24 * 60 * 60 * 1000).toISOString()]
+    `DELETE FROM lifecycle_refresh_state WHERE symbol = $1`,
+    [symbol]
   );
 
   console.log(
     `[refresh-lifecycle] Refreshing ${symbol} as-of ${maxTs} (last ${lookbackDays} days, limit ${limit})...`
   );
   const start = performance.now();
-  const { rows } = await pool.query(
-    `SELECT * FROM refresh_lifecycle_for_symbol($1, $2::timestamptz, make_interval(days => $3), $4)`,
-    [symbol, maxTs, lookbackDays, limit]
-  );
-  const elapsed = performance.now() - start;
-  const total = rows.reduce((s, r) => s + Number(r.rows_updated), 0);
-  console.log(`[refresh-lifecycle] ${symbol} done in ${elapsed.toFixed(0)}ms`);
-  for (const r of rows) {
-    console.log(`  ${r.table_name}: ${r.rows_updated} rows updated`);
+  let grandTotal = 0;
+  let iteration = 0;
+  while (true) {
+    iteration++;
+    let total = 0;
+    const parts = [];
+    for (const t of enabledTables) {
+      const { rows } = await pool.query(
+        `SELECT ${t.fn}($1, $2::timestamptz, make_interval(days => $3), $4) AS rows_updated`,
+        [symbol, maxTs, lookbackDays, limit]
+      );
+      const n = Number(rows[0]?.rows_updated ?? 0);
+      parts.push(`${t.name}=${n}`);
+      total += n;
+    }
+    grandTotal += total;
+    console.log(`  iteration ${iteration}: ${parts.join(", ")}`);
+    if (total === 0) break;
   }
-  return total;
+  const elapsed = performance.now() - start;
+  console.log(`[refresh-lifecycle] ${symbol} done in ${elapsed.toFixed(0)}ms, total ${grandTotal} rows updated`);
+  return grandTotal;
 }
 
 async function main() {

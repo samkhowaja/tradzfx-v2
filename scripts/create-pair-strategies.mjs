@@ -1,6 +1,6 @@
 import pg from 'pg';
 
-const pool = new pg.Pool({ host: 'localhost', port: 5432, database: 'tradementor_v2', user: 'postgres', password: '2k16Dub@i' });
+const pool = new pg.Pool({ host: 'localhost', port: 5432, database: (process.env.TM_DB_NAME || "tradzfx_v2"), user: 'postgres', password: process.env.TM_DB_PASSWORD });
 
 // Optimization results from pair-backtest-pit.js --optimize
 // Format: [symbol, slMult, tpRatio, timeoutBars, expectedWR, expectedNetR, notes]

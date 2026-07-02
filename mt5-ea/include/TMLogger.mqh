@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
-//| TradeMentor Logger Include                                       |
+//| tradzfx Logger Include                                       |
 //| Shared logging helpers for MT4/MT5 manager EAs                    |
 //+------------------------------------------------------------------+
 #ifndef TM_LOGGER_MQH
 #define TM_LOGGER_MQH
 
-string TM_LOG_PREFIX = "TradeMentorManager";
+string TM_LOG_PREFIX = "tradzfxManager";
 
 void TMSetPrefix(string prefix)
 {

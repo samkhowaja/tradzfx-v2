@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getCandleTableForTf } from "./runner";
+import { getCandleTableForTf } from "@tm/shared";
 
 describe("getCandleTableForTf", () => {
   it("maps each supported timeframe to its continuous aggregate table", () => {

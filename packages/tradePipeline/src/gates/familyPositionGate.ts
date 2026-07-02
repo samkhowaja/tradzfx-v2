@@ -1,16 +1,21 @@
 /**
  * Family Position Gate.
- * Blocks entry when any sibling strategy in the same family
+ * Blocks entry when any sibling variant in the same family
  * already has an active setup on this symbol.
  */
 
 import type { MarketContext } from "@tm/shared";
 
-function getFamilyId(strategyId: string): string {
+/** Legacy fallback for specs that don't carry an explicit family id. */
+function legacyFamilyId(strategyId: string): string {
   // waqar_v2 → waqar
   // waqar_v2_15m → waqar
   // ict_liq_sweep_1m_v1 → ict_liq_sweep
   return strategyId.replace(/(_v\d+.*|_\d+m)$/, "");
+}
+
+function getFamilyId(strategyId: string, familyId?: string): string {
+  return familyId && familyId.length > 0 ? familyId : legacyFamilyId(strategyId);
 }
 
 export interface FamilyPositionConfig {
@@ -22,11 +27,11 @@ export function createFamilyPositionGate(config: FamilyPositionConfig) {
     ctx: MarketContext
   ): Promise<{ passed: boolean; reason?: string }> => {
     const strategyId = ctx.signal?.strategyId ?? "";
-    const familyId = getFamilyId(strategyId);
+    const familyId = getFamilyId(strategyId, ctx.signal?.familyId);
     const active = ctx.activeOrders ?? [];
 
     const familyActiveOnSymbol = active.filter((o) => {
-      const oFamily = getFamilyId(o.strategyId);
+      const oFamily = getFamilyId(o.strategyId, o.familyId);
       return oFamily === familyId && o.symbol === ctx.symbol;
     });
 

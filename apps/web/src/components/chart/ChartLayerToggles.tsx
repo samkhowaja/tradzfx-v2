@@ -15,6 +15,7 @@ export interface ChartLayers {
   orderBlocks: boolean;
   eqLiquidity: boolean;
   signals: boolean;
+  setup: boolean;
 }
 
 const LAYER_CONFIG: { key: keyof ChartLayers; label: string }[] = [
@@ -29,6 +30,7 @@ const LAYER_CONFIG: { key: keyof ChartLayers; label: string }[] = [
   { key: "orderBlocks", label: "OBs" },
   { key: "eqLiquidity", label: "EQH/EQL" },
   { key: "signals", label: "Signals" },
+  { key: "setup", label: "Setup" },
 ];
 
 export function ChartLayerToggles({

@@ -6,7 +6,7 @@
 //|  Usage: drag this script onto any chart in MT5 and read the      |
 //|  output in the Experts tab of the Toolbox.                       |
 //+------------------------------------------------------------------+
-#property copyright "TradeMentor"
+#property copyright "tradzfx"
 #property version   "1.0"
 #property strict
 #property script_show_inputs

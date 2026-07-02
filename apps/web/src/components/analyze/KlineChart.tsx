@@ -147,6 +147,17 @@ interface FeatureShape {
   orderBlocks?: OrderBlock[];
 }
 
+interface SetupEvaluation {
+  grade: "A+" | "A" | "B" | "C" | "BLOCK";
+  direction: "long" | "short" | "neutral";
+  confidence: number;
+  entryZone: { top: number; bottom: number; zoneId?: string; zoneType?: string } | null;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  riskReward: number | null;
+  timestamp: string;
+}
+
 interface KlineChartProps {
   symbol: string;
   candles: Candle[];
@@ -156,6 +167,7 @@ interface KlineChartProps {
   layers?: ChartLayers;
   activeSignalId?: string | null;
   height?: number;
+  setup?: SetupEvaluation | null;
 }
 
 function getPricePrecision(symbol: string): number {
@@ -285,9 +297,11 @@ export function KlineChart({
     orderBlocks: false,
     eqLiquidity: false,
     signals: false,
+    setup: true,
   },
   activeSignalId,
   height = 560,
+  setup,
 }: KlineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -856,12 +870,40 @@ export function KlineChart({
         extendData: { side, rr: Number.isFinite(rr) ? rr : 0 },
       });
     }
+
+    // ── Current setup: entry zone + SL/TP lines ──
+    if (layers.setup && setup?.entryZone) {
+      const side = normalizeSide(setup.direction);
+      const color = sideColor(side, 0.85);
+      const fill = sideColor(side, 0.12);
+      const { top, bottom } = setup.entryZone;
+      createRect(chart, firstTs, lastTs, top, bottom, fill, color, `Setup ${setup.grade}`);
+      if (setup.stopLoss != null) {
+        createPriceLine(
+          chart,
+          setup.stopLoss,
+          side === "long" ? "rgba(251, 113, 133, 0.9)" : "rgba(52, 211, 153, 0.9)",
+          "SL",
+          true
+        );
+      }
+      if (setup.takeProfit != null) {
+        createPriceLine(
+          chart,
+          setup.takeProfit,
+          side === "long" ? "rgba(52, 211, 153, 0.9)" : "rgba(251, 113, 133, 0.9)",
+          "TP",
+          true
+        );
+      }
+    }
   }, [
     data,
     structure,
     features,
     layers,
     activeSignal,
+    setup,
     clearOverlays,
     createPriceLine,
     createTag,

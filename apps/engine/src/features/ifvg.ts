@@ -27,6 +27,7 @@ interface RawFvg {
 
 const MIN_FILL_PCT = 0.5;
 const MAX_AGE_BARS = 50;
+const MIN_CONFIRMATIONS = 2;
 
 function detectFVGs(candles: Candle[]): RawFvg[] {
   const fvgs: RawFvg[] = [];
@@ -62,16 +63,31 @@ function computeFillPct(fvg: RawFvg, candles: Candle[], fromIndex: number): numb
   return Math.min(1, extreme / height);
 }
 
-function isReversed(fvg: RawFvg, last: Candle): boolean {
-  if (fvg.direction === "bullish") {
-    return last.c > fvg.top;
+function countConfirmations(fvg: RawFvg, candles: Candle[], fromIndex: number): number {
+  let consecutive = 0;
+  for (let i = fromIndex; i < candles.length; i++) {
+    const c = candles[i];
+    const range = c.h - c.l;
+    const bodyPct = range > 0 ? Math.abs(c.c - c.o) / range : 0;
+    const outside =
+      fvg.direction === "bullish" ? c.c > fvg.top : c.c < fvg.bottom;
+    if (outside) {
+      consecutive++;
+      // Require the latest confirming candle to have a decisive body.
+      if (consecutive >= MIN_CONFIRMATIONS && bodyPct >= 0.5) {
+        return consecutive;
+      }
+    } else {
+      // A close back inside the zone breaks the confirmation streak.
+      consecutive = 0;
+    }
   }
-  return last.c < fvg.bottom;
+  return consecutive;
 }
 
 export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
   name: "features_ifvg",
-  version: "1.1.0",
+  version: "1.2.0",
   dependencies: [],
 
   compute(input): IfvgOutput {
@@ -88,9 +104,14 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
 
       const fillPct = computeFillPct(fvg, candles, fvg.formationIndex + 1);
       if (fillPct < MIN_FILL_PCT) continue;
-      if (!isReversed(fvg, last)) continue;
 
-      const strengthScore = Math.min(1, fillPct * 0.6 + (ageBars < 10 ? 0.4 : 0));
+      const confirmationCount = countConfirmations(fvg, candles, fvg.formationIndex + 1);
+      if (confirmationCount < MIN_CONFIRMATIONS) continue;
+
+      const strengthScore = Math.min(
+        1,
+        fillPct * 0.4 + confirmationCount * 0.15 + (ageBars < 10 ? 0.25 : 0)
+      );
       const lifecycle = computeIfvgLifecycle(
         { direction: fvg.direction, top: fvg.top, bottom: fvg.bottom },
         candles,
@@ -107,6 +128,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         ageBars,
         isFresh: !lifecycle.invalidatedAt,
         strengthScore,
+        confirmationCount,
         firstTouchAt: lifecycle.firstTouchAt,
         mitigatedAt: lifecycle.mitigatedAt,
         invalidatedAt: lifecycle.invalidatedAt,
@@ -143,6 +165,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       age_bars: z.ageBars ?? null,
       is_fresh: z.isFresh ?? true,
       strength_score: z.strengthScore ?? null,
+      confirmation_count: z.confirmationCount ?? null,
       originating_zone_ts: z.originatingZoneTs ?? null,
       ts: z.ts,
       first_touch_at: z.firstTouchAt ?? null,
@@ -164,6 +187,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         ageBars: r.age_bars as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         strengthScore: r.strength_score as number | undefined,
+        confirmationCount: r.confirmation_count as number | undefined,
         firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,

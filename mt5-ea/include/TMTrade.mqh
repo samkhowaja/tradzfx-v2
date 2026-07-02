@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| TradeMentor Trade Execution Include                              |
+//| tradzfx Trade Execution Include                              |
 //| Open/close/modify position abstractions for MT4/MT5               |
 //+------------------------------------------------------------------+
 #ifndef TM_TRADE_MQH

@@ -8,6 +8,7 @@
 
 import type { TimeFrame } from "../types/feature";
 import type { KillzoneId, SymbolClass } from "../utils/time";
+import { getPipInfo } from "./pipMath";
 
 export type { TimeFrame, KillzoneId, SymbolClass };
 
@@ -475,10 +476,7 @@ export function getVolatilityThresholds(symbol: string): { low: number; high: nu
 }
 
 export function getPipValuePerLot(symbol: string): number {
-  // Standard-lot pip value. For FX majors, JPY crosses, and Gold (XAUUSD),
-  // a 1-lot position moves ~$10 per pip/pip-size unit with standard contract sizes.
-  void symbol;
-  return 10.0;
+  return getPipInfo(symbol).pipValuePerLot;
 }
 
 export function getRegisteredPairs(): string[] {

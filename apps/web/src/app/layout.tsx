@@ -3,7 +3,7 @@ import "./globals.css";
 import { TopNav } from "@/components/layout/TopNav";
 
 export const metadata: Metadata = {
-  title: "TradeMentor — Command Center",
+  title: "tradzfx — Command Center",
   description: "Live trading dashboard and analytics",
 };
 

@@ -248,12 +248,24 @@ function computePools(input: LiquidityPoolsInput): LiquidityPoolsOutput {
     .filter((p) => p.price < currentPrice)
     .sort((a, b) => a.distance - b.distance)[0] ?? null;
 
-  // Check if the most recent sweep touched a recognized pool.
+  // Check if the most recent sweep touched a recognized pool on the correct side.
+  // A bullish sweep sweeps liquidity below price (lows/support), so it should only
+  // match low-side structural pools and round-number supports. A bearish sweep sweeps
+  // highs/resistance, so it should only match high-side structural pools and round-number
+  // resistances. We use the pool kind rather than `side` because `side` is computed
+  // relative to the *current* price, not the price at the time of the sweep.
   let recentSweepMatched = false;
   if (sweeps.length > 0) {
     const latestSweep = sweeps[sweeps.length - 1];
-    const sweepPrice = latestSweep.direction === "bearish" ? latestSweep.extreme : latestSweep.extreme;
-    const match = sweepMatchesPool(sweepPrice, pools, 0.5, atr);
+    const sweepPrice = latestSweep.extreme;
+    const isLowPool = (p: LiquidityPool) =>
+      p.kind.endsWith("_low") || p.kind === "eql" || p.kind === "round_number";
+    const isHighPool = (p: LiquidityPool) =>
+      p.kind.endsWith("_high") || p.kind === "eqh" || p.kind === "round_number";
+    const relevantPools = pools.filter((p) =>
+      latestSweep.direction === "bullish" ? isLowPool(p) : isHighPool(p)
+    );
+    const match = sweepMatchesPool(sweepPrice, relevantPools, 0.5, atr);
     recentSweepMatched = match.matched;
   }
 
@@ -262,7 +274,7 @@ function computePools(input: LiquidityPoolsInput): LiquidityPoolsOutput {
 
 export const liquidityPoolsFeature: FeatureDefinition<LiquidityPoolsInput, LiquidityPoolsOutput> = {
   name: "features_liquidity_pools",
-  version: "1.1.0",
+  version: "1.1.1",
   dependencies: ["features_sweep"],
 
   compute(input): LiquidityPoolsOutput {

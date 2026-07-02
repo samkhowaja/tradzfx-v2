@@ -1,36 +1,115 @@
 /**
- * Zone feature.
- * Detects supply/demand zones and Fair Value Gaps (FVGs).
+ * Zone Quality Model (Zone Detection v2).
+ *
+ * Detects supply/demand zones and FVGs with stricter formation rules, then
+ * scores them with a blend of:
+ *   - learned historical outcome quality (reversal rate * R:R)
+ *   - freshness
+ *   - proximity to current price
+ *   - HTF alignment
+ *
+ * Completed zone outcomes are recorded to `zone_outcomes` for continuous learning.
  */
 
-import type { Candle, FeatureDefinition, ZoneOutput, Direction } from "@tm/shared";
-import { sha256 } from "@tm/shared";
-import { computeZoneLifecycle } from "@tm/shared";
-import type { PivotOutput } from "@tm/shared";
+import type {
+  Candle,
+  FeatureDefinition,
+  ZoneOutput,
+  Direction,
+  PivotOutput,
+  AtrOutput,
+  HtfBiasOutput,
+  StructureOutput,
+  CanonicalMarketLevel,
+} from "@tm/shared";
+import { sha256, computeZoneLifecycle } from "@tm/shared";
+import { recordZoneOutcome, getZoneOutcomeStats } from "@tm/shared";
 
 export interface ZoneInput {
   candles: Candle[];
   features_pivot: PivotOutput;
+  features_atr: AtrOutput;
+  features_htf_bias: HtfBiasOutput;
+  features_structure: StructureOutput;
+}
+
+const MIN_BODY_PCT = 0.6;
+const MIN_VOLUME_RATIO = 1.2;
+const MAX_AGE_BARS = 10; // pivot must be within this many bars
+const LEARNED_SAMPLE_MIN = 30;
+
+function getAtr14(atr: AtrOutput): number {
+  return atr.values.find((v) => v.period === 14)?.value ?? 0;
+}
+
+function candleBody(c: Candle): { top: number; bottom: number } {
+  return {
+    top: Math.max(c.o, c.c),
+    bottom: Math.min(c.o, c.c),
+  };
+}
+
+function zoneBuffer(atr14: number): number {
+  if (atr14 > 0) return atr14 * 0.1;
+  return 0;
+}
+
+function averageVolume(candles: Candle[]): number {
+  if (candles.length === 0) return 0;
+  return candles.reduce((s, c) => s + (c.v ?? 0), 0) / candles.length;
+}
+
+function barMs(candles: Candle[]): number {
+  if (candles.length < 2) return 60_000;
+  return candles[1].ts.getTime() - candles[0].ts.getTime();
+}
+
+function findNearestPivot(
+  pivots: PivotOutput["pivots"],
+  kind: "high" | "low",
+  ts: Date,
+  maxBars: number,
+  barDurationMs: number
+): PivotOutput["pivots"][number] | undefined {
+  let best: PivotOutput["pivots"][number] | undefined;
+  let bestDist = Infinity;
+  const maxMs = maxBars * barDurationMs;
+  for (const p of pivots) {
+    if (p.kind !== kind) continue;
+    const dist = Math.abs(p.ts.getTime() - ts.getTime());
+    if (dist <= maxMs && dist < bestDist) {
+      best = p;
+      bestDist = dist;
+    }
+  }
+  return best;
 }
 
 function classifyFormation(
   zoneKind: ZoneOutput["zones"][number]["zoneKind"],
   candle: Candle,
-  prev: Candle | undefined,
-  pivots: PivotOutput["pivots"]
+  prev: Candle | undefined
 ): ZoneOutput["zones"][number]["formation"] {
   if (zoneKind === "fvg") return "fvg";
   if (zoneKind === "breaker") return "breaker";
 
-  // Demand zone
+  const range = candle.h - candle.l;
+  const bodyPct = range > 0 ? Math.abs(candle.c - candle.o) / range : 0;
+  const engulfing =
+    !!prev &&
+    bodyPct > 0.5 &&
+    ((candle.c > candle.o && candle.h > prev.h && candle.l < prev.l) ||
+      (candle.c < candle.o && candle.h > prev.h && candle.l < prev.l));
+
   if (zoneKind === "demand") {
+    if (engulfing) return "rbr";
     if (prev && candle.c > candle.o && candle.l > prev.l) return "rbr";
     if (prev && candle.c > candle.o && candle.l <= prev.l) return "dbu";
     return "other";
   }
 
-  // Supply zone
   if (zoneKind === "supply") {
+    if (engulfing) return "dbd";
     if (prev && candle.c < candle.o && candle.h < prev.h) return "dbd";
     if (prev && candle.c < candle.o && candle.h >= prev.h) return "rbd";
     return "other";
@@ -39,12 +118,29 @@ function classifyFormation(
   return "other";
 }
 
-function computeZoneQuality(
+function latestStructureDirection(events: StructureOutput["events"]): Direction | null {
+  if (events.length === 0) return null;
+  return events[events.length - 1].direction;
+}
+
+function isHtfAligned(zoneDirection: Direction | undefined, htf: HtfBiasOutput): boolean {
+  if (!zoneDirection || htf.direction === "neutral") return false;
+  return htf.direction === zoneDirection;
+}
+
+async function computeZoneQuality(
   zone: ZoneOutput["zones"][number],
   candles: Candle[],
   zoneIndex: number,
-  formingCandle?: Candle
-): void {
+  formingCandle: Candle,
+  currentPrice: number,
+  atr14: number,
+  htf: HtfBiasOutput,
+  pool: import("@tm/shared").Pool | undefined,
+  symbol: string | undefined,
+  tf: string | undefined,
+  structureEvents: StructureOutput["events"]
+): Promise<void> {
   // Age: bars since zone formation
   zone.ageBars = candles.length - zoneIndex;
 
@@ -61,33 +157,72 @@ function computeZoneQuality(
   }
   zone.departureCandles = departures;
 
-  // Quality score: composite (0-1)
+  // Heuristic quality (0-1)
   const ageFactor = Math.max(0, 1 - (zone.ageBars ?? 0) / 50);
   const freshFactor = zone.isFresh ? 1 : 0.3;
   const departureFactor = Math.min(1, departures / 3);
   const widthFactor = zone.zoneKind === "fvg" ? 0.8 : 1.0;
-  zone.qualityScore = (ageFactor * 0.3 + freshFactor * 0.4 + departureFactor * 0.2 + widthFactor * 0.1);
+  let baseQuality =
+    ageFactor * 0.3 + freshFactor * 0.4 + departureFactor * 0.2 + widthFactor * 0.1;
+
+  // Penalize FVGs that have neither structure nor HTF alignment.
+  if (zone.zoneKind === "fvg" && !(zone as any).fvgAligned) {
+    baseQuality *= 0.5;
+  }
+
+  // Penalize wide demand/supply zones that extend beyond the impulse body.
+  if ((zone.zoneKind === "demand" || zone.zoneKind === "supply") && atr14 > 0) {
+    const zoneHeight = zone.top - zone.bottom;
+    if (zoneHeight > atr14 * 0.8) {
+      baseQuality *= 0.7;
+    }
+  }
+
+  // Learned quality from historical zone outcomes
+  let learnedQuality: number | null = null;
+  if (pool && symbol && tf) {
+    const stats = await getZoneOutcomeStats(pool, symbol, tf, zone.zoneKind, LEARNED_SAMPLE_MIN);
+    if (stats) {
+      // Normalize expectancy to roughly 0-1; clamp for safety
+      learnedQuality = Math.max(0, Math.min(1, (stats.expectancy + 1) / 2));
+    }
+  }
+
+  zone.qualityScore = learnedQuality ?? baseQuality;
 
   // Strength score: emphasizes the forming candle and departure follow-through
-  let bodyStrength = 0.5;
-  if (formingCandle) {
-    const range = formingCandle.h - formingCandle.l;
-    bodyStrength = range > 0 ? Math.abs(formingCandle.c - formingCandle.o) / range : 0.5;
-  }
-  zone.strengthScore = Math.min(1,
-    bodyStrength * 0.3 +
-    departureFactor * 0.25 +
-    freshFactor * 0.25 +
-    ageFactor * 0.1 +
-    widthFactor * 0.1
+  const range = formingCandle.h - formingCandle.l;
+  const bodyStrength = range > 0 ? Math.abs(formingCandle.c - formingCandle.o) / range : 0.5;
+  zone.strengthScore = Math.min(
+    1,
+    bodyStrength * 0.3 + departureFactor * 0.25 + freshFactor * 0.25 + ageFactor * 0.1 + widthFactor * 0.1
   );
+
+  // Proximity to current price (0-1, 1 = price is inside the zone)
+  const zoneCenter = (zone.top + zone.bottom) / 2;
+  const distance = Math.abs(currentPrice - zoneCenter);
+  const proximity = atr14 > 0 ? Math.max(0, 1 - distance / (atr14 * 2)) : 0.5;
+
+  // HTF alignment bonus
+  const htfAlignment = isHtfAligned(zone.direction, htf) ? 1 : 0;
+
+  // Final ranking score
+  zone.rankScore =
+    (zone.qualityScore ?? 0) * 0.4 +
+    freshFactor * 0.25 +
+    proximity * 0.2 +
+    htfAlignment * 0.15;
 }
 
-function detectZones(
-  candles: Candle[],
-  pivots: PivotOutput["pivots"]
-): ZoneOutput["zones"] {
+function detectZones(input: ZoneInput): ZoneOutput["zones"] {
+  const { candles, features_pivot, features_atr, features_htf_bias, features_structure } = input;
   const zones: ZoneOutput["zones"] = [];
+  if (candles.length < 2) return zones;
+
+  const atr14 = getAtr14(features_atr);
+  const currentPrice = candles[candles.length - 1].c;
+  const barDuration = barMs(candles);
+  const structureDir = latestStructureDirection(features_structure.events);
 
   // Detect FVGs: 3-candle pattern where candle 1 and 3 don't overlap
   for (let i = 2; i < candles.length; i++) {
@@ -95,19 +230,29 @@ function detectZones(
     const c2 = candles[i - 1];
     const c3 = candles[i];
 
-    // Bullish FVG: c1.high < c3.low
-    if (c1.h < c3.l) {
+    const bullishFvg = c1.h < c3.l;
+    const bearishFvg = c1.l > c3.h;
+
+    if (bullishFvg) {
+      const direction: Direction = "bullish";
+      // Accept FVGs when either recent structure or HTF bias aligns. When
+      // neither aligns we still keep the FVG but the quality score is reduced
+      // in computeZoneQuality so the zone is ranked lower.
+      const htfAligned = features_htf_bias.direction === direction;
+      const structureAligned = structureDir === direction;
       const zone: ZoneOutput["zones"][number] = {
         zoneKind: "fvg",
-        direction: "bullish",
+        direction,
         top: c3.l,
         bottom: c1.h,
         fillPct: 0,
         tapped: false,
         ts: c3.ts,
-      };
+        // Internal flag used by computeZoneQuality; not serialized by name.
+        fvgAligned: htfAligned || structureAligned,
+      } as any;
       const lifecycle = computeZoneLifecycle(
-        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bullish" },
+        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction },
         candles,
         i
       );
@@ -116,24 +261,26 @@ function detectZones(
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
-      computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
     }
 
-    // Bearish FVG: c1.low > c3.high
-    if (c1.l > c3.h) {
+    if (bearishFvg) {
+      const direction: Direction = "bearish";
+      const htfAligned = features_htf_bias.direction === direction;
+      const structureAligned = structureDir === direction;
       const zone: ZoneOutput["zones"][number] = {
         zoneKind: "fvg",
-        direction: "bearish",
+        direction,
         top: c1.l,
         bottom: c3.h,
         fillPct: 0,
         tapped: false,
         ts: c3.ts,
-      };
+        fvgAligned: htfAligned || structureAligned,
+      } as any;
       const lifecycle = computeZoneLifecycle(
-        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bearish" },
+        { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction },
         candles,
         i
       );
@@ -142,7 +289,6 @@ function detectZones(
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
-      computeZoneQuality(zone, candles, i, c3);
       zone.formation = "fvg";
       zones.push(zone);
     }
@@ -157,66 +303,72 @@ function detectZones(
     const range = candle.h - candle.l;
     const bodyPct = range > 0 ? body / range : 0;
 
+    if (bodyPct < MIN_BODY_PCT) continue;
+
+    const avgVol = averageVolume(candles.slice(Math.max(0, i - 20), i));
+    if (avgVol > 0 && (candle.v ?? 0) < avgVol * MIN_VOLUME_RATIO) continue;
+
     // Strong bullish candle after a low pivot = demand zone
-    if (bodyPct > 0.6 && candle.c > candle.o) {
-      const nearbyLow = pivots.find(
-        (p) => p.kind === "low" && Math.abs(p.ts.getTime() - candle.ts.getTime()) < 300_000
+    if (candle.c > candle.o) {
+      const nearbyLow = findNearestPivot(features_pivot.pivots, "low", candle.ts, MAX_AGE_BARS, barDuration);
+      if (!nearbyLow) continue; // require a nearby low pivot
+
+      // Bound the zone by the impulse-candle body plus a small ATR buffer
+      // instead of the full range / nearest pivot, which produced zones that
+      // were far too wide.
+      const body = candleBody(candle);
+      const buffer = zoneBuffer(atr14);
+      const zone: ZoneOutput["zones"][number] = {
+        zoneKind: "demand",
+        direction: "bullish",
+        top: body.top + buffer,
+        bottom: body.bottom - buffer,
+        fillPct: 0,
+        tapped: false,
+        ts: candle.ts,
+      };
+      const lifecycle = computeZoneLifecycle(
+        { zoneKind: "demand", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bullish" },
+        candles,
+        i
       );
-      if (nearbyLow) {
-        const zone: ZoneOutput["zones"][number] = {
-          zoneKind: "demand",
-          direction: "bullish",
-          top: candle.h,
-          bottom: nearbyLow.price,
-          fillPct: 0,
-          tapped: false,
-          ts: candle.ts,
-        };
-        const lifecycle = computeZoneLifecycle(
-          { zoneKind: "demand", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bullish" },
-          candles,
-          i
-        );
-        zone.firstTouchAt = lifecycle.firstTouchAt;
-        zone.mitigatedAt = lifecycle.mitigatedAt;
-        zone.invalidatedAt = lifecycle.invalidatedAt;
-        zone.fillPct = lifecycle.fillPct ?? 0;
-        zone.tapped = !!lifecycle.firstTouchAt;
-        computeZoneQuality(zone, candles, i, candle);
-        zone.formation = classifyFormation("demand", candle, prev, pivots);
-        zones.push(zone);
-      }
+      zone.firstTouchAt = lifecycle.firstTouchAt;
+      zone.mitigatedAt = lifecycle.mitigatedAt;
+      zone.invalidatedAt = lifecycle.invalidatedAt;
+      zone.fillPct = lifecycle.fillPct ?? 0;
+      zone.tapped = !!lifecycle.firstTouchAt;
+      zone.formation = classifyFormation("demand", candle, prev);
+      zones.push(zone);
     }
 
     // Strong bearish candle after a high pivot = supply zone
-    if (bodyPct > 0.6 && candle.c < candle.o) {
-      const nearbyHigh = pivots.find(
-        (p) => p.kind === "high" && Math.abs(p.ts.getTime() - candle.ts.getTime()) < 300_000
+    if (candle.c < candle.o) {
+      const nearbyHigh = findNearestPivot(features_pivot.pivots, "high", candle.ts, MAX_AGE_BARS, barDuration);
+      if (!nearbyHigh) continue;
+
+      const body = candleBody(candle);
+      const buffer = zoneBuffer(atr14);
+      const zone: ZoneOutput["zones"][number] = {
+        zoneKind: "supply",
+        direction: "bearish",
+        top: body.top + buffer,
+        bottom: body.bottom - buffer,
+        fillPct: 0,
+        tapped: false,
+        ts: candle.ts,
+      };
+      const lifecycle = computeZoneLifecycle(
+        { zoneKind: "supply", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bearish" },
+        candles,
+        i
       );
-      if (nearbyHigh) {
-        const zone: ZoneOutput["zones"][number] = {
-          zoneKind: "supply",
-          direction: "bearish",
-          top: nearbyHigh.price,
-          bottom: candle.l,
-          fillPct: 0,
-          tapped: false,
-          ts: candle.ts,
-        };
-        const lifecycle = computeZoneLifecycle(
-          { zoneKind: "supply", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction: "bearish" },
-          candles,
-          i
-        );
-        zone.firstTouchAt = lifecycle.firstTouchAt;
-        zone.mitigatedAt = lifecycle.mitigatedAt;
-        zone.invalidatedAt = lifecycle.invalidatedAt;
-        zone.fillPct = lifecycle.fillPct ?? 0;
-        zone.tapped = !!lifecycle.firstTouchAt;
-        computeZoneQuality(zone, candles, i, candle);
-        zone.formation = classifyFormation("supply", candle, prev, pivots);
-        zones.push(zone);
-      }
+      zone.firstTouchAt = lifecycle.firstTouchAt;
+      zone.mitigatedAt = lifecycle.mitigatedAt;
+      zone.invalidatedAt = lifecycle.invalidatedAt;
+      zone.fillPct = lifecycle.fillPct ?? 0;
+      zone.tapped = !!lifecycle.firstTouchAt;
+      zone.formation = classifyFormation("supply", candle, prev);
+      zones.push(zone);
     }
   }
 
@@ -225,21 +377,74 @@ function detectZones(
 
 export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   name: "features_zone",
-  version: "1.2.0",
-  dependencies: ["features_pivot"],
+  version: "2.0.0",
+  dependencies: ["features_pivot", "features_atr", "features_htf_bias", "features_structure"],
 
-  compute(input): ZoneOutput {
-    return { zones: detectZones(input.candles, input.features_pivot.pivots) };
+  compute(input, context): ZoneOutput {
+    const zones = detectZones(input);
+
+    const pool = context?.pool as import("@tm/shared").Pool | undefined;
+    const symbol = context?.symbol;
+    const tf = context?.tf;
+
+    // Enrich with async learned quality and record completed outcomes.
+    // The runner awaits the returned Promise even though FeatureDefinition's
+    // compute signature is synchronous.
+    const enrich = async () => {
+      for (const zone of zones) {
+        const zoneIndex = input.candles.findIndex((c) => c.ts.getTime() === zone.ts.getTime());
+        const formingCandle = input.candles.find((c) => c.ts.getTime() === zone.ts.getTime()) ?? input.candles[input.candles.length - 1];
+        await computeZoneQuality(
+          zone,
+          input.candles,
+          zoneIndex,
+          formingCandle,
+          input.candles[input.candles.length - 1].c,
+          getAtr14(input.features_atr),
+          input.features_htf_bias,
+          pool,
+          symbol,
+          tf,
+          input.features_structure.events
+        );
+
+        if (pool && symbol && tf && (zone.mitigatedAt || zone.invalidatedAt)) {
+          await recordZoneOutcome(pool, {
+            symbol,
+            tf,
+            zoneKind: zone.zoneKind,
+            top: zone.top,
+            bottom: zone.bottom,
+            formationTs: zone.ts,
+            candles: input.candles,
+            mitigatedAt: zone.mitigatedAt,
+            invalidatedAt: zone.invalidatedAt,
+          });
+        }
+      }
+      zones.sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0));
+      return { zones };
+    };
+
+    return enrich() as unknown as ZoneOutput;
   },
 
   hashInput(input): string {
     return sha256(
       input.candles
-        .map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}`)
+        .map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}:${c.v ?? 0}`)
         .join("|") +
         "|" +
         input.features_pivot.pivots
           .map((p) => `${p.ts.toISOString()}:${p.kind}:${p.price}`)
+          .join("|") +
+        "|" +
+        input.features_atr.values.map((v) => `${v.period}=${v.value.toFixed(6)}`).join("|") +
+        "|" +
+        `${input.features_htf_bias.direction}:${input.features_htf_bias.confidence}:${input.features_htf_bias.score}` +
+        "|" +
+        input.features_structure.events
+          .map((e) => `${e.ts.toISOString()}:${e.eventType}:${e.direction}`)
           .join("|")
     );
   },
@@ -249,7 +454,9 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       output.zones
         .map(
           (z) =>
-            `${z.ts.toISOString()}:${z.zoneKind}:${z.top}:${z.bottom}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+            `${z.ts.toISOString()}:${z.zoneKind}:${z.top}:${z.bottom}:` +
+            `${z.rankScore ?? 0}:${z.qualityScore ?? 0}:${z.outcome ?? ""}:` +
+            `${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
         )
         .join("|")
     );
@@ -270,6 +477,8 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       quality_score: z.qualityScore ?? null,
       formation: z.formation ?? null,
       strength_score: z.strengthScore ?? null,
+      rank_score: z.rankScore ?? null,
+      outcome: z.outcome ?? null,
       first_touch_at: z.firstTouchAt ?? null,
       mitigated_at: z.mitigatedAt ?? null,
       invalidated_at: z.invalidatedAt ?? null,
@@ -279,22 +488,59 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   deserialize(rows): ZoneOutput {
     return {
       zones: rows.map((r) => ({
-        zoneKind: r.zone_kind as "demand" | "supply" | "fvg" | "breaker",
+        zoneKind: r.zone_kind as "demand" | "supply" | "fvg" | "breaker" | "ifvg",
         top: r.top as number,
         bottom: r.bottom as number,
         fillPct: r.fill_pct as number,
         tapped: r.tapped as boolean,
         ts: new Date(r.ts as string),
+        direction: r.direction as Direction | undefined,
         ageBars: r.age_bars as number | undefined,
         departureCandles: r.departure_candles as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,
         qualityScore: r.quality_score as number | undefined,
         formation: r.formation as ZoneOutput["zones"][number]["formation"] | undefined,
         strengthScore: r.strength_score as number | undefined,
+        rankScore: r.rank_score as number | undefined,
+        outcome: r.outcome as ZoneOutput["zones"][number]["outcome"] | undefined,
         firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
       })),
     };
+  },
+
+  publishLevels(output, context): CanonicalMarketLevel[] {
+    const symbol = context?.symbol;
+    const tf = context?.tf;
+    if (!symbol || !tf) return [];
+    return output.zones.map((z) => {
+      let kind: CanonicalMarketLevel["kind"];
+      if (z.zoneKind === "demand") kind = "demand";
+      else if (z.zoneKind === "supply") kind = "supply";
+      else if (z.direction === "bullish") kind = "bullish";
+      else if (z.direction === "bearish") kind = "bearish";
+      else kind = "demand";
+      return {
+        symbol,
+        tf,
+        level_type: "zone",
+        kind,
+        top: z.top,
+        bottom: z.bottom,
+        strength: z.rankScore ?? z.qualityScore ?? null,
+        invalidated_at: z.invalidatedAt ?? null,
+        tapped_at: z.firstTouchAt ?? null,
+        touch_count: z.tapped ? 1 : 0,
+        source_json: {
+          zoneKind: z.zoneKind,
+          formation: z.formation,
+          direction: z.direction,
+          strengthScore: z.strengthScore,
+          qualityScore: z.qualityScore,
+        },
+        ts: z.ts,
+      };
+    });
   },
 };

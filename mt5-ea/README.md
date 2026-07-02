@@ -1,6 +1,10 @@
-# TradeMentorSync EA — Installation Guide
+# tradzfxSync EA — Installation Guide
 
-> **Version 3.0** — Pushes M1 candles from MetaTrader 5 to TradeMentor VPS  
+> **⚠️ Legacy V1 docs.** The current V2 stack uses a single **tradzfx Manager EA** per terminal.  
+> See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the up-to-date MT5/MT4 manager deployment steps.  
+> The files below are kept for reference during the migration period.
+
+> **Version 3.0** — Pushes M1 candles from MetaTrader 5 to tradzfx-v2 server  
 > Server: `http://127.0.0.1:3000` (if MT5 is on the same VPS) or `http://3.95.97.7:3000` (if remote)
 
 ---
@@ -10,14 +14,14 @@
 | # | Requirement | Notes |
 |---|-------------|-------|
 | 1 | **MetaTrader 5** installed | Any broker, demo or live account |
-| 2 | **TradeMentor VPS** running | `http://127.0.0.1:3000` (same machine) or `http://3.95.97.7:3000` (remote) |
+| 2 | **tradzfx-v2 server** running | `http://127.0.0.1:3000` (same machine) or `http://3.95.97.7:3000` (remote) |
 | 3 | **PostgreSQL** running on VPS | With `mt5_terminal_keys` table bootstrapped |
 
 ---
 
 ## Step 1 — Add the `config` column (one-time, on VPS)
 
-SSH/RDP into the VPS and run this SQL against the `tradementor` database:
+SSH/RDP into the VPS and run this SQL against the `tradzfx_v2` database:
 
 ```sql
 ALTER TABLE mt5_terminal_keys
@@ -26,12 +30,12 @@ ALTER TABLE mt5_terminal_keys
 
 Using `psql`:
 ```
-psql -U tm_app -d tradementor -c "ALTER TABLE mt5_terminal_keys ADD COLUMN IF NOT EXISTS config jsonb NOT NULL DEFAULT '{}'::jsonb;"
+psql -U tm_app -d tradzfx_v2 -c "ALTER TABLE mt5_terminal_keys ADD COLUMN IF NOT EXISTS config jsonb NOT NULL DEFAULT '{}'::jsonb;"
 ```
 
 Or via Node on the VPS:
 ```
-cd C:\TradeMentor
+cd C:\tradzfx-v2
 node -e "const{Pool}=require('pg');const p=new Pool({connectionString:process.env.DATABASE_URL});p.query(\"ALTER TABLE mt5_terminal_keys ADD COLUMN IF NOT EXISTS config jsonb NOT NULL DEFAULT '{}'::jsonb\").then(()=>{console.log('Done');p.end()}).catch(e=>{console.error(e.message);p.end()})"
 ```
 
@@ -64,17 +68,17 @@ curl -X POST http://localhost:3000/api/ingest/mt5/keys \
 1. Open MetaTrader 5
 2. Go to **File → Open Data Folder**
 3. Navigate into `MQL5\Experts\`
-4. Copy `TradeMentorSync.mq5` from this folder into that `Experts` directory
+4. Copy `tradzfxSync_v4_22.mq5` from this folder into that `Experts` directory
 
 **Path example:**  
-`C:\Users\<you>\AppData\Roaming\MetaQuotes\Terminal\<ID>\MQL5\Experts\TradeMentorSync.mq5`
+`C:\Users\<you>\AppData\Roaming\MetaQuotes\Terminal\<ID>\MQL5\Experts\tradzfxSync_v4_22.mq5`
 
 ---
 
 ## Step 4 — Compile the EA
 
 1. In MT5, press **F4** (or click **MetaEditor** icon in the toolbar)
-2. In MetaEditor, open `TradeMentorSync.mq5` from the Experts folder
+2. In MetaEditor, open `tradzfxSync_v4_22.mq5` from the Experts folder
 3. Press **F7** (or click **Compile**)
 4. Verify: **0 errors** in the output panel. Warnings are OK.
 5. Close MetaEditor and return to MT5
@@ -105,7 +109,7 @@ This is **critical** — MT5 blocks HTTP requests by default.
 
 1. In MT5, open **any chart** (e.g. EURUSD M1)
 2. In the **Navigator** panel (Ctrl+N), expand **Expert Advisors**
-3. Find **TradeMentorSync** and **drag it onto the chart**
+3. Find **tradzfxSync** and **drag it onto the chart**
 4. The EA settings dialog appears — configure these inputs:
 
 | Input | Value | Notes |
@@ -129,7 +133,7 @@ This is **critical** — MT5 blocks HTTP requests by default.
 ### On the MT5 chart:
 - You should see a **comment overlay** on the chart showing:
   ```
-  TradeMentorSync v3.0
+  tradzfxSync v3.0
   Server: http://3.95.97.7:3000
   Config: 90d backfill, 60s interval
   Total bars pushed: 12345
@@ -142,10 +146,10 @@ This is **critical** — MT5 blocks HTTP requests by default.
 - Press **Ctrl+E** (or click the **Experts** tab at the bottom)
 - You should see log lines like:
   ```
-  TradeMentorSync: Started — 2 symbol(s), interval 60s, backfill 90d
-  TradeMentorSync: Connected to server. Starting sync for 2 symbol(s).
-  TradeMentorSync: Full backfill for EURUSD: 2024.10.15 → 2025.01.15
-  TradeMentorSync: EURUSD — pushed 2000 bar(s), cursor → 2024.10.16 15:20
+  tradzfxSync: Started — 2 symbol(s), interval 60s, backfill 90d
+  tradzfxSync: Connected to server. Starting sync for 2 symbol(s).
+  tradzfxSync: Full backfill for EURUSD: 2024.10.15 → 2025.01.15
+  tradzfxSync: EURUSD — pushed 2000 bar(s), cursor → 2024.10.16 15:20
   ```
 
 ### On the server:
@@ -168,7 +172,7 @@ This is **critical** — MT5 blocks HTTP requests by default.
 ## How It Works
 
 ```
-MT5 Terminal                          TradeMentor VPS
+MT5 Terminal                          tradzfx-v2 server
 ┌──────────────┐                     ┌──────────────────────┐
 │ EA Timer (60s)│─── GET /config ───→│ Returns symbols,     │
 │              │←── {symbols, ...} ──│ backfill, interval   │
@@ -299,7 +303,7 @@ WHERE api_key = 'tm_mt5_...';
 ```
 1. VPS:   ALTER TABLE mt5_terminal_keys ADD COLUMN IF NOT EXISTS config jsonb NOT NULL DEFAULT '{}'::jsonb;
 2. VPS:   INSERT INTO mt5_terminal_keys (api_key, label) VALUES ('tm_mt5_'||encode(gen_random_bytes(16),'hex'), 'My MT5') RETURNING api_key;
-3. MT5:   File → Open Data Folder → MQL5/Experts/ → paste TradeMentorSync.mq5
+3. MT5:   File → Open Data Folder → MQL5/Experts/ → paste tradzfxSync_v4_22.mq5
 4. MT5:   F4 → open file → F7 to compile → 0 errors
 5. MT5:   Tools → Options → Expert Advisors → ✅ Allow WebRequest → add http://127.0.0.1:3000
 6. MT5:   Drag EA onto chart → paste API key → OK

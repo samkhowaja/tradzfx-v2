@@ -9,6 +9,8 @@ export type Side = "buy" | "sell";
 
 export interface StrategySpec {
   id: string;
+  /** Explicit strategy family id (replaces suffix-based family inference). */
+  familyId?: string;
   name: string;
   version: string;
   description?: string;
@@ -80,6 +82,28 @@ export interface EntryConfig {
 
 // ── Live execution config ────────────────────────────────────────────────────
 
+export interface ExecutionProfile {
+  /** How the EA should attempt to enter the trade. */
+  entryStrategy: "market" | "limit" | "market_if_close_else_limit";
+  /** Max allowed distance between signal entry and current market price (pips). */
+  maxEntryDriftPips: number;
+  /** Minimum effective R:R evaluated at the current market price. */
+  minEffectiveRR: number;
+  /** Time-in-force for pending/limit orders. */
+  timeInForce: "GTC" | "IOC" | "FOK";
+  /** How long a limit order stays active (seconds). */
+  limitTtlSeconds: number;
+}
+
+/** Runtime instruction sent from server to EA for a single order. */
+export interface ExecutionInstruction {
+  executionStrategy: ExecutionProfile["entryStrategy"];
+  limitPrice: number | null;
+  maxEntryDriftPips: number;
+  minEffectiveRR: number;
+  timeInForce: ExecutionProfile["timeInForce"];
+}
+
 export interface LiveExecutionConfig {
   /** Trade mode: 'paper' = log only, 'live' = real execution */
   mode: "paper" | "live";
@@ -109,6 +133,8 @@ export interface LiveExecutionConfig {
   maxLot?: number;
   /** Max age of structure events (minutes) for live SQL freshness. 0 = disabled. */
   structureFreshnessMinutes?: number;
+  /** Per-strategy execution quality profile. */
+  executionProfile?: ExecutionProfile;
 }
 
 // ── Runtime types ───────────────────────────────────────────────────────────
@@ -116,6 +142,8 @@ export interface LiveExecutionConfig {
 export interface Signal {
   symbol: string;
   strategyId: string;
+  /** Explicit strategy family id for family-level gates. */
+  familyId?: string;
   side: Side;
   entryType: "market" | "limit" | "stop";
   entryPrice: number;
@@ -129,6 +157,8 @@ export interface Trade {
   id: string;
   symbol: string;
   strategyId: string;
+  /** Explicit strategy family id for family-level gates. */
+  familyId?: string;
   side: Side;
   entryType: "market" | "limit" | "stop";
   entryPrice: number;

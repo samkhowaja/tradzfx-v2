@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "tradzfx-v2",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      ".next": true,
+      ".next-build": true,
+      "dist": true,
+      "node_modules": true,
+      "*.tsbuildinfo": true,
+      "logs": true,
+      "backups": true,
+      "downloads": true,
+      "data": true,
+      "temp": true,
+      "graphify-out": true,
+      ".venv": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
+  }
+}

@@ -3,19 +3,19 @@
  * Calls the DAGRunner for each bar timestamp in the range.
  *
  * Usage:
- *   node backfill-features.js [symbol] [tf] [days] [stepMinutes]
+ *   node backfill-features.js [symbol] [tf] [days] [stepMinutes] [--start=ISO] [--end=ISO] [--features=f1,f2]
  *   node backfill-features.js EURUSD 5m 7 5
  */
 
 const { Pool } = require("pg");
-const { DAGRunner, globalDAG } = require("../apps/engine/dist/index.js");
+const { DAGRunner, globalDAG, updateLifecycleForSymbol } = require("../apps/engine/dist/index.js");
 
 const pool = new Pool({
   host: "localhost",
   port: 5432,
-  database: "tradementor_v2",
+  database: (process.env.TM_DB_NAME || "tradzfx_v2"),
   user: "postgres",
-  password: "2k16Dub@i",
+  password: process.env.TM_DB_PASSWORD,
   max: 2,
 });
 
@@ -63,12 +63,26 @@ async function main() {
     ? featuresArg.slice("--features=".length).split(",")
     : null;
 
-  const { rows: latestRows } = await pool.query(
-    `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
-    [symbol]
-  );
-  const endTs = latestRows.length > 0 ? new Date(latestRows[0].ts) : new Date();
-  const startTs = new Date(endTs.getTime() - days * 24 * 60 * 60 * 1000);
+  const startArg = process.argv.find((a) => a.startsWith("--start="));
+  const endArg = process.argv.find((a) => a.startsWith("--end="));
+
+  let endTs;
+  if (endArg) {
+    endTs = new Date(endArg.slice("--end=".length));
+  } else {
+    const { rows: latestRows } = await pool.query(
+      `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
+      [symbol]
+    );
+    endTs = latestRows.length > 0 ? new Date(latestRows[0].ts) : new Date();
+  }
+
+  let startTs;
+  if (startArg) {
+    startTs = new Date(startArg.slice("--start=".length));
+  } else {
+    startTs = new Date(endTs.getTime() - days * 24 * 60 * 60 * 1000);
+  }
 
   console.log(`[backfill] ${symbol} ${tf} | ${startTs.toISOString()} → ${endTs.toISOString()}`);
   if (requestedFeatures) {
@@ -97,6 +111,7 @@ async function main() {
         skipCache: true,
         batchInserts: true,
         batchSize: 1000,
+        skipLifecycle: true,
       });
       totalTime += performance.now() - t0;
       processed++;
@@ -110,6 +125,18 @@ async function main() {
   }
 
   await runner.flush();
+
+  // Refresh lifecycle once for the whole range instead of per-bar.
+  try {
+    await updateLifecycleForSymbol(pool, symbol, {
+      asOf: endTs,
+      lookbackDays: Math.min(days, 10),
+      limit: 10000,
+    });
+    console.log(`[backfill] Lifecycle refreshed`);
+  } catch (err) {
+    console.error(`[backfill] Lifecycle refresh failed:`, err.message);
+  }
 
   console.log(`\n[backfill] Complete: ${processed} computed, ${errors} errors`);
   console.log(`[backfill] Total: ${(totalTime / 1000).toFixed(1)}s | Avg: ${processed > 0 ? (totalTime / processed).toFixed(1) : 0}ms`);

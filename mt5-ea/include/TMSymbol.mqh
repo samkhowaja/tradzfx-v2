@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| TradeMentor Symbol Helpers Include                               |
+//| tradzfx Symbol Helpers Include                               |
 //| Broker symbol resolution, lot/pip/point helpers for MT4/MT5       |
 //+------------------------------------------------------------------+
 #ifndef TM_SYMBOL_MQH

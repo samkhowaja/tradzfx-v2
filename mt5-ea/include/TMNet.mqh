@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| TradeMentor Network / JSON Include                               |
+//| tradzfx Network / JSON Include                               |
 //| Shared HTTP request and JSON extraction helpers for MT4/MT5       |
 //+------------------------------------------------------------------+
 #ifndef TM_NET_MQH
@@ -14,11 +14,28 @@
 // They are compatible in signature but MT4 requires URL allow-list in Tools > Options.
 
 /**
+ * Build terminal identification headers so the server can route commands
+ * and tag orders to the correct MT4/MT5 instance.
+ */
+string TMGetTerminalHeaders()
+{
+   string platform = "mt5";
+#ifdef __MQL4__
+   platform = "mt4";
+#endif
+   long account = AccountInfoInteger(ACCOUNT_LOGIN);
+   string server = AccountInfoString(ACCOUNT_SERVER);
+   return "X-Terminal-Platform: " + platform + "\r\n" +
+          "X-Terminal-Account: " + IntegerToString(account) + "\r\n" +
+          "X-Terminal-Broker-Server: " + server + "\r\n";
+}
+
+/**
  * Perform HTTP GET and return body as string.
  */
 string TMHttpGet(string url, string apiKey, int timeoutMs = 10000)
 {
-   string headers = "X-API-Key: " + apiKey + "\r\n";
+   string headers = "X-API-Key: " + apiKey + "\r\n" + TMGetTerminalHeaders();
    char   data[];
    char   result[];
    string resultHeaders;
@@ -37,7 +54,7 @@ string TMHttpGet(string url, string apiKey, int timeoutMs = 10000)
  */
 string TMHttpPost(string url, string apiKey, string jsonBody, int timeoutMs = 10000)
 {
-   string headers = "Content-Type: application/json\r\nX-API-Key: " + apiKey + "\r\n";
+   string headers = "Content-Type: application/json\r\nX-API-Key: " + apiKey + "\r\n" + TMGetTerminalHeaders();
    char   data[];
    char   result[];
    string resultHeaders;

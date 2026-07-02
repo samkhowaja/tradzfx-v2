@@ -36,6 +36,9 @@ describe("htfBiasFeature", () => {
     expect(output.state).toBe("READY");
     expect(output.confidence).toBe(90);
     expect(output.score).toBe(5.0);
+    expect(output.byTimeFrame).toBeDefined();
+    expect(output.byTimeFrame?.["1d"].state).toBe("strong");
+    expect(output.byTimeFrame?.["4h"].state).toBe("strong");
   });
 
   it("returns bearish SOFT_WARN with 4H bearish OB offset by 1H bullish structure", async () => {
@@ -92,5 +95,25 @@ describe("htfBiasFeature", () => {
     expect(seenTfs).toContain("4h");
     expect(seenTfs).toContain("1h");
     expect(seenTfs).not.toContain("15m");
+  });
+
+  it("marks a child TF as opposing when it disagrees with a strong parent", async () => {
+    const pool = mockPool((table, tf) => {
+      if (table === "ob" && tf === "1d") return [{ ob_kind: "bullish" }];
+      if (table === "ob" && tf === "4h") return [{ ob_kind: "bearish" }];
+      return [];
+    });
+
+    const output = await htfBiasFeature.compute({}, {
+      tf: "15m",
+      pool: pool as any,
+      symbol: "XAUUSD",
+      endTs: new Date(),
+    });
+
+    expect(output.byTimeFrame?.["1d"].state).toBe("strong");
+    expect(output.byTimeFrame?.["1d"].direction).toBe("bullish");
+    expect(output.byTimeFrame?.["4h"].state).toBe("opposing");
+    expect(output.byTimeFrame?.["4h"].direction).toBe("bearish");
   });
 });

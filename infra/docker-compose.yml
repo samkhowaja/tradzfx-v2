@@ -3,12 +3,12 @@ version: "3.8"
 services:
   timescaledb:
     image: timescale/timescaledb:latest-pg17
-    container_name: tradementor-v2-db
+    container_name: tradzfx-v2-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-2k16Dub@i}
-      POSTGRES_DB: tradementor_v2
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: tradzfx_v2
       TIMESCALEDB_TELEMETRY: "off"
     ports:
       - "5433:5432"
@@ -32,7 +32,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: tradementor-v2-redis
+    container_name: tradzfx-v2-redis
     restart: unless-stopped
     ports:
       - "6380:6379"

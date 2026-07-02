@@ -3,7 +3,8 @@ import { getPool } from "@tm/shared";
 
 const MAJOR_PAIRS = [
   "EURUSD", "GBPUSD", "AUDUSD", "NZDUSD",
-  "USDCAD", "USDCHF", "USDJPY", "XAUUSD",
+  "USDCAD", "USDCHF", "USDSEK", "USDJPY",
+  "XAUUSD", "DXY",
 ];
 
 export async function GET() {

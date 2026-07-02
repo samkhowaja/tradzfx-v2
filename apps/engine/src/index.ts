@@ -1,5 +1,5 @@
 /**
- * TradeMentor V2 — Feature Engine Entry Point
+ * tradzfx-v2 — Feature Engine Entry Point
  *
  * Registers all features into the global DAG and starts the ingestion consumer.
  */
@@ -67,6 +67,7 @@ globalDAG.register(spreadFeature);
 
 export { globalDAG, DAGRunner };
 export { updateLifecycleForSymbol, updateLifecycleForAllSymbols } from "./lifecycleUpdater";
+export { runFeatureWorker, type FeatureWorkerOptions } from "./worker/featureWorker";
 export * from "./features/atr";
 export * from "./features/pivot";
 export * from "./features/structure";
@@ -126,6 +127,8 @@ async function main() {
     "features_ifvg",
     "features_order_block",
     "features_eq_liquidity",
+    "features_htf_bias",
+    "features_spread",
   ];
 
   const start = performance.now();

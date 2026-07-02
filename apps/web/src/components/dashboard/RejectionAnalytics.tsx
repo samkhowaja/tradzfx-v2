@@ -53,6 +53,20 @@ interface RejectionData {
     reject_reason: string | null;
     created_at: string;
   }[];
+  signalRejections?: {
+    overall: { total: string; distinct_reasons: string };
+    byReason: { reason: string; count: string }[];
+    bySymbol: { symbol: string; count: string }[];
+    recent: {
+      id: string;
+      symbol: string;
+      strategy_id: string;
+      side: string | null;
+      reason: string;
+      signal_fingerprint: string | null;
+      created_at: string;
+    }[];
+  };
 }
 
 export function RejectionAnalytics({ data }: { data: RejectionData }) {
@@ -207,10 +221,36 @@ export function RejectionAnalytics({ data }: { data: RejectionData }) {
         </motion.div>
       )}
 
+      {data.signalRejections && parseInt(data.signalRejections.overall?.total ?? "0", 10) > 0 && (
+        <motion.div
+          className="mb-4 rounded-md border border-border bg-bg px-3 py-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...transitions.tween, delay: 0.28 }}
+        >
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-[11px] font-medium uppercase tracking-wider text-text-dim">
+              Signal-Level Rejections
+            </h4>
+            <Badge tone="warn" variant="soft">
+              {data.signalRejections.overall.total} never became orders
+            </Badge>
+          </div>
+          <div className="space-y-1">
+            {data.signalRejections.byReason.slice(0, 5).map((r) => (
+              <div key={r.reason} className="flex items-center justify-between text-[12px]">
+                <span className="truncate text-text-dim">{r.reason}</span>
+                <span className="text-short">{r.count}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {data.recent.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ ...transitions.tween, delay: 0.3 }}>
           <h4 className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-dim">
-            Recent Rejections
+            Recent Order Rejections
           </h4>
           <DataTable
             columns={[

@@ -19,6 +19,44 @@ export type TimeFrame = "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
 
 export type Direction = "bullish" | "bearish" | "neutral";
 
+export type CanonicalLevelType =
+  | "zone"
+  | "order_block"
+  | "liquidity_pool"
+  | "pivot"
+  | "fvg"
+  | "eq_liquidity";
+
+export type CanonicalLevelKind =
+  | "demand"
+  | "supply"
+  | "high"
+  | "low"
+  | "buyside"
+  | "sellside"
+  | "bullish"
+  | "bearish";
+
+/**
+ * Canonical level representation shared by all feature producers and consumed
+ * by the unified Level Engine. Stored in `market_levels`.
+ */
+export interface CanonicalMarketLevel {
+  symbol: string;
+  tf: TimeFrame;
+  level_type: CanonicalLevelType;
+  kind: CanonicalLevelKind;
+  top: number;
+  bottom: number;
+  strength?: number | null;
+  invalidated_at?: Date | null;
+  tapped_at?: Date | null;
+  touch_count?: number;
+  source_id?: string | null;
+  source_json?: Record<string, unknown> | null;
+  ts: Date;
+}
+
 export interface FeatureDefinition<Input, Output> {
   /** Unique feature name, maps to table name e.g. 'features_sweep' */
   name: string;
@@ -46,6 +84,15 @@ export interface FeatureDefinition<Input, Output> {
   serialize: (output: Output) => Record<string, unknown>[];
   /** Deserialize from database rows */
   deserialize: (rows: Record<string, unknown>[]) => Output;
+  /**
+   * Optional: publish canonical market levels from this feature into the
+   * unified `market_levels` table. Used by the Level Engine for structural
+   * stop-loss, target, and entry-zone selection.
+   */
+  publishLevels?: (
+    output: Output,
+    context?: { tf: TimeFrame; symbol?: string; endTs?: Date }
+  ) => CanonicalMarketLevel[];
 }
 
 // ── Feature outputs (narrow, typed) ─────────────────────────────────────────
@@ -63,15 +110,31 @@ export interface PivotOutput {
   }>;
 }
 
+export type StructureEventType =
+  | "bos"
+  | "mss"
+  | "choch"
+  | "bos_failed"
+  | "choch_failed";
+
+export type StructureStrength = "weak" | "medium" | "strong";
+
+export interface StructureEvent {
+  eventType: StructureEventType;
+  direction: Direction;
+  level: number;
+  ts: Date;
+  strength?: StructureStrength;
+  confirmed?: boolean;
+  confirmationTs?: Date;
+  opposingSweepTs?: Date;
+  isCisd?: boolean;
+  htfAligned?: boolean;
+  invalidatedAt?: Date;
+}
+
 export interface StructureOutput {
-  events: Array<{
-    eventType: "bos" | "mss" | "choch";
-    direction: Direction;
-    level: number;
-    ts: Date;
-    isCisd?: boolean;
-    invalidatedAt?: Date;
-  }>;
+  events: StructureEvent[];
 }
 
 export interface SweepOutput {
@@ -101,10 +164,23 @@ export interface ZoneOutput {
     qualityScore?: number;
     formation?: "rbr" | "dbd" | "dbu" | "rbd" | "fvg" | "breaker" | "ifvg" | "other";
     strengthScore?: number;
+    rankScore?: number;
+    outcome?: "reversal" | "mitigated" | "invalidated" | "untouched";
     firstTouchAt?: Date;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
   }>;
+}
+
+export interface ZoneOutcomeStats {
+  symbol: string;
+  tf: TimeFrame;
+  zoneKind: string;
+  sampleCount: number;
+  reversalRate: number;
+  avgReward: number;
+  avgRisk: number;
+  expectancy: number;
 }
 
 export interface ZoneRetestOutput {
@@ -129,6 +205,69 @@ export interface PricingOutput {
   lltTarget?: number;
   balanced?: boolean;
   pipSize?: number;
+  /** Dynamic OTE band derived from the active impulse leg (or recent range as fallback). */
+  dynamicOteLow?: number;
+  dynamicOteHigh?: number;
+  dynamicOteMid?: number;
+  dynamicOteSource?: "recent_range" | "impulse_leg";
+  /** 0-1 quality of the active dynamic OTE band (move size + volume confirmation). */
+  dynamicOteQuality?: number;
+  /** Continuous premium/discount score from -1 (deep discount) to +1 (deep premium). */
+  premiumDiscountScore?: number;
+  /** Detected impulse legs used for dynamic OTE. */
+  impulseLegs?: Array<{
+    direction: Direction;
+    startPrice: number;
+    endPrice: number;
+    startTs: Date;
+    endTs: Date;
+    moveAtr: number;
+    avgVolume: number;
+  }>;
+}
+
+export interface RegimeBiasFactorScores {
+  htfAlignment: number;
+  emaSlope: number;
+  structure: number;
+  volume: number;
+  session: number;
+  volatility: number;
+}
+
+export interface RegimeBiasOutput {
+  direction: Direction;
+  confidence: number;
+  regime: "trending" | "ranging" | "volatile" | "low_volatility";
+  score: RegimeBiasFactorScores;
+  reason: string;
+  factors: string[];
+}
+
+export type HtfBiasState = "READY" | "SOFT_WARN" | "BLOCK";
+
+export type BiasNodeState = "strong" | "soft" | "neutral" | "opposing";
+
+export interface BiasNode {
+  tf: TimeFrame;
+  direction: Direction;
+  confidence: number;
+  state: BiasNodeState;
+  score: number;
+  reason: string;
+  parentTf?: TimeFrame;
+}
+
+export interface HtfBiasOutput {
+  direction: Direction;
+  confidence: number;
+  state: HtfBiasState;
+  score: number;
+  reason: string;
+  /** Per-timeframe propagated bias tree. */
+  byTimeFrame?: Record<TimeFrame, BiasNode>;
+  /** The timeframe this output was computed for. */
+  tradingTf?: TimeFrame;
 }
 
 export interface BiasOutput {
@@ -315,6 +454,7 @@ export interface IfvgOutput {
     ageBars?: number;
     isFresh?: boolean;
     strengthScore?: number;
+    confirmationCount?: number;
     firstTouchAt?: Date;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
@@ -327,6 +467,8 @@ export interface OrderBlockOutput {
     degree: "internal" | "swing";
     top: number;
     bottom: number;
+    bodyTop?: number;
+    bodyBottom?: number;
     ts: Date;
     formationTs?: Date;
     ageBars?: number;

@@ -3,7 +3,8 @@
  * Converts approved signals into orders with proper lot sizing.
  */
 
-import type { Signal, StrategySpec, LiveExecutionConfig } from "@tm/shared";
+import type { Signal, StrategySpec, LiveExecutionConfig, SetupEvaluationSnapshot } from "@tm/shared";
+import type { QualityDecision } from "./qualityEngine";
 import { getPairCharacteristics, getPipValuePerLot } from "@tm/shared";
 
 export interface OrderExecutorConfig {
@@ -66,6 +67,21 @@ export function computeLotSize(
 }
 
 /** Build createOrder input from a signal + strategy spec */
+function gradeToLotSize(grade?: string | null): number {
+  switch (grade) {
+    case "A+":
+      return 0.05;
+    case "A":
+      return 0.04;
+    case "B":
+      return 0.03;
+    case "C":
+      return 0.02;
+    default:
+      return 0.01;
+  }
+}
+
 const DEFAULT_LIVE: Partial<LiveExecutionConfig> = {
   mode: "paper",
   lotSize: 0.01,
@@ -85,18 +101,39 @@ export function buildOrderInput(
   signal: Signal,
   spec: StrategySpec,
   traceRunId: string,
-  overrides?: Partial<LiveExecutionConfig>
+  overrides?: Partial<LiveExecutionConfig>,
+  setupSnapshot?: SetupEvaluationSnapshot,
+  quality?: QualityDecision
 ) {
-  const live: Partial<LiveExecutionConfig> = { ...DEFAULT_LIVE, ...spec.live, ...overrides };
+  // Size orders by setup grade (0.01–0.05 lots). Risk-based sizing is disabled
+  // so a small account never receives a 1.0 lot order.
+  const live: Partial<LiveExecutionConfig> = {
+    ...DEFAULT_LIVE,
+    ...spec.live,
+    ...overrides,
+    lotSize: 0.01,
+    maxLot: 0.05,
+  };
 
-  const lotSize = computeLotSize(signal.entryPrice, signal.stopLoss, live, signal.symbol, signal.side);
-  const expiresAt = new Date(Date.now() + (live.signalTtlMinutes ?? 15) * 60 * 1000);
+  const gradeLotSize = gradeToLotSize(setupSnapshot?.grade);
+  const lotSize = Math.max(0.01, Math.min(gradeLotSize, live.maxLot ?? 0.05));
+  const profile = live.executionProfile;
+  const ttlSeconds = quality?.action === "limit" ? (profile?.limitTtlSeconds ?? 900) : (live.signalTtlMinutes ?? 15) * 60;
+  const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
+
+  const entryType = quality?.action === "limit" ? "limit" : signal.entryType;
+  const executionStrategy =
+    quality?.action === "reject"
+      ? (profile?.entryStrategy ?? signal.entryType ?? "market")
+      : (quality?.executionStrategy ?? profile?.entryStrategy ?? signal.entryType ?? "market");
 
   return {
     symbol: signal.symbol,
     strategy_id: spec.id,
+    variant_id: spec.familyId ? spec.id : undefined,
+    family_id: spec.familyId,
     side: signal.side,
-    entry_type: signal.entryType,
+    entry_type: entryType,
     entry_price: signal.entryPrice,
     stop_loss: signal.stopLoss,
     take_profit: signal.takeProfit,
@@ -104,7 +141,15 @@ export function buildOrderInput(
     risk_reward: spec.risk.minRR ?? 3.0,
     trade_mode: live.mode ?? "paper",
     expires_at: expiresAt,
-    entry_zone_pips: signal.entryType === "market" ? null : (live.entryZonePips ?? null),
+    entry_zone_pips: entryType === "market" ? null : (live.entryZonePips ?? null),
     trace_run_id: traceRunId,
+    setupSnapshot,
+    executionInstruction: {
+      executionStrategy,
+      limitPrice: quality?.action === "limit" ? quality.limitPrice ?? signal.entryPrice : null,
+      maxEntryDriftPips: profile?.maxEntryDriftPips ?? 2.0,
+      minEffectiveRR: profile?.minEffectiveRR ?? 1.0,
+      timeInForce: profile?.timeInForce ?? "GTC",
+    },
   };
 }

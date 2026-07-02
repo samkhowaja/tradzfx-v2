@@ -51,8 +51,8 @@ describe("compileStrategy", () => {
     const compiled = compileStrategy(spec);
     const sql = compiled.latestSignalSQL("EURUSD");
 
-    expect(sql).toContain("a.value * 2.0");
-    expect(sql).toContain(" * 2.50");
+    expect(sql).toContain("a_15m.value * 2.0");
+    expect(sql).toContain("(a_15m.value * 2.0)) * 2.50");
   });
 
   it("emits entry_type and offset entry_price for limit orders", () => {
@@ -83,5 +83,21 @@ describe("compileStrategy", () => {
     const sql = compiled.latestSignalSQL("EURUSD");
 
     expect(sql).not.toContain("entry_type");
+  });
+
+  it("supports pip-based stop-loss expressions", () => {
+    const spec = baseSpec({
+      risk: {
+        sl: "10 pips",
+        tp: "sl * 2.0",
+        minRR: 2,
+        timeoutBars: 10,
+      },
+    });
+    const compiled = compileStrategy(spec);
+    const sql = compiled.latestSignalSQL("EURUSD");
+
+    expect(sql).toContain("(10 * (COALESCE(p.pip_size");
+    expect(sql).toContain(" * 2.00");
   });
 });

@@ -1,0 +1,21 @@
+{
+  "name": "@tm/setup-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared setup evaluation engine used by analyzer UI and live trading pipeline.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tm/shared": "workspace:*",
+    "@tm/levels": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  }
+}

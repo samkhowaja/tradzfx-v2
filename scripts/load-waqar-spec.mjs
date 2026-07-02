@@ -3,7 +3,7 @@ import path from "path";
 import yaml from "js-yaml";
 import pg from "pg";
 
-const pool = new pg.Pool({ host: "localhost", port: 5432, database: "tradementor_v2", user: "postgres", password: "2k16Dub@i" });
+const pool = new pg.Pool({ host: "localhost", port: 5432, database: (process.env.TM_DB_NAME || "tradzfx_v2"), user: "postgres", password: process.env.TM_DB_PASSWORD });
 
 async function load() {
   for (const id of ["waqar_v2", "waqar_v2_loose", "waqar_v2_15m_pricing", "waqar_v2_fvg", "waqar_v2_15m", "waqar_v2_15m_loose"]) {

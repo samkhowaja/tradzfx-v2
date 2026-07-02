@@ -1,6 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Pool, StrategySpec } from "@tm/shared";
+import type { SetupEvaluation } from "@tm/setup-engine";
+import { evaluateSetup } from "@tm/setup-engine";
 import { runLivePipeline, type LiveRunOptions } from "./liveRunner";
+
+vi.mock("@tm/setup-engine", () => ({
+  evaluateSetup: vi.fn().mockResolvedValue({
+    grade: "A",
+    status: "ready",
+    direction: "long",
+    confidence: 70,
+    entryZone: null,
+    stopLoss: null,
+    takeProfit: null,
+    riskReward: 3,
+    blockReasons: [],
+    warnings: [],
+    evidence: [],
+    featuresUsed: [],
+    symbol: "EURUSD",
+    tf: "15m",
+    timestamp: new Date().toISOString(),
+  } satisfies SetupEvaluation),
+}));
 
 const poolRef = { pool: null as unknown as Pool };
 
@@ -31,6 +53,7 @@ function createFakePool(handlers: QueryHandler[]): Pool {
 function freshnessHandlers(): QueryHandler[] {
   const now = new Date().toISOString();
   return [
+    { match: /SELECT MAX\(ts\).*FROM candles_1m/i, rows: [{ max_ts: now }] },
     { match: /SELECT MAX\(ts\).*FROM features_atr/i, rows: [{ max_ts: now }] },
     { match: /SELECT MAX\(ts\).*FROM features_session/i, rows: [{ max_ts: now }] },
     { match: /SELECT MAX\(ts\).*FROM features_spread/i, rows: [{ max_ts: now }] },
@@ -40,13 +63,17 @@ function freshnessHandlers(): QueryHandler[] {
 function featureHandlers(session = "LONDON"): QueryHandler[] {
   return [
     { match: /FROM mt5_terminals/i, rows: [{ balance: 10000 }] },
+    { match: /FROM candles_1m/i, rows: [{ c: "1.0950" }] },
     { match: /FROM features_atr/i, rows: [{ period: 14, value: "0.0005" }] },
     { match: /FROM features_session/i, rows: [{ session, utc_hour: 8 }] },
+    { match: /FROM features_spread/i, rows: [{ spread: "0.0002", samples: 10 }] },
     { match: /FROM features_pricing/i, rows: [{ position: "discount", in_ote: true, ote_low: "1.0900", ote_high: "1.0950" }] },
     { match: /FROM features_bias/i, rows: [{ direction: "bullish", confidence: 0.8, reason: "htf bullish" }] },
     { match: /FROM features_displacement/i, rows: [{ grade: "MEDIUM", direction: "bullish", body_pct: "0.65" }] },
     { match: /FROM features_structure/i, rows: [{ event_type: "bos", direction: "bullish", level: "1.0890" }] },
     { match: /FROM features_zone/i, rows: [{ zone_kind: "demand", top: "1.0905", bottom: "1.0900", fill_pct: "0.2", tapped: false }] },
+    { match: /FROM features_ifvg/i, rows: [{ direction: "bullish", top: "1.0900", bottom: "1.0895", fill_pct: "0.1", tapped: false }] },
+    { match: /FROM features_order_block/i, rows: [{ ob_kind: "bullish", degree: "swing", top: "1.0905", bottom: "1.0900", body_top: "1.0904", body_bottom: "1.0901", formation_ts: new Date().toISOString(), age_bars: 5, is_fresh: true, strength_score: "0.8", fill_pct: "0" }] },
   ];
 }
 
@@ -102,6 +129,7 @@ function orderHandlers(): QueryHandler[] {
     { match: /UPDATE live_signal SET gate_trace_run_id/i, rows: [] },
     { match: /INSERT INTO live_order/i, rows: [{ order_id: "live-order-1" }] },
     { match: /INSERT INTO decision_trace/i, rows: [] },
+    { match: /INSERT INTO live_signal_rejection/i, rows: [] },
   ];
 }
 
@@ -118,6 +146,7 @@ describe("runLivePipeline", () => {
     fakePool = createFakePool([
       ...freshnessHandlers(),
       { match: /SELECT \* FROM signal_view/i, rows: [] },
+      { match: /INSERT INTO live_signal_rejection/i, rows: [] },
     ]);
     poolRef.pool = fakePool;
 
@@ -132,7 +161,7 @@ describe("runLivePipeline", () => {
 
     expect(result.reason).toBe("no_signal");
     expect(result.orderCreated).toBeUndefined();
-    expect(fakePool.query).toHaveBeenCalledTimes(4);
+    expect(fakePool.query).toHaveBeenCalledTimes(6);
   });
 
   it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {
@@ -223,5 +252,51 @@ describe("runLivePipeline", () => {
 
     const insertOrder = fakePool.query.mock.calls.find((c) => /INSERT INTO live_order/i.test(c[0] as string));
     expect(insertOrder).toBeUndefined();
+  });
+});
+
+
+describe("setup grade guard", () => {
+  it("does not create an order when setup evaluation grade is BLOCK", async () => {
+    vi.mocked(evaluateSetup).mockResolvedValueOnce({
+      grade: "BLOCK",
+      status: "blocked",
+      direction: "long",
+      confidence: 0,
+      entryZone: null,
+      stopLoss: null,
+      takeProfit: null,
+      riskReward: null,
+      blockReasons: ["price not in OTE"],
+      warnings: [],
+      evidence: [],
+      featuresUsed: [],
+      symbol: "EURUSD",
+      tf: "15m",
+      timestamp: new Date().toISOString(),
+    } as unknown as SetupEvaluation);
+
+    const fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
+      ...featureHandlers("LONDON"),
+      ...orderHandlers(),
+    ]);
+    poolRef.pool = fakePool;
+
+    const mockCreateOrder = vi.fn().mockResolvedValue({ id: "order-1" });
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-1",
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.orderCreated).toBe(false);
+    expect(result.reason).toMatch(/setup_blocked/);
+    expect(mockCreateOrder).not.toHaveBeenCalled();
   });
 });

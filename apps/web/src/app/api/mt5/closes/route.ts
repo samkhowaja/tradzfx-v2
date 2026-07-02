@@ -1,12 +1,14 @@
 // POST /api/mt5/closes
 // =====================
 // EA reports position close (TP hit, SL hit, manual close, etc.).
-// V2 implementation — updates the orders table in tradementor_v2.
+// V2 implementation — updates the orders table in tradzfx_v2.
 
 import { NextRequest, NextResponse } from "next/server";
+import { getPool } from "@tm/shared";
 import { markOrderClosed } from "@/lib/orderService";
+import { resolveTerminalKeyId } from "@/lib/positionCommandService";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -20,6 +22,9 @@ export async function POST(req: NextRequest) {
   if (!validateApiKey(req)) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
+
+  const pool = getPool();
+  const terminalKeyId = await resolveTerminalKeyId(pool, req);
 
   // 2. Parse body
   let body: {
@@ -62,7 +67,14 @@ export async function POST(req: NextRequest) {
 
   // 3. Close the order
   try {
-    await markOrderClosed(signalId, closePrice, closeReason, realizedPnl);
+    const closed = await markOrderClosed(signalId, closePrice, closeReason, realizedPnl, terminalKeyId ?? undefined);
+    if (!closed) {
+      console.warn(`[mt5-closes] Order ${signalId.slice(0, 8)} close transition rejected`);
+      return NextResponse.json(
+        { ok: false, error: "Order close transition rejected" },
+        { status: 409 }
+      );
+    }
     console.log(
       `[mt5-closes] Order ${signalId.slice(0, 8)} CLOSED — ${closeReason} @ ${closePrice} (P&L: $${realizedPnl.toFixed(2)})`
     );
@@ -71,5 +83,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, terminalKeyId: terminalKeyId ?? null });
 }

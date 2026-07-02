@@ -6,27 +6,36 @@
  * Phase 0 enhancement: Runs the V2 feature engine BEFORE strategy evaluation
  * to ensure features_* tables are fresh. If the engine fails, strategy evaluation
  * still proceeds but the feature freshness gate may block the signal.
+ *
+ * Phase 2 enhancement: Replaced process-local Maps with distributed state
+ * (PostgreSQL trigger checkpoint + Redis-backed compiled-strategy cache).
  */
 
-import { getPool } from "@tm/shared";
+import {
+  getPool,
+  timeBucket,
+  getRedisClient,
+  acquirePipelineBucket,
+  type Pool,
+} from "@tm/shared";
 import {
   getOrCreateFeatureConfigSnapshot,
   getOrCreateStrategySettingsSnapshot,
   getOrCreateLiveDeployment,
-  getActiveLiveDeployments,
 } from "@tm/shared";
-import { compileStrategy } from "@tm/strategies";
-import { loadStrategyFromDB } from "@tm/strategies";
+import { compileStrategy, restoreCompiledStrategy } from "@tm/strategies";
+import type { StrategySpec, TimeFrame } from "@tm/shared";
 import { runLiveExecution } from "./liveRunner";
 import { DAGRunner, globalDAG, updateLifecycleForSymbol } from "@tm/engine";
-
-// In-memory tracking of last processed 15m boundary per symbol
-const lastProcessed = new Map<string, number>();
+import {
+  loadVariantById,
+  loadActiveVariants,
+  getDefaultActiveVariantForSymbol,
+  type LoadedVariant,
+} from "./strategyVariantLoader";
 
 function get15mBucket(ts: Date): number {
-  const d = new Date(ts);
-  d.setUTCMinutes(Math.floor(d.getUTCMinutes() / 15) * 15, 0, 0);
-  return d.getTime();
+  return timeBucket(ts, "15m").getTime();
 }
 
 export interface TriggerResult {
@@ -36,57 +45,177 @@ export interface TriggerResult {
   orderId?: string;
 }
 
-// Cache compiled strategy per spec ID
-const compiledCache = new Map<string, ReturnType<typeof compileStrategy>>();
+interface CompiledMemoryEntry {
+  compiled: ReturnType<typeof compileStrategy>;
+  updatedAt: string;
+}
 
-async function getCompiledStrategy(strategyId: string) {
-  if (!compiledCache.has(strategyId)) {
-    const pool = getPool();
-    const spec = await loadStrategyFromDB(pool, strategyId);
-    if (!spec) {
-      throw new Error(`Strategy not found in DB: ${strategyId}`);
-    }
-    compiledCache.set(
-      strategyId,
-      compileStrategy(spec, { trustStoredLifecycle: true })
-    );
+// Small in-process cache for compiled strategies. The source of truth for
+// invalidation is the strategy spec's `updated_at` timestamp.
+const compiledMemory = new Map<string, CompiledMemoryEntry>();
+const COMPILED_MEMORY_MAX = 100;
+
+async function loadVariantWithVersion(
+  pool: Pool,
+  variantId: string
+): Promise<{ variant: LoadedVariant } | null> {
+  const variant = await loadVariantById(pool, variantId);
+  if (!variant) return null;
+  return { variant };
+}
+
+async function getCompiledStrategy(variantId: string) {
+  const pool = getPool();
+  const loaded = await loadVariantWithVersion(pool, variantId);
+  if (!loaded) {
+    throw new Error(`Strategy variant not found in DB: ${variantId}`);
   }
-  return compiledCache.get(strategyId)!;
+  const { spec, version: updatedAt } = loaded.variant;
+
+  // 1. In-process cache keyed by version
+  const mem = compiledMemory.get(variantId);
+  if (mem && mem.updatedAt === updatedAt) {
+    return mem.compiled;
+  }
+
+  // 2. Try Redis
+  let sql: string | undefined;
+  const redis = await getRedisClient();
+  if (redis) {
+    try {
+      const raw = await redis.get(`tm:compiled:${variantId}`);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached.updatedAt === updatedAt && typeof cached.sql === "string" && cached.spec) {
+          sql = cached.sql;
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[pipelineTrigger] Redis compiled-strategy read failed for ${variantId}:`, err.message);
+    }
+  }
+
+  // 3. Compile if not cached
+  if (!sql) {
+    const compiled = compileStrategy(spec, { trustStoredLifecycle: true });
+    sql = compiled.sql;
+    if (redis) {
+      try {
+        await redis.setEx(
+          `tm:compiled:${variantId}`,
+          3600,
+          JSON.stringify({ sql, spec, updatedAt })
+        );
+      } catch (err: any) {
+        console.warn(`[pipelineTrigger] Redis compiled-strategy write failed for ${variantId}:`, err.message);
+      }
+    }
+  }
+
+  const compiled = restoreCompiledStrategy(spec, sql);
+
+  // Evict oldest if necessary
+  if (compiledMemory.size >= COMPILED_MEMORY_MAX) {
+    const first = compiledMemory.keys().next().value;
+    if (first !== undefined) compiledMemory.delete(first);
+  }
+  compiledMemory.set(variantId, { compiled, updatedAt });
+  return compiled;
+}
+
+interface FeatureRun {
+  tf: TimeFrame;
+  features: string[];
+}
+
+function getLiveLookbackBars(tf: TimeFrame): number {
+  // Live only needs enough bars to compute the latest feature value.
+  switch (tf) {
+    case "1m":
+      return 100;
+    case "5m":
+      return 120;
+    case "15m":
+      return 200;
+    case "1h":
+      return 96;
+    case "4h":
+      return 60;
+    case "1d":
+      return 30;
+    default:
+      return 100;
+  }
 }
 
 /**
- * Run the V2 feature engine for a symbol across all relevant timeframes.
- * This ensures features_* tables are fresh before strategy evaluation.
+ * Collect only the (feature, tf) pairs that a strategy actually references,
+ * plus the core gate inputs. Avoids recomputing the entire DAG every 15m.
+ */
+function collectRequiredFeatureRuns(spec: StrategySpec): FeatureRun[] {
+  const map = new Map<TimeFrame, Set<string>>();
+  const add = (feature: string, tf: TimeFrame) => {
+    if (!map.has(tf)) map.set(tf, new Set());
+    map.get(tf)!.add(feature);
+  };
+
+  for (const cond of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
+    if (cond.feature && cond.tf) add(cond.feature, cond.tf);
+  }
+
+  // Core gate inputs
+  add("features_atr", "15m");
+  add("features_session", "1m");
+  add("features_spread", "1m");
+
+  return Array.from(map.entries()).map(([tf, features]) => ({
+    tf,
+    features: Array.from(features),
+  }));
+}
+
+function mergeFeatureRuns(runs: FeatureRun[]): FeatureRun[] {
+  const map = new Map<TimeFrame, Set<string>>();
+  for (const { tf, features } of runs) {
+    if (!map.has(tf)) map.set(tf, new Set());
+    for (const f of features) map.get(tf)!.add(f);
+  }
+  return Array.from(map.entries()).map(([tf, features]) => ({
+    tf,
+    features: Array.from(features),
+  }));
+}
+
+/**
+ * Run the V2 feature engine for a symbol across only the timeframes and
+ * features required by the active strategy. Uses batched inserts and a tight
+ * live lookback to keep the 15m pipeline fast.
  */
 async function runFeatureEngine(
   symbol: string,
-  endTs: Date
+  endTs: Date,
+  featureRuns: FeatureRun[]
 ): Promise<{ ok: boolean; latencyMs: number; error?: string }> {
   const start = performance.now();
   const pool = getPool();
   const runner = new DAGRunner(pool as any, globalDAG);
 
-  // Timeframes used by current and planned strategies
-  const timeframes: Array<"1m" | "5m" | "15m" | "1h" | "4h" | "1d"> = [
-    "1m",
-    "5m",
-    "15m",
-    "1h",
-    "4h",
-    "1d",
-  ];
-
-  // All registered features
-  const allFeatures = globalDAG.getFeatureNames();
-
   try {
-    for (const tf of timeframes) {
+    for (const { tf, features } of featureRuns) {
       await runner.run({
         symbol,
         tf,
         endTs,
-        requestedFeatures: allFeatures,
-        lookbackBars: 500,
+        requestedFeatures: features,
+        lookbackBars: getLiveLookbackBars(tf),
+        batchInserts: true,
+        batchSize: 1000,
+        // Live runs compute lifecycle inside the feature modules against the
+        // bounded lookback window. The DB-level incremental lifecycle refresh
+        // is expensive for symbols with many open zones; skip it here so the
+        // 15m pipeline stays fast. A periodic back-office refresh can keep older
+        // rows up to date.
+        skipLifecycle: true,
       });
     }
 
@@ -105,16 +234,16 @@ async function runFeatureEngine(
 async function runStrategyPipeline(
   symbol: string,
   latestTs: Date,
-  strategyId: string
+  variantId: string
 ): Promise<TriggerResult> {
   const pool = getPool();
 
   // Load compiled strategy once; we need the spec for snapshots and the SQL for execution.
   let compiled: ReturnType<typeof compileStrategy>;
   try {
-    compiled = await getCompiledStrategy(strategyId);
+    compiled = await getCompiledStrategy(variantId);
   } catch (err: any) {
-    console.error(`[pipelineTrigger] Strategy load failed for ${symbol}/${strategyId}:`, err.message);
+    console.error(`[pipelineTrigger] Strategy variant load failed for ${symbol}/${variantId}:`, err.message);
     return { symbol, triggered: false, reason: `strategy_error: ${err.message}` };
   }
 
@@ -129,14 +258,14 @@ async function runStrategyPipeline(
     const strategySnapshotId = await getOrCreateStrategySettingsSnapshot(pool, compiled.spec);
     const deployment = await getOrCreateLiveDeployment(
       pool,
-      strategyId,
+      variantId,
       strategySnapshotId,
       featureSnapshotId,
       compiled.spec.live?.mode === "live" ? "live" : "paper"
     );
     deploymentId = deployment.deploymentId;
   } catch (err: any) {
-    console.error(`[pipelineTrigger] Snapshot/deployment setup failed for ${symbol}/${strategyId}:`, err.message);
+    console.error(`[pipelineTrigger] Snapshot/deployment setup failed for ${symbol}/${variantId}:`, err.message);
     // Continue without deployment; live_signal/order won't be written.
   }
 
@@ -152,10 +281,10 @@ async function runStrategyPipeline(
     });
 
     if (result.orderCreated) {
-      console.log(`[pipelineTrigger] Order created for ${symbol}/${strategyId}: ${result.orderId}`);
+      console.log(`[pipelineTrigger] Order created for ${symbol}/${variantId}: ${result.orderId}`);
       return { symbol, triggered: true, orderId: result.orderId };
     } else {
-      console.log(`[pipelineTrigger] No order for ${symbol}/${strategyId}: ${result.reason ?? "no_order"}`);
+      console.log(`[pipelineTrigger] No order for ${symbol}/${variantId}: ${result.reason ?? "no_order"}`);
       return {
         symbol,
         triggered: true,
@@ -164,39 +293,40 @@ async function runStrategyPipeline(
     }
   } catch (err: any) {
     console.error(
-      `[pipelineTrigger] Pipeline failed for ${symbol}/${strategyId}:`,
+      `[pipelineTrigger] Pipeline failed for ${symbol}/${variantId}:`,
       err.message
     );
     return { symbol, triggered: false, reason: `error: ${err.message}` };
   }
 }
 
-async function getDefaultActiveStrategyId(pool: ReturnType<typeof getPool>): Promise<string | undefined> {
-  const { rows } = await pool.query(
-    `SELECT id FROM strategy_specs WHERE is_active = true AND spec_json->'live'->>'mode' = 'live' ORDER BY id LIMIT 1`
-  );
-  return rows[0]?.id ?? undefined;
-}
-
 /**
  * Call this after inserting new M1 candles.
  * If the latest candle crosses a 15m boundary, trigger the live pipeline
- * for a single strategy. When no strategyId is provided, the first active
- * live strategy is used (top-3 live specs: doyle_sd, orb_classic, watukushay_no1).
+ * for a single variant. When no variantId is provided, the first active
+ * variant that trades this symbol is used.
  */
 export async function checkAndTriggerPipeline(
   symbol: string,
-  strategyId?: string
+  variantId?: string
 ): Promise<TriggerResult> {
   const pool = getPool();
 
-  let resolvedStrategyId = strategyId;
-  if (!resolvedStrategyId) {
-    resolvedStrategyId = await getDefaultActiveStrategyId(pool);
-    if (!resolvedStrategyId) {
-      return { symbol, triggered: false, reason: "no_active_live_strategy" };
+  let resolvedVariantId = variantId;
+  if (!resolvedVariantId) {
+    resolvedVariantId = await getDefaultActiveVariantForSymbol(pool, symbol);
+    if (!resolvedVariantId) {
+      return { symbol, triggered: false, reason: "no_active_variant_for_symbol" };
     }
   }
+
+  // Load the spec early so the feature engine can compute only what this
+  // variant needs.
+  const variantLoad = await loadVariantWithVersion(pool, resolvedVariantId);
+  if (!variantLoad) {
+    return { symbol, triggered: false, reason: "strategy_variant_not_found" };
+  }
+  const featureRuns = collectRequiredFeatureRuns(variantLoad.variant.spec);
 
   // Get the latest candle timestamp
   const { rows } = await pool.query(
@@ -210,21 +340,19 @@ export async function checkAndTriggerPipeline(
 
   const latestTs = new Date(rows[0].ts);
   const bucket = get15mBucket(latestTs);
-  const last = lastProcessed.get(symbol) ?? 0;
 
-  // Only trigger once per 15m bucket
-  if (bucket <= last) {
+  // Distributed bucket acquisition replaces the process-local Map.
+  const acquired = await acquirePipelineBucket(pool, symbol, bucket);
+  if (!acquired) {
     return { symbol, triggered: false, reason: "already_processed" };
   }
-
-  lastProcessed.set(symbol, bucket);
 
   console.log(
     `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${latestTs.toISOString()}`
   );
 
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  const engineResult = await runFeatureEngine(symbol, latestTs);
+  const engineResult = await runFeatureEngine(symbol, latestTs, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -236,9 +364,14 @@ export async function checkAndTriggerPipeline(
   }
 
   // ── Phase 0b: Incrementally refresh lifecycle columns for zones/OBs/etc. ──
+  // Use a tight live window: we only need to invalidate rows from the current
+  // session. The 10-day/1000-row default is for backfills and times out live.
   try {
-    const pool = getPool();
-    const lifecycleResult = await updateLifecycleForSymbol(pool, symbol, { asOf: latestTs });
+    const lifecycleResult = await updateLifecycleForSymbol(pool, symbol, {
+      asOf: latestTs,
+      lookbackDays: 1,
+      limit: 100,
+    });
     const totalUpdated = lifecycleResult.reduce((s, r) => s + r.rowsUpdated, 0);
     console.log(
       `[pipelineTrigger] Lifecycle refresh for ${symbol}: ${totalUpdated} rows updated`
@@ -249,7 +382,7 @@ export async function checkAndTriggerPipeline(
     );
   }
 
-  return runStrategyPipeline(symbol, latestTs, resolvedStrategyId);
+  return runStrategyPipeline(symbol, latestTs, resolvedVariantId);
 }
 
 /**
@@ -271,21 +404,38 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
 
   const latestTs = new Date(rows[0].ts);
   const bucket = get15mBucket(latestTs);
-  const last = lastProcessed.get(symbol) ?? 0;
 
-  // Only trigger once per 15m bucket
-  if (bucket <= last) {
+  const acquired = await acquirePipelineBucket(pool, symbol, bucket);
+  if (!acquired) {
     return [{ symbol, triggered: false, reason: "already_processed" }];
   }
-
-  lastProcessed.set(symbol, bucket);
 
   console.log(
     `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${latestTs.toISOString()} (all active)`
   );
 
+  // Determine which variants are active for this symbol and compute the union
+  // of features they require, so the engine only runs what is actually needed.
+  const active = await loadActiveVariants(pool, { symbol });
+  let featureRuns: FeatureRun[];
+
+  if (active.length === 0) {
+    const fallbackId = await getDefaultActiveVariantForSymbol(pool, symbol);
+    if (!fallbackId) {
+      return [{ symbol, triggered: false, reason: "no_active_variant_for_symbol" }];
+    }
+    const loaded = await loadVariantWithVersion(pool, fallbackId);
+    if (!loaded) {
+      return [{ symbol, triggered: false, reason: "strategy_variant_not_found" }];
+    }
+    featureRuns = collectRequiredFeatureRuns(loaded.variant.spec);
+  } else {
+    const allRuns = active.flatMap((v) => collectRequiredFeatureRuns(v.spec));
+    featureRuns = mergeFeatureRuns(allRuns);
+  }
+
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  const engineResult = await runFeatureEngine(symbol, latestTs);
+  const engineResult = await runFeatureEngine(symbol, latestTs, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -296,25 +446,23 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
     );
   }
 
-  const active = await getActiveLiveDeployments(pool);
-
   const results: TriggerResult[] = [];
-  if (active.length === 0) {
-    // Fallback: if no deployment has been created yet, run the first active live strategy.
-    const fallbackId = await getDefaultActiveStrategyId(pool);
-    if (!fallbackId) {
-      return [{ symbol, triggered: false, reason: "no_active_live_strategy" }];
-    }
-
-    const result = await runStrategyPipeline(symbol, latestTs, fallbackId);
+  for (const variant of active) {
+    // Strategy spec filters.symbols handles symbol eligibility downstream.
+    const result = await runStrategyPipeline(symbol, latestTs, variant.variantId);
     results.push(result);
-  } else {
-    for (const deployment of active) {
-      // Strategy spec filters.symbols handles symbol eligibility downstream.
-      const result = await runStrategyPipeline(symbol, latestTs, deployment.strategyId);
+  }
+
+  // Fallback path: if no variants existed, the single-variant path above
+  // already populated featureRuns but we still need to evaluate it.
+  if (active.length === 0) {
+    const fallbackId = await getDefaultActiveVariantForSymbol(pool, symbol);
+    if (fallbackId) {
+      const result = await runStrategyPipeline(symbol, latestTs, fallbackId);
       results.push(result);
     }
   }
 
   return results;
 }
+

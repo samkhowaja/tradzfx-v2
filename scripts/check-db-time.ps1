@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Check the latest candle timestamp in tradementor_v2 against the current
+  Check the latest candle timestamp in tradzfx_v2 against the current
   system UTC clock.
 
 .EXAMPLE
@@ -28,8 +28,10 @@ WHERE symbol = '$Symbol';
 # Prefer psql if available.
 $psql = Get-Command psql.exe -ErrorAction SilentlyContinue
 if ($psql) {
-    $env:PGPASSWORD = '2k16Dub@i'
-    $result = & psql.exe -h localhost -p 5432 -U postgres -d tradementor_v2 -t -A -F ',' -c $query
+    if (-not $env:TM_DB_PASSWORD) { throw "TM_DB_PASSWORD is not set" }
+    $env:PGPASSWORD = $env:TM_DB_PASSWORD
+    $dbName = $env:TM_DB_NAME ?? 'tradzfx_v2'
+    $result = & psql.exe -h localhost -p 5432 -U postgres -d $dbName -t -A -F ',' -c $query
     Write-Host "Result (symbol,last_bar,db_now,minutes_behind_now):" -ForegroundColor Cyan
     Write-Host $result
 } else {

@@ -6,11 +6,20 @@
  *   3. If all gates pass → call createOrder callback
  */
 
-import type { Pool } from "@tm/shared";
+import crypto from "node:crypto";
+import type { Pool, SetupEvaluationSnapshot } from "@tm/shared";
 import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig, TimeFrame } from "@tm/shared";
-import { checkSmallAccountGate, sendTelegramMessage } from "@tm/shared";
+import { checkSmallAccountGate, CANDLE_TABLE_BY_TF } from "@tm/shared";
+import {
+  notifySignal,
+  notifyOrderCreated,
+  notifyOrderRejected,
+  notifyQualityRejected,
+} from "./notify";
+import { evaluateSetup, type SetupEvaluation } from "@tm/setup-engine";
 import { DecisionGraph } from "./decisionGraph";
 import { buildOrderInput } from "./orderExecutor";
+import { evaluateExecutionQuality } from "./qualityEngine";
 import { createVolatilityGate } from "./gates/volatilityGate";
 import { createSessionGate } from "./gates/sessionGate";
 import { createPortfolioHeatGate } from "./gates/portfolioHeatGate";
@@ -34,6 +43,8 @@ export interface LiveRunOptions {
   createOrder: (input: {
     symbol: string;
     strategy_id: string;
+    variant_id?: string;
+    family_id?: string;
     side: "buy" | "sell";
     entry_type: "market" | "limit" | "stop";
     entry_price: number;
@@ -45,6 +56,7 @@ export interface LiveRunOptions {
     expires_at: Date;
     entry_zone_pips: number | null;
     trace_run_id: string;
+    signal_fingerprint?: string;
   }) => Promise<{ id: string }>;
 }
 
@@ -65,7 +77,8 @@ interface SignalWithSource extends Signal {
 /** Fetch the latest signal using the compiled strategy SQL */
 async function fetchLatestSignal(
   pool: Pool,
-  sql: string
+  sql: string,
+  strategyId: string
 ): Promise<SignalWithSource | null> {
   const { rows } = await pool.query(sql);
 
@@ -118,7 +131,7 @@ async function fetchLatestSignal(
 
   return {
     symbol: r.symbol,
-    strategyId: r.strategy_id ?? "unknown",
+    strategyId: r.strategy_id ?? strategyId ?? "unknown",
     side: r.side,
     entryType,
     entryPrice,
@@ -130,16 +143,48 @@ async function fetchLatestSignal(
   };
 }
 
+function computeSignalFingerprint(signal: SignalWithSource): string {
+  const payload = [
+    signal.symbol,
+    signal.strategyId,
+    signal.side,
+    signal.entryPrice.toFixed(10),
+    signal.stopLoss.toFixed(10),
+    signal.takeProfit.toFixed(10),
+  ].join("|");
+  return crypto.createHash("sha256").update(payload).digest("hex");
+}
+
+async function findRecentDuplicate(
+  pool: Pool,
+  fingerprint: string,
+  cooldownMinutes: number
+): Promise<{ status: string; created_at: Date } | null> {
+  const { rows } = await pool.query(
+    `SELECT status, created_at
+     FROM orders
+     WHERE signal_fingerprint = $1
+       AND status IN ('rejected', 'expired', 'closed')
+       AND created_at >= NOW() - ($2 || ' minutes')::interval
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [fingerprint, String(cooldownMinutes)]
+  );
+  return rows[0] ?? null;
+}
+
 async function insertLiveSignal(
   pool: Pool,
   deploymentId: string,
-  signal: SignalWithSource
-): Promise<string> {
-  const { rows } = await pool.query(
+  signal: SignalWithSource,
+  fingerprint: string
+): Promise<string | undefined> {
+  const { rows } = await pool.query<{ signal_id: string }>(
     `INSERT INTO live_signal (
        deployment_id, symbol, ts, strategy_id, side, entry_type,
-       entry_price, stop_loss, take_profit, confidence, source_json
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       entry_price, stop_loss, take_profit, confidence, source_json, signal_fingerprint
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     ON CONFLICT (deployment_id, symbol, ts, strategy_id, side) DO NOTHING
      RETURNING signal_id`,
     [
       deploymentId,
@@ -153,9 +198,10 @@ async function insertLiveSignal(
       signal.takeProfit,
       signal.confidence ?? null,
       signal.source,
+      fingerprint,
     ],
   );
-  return rows[0].signal_id;
+  return rows[0]?.signal_id;
 }
 
 async function updateLiveSignalTrace(
@@ -167,6 +213,39 @@ async function updateLiveSignalTrace(
     `UPDATE live_signal SET gate_trace_run_id = $1 WHERE signal_id = $2`,
     [traceRunId, signalId],
   );
+}
+
+async function logSignalRejection(
+  pool: Pool,
+  deploymentId: string | undefined,
+  input: {
+    symbol: string;
+    strategyId: string;
+    side?: "buy" | "sell";
+    ts?: Date;
+    reason: string;
+    fingerprint?: string;
+  }
+): Promise<void> {
+  if (!deploymentId) return;
+  try {
+    await pool.query(
+      `INSERT INTO live_signal_rejection (
+         deployment_id, symbol, strategy_id, side, ts, reason, signal_fingerprint
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        deploymentId,
+        input.symbol,
+        input.strategyId,
+        input.side ?? null,
+        input.ts ?? new Date(),
+        input.reason,
+        input.fingerprint ?? null,
+      ]
+    );
+  } catch (err: any) {
+    console.warn(`[liveRunner] failed to log signal rejection: ${err.message}`);
+  }
 }
 
 async function insertLiveOrder(
@@ -219,9 +298,44 @@ async function insertLiveOrder(
 export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResult> {
   const { symbol, strategySpec, latestSignalSQL, pool, liveOverrides, deploymentId, createOrder } = opts;
 
-  // 0. Feature freshness guard — check all features the strategy needs
+  // 0a. Global stale-data circuit breaker: if the newest 1m candle is older
+  // than MAX_CANDLE_AGE_MINUTES, block signal generation immediately.
+  const MAX_CANDLE_AGE_MINUTES = 10;
+  const latest1mTs = await fetchLatestCandleTs(pool, symbol, "1m");
+  if (latest1mTs) {
+    const candleAgeMinutes = (Date.now() - latest1mTs.getTime()) / 60_000;
+    if (candleAgeMinutes > MAX_CANDLE_AGE_MINUTES) {
+      const reason = `stale_data: latest 1m candle is ${candleAgeMinutes.toFixed(1)} min old`;
+      await logSignalRejection(pool, deploymentId, { symbol, strategyId: strategySpec.id, reason });
+      return {
+        trace: {
+          runId: crypto.randomUUID(),
+          symbol,
+          strategyId: strategySpec.id,
+          ts: new Date(),
+          nodes: [
+            {
+              nodeId: "stale_data",
+              nodeType: "gate",
+              passed: false,
+              reason,
+              latencyMs: 0,
+            },
+          ],
+        },
+        reason,
+      };
+    }
+  }
+
+  // 0b. Feature freshness guard — check all features the strategy needs
   const freshness = await checkFeatureFreshness(pool, symbol, strategySpec);
   if (!freshness.ok) {
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      reason: freshness.reason ?? "feature_freshness",
+    });
     return {
       trace: {
         runId: crypto.randomUUID(),
@@ -243,9 +357,17 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   }
 
   // 1. Fetch latest signal using compiled strategy SQL
-  const signal = await fetchLatestSignal(pool, latestSignalSQL);
+  const signal = await fetchLatestSignal(pool, latestSignalSQL, strategySpec.id);
+  if (signal && strategySpec.familyId) {
+    signal.familyId = strategySpec.familyId;
+  }
 
   if (!signal) {
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      reason: "no_signal",
+    });
     return {
       trace: {
         runId: crypto.randomUUID(),
@@ -258,17 +380,82 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     };
   }
 
+  // 1b. Reject stale signals so we do not re-trade a setup from hours ago
+  const signalAgeMinutes =
+    (Date.now() - signal.ts.getTime()) / 60_000;
+  const maxSignalAgeMinutes = strategySpec.live?.signalTtlMinutes ?? 15;
+  if (signalAgeMinutes > maxSignalAgeMinutes) {
+    const reason = `stale_signal: age=${signalAgeMinutes.toFixed(1)}min > max=${maxSignalAgeMinutes}min`;
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason,
+    });
+    return {
+      trace: {
+        runId: crypto.randomUUID(),
+        symbol,
+        strategyId: strategySpec.id,
+        ts: new Date(),
+        nodes: [],
+      },
+      signal,
+      reason,
+    };
+  }
+
+  // 1c. Signal fingerprint + cooldown deduplication.
+  const fingerprint = computeSignalFingerprint(signal);
+  const cooldownMinutes = strategySpec.live?.cooldownMinutes ?? 30;
+  const duplicate = await findRecentDuplicate(pool, fingerprint, cooldownMinutes);
+  if (duplicate) {
+    const reason = `duplicate_signal: cooldown=${cooldownMinutes}min`;
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason,
+      fingerprint,
+    });
+    return {
+      trace: {
+        runId: crypto.randomUUID(),
+        symbol,
+        strategyId: strategySpec.id,
+        ts: new Date(),
+        nodes: [
+          {
+            nodeId: "signal_dedup",
+            nodeType: "gate",
+            passed: false,
+            reason: `duplicate_signal: same fingerprint rejected/closed ${duplicate.status} at ${duplicate.created_at.toISOString()}`,
+            latencyMs: 0,
+          },
+        ],
+      },
+      signal,
+      reason,
+    };
+  }
+
   // 1a. Persist raw live signal when a deployment snapshot is active
   let liveSignalId: string | undefined;
   if (deploymentId) {
     try {
-      liveSignalId = await insertLiveSignal(pool, deploymentId, signal);
-      await sendTelegramMessage(
-        `🟡 <b>Signal</b> ${signal.symbol} ${signal.side.toUpperCase()}\n` +
-          `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
-          `Entry: ${signal.entryPrice}\nSL: ${signal.stopLoss}\nTP: ${signal.takeProfit}`,
-        { disableNotification: true }
-      );
+      liveSignalId = await insertLiveSignal(pool, deploymentId, signal, fingerprint);
+      if (liveSignalId) {
+        await notifySignal(
+          signal.symbol,
+          signal.side,
+          strategySpec.name ?? strategySpec.id,
+          signal.entryPrice,
+          signal.stopLoss,
+          signal.takeProfit
+        );
+      }
     } catch (err: any) {
       console.warn(`[liveRunner] failed to persist live_signal: ${err.message}`);
     }
@@ -309,7 +496,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   // 3b. Fetch recent orders (last 24h) for rate-limit and daily P&L gates,
   //      plus active orders for portfolio heat gate.
   const { rows: recentRows } = await pool.query(
-    `SELECT id, symbol, strategy_id, side, entry_type, entry_price, stop_loss, take_profit,
+    `SELECT id, symbol, strategy_id, variant_id, family_id, side, entry_type, entry_price, stop_loss, take_profit,
             status, fill_price, close_price, outcome, outcome_r, realized_pnl,
             created_at, filled_at, closed_at
      FROM orders
@@ -320,6 +507,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     id: r.id,
     symbol: r.symbol,
     strategyId: r.strategy_id,
+    familyId: r.family_id ?? undefined,
     side: r.side,
     entryType: r.entry_type,
     entryPrice: parseFloat(r.entry_price),
@@ -367,20 +555,43 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
 
   if (!allPassed) {
     const failed = trace.nodes.filter((n) => !n.passed);
+    const reason = `gates_failed: ${failed.map((f) => f.nodeId).join(", ")}`;
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason,
+      fingerprint,
+    });
     return {
       trace,
       signal,
       orderCreated: false,
       liveSignalId,
-      reason: `gates_failed: ${failed.map((f) => f.nodeId).join(", ")}`,
+      reason,
     };
   }
 
   // 6. Small-account safety guard (V1-inspired position manager).
-  //    Enforces max 1 position per symbol / 1 total, daily loss limit,
-  //    cooldown, and consecutive-loss circuit breaker.
-  const smallAccountGate = await checkSmallAccountGate(pool, symbol);
+  //    Enforces max positions per symbol / total, daily loss limit,
+  //    cooldown, and consecutive-loss circuit breaker. Use the spec's live
+  //    config so multi-pair strategies can allow concurrent positions.
+  const smallAccountGate = await checkSmallAccountGate(pool, symbol, {
+    maxPositionsPerSymbol: strategySpec.live?.maxPositionsPerSymbol,
+    maxPositionsTotal: strategySpec.live?.maxPositionsTotal,
+    cooldownMinutes: strategySpec.live?.cooldownMinutes,
+    accountBalance: strategySpec.live?.accountBalance,
+  });
   if (!smallAccountGate.ok) {
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason: smallAccountGate.reason ?? "small_account_gate",
+      fingerprint,
+    });
     return {
       trace,
       signal,
@@ -390,9 +601,99 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     };
   }
 
-  // 7. Create order
+  // 7. Build setup evaluation snapshot for calibration/audit
+  let setupSnapshot: SetupEvaluationSnapshot | undefined;
   try {
-    const orderInput = buildOrderInput(signal, strategySpec, trace.runId, liveOverrides);
+    const primaryTf =
+      strategySpec.entry?.[0]?.tf ??
+      strategySpec.setup?.find(
+        (c) => c.feature === "features_bias" || c.feature === "features_htf_bias"
+      )?.tf ??
+      ("15m" as TimeFrame);
+    const setupEval = await evaluateSetup(pool, {
+      symbol,
+      tf: primaryTf,
+      asOf: signal.ts,
+      direction: signal.side === "buy" ? "long" : "short",
+    });
+    setupSnapshot = {
+      symbol: setupEval.symbol,
+      tf: setupEval.tf,
+      ts: new Date(setupEval.timestamp),
+      grade: setupEval.grade,
+      direction: setupEval.direction,
+      confidence: setupEval.confidence,
+      entryZone: setupEval.entryZone,
+      stopLoss: setupEval.stopLoss,
+      takeProfit: setupEval.takeProfit,
+      riskReward: setupEval.riskReward,
+      evidence: setupEval.evidence,
+      warnings: setupEval.warnings,
+      blockReasons: setupEval.blockReasons,
+    };
+  } catch (err: any) {
+    console.warn(`[liveRunner] setup evaluation failed for ${symbol}:`, err.message);
+  }
+
+  // 8. Block orders with a BLOCK setup grade
+  if (setupSnapshot?.grade === "BLOCK") {
+    const reason = `setup_blocked: ${setupSnapshot.blockReasons?.join(", ") ?? "setup grade BLOCK"}`;
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason,
+      fingerprint,
+    });
+    return {
+      trace,
+      signal,
+      orderCreated: false,
+      liveSignalId,
+      reason,
+    };
+  }
+
+  // 9. Pre-trade execution quality: decide market, limit, or reject based on
+  // current price vs. signal entry. This prevents bad fills like the USDCHF
+  // trade where the market had already moved 10 pips away.
+  const quality = await evaluateExecutionQuality(pool, signal, strategySpec);
+  if (quality.action === "reject") {
+    await notifyQualityRejected(
+      signal.symbol,
+      signal.side,
+      strategySpec.name ?? strategySpec.id,
+      quality.reason ?? "unknown"
+    );
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason: `quality_rejected: ${quality.reason}`,
+      fingerprint,
+    });
+    return {
+      trace,
+      signal,
+      orderCreated: false,
+      liveSignalId,
+      reason: `quality_rejected: ${quality.reason}`,
+    };
+  }
+
+  // 10. Create order
+  try {
+    const orderInput = buildOrderInput(
+      signal,
+      strategySpec,
+      trace.runId,
+      liveOverrides,
+      setupSnapshot,
+      quality
+    );
+    (orderInput as any).signal_fingerprint = fingerprint;
     const order = await createOrder(orderInput);
 
     // 6b. Persist live order when a deployment snapshot is active
@@ -405,12 +706,16 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       }
     }
 
-    await sendTelegramMessage(
-      `🟢 <b>Order created</b> ${orderInput.symbol} ${orderInput.side.toUpperCase()}\n` +
-        `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
-        `Mode: ${orderInput.trade_mode}\n` +
-        `Entry: ${orderInput.entry_price}\nSL: ${orderInput.stop_loss}\nTP: ${orderInput.take_profit}\n` +
-        `Lot: ${orderInput.lot_size}`
+    await notifyOrderCreated(
+      orderInput.symbol,
+      orderInput.side,
+      strategySpec.name ?? strategySpec.id,
+      orderInput.trade_mode ?? "paper",
+      orderInput.entry_price,
+      orderInput.stop_loss,
+      orderInput.take_profit,
+      orderInput.lot_size,
+      orderInput.executionInstruction?.executionStrategy
     );
 
     return {
@@ -422,11 +727,20 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       liveOrderId,
     };
   } catch (err: any) {
-    await sendTelegramMessage(
-      `🔴 <b>Order creation failed</b> ${signal.symbol} ${signal.side.toUpperCase()}\n` +
-        `Strategy: ${strategySpec.name ?? strategySpec.id}\n` +
-        `Error: ${err.message}`
+    await notifyOrderRejected(
+      signal.symbol,
+      signal.side,
+      strategySpec.name ?? strategySpec.id,
+      err.message
     );
+    await logSignalRejection(pool, deploymentId, {
+      symbol,
+      strategyId: strategySpec.id,
+      side: signal.side,
+      ts: signal.ts,
+      reason: `order_creation_failed: ${err.message}`,
+      fingerprint,
+    });
     return {
       trace,
       signal,
@@ -441,6 +755,31 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
  * Check whether all features required by a strategy are fresh (<5min old).
  * Extracts unique (feature, tf) pairs from the strategy spec and queries MAX(ts).
  */
+const EVENT_FEATURES = new Set([
+  "features_structure",
+  "features_order_block",
+  "features_ifvg",
+  "features_sweep",
+]);
+
+async function fetchLatestCandleTs(
+  pool: Pool,
+  symbol: string,
+  tf: TimeFrame
+): Promise<Date | null> {
+  const table = CANDLE_TABLE_BY_TF[tf];
+  if (!table) return null;
+  try {
+    const { rows } = await pool.query(
+      `SELECT MAX(ts) as max_ts FROM ${table} WHERE symbol = $1`,
+      [symbol]
+    );
+    return rows[0]?.max_ts ? new Date(rows[0].max_ts) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function checkFeatureFreshness(
   pool: Pool,
   symbol: string,
@@ -466,7 +805,7 @@ async function checkFeatureFreshness(
   required.add("features_spread@1m");
 
   const maxAgeMinutes = 5;
-  const now = new Date();
+  const now = Date.now();
   const staleFeatures: string[] = [];
 
   for (const key of required) {
@@ -479,13 +818,24 @@ async function checkFeatureFreshness(
         [symbol, tf]
       );
 
-      const maxTs = rows[0]?.max_ts ? new Date(rows[0].max_ts) : null;
-      if (!maxTs) {
+      const featureMaxTs = rows[0]?.max_ts ? new Date(rows[0].max_ts) : null;
+
+      let referenceTs = featureMaxTs;
+      if (EVENT_FEATURES.has(featureName)) {
+        // Event-based features legitimately have no row when no event occurs.
+        // Use the latest candle for the referenced TF as the freshness anchor.
+        const candleTs = await fetchLatestCandleTs(pool, symbol, tf as TimeFrame);
+        if (candleTs && (!referenceTs || candleTs.getTime() > referenceTs.getTime())) {
+          referenceTs = candleTs;
+        }
+      }
+
+      if (!referenceTs) {
         staleFeatures.push(`${featureName}@${tf}(no_data)`);
         continue;
       }
 
-      const ageMinutes = (now.getTime() - maxTs.getTime()) / 60000;
+      const ageMinutes = (now - referenceTs.getTime()) / 60000;
       if (ageMinutes > maxAgeMinutes) {
         staleFeatures.push(`${featureName}@${tf}(${ageMinutes.toFixed(1)}min)`);
       }
@@ -558,6 +908,21 @@ async function fetchLatestFeatures(
     };
   }
 
+  // Spread (always 1m source)
+  const spreadTf = featureTf("features_spread", spec, "1m");
+  const { rows: spreadRows } = await pool.query(
+    `SELECT spread, samples FROM features_spread
+     WHERE symbol = $1 AND ts <= $2 AND tf = $3
+     ORDER BY ts DESC LIMIT 1`,
+    [symbol, ts, spreadTf]
+  );
+  if (spreadRows.length > 0) {
+    features["features_spread"] = {
+      spread: parseFloat(spreadRows[0].spread),
+      samples: parseInt(spreadRows[0].samples, 10),
+    };
+  }
+
   // Pricing
   const pricingTf = featureTf("features_pricing", spec, "15m");
   const { rows: pricingRows } = await pool.query(
@@ -607,12 +972,19 @@ async function fetchLatestFeatures(
     };
   }
 
-  // Structure
+  // Structure: fetch every active event at the most recent timestamp,
+  // not just one. LIMIT 1 silently dropped multi-event state.
   const structureTf = featureTf("features_structure", spec, "15m");
   const { rows: structRows } = await pool.query(
-    `SELECT event_type, direction, level, invalidated_at FROM features_structure
-     WHERE symbol = $1 AND ts <= $2 AND tf = $3 AND invalidated_at IS NULL
-     ORDER BY ts DESC LIMIT 1`,
+    `WITH latest AS (
+       SELECT ts FROM features_structure
+       WHERE symbol = $1 AND ts <= $2 AND tf = $3 AND invalidated_at IS NULL
+       ORDER BY ts DESC LIMIT 1
+     )
+     SELECT s.event_type, s.direction, s.level, s.invalidated_at
+     FROM features_structure s
+     JOIN latest l ON s.ts = l.ts
+     WHERE s.symbol = $1 AND s.tf = $3 AND s.invalidated_at IS NULL`,
     [symbol, ts, structureTf]
   );
   if (structRows.length > 0) {
@@ -626,14 +998,22 @@ async function fetchLatestFeatures(
     };
   }
 
-  // Zone
+  // Zone: fetch every active zone at the most recent timestamp.
   const zoneTf = featureTf("features_zone", spec, "15m");
   const { rows: zoneRows } = await pool.query(
-    `SELECT zone_kind, top, bottom, fill_pct, tapped, mitigated_at, invalidated_at FROM features_zone
-     WHERE symbol = $1 AND ts <= $2 AND tf = $3
-       AND mitigated_at IS NULL
-       AND invalidated_at IS NULL
-     ORDER BY ts DESC LIMIT 1`,
+    `WITH latest AS (
+       SELECT ts FROM features_zone
+       WHERE symbol = $1 AND ts <= $2 AND tf = $3
+         AND mitigated_at IS NULL
+         AND invalidated_at IS NULL
+       ORDER BY ts DESC LIMIT 1
+     )
+     SELECT z.zone_kind, z.top, z.bottom, z.fill_pct, z.tapped, z.mitigated_at, z.invalidated_at
+     FROM features_zone z
+     JOIN latest l ON z.ts = l.ts
+     WHERE z.symbol = $1 AND z.tf = $3
+       AND z.mitigated_at IS NULL
+       AND z.invalidated_at IS NULL`,
     [symbol, ts, zoneTf]
   );
   if (zoneRows.length > 0) {
@@ -644,6 +1024,78 @@ async function fetchLatestFeatures(
         bottom: parseFloat(r.bottom),
         fillPct: parseFloat(r.fill_pct),
         tapped: r.tapped,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at) : undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at) : undefined,
+      })),
+    };
+  }
+
+  // iFVG: fetch every active iFVG at the most recent timestamp.
+  const ifvgTf = featureTf("features_ifvg", spec, "15m");
+  const { rows: ifvgRows } = await pool.query(
+    `WITH latest AS (
+       SELECT ts FROM features_ifvg
+       WHERE symbol = $1 AND ts <= $2 AND tf = $3
+         AND mitigated_at IS NULL
+         AND invalidated_at IS NULL
+       ORDER BY ts DESC LIMIT 1
+     )
+     SELECT i.direction, i.top, i.bottom, i.fill_pct, i.tapped, i.mitigated_at, i.invalidated_at
+     FROM features_ifvg i
+     JOIN latest l ON i.ts = l.ts
+     WHERE i.symbol = $1 AND i.tf = $3
+       AND i.mitigated_at IS NULL
+       AND i.invalidated_at IS NULL`,
+    [symbol, ts, ifvgTf]
+  );
+  if (ifvgRows.length > 0) {
+    features["features_ifvg"] = {
+      ifvgs: ifvgRows.map((r) => ({
+        direction: r.direction,
+        top: parseFloat(r.top),
+        bottom: parseFloat(r.bottom),
+        fillPct: parseFloat(r.fill_pct),
+        tapped: r.tapped,
+        mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at) : undefined,
+        invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at) : undefined,
+      })),
+    };
+  }
+
+  // Order block: fetch every active order block at the most recent timestamp.
+  const obTf = featureTf("features_order_block", spec, "15m");
+  const { rows: obRows } = await pool.query(
+    `WITH latest AS (
+       SELECT ts FROM features_order_block
+       WHERE symbol = $1 AND ts <= $2 AND tf = $3
+         AND mitigated_at IS NULL
+         AND invalidated_at IS NULL
+       ORDER BY ts DESC LIMIT 1
+     )
+     SELECT o.ob_kind, o.degree, o.top, o.bottom, o.body_top, o.body_bottom,
+            o.formation_ts, o.age_bars, o.is_fresh, o.strength_score,
+            o.fill_pct, o.mitigated_at, o.invalidated_at
+     FROM features_order_block o
+     JOIN latest l ON o.ts = l.ts
+     WHERE o.symbol = $1 AND o.tf = $3
+       AND o.mitigated_at IS NULL
+       AND o.invalidated_at IS NULL`,
+    [symbol, ts, obTf]
+  );
+  if (obRows.length > 0) {
+    features["features_order_block"] = {
+      orderBlocks: obRows.map((r) => ({
+        obKind: r.ob_kind,
+        degree: r.degree,
+        top: parseFloat(r.top),
+        bottom: parseFloat(r.bottom),
+        bodyTop: r.body_top ? parseFloat(r.body_top) : undefined,
+        bodyBottom: r.body_bottom ? parseFloat(r.body_bottom) : undefined,
+        formationTs: r.formation_ts ? new Date(r.formation_ts) : undefined,
+        ageBars: r.age_bars,
+        isFresh: r.is_fresh,
+        strengthScore: parseFloat(r.strength_score),
+        fillPct: parseFloat(r.fill_pct),
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at) : undefined,
       })),

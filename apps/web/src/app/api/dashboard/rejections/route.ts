@@ -74,6 +74,43 @@ export async function GET() {
     LIMIT 10
   `);
 
+  // Signal-level rejections that never became orders (dedup, stale data, gates, etc.)
+  const { rows: signalRejectionStats } = await pool.query(`
+    SELECT
+      COUNT(*) as total,
+      COUNT(DISTINCT reason) as distinct_reasons
+    FROM live_signal_rejection
+    WHERE created_at >= NOW() - INTERVAL '7 days'
+  `);
+
+  const { rows: signalRejectionsByReason } = await pool.query(`
+    SELECT
+      reason,
+      COUNT(*) as count
+    FROM live_signal_rejection
+    WHERE created_at >= NOW() - INTERVAL '7 days'
+    GROUP BY reason
+    ORDER BY count DESC
+  `);
+
+  const { rows: signalRejectionsBySymbol } = await pool.query(`
+    SELECT
+      symbol,
+      COUNT(*) as count
+    FROM live_signal_rejection
+    WHERE created_at >= NOW() - INTERVAL '7 days'
+    GROUP BY symbol
+    ORDER BY count DESC
+  `);
+
+  const { rows: recentSignalRejections } = await pool.query(`
+    SELECT
+      id, symbol, strategy_id, side, reason, signal_fingerprint, created_at
+    FROM live_signal_rejection
+    ORDER BY created_at DESC
+    LIMIT 10
+  `);
+
   return NextResponse.json({
     overall: overall[0],
     byReason,
@@ -81,5 +118,11 @@ export async function GET() {
     byStrategy,
     dailyTrend,
     recent,
+    signalRejections: {
+      overall: signalRejectionStats[0],
+      byReason: signalRejectionsByReason,
+      bySymbol: signalRejectionsBySymbol,
+      recent: recentSignalRejections,
+    },
   });
 }

@@ -1,12 +1,20 @@
 // POST /api/mt5/fills
 // ====================
 // EA reports order execution result (filled or rejected).
-// V2 implementation — updates the orders table in tradementor_v2.
+// V2 implementation — updates the orders table in tradzfx_v2.
 
 import { NextRequest, NextResponse } from "next/server";
-import { markOrderFilled, markOrderRejected } from "@/lib/orderService";
+import { getPool } from "@tm/shared";
+import {
+  markOrderFilled,
+  markOrderRejected,
+  getOrderById,
+  updateOrderActualRR,
+} from "@/lib/orderService";
+import { queueClosePosition, resolveTerminalKeyId } from "@/lib/positionCommandService";
+import { notifyBadFill, computeActualRR, isBadFill } from "@tm/trade-pipeline";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef";
+const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -18,6 +26,9 @@ export async function POST(req: NextRequest) {
   if (!validateApiKey(req)) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
+
+  const pool = getPool();
+  const terminalKeyId = await resolveTerminalKeyId(pool, req);
 
   // 2. Parse body
   let body: {
@@ -47,14 +58,62 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    await markOrderFilled(signalId, mt5Ticket, fillPrice);
+    const filled = await markOrderFilled(signalId, mt5Ticket, fillPrice, terminalKeyId ?? undefined);
+    if (!filled) {
+      console.warn(`[mt5-fills] Order ${signalId.slice(0, 8)} fill transition rejected`);
+      return NextResponse.json(
+        { ok: false, error: "Order fill transition rejected" },
+        { status: 409 }
+      );
+    }
+
+    // Post-fill safety net: if the actual effective R:R is below the strategy
+    // minimum, close the position immediately and alert.
+    try {
+      const order = await getOrderById(signalId);
+      if (order) {
+        const actualRR = computeActualRR(
+          order.side,
+          fillPrice,
+          Number(order.stop_loss),
+          Number(order.take_profit)
+        );
+        await updateOrderActualRR(signalId, actualRR);
+
+        const minRR = Number(order.min_effective_rr ?? 1.0);
+        if (isBadFill(actualRR, minRR)) {
+          await queueClosePosition(signalId, mt5Ticket, "BAD_FILL", terminalKeyId ?? undefined);
+          await notifyBadFill(
+            order.symbol,
+            order.side,
+            order.strategy_id,
+            fillPrice,
+            actualRR,
+            minRR,
+            mt5Ticket
+          );
+          console.log(
+            `[mt5-fills] BAD FILL ${signalId.slice(0, 8)} — actual RR ${actualRR.toFixed(
+              2
+            )} < ${minRR.toFixed(2)}; close queued`
+          );
+        }
+      }
+    } catch (err) {
+      console.error(`[mt5-fills] Post-fill safety check failed for ${signalId}:`, err);
+    }
+
     console.log(`[mt5-fills] Order ${signalId.slice(0, 8)} FILLED — ticket ${mt5Ticket} @ ${fillPrice}`);
   } else if (status === "rejected") {
-    await markOrderRejected(signalId, rejectReason ?? "Unknown");
-    console.log(`[mt5-fills] Order ${signalId.slice(0, 8)} REJECTED — ${rejectReason ?? "Unknown"}`);
+    const rejected = await markOrderRejected(signalId, rejectReason ?? "Unknown", terminalKeyId ?? undefined);
+    if (!rejected) {
+      console.warn(`[mt5-fills] Order ${signalId.slice(0, 8)} reject transition ignored`);
+    } else {
+      console.log(`[mt5-fills] Order ${signalId.slice(0, 8)} REJECTED — ${rejectReason ?? "Unknown"}`);
+    }
   } else {
     return NextResponse.json({ ok: false, error: `Invalid status: ${status}` }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, terminalKeyId: terminalKeyId ?? null });
 }

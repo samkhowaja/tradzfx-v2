@@ -11,11 +11,13 @@
 
 $ErrorActionPreference = 'Stop'
 
-. 'C:\TradeMentor\ops\Alert-Common.ps1'
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+. (Join-Path $scriptDir 'Alert-Common.ps1')
 
 $HealthUrl     = 'http://127.0.0.1:3003/api/health'
 $HeartbeatUrl  = 'http://127.0.0.1:3003/api/ingest/heartbeat'
-$ApiKey        = 'tm_mt5_93b214780ae6fdd83a726629535213b94e64bc3d4c0294ef'
+$ApiKey        = $env:TM_MT5_API_KEY
+if (-not $ApiKey) { throw "TM_MT5_API_KEY is not set" }
 $ProcessName   = 'tm-web-v2'
 
 $failures = @()
