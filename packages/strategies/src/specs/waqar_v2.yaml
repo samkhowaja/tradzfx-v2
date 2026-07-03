@@ -2,16 +2,18 @@ id: waqar_v2
 familyId: waqar_v2
 active: true
 name: "Waqar Asim Scalp"
-version: "3.0.0"
+version: "3.1.0"
 description: >
-  Waqar Asim's Forex scalping strategy per the PDF: 1H decisional supply/demand
-  context, 15m trend bias, 1m execution. Trade only during the 8-9am and 2-3pm
-  London windows, only EURUSD/GBPUSD, only long in discount / short in premium.
-  Entry after MSB/BOS followed by an inducement/retest into a lower-timeframe
-  S/D zone. 5 pip stop, 3R take-profit.
+  Waqar Asim's Forex scalping strategy: 1H decisional supply/demand
+  context, 15m trend bias, 1m execution. Trade during the 8-9am and 2-3pm
+  London windows across FX majors (no gold). The pricing filter is run as a
+  momentum continuation filter: long in premium / short in discount, because the
+  1H pricing position acts as a trend proxy in this dataset. Entry after
+  BOS/MSS/CHOCH followed by an inducement/retest into a lower-timeframe S/D zone.
+  5 pip stop, 3R take-profit.
 
 filters:
-  symbols: [ EURUSD, GBPUSD ]
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY ]
   sessions: [ LONDON, OVERLAP ]
   timeWindows:
     - { utcStart: "08:00", utcEnd: "09:00" }
@@ -35,16 +37,16 @@ setup:
     feature: features_pricing
     tf: 1h
     predicate: |
-      (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
+      (features_htf_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))
       OR
-      (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
+      (features_htf_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))
     required: true
 
 entry:
   - id: structure_break
     feature: features_structure
     tf: 1m
-    predicate: "event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction AND confirmed = true"
+    predicate: "event_type IN ('bos', 'mss', 'choch') AND direction = features_htf_bias.direction"
     required: true
     groupBy: [ direction ]
     ignoreLifecycle: true
@@ -52,7 +54,7 @@ entry:
   - id: zone_retest
     feature: features_zone
     tf: 1m
-    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct < 0.8 AND direction = features_htf_bias.direction"
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct <= 1.0 AND direction = features_htf_bias.direction"
     required: true
     groupBy: [ zone_kind ]
 
@@ -101,9 +103,10 @@ live:
   maxPositionsPerSymbol: 1
   maxPositionsTotal: 2
   cooldownMinutes: 30
-  structureFreshnessMinutes: 120
+  structureFreshnessMinutes: 180
 
 notes:
-  - "PDF-based version: EURUSD & GBPUSD only, London 08-09 and 14-15 UTC."
-  - "5 pip hard stop, 3R TP (full position)."
-  - "Premium/discount filter applied on 1H."
+  - "Expanded to all FX majors; XAUUSD excluded because its minimumExecutionTf is 5m."
+  - "Pricing filter inverted vs the PDF: momentum continuation (long premium, short discount)."
+  - "5 pip hard stop, 3R TP (full position); portfolio heat capped at 1 per symbol / 2 total."
+  - "Loose entry: BOS/MSS/CHOCH on 1m + 1m zone/iFVG retest aligned with bias."

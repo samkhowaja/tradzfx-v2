@@ -1340,16 +1340,17 @@ async function main() {
   }
 
   const biasCond = spec.setup?.find((c) => c.feature === "features_bias" || c.feature === "features_htf_bias");
+  const biasTable = biasCond?.feature ?? "features_bias";
   const biasTf = biasCond?.tf ?? "15m";
   for (const symbol of symbols) {
     const { rows } = await pool.query(
-      `SELECT ts FROM features_bias WHERE symbol = $1 AND tf = $2 ORDER BY ts ASC LIMIT 1`,
+      `SELECT ts FROM ${biasTable} WHERE symbol = $1 AND tf = $2 ORDER BY ts ASC LIMIT 1`,
       [symbol, biasTf]
     );
     if (rows.length > 0) {
       const earliest = new Date(rows[0].ts);
       if (from < earliest) {
-        const msg = `[backtest-pit-v2] Warning: requested start ${from.toISOString()} is before earliest features_bias row for ${symbol} ${biasTf} (${earliest.toISOString()}). Backtest will be limited to available feature data. Run backfill-features.js to extend history.`;
+        const msg = `[backtest-pit-v2] Warning: requested start ${from.toISOString()} is before earliest ${biasTable} row for ${symbol} ${biasTf} (${earliest.toISOString()}). Backtest will be limited to available feature data. Run backfill-features.js to extend history.`;
         if (jsonMode) console.error(msg);
         else console.log(msg);
       }
