@@ -262,8 +262,6 @@ WHERE ${entryWheres.join("\n  AND ")}`;
   const pricingTf = tfMap.pricing ?? "15m";
   const zoneTf = tfMap.zone ?? "15m";
   const atrTfs = tfMap.atrTfs ?? ["15m"];
-  const emaCrossTf = tfMap.emaCross ?? "1h";
-  const smaCrossTf = tfMap.smaCross ?? "1h";
   const orbTf = tfMap.orb ?? "15m";
   const indicatorTf = tfMap.indicator ?? "1h";
   const movingAverageTf = tfMap.movingAverage ?? "1h";
@@ -273,7 +271,7 @@ WHERE ${entryWheres.join("\n  AND ")}`;
 
   const signalSource = spec.signalSource ?? "zone";
 
-  const rawSignalSql = buildSignalSelect(spec, signalSource, { pricingTf, zoneTf, atrTfs, emaCrossTf, smaCrossTf, orbTf, indicatorTf, movingAverageTf, bollingerTf, keltnerTf, ifvgTf });
+  const rawSignalSql = buildSignalSelect(spec, signalSource, { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf, bollingerTf, keltnerTf, ifvgTf });
   const signalSql = bindAtrReferences(rawSignalSql, atrTfs);
 
   return `
@@ -291,8 +289,6 @@ interface ResolvedTimeframes {
   pricing: TimeFrame;
   zone: TimeFrame;
   atrTfs: TimeFrame[];
-  emaCross: TimeFrame;
-  smaCross: TimeFrame;
   orb: TimeFrame;
   indicator: TimeFrame;
   movingAverage: TimeFrame;
@@ -306,8 +302,6 @@ function resolveTimeframes(spec: StrategySpec): ResolvedTimeframes {
   for (const cond of [...spec.setup, ...spec.entry]) {
     if (cond.feature === "features_pricing") map.pricing = cond.tf;
     if (cond.feature === "features_zone") map.zone = cond.tf;
-    if (cond.feature === "features_ema_cross") map.emaCross = cond.tf;
-    if (cond.feature === "features_sma_cross") map.smaCross = cond.tf;
     if (cond.feature === "features_opening_range") map.orb = cond.tf;
     if (cond.feature === "features_indicator") map.indicator = cond.tf;
     if (cond.feature === "features_moving_average") map.movingAverage = cond.tf;
@@ -339,11 +333,9 @@ function resolveTimeframes(spec: StrategySpec): ResolvedTimeframes {
   }
 
   return {
-    pricing: map.pricing ?? "15m",
+    pricing: map.pricing ?? map.zone ?? "15m",
     zone: map.zone ?? "15m",
     atrTfs: atrRefs.size > 0 ? Array.from(atrRefs) : ["15m"],
-    emaCross: map.emaCross ?? "1h",
-    smaCross: map.smaCross ?? "1h",
     orb: map.orb ?? "15m",
     indicator: map.indicator ?? "1h",
     movingAverage: map.movingAverage ?? "1h",
@@ -387,8 +379,6 @@ interface SignalTfs {
   pricingTf: TimeFrame;
   zoneTf: TimeFrame;
   atrTfs: TimeFrame[];
-  emaCrossTf: TimeFrame;
-  smaCrossTf: TimeFrame;
   orbTf: TimeFrame;
   indicatorTf: TimeFrame;
   movingAverageTf: TimeFrame;
@@ -415,7 +405,7 @@ function buildSignalSelect(
   signalSource: StrategySpec["signalSource"],
   tfs: SignalTfs
 ): string {
-  const { pricingTf, zoneTf, atrTfs, emaCrossTf, smaCrossTf, orbTf, indicatorTf, movingAverageTf } = tfs;
+  const { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf } = tfs;
   // New feature TFs are available for future signalSource branches; currently
   // used only as setup/entry filters via the point-in-time LATERAL lookups.
   void tfs.bollingerTf;
@@ -425,10 +415,6 @@ function buildSignalSelect(
   switch (signalSource) {
     case "orb":
       return buildOrbSignalSelect(spec, { pricingTf, atrTfs, orbTf });
-    case "ema_cross":
-      return buildEmaCrossSignalSelect(spec, { pricingTf, atrTfs, emaCrossTf });
-    case "sma_cross":
-      return buildSmaCrossSignalSelect(spec, { pricingTf, atrTfs, smaCrossTf });
     case "indicator":
       return buildIndicatorSignalSelect(spec, { pricingTf, atrTfs, indicatorTf });
     case "moving_average":
@@ -493,7 +479,11 @@ LEFT JOIN entry_signals e ON e.symbol = s.symbol
 JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
   AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
 JOIN features_zone z ON s.symbol = z.symbol AND z.tf = '${zoneTf}'
-  AND z.ts = (SELECT MAX(ts) FROM features_zone WHERE symbol = s.symbol AND tf = '${zoneTf}' AND ts <= s.ts)
+  AND z.ts = (
+    SELECT MAX(ts) FROM features_zone
+    WHERE symbol = s.symbol AND tf = '${zoneTf}' AND ts <= s.ts
+      AND (invalidated_at IS NULL OR invalidated_at > s.ts)
+  )
 ${buildAtrJoins(atrTfs)}
 WHERE s.bias_direction IN ('bullish', 'bearish')
   AND (${pricingFilter})
@@ -535,84 +525,6 @@ JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
   AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
 JOIN features_opening_range o ON s.symbol = o.symbol AND o.tf = '${orbTf}'
   AND o.ts = (SELECT MAX(ts) FROM features_opening_range WHERE symbol = s.symbol AND tf = '${orbTf}' AND ts <= s.ts)
-${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
-ORDER BY s.ts DESC
-`;
-}
-
-function buildEmaCrossSignalSelect(
-  spec: StrategySpec,
-  tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "emaCrossTf">
-): string {
-  const { pricingTf, atrTfs, emaCrossTf } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "ema_cross");
-  const slSql = buildSlSql(spec, "ema_cross");
-  const tpSql = buildTpSql(spec, "ema_cross");
-  const entryTypeColumn = buildEntryTypeColumn(spec);
-  return `
-SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
-  ema.fast_value as ema_fast,
-  ema.slow_value as ema_slow,
-  p.position as pricing_position,
-${buildAtrSelectColumns(atrTfs)}
-  CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
-    ELSE NULL
-  END as side,
-  ${entrySql} as entry_price,
-  ${slSql} as stop_loss,
-  ${tpSql} as take_profit${entryTypeColumn ? `,
-  ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_ema_cross ema ON s.symbol = ema.symbol AND ema.tf = '${emaCrossTf}'
-  AND ema.ts = (SELECT MAX(ts) FROM features_ema_cross WHERE symbol = s.symbol AND tf = '${emaCrossTf}' AND ts <= s.ts)
-${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
-ORDER BY s.ts DESC
-`;
-}
-
-function buildSmaCrossSignalSelect(
-  spec: StrategySpec,
-  tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "smaCrossTf">
-): string {
-  const { pricingTf, atrTfs, smaCrossTf } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "sma_cross");
-  const slSql = buildSlSql(spec, "sma_cross");
-  const tpSql = buildTpSql(spec, "sma_cross");
-  const entryTypeColumn = buildEntryTypeColumn(spec);
-  return `
-SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
-  sma.fast_value as sma_fast,
-  sma.slow_value as sma_slow,
-  p.position as pricing_position,
-${buildAtrSelectColumns(atrTfs)}
-  CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
-    ELSE NULL
-  END as side,
-  ${entrySql} as entry_price,
-  ${slSql} as stop_loss,
-  ${tpSql} as take_profit${entryTypeColumn ? `,
-  ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_sma_cross sma ON s.symbol = sma.symbol AND sma.tf = '${smaCrossTf}'
-  AND sma.ts = (SELECT MAX(ts) FROM features_sma_cross WHERE symbol = s.symbol AND tf = '${smaCrossTf}' AND ts <= s.ts)
 ${buildAtrJoins(atrTfs)}
 WHERE s.bias_direction IN ('bullish', 'bearish')
 ORDER BY s.ts DESC

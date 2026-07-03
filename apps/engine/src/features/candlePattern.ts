@@ -30,6 +30,10 @@ function detectPatterns(candles: Candle[]): CandlePatternOutput["patterns"] {
   const patterns: CandlePatternOutput["patterns"] = [];
   if (candles.length < 3) return patterns;
 
+  const patternLookbackBars = parseInt(process.env.CANDLE_PATTERN_LOOKBACK_BARS ?? "3", 10);
+  const minConfidence = parseFloat(process.env.CANDLE_PATTERN_MIN_CONFIDENCE ?? "0.5");
+  const minBodyPctOfAtr = parseFloat(process.env.CANDLE_PATTERN_MIN_BODY_PCT_OF_ATR ?? "0");
+
   // Compute ATR for normalization
   let atr = 0;
   for (let i = candles.length - 14; i < candles.length; i++) {
@@ -42,7 +46,8 @@ function detectPatterns(candles: Candle[]): CandlePatternOutput["patterns"] {
   atr = atr / Math.min(14, candles.length - 1);
   if (atr === 0) atr = 0.0001;
 
-  for (let i = 2; i < candles.length; i++) {
+  const startIndex = Math.max(2, candles.length - patternLookbackBars);
+  for (let i = startIndex; i < candles.length; i++) {
     const c0 = candles[i - 2];
     const c1 = candles[i - 1];
     const c2 = candles[i];
@@ -239,12 +244,16 @@ function detectPatterns(candles: Candle[]): CandlePatternOutput["patterns"] {
     }
   }
 
-  return patterns;
+  return patterns.filter(
+    (p) =>
+      (p.confidence ?? 0) >= minConfidence &&
+      (p.bodyPctOfAtr ?? 0) >= minBodyPctOfAtr
+  );
 }
 
 export const candlePatternFeature: FeatureDefinition<CandlePatternInput, CandlePatternOutput> = {
   name: "features_candle_pattern",
-  version: "1.3.0",
+  version: "1.4.0",
   dependencies: [],
 
   compute(input): CandlePatternOutput {

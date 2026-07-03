@@ -37,7 +37,6 @@ const DEFAULT_REQUESTED_FEATURES: string[] = [
   "features_session_hl",
   "features_opening_range",
   "features_candle_pattern",
-  "features_ema_cross",
   "features_moving_average",
   "features_bollinger",
   "features_keltner",

@@ -1648,6 +1648,19 @@ void ExecuteSignal(
 }
 
 //+------------------------------------------------------------------+
+//| Idempotency key helpers for EA reports                           |
+//+------------------------------------------------------------------+
+string BuildFillIdempotencyKey(string signalId, long mt5Ticket, double fillPrice)
+{
+   return "fill:" + signalId + ":" + IntegerToString(mt5Ticket) + ":" + DoubleToString(fillPrice, 5);
+}
+
+string BuildCloseIdempotencyKey(string signalId, long mt5Ticket, double closePrice, string closeReason)
+{
+   return "close:" + signalId + ":" + IntegerToString(mt5Ticket) + ":" + DoubleToString(closePrice, 5) + ":" + closeReason;
+}
+
+//+------------------------------------------------------------------+
 //| Report fill or rejection to POST /api/mt5/fills                  |
 //+------------------------------------------------------------------+
 void ReportFillOrReject(
@@ -1667,6 +1680,7 @@ void ReportFillOrReject(
    else
       json += "\"status\":\"rejected\",\"rejectReason\":\"" + rejectReason + "\"";
 
+   json += ",\"idempotencyKey\":\"" + BuildFillIdempotencyKey(signalId, mt5Ticket, fillPrice) + "\"";
    json += "}";
 
    string url = InpServerUrl + "/api/mt5/fills";
@@ -1915,7 +1929,8 @@ void ReportClose(
    json += "\"mt5Ticket\":" + IntegerToString(mt5Ticket) + ",";
    json += "\"closePrice\":" + DoubleToString(closePrice, 5) + ",";
    json += "\"closeReason\":\"" + closeReason + "\",";
-   json += "\"realizedPnl\":" + DoubleToString(realizedPnl, 2);
+   json += "\"realizedPnl\":" + DoubleToString(realizedPnl, 2) + ",";
+   json += "\"idempotencyKey\":\"" + BuildCloseIdempotencyKey(signalId, mt5Ticket, closePrice, closeReason) + "\"";
    json += "}";
 
    string url = InpServerUrl + "/api/mt5/closes";

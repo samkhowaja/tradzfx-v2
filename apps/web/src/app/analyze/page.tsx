@@ -16,6 +16,7 @@ import { EvidenceChain } from "@/components/analyze/EvidenceChain";
 import { WhyBlocked } from "@/components/analyze/WhyBlocked";
 import { GradeCalibration } from "@/components/analyze/GradeCalibration";
 import { BacktestReportPanel } from "@/components/analyze/BacktestReportPanel";
+import { CalibrationPanel } from "@/components/analyze/CalibrationPanel";
 import { ReplayBar } from "@/components/analyze/ReplayBar";
 import {
   ChartLayerToggles,
@@ -174,10 +175,15 @@ export default function AnalyzePage() {
                 </motion.div>
               </div>
 
-              {/* Backtest report */}
-              <motion.div variants={slideUp}>
-                <BacktestReportPanel symbol={symbol} tf={tf} />
-              </motion.div>
+              {/* Backtest report + calibration */}
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <motion.div variants={slideUp} className="lg:col-span-2">
+                  <BacktestReportPanel symbol={symbol} tf={tf} />
+                </motion.div>
+                <motion.div variants={slideUp}>
+                  <CalibrationPanel symbol={symbol} tf={tf} />
+                </motion.div>
+              </div>
 
               {/* Chart */}
               <motion.div variants={slideUp}>

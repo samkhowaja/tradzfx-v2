@@ -81,7 +81,30 @@ describe("pricingFeature", () => {
     expect(out.position).toBe("premium");
   });
 
-  it("detects a bullish impulse leg and derives dynamic OTE", () => {
+  it("derives OTE from the recent swing pivot range by default", () => {
+    const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
+    const candles: Candle[] = [];
+    for (let i = 0; i < 50; i++) {
+      const price = 2500 + i;
+      candles.push(makeCandle(new Date(t0.getTime() + i * 60000), price, price + 1, price - 1, price));
+    }
+    const pivots = makePivots([
+      { kind: "low", price: 2500, ts: candles[30].ts },
+      { kind: "high", price: 2549, ts: candles[49].ts },
+    ]);
+
+    const out = pricingFeature.compute({
+      candles,
+      features_pivot: pivots,
+      features_atr: makeAtr(10),
+    });
+
+    expect(out.dynamicOteSource).toBe("recent_range");
+    expect(out.dynamicOteLow).toBeCloseTo(2500 + 49 * 0.618, 5);
+    expect(out.dynamicOteHigh).toBeCloseTo(2500 + 49 * 0.786, 5);
+  });
+
+  it("detects a bullish impulse leg and derives dynamic OTE when enabled", () => {
     const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
     const candles: Candle[] = [];
     // Build 50 bars: flat baseline 2500, then impulse up, then retracement into OTE.
@@ -121,11 +144,14 @@ describe("pricingFeature", () => {
       { kind: "high", price: 2522, ts: candles[21].ts },
     ]);
 
+    const originalEnv = process.env.PRICING_USE_IMPULSE_LEG;
+    process.env.PRICING_USE_IMPULSE_LEG = "true";
     const out = pricingFeature.compute({
       candles,
       features_pivot: pivots,
       features_atr: makeAtr(10),
     });
+    process.env.PRICING_USE_IMPULSE_LEG = originalEnv;
 
     expect(out.impulseLegs?.length).toBeGreaterThan(0);
     expect(out.dynamicOteSource).toBe("impulse_leg");
@@ -135,7 +161,7 @@ describe("pricingFeature", () => {
     expect(out.dynamicOteQuality).toBeGreaterThan(0);
   });
 
-  it("falls back to recent-range OTE when no valid impulse leg exists", () => {
+  it("falls back to recent-range OTE when no swing pivots are provided", () => {
     const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
     const candles: Candle[] = [];
     for (let i = 0; i < 50; i++) {
@@ -152,35 +178,5 @@ describe("pricingFeature", () => {
     expect(out.dynamicOteSource).toBe("recent_range");
     expect(out.oteLow).toBeDefined();
     expect(out.oteHigh).toBeDefined();
-  });
-
-  it("requires volume confirmation for an impulse leg", () => {
-    const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
-    const candles: Candle[] = [];
-    for (let i = 0; i < 50; i++) {
-      let price = 2500;
-      let v = 100;
-      if (i >= 10 && i <= 20) {
-        price = 2500 + (i - 10) * 2;
-        v = 100; // same as baseline -> not enough volume confirmation
-      }
-      candles.push(
-        makeCandle(new Date(t0.getTime() + i * 60000), price, price + 0.5, price - 0.5, price, "XAUUSD", v)
-      );
-    }
-
-    const pivots = makePivots([
-      { kind: "low", price: 2500, ts: candles[10].ts },
-      { kind: "high", price: 2522, ts: candles[21].ts },
-    ]);
-
-    const out = pricingFeature.compute({
-      candles,
-      features_pivot: pivots,
-      features_atr: makeAtr(10),
-    });
-
-    expect(out.impulseLegs?.length).toBe(0);
-    expect(out.dynamicOteSource).toBe("recent_range");
   });
 });

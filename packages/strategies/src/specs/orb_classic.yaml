@@ -1,16 +1,17 @@
 id: orb_classic
+familyId: orb_classic
 active: true
 name: "ORB Classic"
 version: "1.1.0"
 description: >
-  Opening Range Breakout strategy.
-  Enters in the direction of the 15m bias after the opening range is established.
-  Based on the ORB ebook model: NY session 9:30–11:00 AM ET (13:30–15:00 UTC),
-  stop loss at ORB midpoint, target 2R (ebook uses 1 STDV).
+  Opening Range Breakout strategy. Enters in the direction of the 15m bias after
+  the opening range is established. Based on the ORB ebook model: NY session
+  9:30–11:00 AM ET (13:30–15:00 UTC), stop loss at ORB midpoint, target 2R
+  (ebook uses 1 STDV).
 
 filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, NY]
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD ]
+  sessions: [ LONDON, NY ]
   timeWindows:
     - { utcStart: "13:30", utcEnd: "15:00" }
 
@@ -53,7 +54,7 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 2.5
+      maxAtr5Pips: 2.5
 
   - id: spread_gate
     name: spread
@@ -69,7 +70,7 @@ gates:
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP, NY]
+      allowed: [ LONDON, OVERLAP, NY ]
 
   - id: rate_limit
     name: rateLimit

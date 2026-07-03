@@ -3,7 +3,20 @@
 import { useState } from "react";
 import { KpiCard, AnimatedNumber } from "./KpiCard";
 import { VariantCreateForm } from "./VariantCreateForm";
+import { FamilyBacktestPanel } from "./FamilyBacktestPanel";
 import type { StrategyDetail, StrategyVariant } from "./StrategyCommandCenter";
+
+interface BacktestReport {
+  variantId: string;
+  totalTrades: number;
+  winRate: number;
+  avgR: number;
+  totalR: number;
+  profitFactor?: number;
+  byDirection?: Record<string, { trades: number; wins: number; winRate: number; totalR: number }>;
+  bySession?: Record<string, { trades: number; wins: number; winRate: number; totalR: number }>;
+  trades?: any[];
+}
 
 export function StrategyDetailView({
   detail,
@@ -137,13 +150,7 @@ export function StrategyDetailView({
 
             <ScreenshotGallery baseSpec={family.baseSpec} />
 
-            <div className="rounded-xl border border-border bg-panel p-4">
-              <h3 className="mb-2 text-sm font-semibold text-text">Trade Chart</h3>
-              <p className="text-xs text-text-dim">
-                Entry/exit markers with checklist hover will be rendered here once
-                trades exist for this family.
-              </p>
-            </div>
+            <FamilyBacktestPanel familyId={family.id} familyName={family.name} />
           </div>
         )}
 
@@ -188,6 +195,36 @@ function VariantsTable({
   onCreated: () => void;
   onCancelCreate: () => void;
 }) {
+  const [reportVariant, setReportVariant] = useState<StrategyVariant | null>(null);
+  const [report, setReport] = useState<BacktestReport | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
+  async function loadReport(v: StrategyVariant) {
+    setReportVariant(v);
+    setReport(null);
+    setReportLoading(true);
+    try {
+      const res = await fetch(`/api/strategies/variants/${v.id}/backtest?days=90`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setReport({
+        variantId: data.variantId,
+        totalTrades: data.summary.totalTrades,
+        winRate: data.summary.winRate,
+        avgR: data.summary.avgR,
+        totalR: data.summary.totalR,
+        profitFactor: data.riskReturn?.profitFactor,
+        byDirection: data.byDirection,
+        bySession: data.bySession,
+        trades: data.trades,
+      });
+    } catch (e: any) {
+      console.error("[report] failed:", e.message);
+    } finally {
+      setReportLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {showCreate && (
@@ -229,6 +266,7 @@ function VariantsTable({
             <th className="px-4 py-2 font-medium text-right">Net R</th>
             <th className="px-4 py-2 font-medium text-right">WR</th>
             <th className="px-4 py-2 font-medium text-center">Active</th>
+            <th className="px-4 py-2 font-medium text-center">Report</th>
           </tr>
         </thead>
         <tbody>
@@ -274,6 +312,14 @@ function VariantsTable({
                   />
                 </button>
               </td>
+              <td className="px-4 py-2.5 text-center">
+                <button
+                  onClick={() => loadReport(v)}
+                  className="text-[11px] font-semibold text-brand hover:underline"
+                >
+                  Report
+                </button>
+              </td>
             </tr>
           ))}
           {variants.length === 0 && (
@@ -285,7 +331,124 @@ function VariantsTable({
           )}
         </tbody>
       </table>
+
+      {reportVariant && (
+        <div className="mt-4 rounded-xl border border-border bg-panel p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-text">
+              Backtest Report — {reportVariant.name}
+            </h3>
+            <button
+              onClick={() => {
+                setReportVariant(null);
+                setReport(null);
+              }}
+              className="text-[11px] text-text-dim hover:text-text"
+            >
+              Close
+            </button>
+          </div>
+          {reportLoading ? (
+            <div className="py-6 text-center text-text-dim">Loading report…</div>
+          ) : report ? (
+            <ReportPanel report={report} />
+          ) : (
+            <div className="py-6 text-center text-text-dim">
+              Click Report to load backtest results.
+            </div>
+          )}
+        </div>
+      )}
     </div>
+    </div>
+  );
+}
+
+function ReportPanel({ report }: { report: BacktestReport }) {
+  const totalClosed = report.totalTrades;
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <KpiCard label="Total Trades" value={report.totalTrades} tone="brand" />
+        <KpiCard
+          label="Win Rate"
+          value={`${(report.winRate * 100).toFixed(1)}%`}
+          tone="brand"
+        />
+        <KpiCard
+          label="Net R"
+          value={
+            <span className={report.totalR >= 0 ? "text-long" : "text-short"}>
+              {report.totalR >= 0 ? "+" : ""}
+              {report.totalR.toFixed(2)}R
+            </span>
+          }
+          tone={report.totalR >= 0 ? "long" : "short"}
+        />
+        <KpiCard
+          label="Avg R"
+          value={`${report.avgR >= 0 ? "+" : ""}${report.avgR.toFixed(2)}R`}
+          tone={report.avgR >= 0 ? "long" : "short"}
+        />
+      </div>
+
+      {report.byDirection && totalClosed > 0 && (
+        <div>
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+            By Direction
+          </h4>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {Object.entries(report.byDirection).map(([dir, stats]: [string, any]) => (
+              <div
+                key={dir}
+                className="rounded-lg border border-border bg-bg p-2.5"
+              >
+                <div className="text-[10px] uppercase text-text-dim">{dir}</div>
+                <div className="text-sm font-semibold text-text">
+                  {stats.trades} trades · {(stats.winRate * 100).toFixed(0)}% WR
+                </div>
+                <div
+                  className={`text-[11px] font-medium ${
+                    stats.totalR >= 0 ? "text-long" : "text-short"
+                  }`}
+                >
+                  {stats.totalR >= 0 ? "+" : ""}
+                  {stats.totalR.toFixed(2)}R
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {report.bySession && totalClosed > 0 && (
+        <div>
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-dim">
+            By Session
+          </h4>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {Object.entries(report.bySession).map(([session, stats]: [string, any]) => (
+              <div
+                key={session}
+                className="rounded-lg border border-border bg-bg p-2.5"
+              >
+                <div className="text-[10px] uppercase text-text-dim">{session}</div>
+                <div className="text-sm font-semibold text-text">
+                  {stats.trades} trades · {(stats.winRate * 100).toFixed(0)}% WR
+                </div>
+                <div
+                  className={`text-[11px] font-medium ${
+                    stats.totalR >= 0 ? "text-long" : "text-short"
+                  }`}
+                >
+                  {stats.totalR >= 0 ? "+" : ""}
+                  {stats.totalR.toFixed(2)}R
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

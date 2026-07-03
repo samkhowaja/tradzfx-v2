@@ -88,10 +88,6 @@ export function buildBaseEntryPriceSql(
       WHEN ${a}.bias_direction = 'bullish' THEN o.high
       WHEN ${a}.bias_direction = 'bearish' THEN o.low
     END`;
-    case "ema_cross":
-      return "ema.fast_value";
-    case "sma_cross":
-      return "sma.fast_value";
     case "indicator":
       return `CASE
       WHEN ${a}.bias_direction = 'bullish' THEN p.ote_low
@@ -134,12 +130,16 @@ export function buildEntryPriceSql(
   END`;
 }
 
-function buildPipSizeSql(entrySql: string): string {
+function buildPipSizeSql(entrySql: string, ctx?: RiskCompileContext): string {
   // Prefer the per-symbol pip_size stored in features_pricing; fall back to a
   // symbol-aware lookup using the signal row's symbol when pricing is unavailable.
+  const a = getSignalAlias(ctx);
+  // Fall back matches the registry convention: XAUUSD = $0.10/pip,
+  // JPY pairs = 0.01, standard FX = 0.0001, indices = 1.0.
   return `COALESCE(p.pip_size, (CASE
-    WHEN s.symbol LIKE '%JPY%' OR s.symbol LIKE '%XAU%' OR s.symbol LIKE '%GOLD%' THEN 0.01
-    WHEN s.symbol LIKE '%NAS100%' OR s.symbol LIKE '%NDX%' OR s.symbol LIKE '%US30%' OR s.symbol LIKE '%DJI%' OR s.symbol LIKE '%DE40%' OR s.symbol LIKE '%DAX%' OR s.symbol LIKE '%UK100%' OR s.symbol LIKE '%FTSE%' THEN 1.0
+    WHEN ${a}.symbol LIKE '%XAU%' OR ${a}.symbol LIKE '%GOLD%' THEN 0.1
+    WHEN ${a}.symbol LIKE '%JPY%' THEN 0.01
+    WHEN ${a}.symbol LIKE '%NAS100%' OR ${a}.symbol LIKE '%NDX%' OR ${a}.symbol LIKE '%US30%' OR ${a}.symbol LIKE '%DJI%' OR ${a}.symbol LIKE '%DE40%' OR ${a}.symbol LIKE '%DAX%' OR ${a}.symbol LIKE '%UK100%' OR ${a}.symbol LIKE '%FTSE%' THEN 1.0
     ELSE 0.0001
   END))`;
 }
@@ -278,9 +278,8 @@ export function tokenizeRiskExpr(
   ctx?: LevelTokenCtx
 ): string {
   const entrySql = buildBaseEntryPriceSql(signalSource, ctx);
-  const pipSizeSql = buildPipSizeSql(entrySql);
   let out = expr
-    .replace(/\b(\d+(?:\.\d+)?)\s*pips?\b/gi, (_, n) => `(${n} * (${pipSizeSql}))`)
+    .replace(/\b(\d+(?:\.\d+)?)\s*pips?\b/gi, (_, n) => `(${n} * (${buildPipSizeSql(entrySql, ctx)}))`)
     // ATR timeframe references (e.g. atr(15m)) are left intact here so the
     // compiler can replace them with the correct per-TF joined alias.
     .replace(/\borb_midpoint\b/gi, "o.midpoint")
@@ -381,7 +380,7 @@ function applyTpOffset(
 ): string {
   if (offsetPips === 0) return raw;
   const a = getSignalAlias(ctx);
-  const pipSql = buildPipSizeSql(entrySql);
+  const pipSql = buildPipSizeSql(entrySql, ctx);
   return `CASE
     WHEN ${a}.bias_direction = 'bullish' THEN (${raw}) + (${offsetPips} * (${pipSql}))
     WHEN ${a}.bias_direction = 'bearish' THEN (${raw}) - (${offsetPips} * (${pipSql}))

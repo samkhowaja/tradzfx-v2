@@ -14,6 +14,10 @@ export interface StrategySpec {
   name: string;
   version: string;
   description?: string;
+  /** Whether this variant is active for live trading/backtests. */
+  active?: boolean;
+  /** Optional category tag used by the UI/command center. */
+  category?: string;
 
   filters: {
     symbols?: string[];
@@ -28,7 +32,7 @@ export interface StrategySpec {
   entry: StrategyCondition[];
 
   /** How the final signal price levels are derived. Defaults to zone-based S/D logic. */
-  signalSource?: "zone" | "orb" | "ema_cross" | "sma_cross" | "indicator" | "moving_average";
+  signalSource?: "zone" | "orb" | "indicator" | "moving_average";
 
   /** Optional entry configuration. Defaults to market orders with no offset. */
   entryConfig?: EntryConfig;
@@ -131,6 +135,8 @@ export interface LiveExecutionConfig {
   cooldownMinutes: number;
   /** Hard cap on individual order lot size (safety guard for small accounts) */
   maxLot?: number;
+  /** If true, force grade-based lot sizing (0.01–0.05) instead of %-risk sizing. */
+  useGradeLotSizing?: boolean;
   /** Max age of structure events (minutes) for live SQL freshness. 0 = disabled. */
   structureFreshnessMinutes?: number;
   /** Per-strategy execution quality profile. */

@@ -160,6 +160,16 @@ def last_ts_for_symbol(cur, symbol: str) -> Optional[datetime]:
     return row[0] if row and row[0] else None
 
 
+def spread_points_to_pips(spread_points: int, digits: int) -> Optional[int]:
+    """Convert MT5 spread points to pips. For most brokers 1 pip = 10 points.
+    Only 4-digit (old-style) FX quotes 1 pip = 1 point."""
+    if spread_points is None:
+        return None
+    if digits == 4:
+        return int(spread_points)
+    return int(spread_points / 10)
+
+
 def rates_to_rows(symbol: str, rates, digits: int, broker: str):
     """Convert an MT5 MqlRates numpy array to DB rows."""
     if rates is None or len(rates) == 0:
@@ -177,7 +187,7 @@ def rates_to_rows(symbol: str, rates, digits: int, broker: str):
                 float(r["low"]),
                 float(r["close"]),
                 int(r["tick_volume"]),
-                int(r["spread"]) if r["spread"] else None,
+                spread_points_to_pips(int(r["spread"]), digits) if r["spread"] else None,
                 broker,
                 digits,
             )
@@ -225,7 +235,7 @@ def aggregate_ticks_to_minutes(symbol: str, ticks, digits: int, broker: str):
                 float(lows[i]),
                 float(closes[i]),
                 vol,
-                int(avg_spreads[i]),
+                spread_points_to_pips(int(avg_spreads[i]), digits),
                 broker,
                 digits,
             )

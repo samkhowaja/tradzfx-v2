@@ -1,5 +1,5 @@
 import type { EvaluationContext, GraderResult } from "../types";
-import { getPipSizeForSymbol } from "@tm/shared";
+import { getRegistryPipSize } from "@tm/shared";
 import { computeStopLoss, computeTarget } from "@tm/levels";
 
 export async function gradeRiskQuality(ctx: EvaluationContext): Promise<GraderResult> {
@@ -14,7 +14,7 @@ export async function gradeRiskQuality(ctx: EvaluationContext): Promise<GraderRe
     return { score: 0, reasons: ["No price or entry zone"], stopLoss: null, takeProfit: null, riskReward: null };
   }
 
-  const pipSize = getPipSizeForSymbol(ctx.symbol);
+  const pipSize = getRegistryPipSize(ctx.symbol);
   const spreadPrice = spreadPips * pipSize;
 
   // Neutral setups are blocked by hard rules before this grader runs.

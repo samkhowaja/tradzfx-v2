@@ -13,16 +13,11 @@ const yaml = require("js-yaml");
 
 const SPECS_DIR = path.join(__dirname, "..", "packages", "strategies", "src", "specs");
 const RUNNER = path.join(__dirname, "backtest-pit-v2.js");
-const SPECS = [
-  "doyle_sd",
-  "orb_classic",
-  "watukushay_no1",
-  "watukushay_fe",
-  "forex_strategy_orb",
-  "scarface_5m_orb",
-];
 
 const CONCURRENCY = 4;
+
+// Optionally skip inactive specs (declared active: false in YAML).
+const activeOnly = process.argv.includes("--active-only");
 
 function loadSpec(specId) {
   const file = path.join(SPECS_DIR, `${specId}.yaml`);
@@ -30,13 +25,23 @@ function loadSpec(specId) {
   return yaml.load(text);
 }
 
+const SPECS = fs
+  .readdirSync(SPECS_DIR)
+  .filter((f) => f.endsWith(".yaml"))
+  .map((f) => f.replace(/\.yaml$/, ""))
+  .filter((id) => {
+    if (!activeOnly) return true;
+    const spec = loadSpec(id);
+    return spec.active !== false;
+  });
+
 function nowIso() {
   return new Date().toISOString().slice(0, 19).replace(/:/g, "-");
 }
 
 function runTask(specId, symbol, days) {
   return new Promise((resolve) => {
-    const args = [RUNNER, symbol, String(days), specId, "--json"];
+    const args = [RUNNER, symbol, String(days), specId, "--json", "--persist"];
     const proc = spawn("node", args, { cwd: path.join(__dirname, "..") });
     let stdout = "";
     let stderr = "";
@@ -240,8 +245,9 @@ function writeMarkdown(outputDir, days, perSymbolRows, specAggregates) {
 }
 
 async function main() {
-  const days = parseInt(process.argv[2] || "90", 10);
-  const outputDir = process.argv[3] || path.join(__dirname, "..", "reports", `historical-pit-${days}d-${nowIso()}`);
+  const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+  const days = parseInt(args[0] || "90", 10);
+  const outputDir = args[1] || path.join(__dirname, "..", "reports", `historical-pit-${days}d-${nowIso()}`);
   fs.mkdirSync(outputDir, { recursive: true });
 
   console.log(`[run-pit-historical] days=${days} output=${outputDir}`);

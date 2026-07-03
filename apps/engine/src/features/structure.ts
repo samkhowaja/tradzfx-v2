@@ -32,7 +32,6 @@ export interface StructureInput {
 }
 
 const CONFIRMATION_WINDOW_BARS = 5;
-const VOLUME_SPIKE_RATIO = 1.5;
 
 function findFirstCandle(
   candles: Candle[],
@@ -62,11 +61,6 @@ function findFirstCandleAfter(
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
-}
-
-function averageVolume(candles: Candle[]): number {
-  if (candles.length === 0) return 0;
-  return candles.reduce((s, c) => s + (c.v ?? 0), 0) / candles.length;
 }
 
 function gradeStrength(bodySize: number, atr14: number): StructureEvent["strength"] {
@@ -247,18 +241,13 @@ function enrichEvent(
   atr14: number,
   htf: HtfBiasOutput
 ): StructureEvent {
-  const confirmation = findFirstCandleAfter(
-    candles,
-    raw.ts,
-    (c) => {
-      if (raw.direction === "bullish" && c.c > raw.level) return true;
-      if (raw.direction === "bearish" && c.c < raw.level) return true;
-      const recent = candles.filter((x) => x.ts.getTime() < c.ts.getTime()).slice(-20);
-      const avg = averageVolume(recent);
-      if (avg > 0 && (c.v ?? 0) >= avg * VOLUME_SPIKE_RATIO) return true;
-      return false;
-    }
-  );
+  // A break is confirmed by a following close beyond the broken level within
+  // the confirmation window. Volume-spike confirmation has been removed.
+  const confirmation = findFirstCandleAfter(candles, raw.ts, (c) => {
+    if (raw.direction === "bullish" && c.c > raw.level) return true;
+    if (raw.direction === "bearish" && c.c < raw.level) return true;
+    return false;
+  });
 
   const withinWindow = confirmation
     ? candles.filter((c) => c.ts.getTime() > raw.ts.getTime() && c.ts.getTime() <= confirmation.ts.getTime()).length <=
@@ -284,70 +273,21 @@ function enrichEvent(
   };
 }
 
-function detectFailures(
-  enriched: StructureEvent[],
-  candles: Candle[]
-): StructureEvent[] {
-  const failures: StructureEvent[] = [];
-
-  for (const event of enriched) {
-    if (event.eventType !== "bos" && event.eventType !== "choch") continue;
-
-    const failCandle = findFirstCandleAfter(candles, event.ts, (c) => {
-      if (event.direction === "bullish" && c.c < event.level) return true;
-      if (event.direction === "bearish" && c.c > event.level) return true;
-      return false;
-    });
-
-    if (failCandle) {
-      failures.push({
-        eventType: event.eventType === "bos" ? "bos_failed" : "choch_failed",
-        direction: event.direction,
-        level: event.level,
-        ts: failCandle.ts,
-        strength: event.strength,
-        confirmed: false,
-        htfAligned: event.htfAligned,
-      });
-    }
-  }
-
-  return failures;
-}
-
 function detectStructure(input: StructureInput): StructureOutput["events"] {
   const { candles, features_pivot } = input;
   const raw = detectBreakEvents(candles, features_pivot.pivots);
   if (raw.length === 0) return [];
 
   const atr14 = getAtr14(input.features_atr);
-  const enriched = raw.map((r) => enrichEvent(r, candles, atr14, input.features_htf_bias));
-  const failures = detectFailures(enriched, candles);
+  const all = raw
+    .map((r) => enrichEvent(r, candles, atr14, input.features_htf_bias))
+    .sort((a, b) => a.ts.getTime() - b.ts.getTime());
 
-  const all = [...enriched, ...failures].sort((a, b) => a.ts.getTime() - b.ts.getTime());
+  // Failure events and CISD window have been removed in v2.1 to keep the
+  // feature pure and deterministic; isCisd stays false for consumers.
 
-  // CISD detection: a sweep followed by structure break in opposite direction
   for (const event of all) {
-    if (event.eventType === "mss" || event.eventType === "choch") {
-      const priorSweepDirection = event.direction === "bullish" ? "bearish" : "bullish";
-      const priorSweep = all.find(
-        (e) =>
-          (e.eventType === "mss" || e.eventType === "choch") &&
-          e.direction === priorSweepDirection &&
-          e.ts < event.ts &&
-          event.ts.getTime() - e.ts.getTime() < 30 * 60 * 1000
-      );
-      event.isCisd = !!priorSweep;
-      if (priorSweep) {
-        event.opposingSweepTs = priorSweep.ts;
-      }
-    } else {
-      event.isCisd = false;
-    }
-  }
-
-  // Lifecycle invalidation
-  for (const event of all) {
+    event.isCisd = false;
     const idx = candles.findIndex((c) => c.ts.getTime() === event.ts.getTime());
     if (idx >= 0) {
       const lifecycle = computeStructureLifecycle(
@@ -364,7 +304,7 @@ function detectStructure(input: StructureInput): StructureOutput["events"] {
 
 export const structureFeature: FeatureDefinition<StructureInput, StructureOutput> = {
   name: "features_structure",
-  version: "2.0.0",
+  version: "2.1.0",
   dependencies: ["features_pivot", "features_atr", "features_htf_bias"],
 
   compute(input): StructureOutput {

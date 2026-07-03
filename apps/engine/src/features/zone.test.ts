@@ -136,6 +136,20 @@ describe("zoneFeature v2", () => {
     expect(bearishFvg!.qualityScore).toBeLessThan(0.5);
   });
 
+  it("compute is pure and does not require a pool context", () => {
+    const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
+    const candles: Candle[] = [
+      makeCandle(new Date(t0.getTime() + 0 * 60000), 2500, 2501, 2495, 2496),
+      makeCandle(new Date(t0.getTime() + 1 * 60000), 2496, 2505, 2495, 2504, 150),
+    ];
+    const pivots: PivotOutput["pivots"] = [
+      { kind: "low", price: 2495, confidence: 1, ts: candles[0].ts },
+    ];
+    const out = zoneFeature.compute(makeInput(candles, pivots));
+    expect(out.zones).toBeDefined();
+    expect(out.zones.length).toBeGreaterThan(0);
+  });
+
   it("serializes and deserializes v2 fields", async () => {
     const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
     const candles: Candle[] = [

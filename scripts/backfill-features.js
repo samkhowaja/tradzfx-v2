@@ -63,6 +63,11 @@ async function main() {
     ? featuresArg.slice("--features=".length).split(",")
     : null;
 
+  const lookbackArg = process.argv.find((a) => a.startsWith("--lookback="));
+  const lookbackBars = lookbackArg ? parseInt(lookbackArg.slice("--lookback=".length), 10) : 500;
+
+  const skipLifecycle = process.argv.includes("--skip-lifecycle");
+
   const startArg = process.argv.find((a) => a.startsWith("--start="));
   const endArg = process.argv.find((a) => a.startsWith("--end="));
 
@@ -107,7 +112,7 @@ async function main() {
         tf,
         endTs: ts,
         requestedFeatures: allFeatures,
-        lookbackBars: 500,
+        lookbackBars,
         skipCache: true,
         batchInserts: true,
         batchSize: 1000,
@@ -127,15 +132,17 @@ async function main() {
   await runner.flush();
 
   // Refresh lifecycle once for the whole range instead of per-bar.
-  try {
-    await updateLifecycleForSymbol(pool, symbol, {
-      asOf: endTs,
-      lookbackDays: Math.min(days, 10),
-      limit: 10000,
-    });
-    console.log(`[backfill] Lifecycle refreshed`);
-  } catch (err) {
-    console.error(`[backfill] Lifecycle refresh failed:`, err.message);
+  if (!skipLifecycle) {
+    try {
+      await updateLifecycleForSymbol(pool, symbol, {
+        asOf: endTs,
+        lookbackDays: Math.min(days, 10),
+        limit: 10000,
+      });
+      console.log(`[backfill] Lifecycle refreshed`);
+    } catch (err) {
+      console.error(`[backfill] Lifecycle refresh failed:`, err.message);
+    }
   }
 
   console.log(`\n[backfill] Complete: ${processed} computed, ${errors} errors`);

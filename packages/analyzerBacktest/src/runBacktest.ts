@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import type { Pool, TimeFrame } from "@tm/shared";
 import { CANDLE_TABLE_BY_TF, TF_MS } from "@tm/shared";
 import { evaluateSetup, type SetupEvaluation } from "@tm/setup-engine";
-import { trackOutcome, type Candle } from "./outcomeTracker";
+import { trackOutcome, type Candle, type TrackOutcomeOptions } from "./outcomeTracker";
 
 export interface BacktestOptions {
   symbol: string;
@@ -12,9 +12,20 @@ export interface BacktestOptions {
   sampleIntervalMinutes?: number;
   maxForwardBars?: number;
   backtestSpreadPips?: number;
+  backtestSlippagePips?: number;
   backtestSessionName?: string;
   activePositionCount?: number;
   recordResults?: boolean;
+  /** Optional strategy linkage for per-variant reports. */
+  variantId?: string;
+  familyId?: string;
+  strategyId?: string;
+  /** Maximum concurrent setup evaluations. Default 1 to preserve deterministic ordering. */
+  concurrency?: number;
+  /** Forward-simulation cost model. */
+  trackOutcomeOptions?: TrackOutcomeOptions;
+  /** If true, include the R-based equity curve in the result trades (stored as a summary note). */
+  includeEquityCurve?: boolean;
 }
 
 export interface BacktestTrade {
@@ -33,6 +44,12 @@ export interface BacktestTrade {
   barsHeld: number;
   htfState: string | null;
   sessionName: string | null;
+  /** Effective entry price after spread/slippage adjustments */
+  effectiveEntry: number | null;
+  /** Maximum adverse excursion in R */
+  maxAdverseR: number;
+  /** Maximum favorable excursion in R */
+  maxFavorableR: number;
 }
 
 export interface BacktestRunResult {
@@ -43,6 +60,8 @@ export interface BacktestRunResult {
   endTs: Date;
   samplesEvaluated: number;
   trades: BacktestTrade[];
+  /** R-based equity curve (cumulative outcomeR) if requested */
+  equityCurve?: number[];
 }
 
 export async function runBacktest(pool: Pool, options: BacktestOptions): Promise<BacktestRunResult> {
@@ -54,9 +73,16 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
     sampleIntervalMinutes = Math.max(1, TF_MS[tf] / 60_000),
     maxForwardBars = 2000,
     backtestSpreadPips,
+    backtestSlippagePips,
     backtestSessionName,
     activePositionCount = 0,
     recordResults = true,
+    variantId,
+    familyId,
+    strategyId,
+    concurrency = 1,
+    trackOutcomeOptions,
+    includeEquityCurve = false,
   } = options;
 
   const runId = `${symbol}-${tf}-${startTs.toISOString()}-${endTs.toISOString()}-${randomUUID().slice(0, 8)}`;
@@ -83,58 +109,84 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
     }
   }
 
+  // Pre-fetch all 1m candles once for the entire forward window. This avoids
+  // the N+1 query pattern of fetching forward candles per sample.
+  const all1mCandles = await fetch1mCandles(pool, symbol, startTs, endTs, maxForwardBars);
+
+  // Pre-fetch HTF states and session names for all sample times in bulk.
+  const [htfStateByTs, sessionNameByTs] = await Promise.all([
+    fetchHtfStatesBulk(pool, symbol, tf, sampleTimes),
+    backtestSessionName
+      ? Promise.resolve(new Map(sampleTimes.map((ts) => [ts.toISOString(), backtestSessionName])))
+      : fetchSessionNamesBulk(pool, symbol, sampleTimes),
+  ]);
+
   const trades: BacktestTrade[] = [];
 
-  for (const asOf of sampleTimes) {
-    const setup = await evaluateSetup(pool, {
-      symbol,
-      tf,
-      asOf,
-      backtest: {
+  // Evaluate setups. For concurrency > 1 we preserve chronological ordering by
+  // collecting results and sorting by sample index before simulating outcomes.
+  if (concurrency <= 1) {
+    for (const asOf of sampleTimes) {
+      const trade = await evaluateAndTrack(
+        pool,
+        asOf,
+        symbol,
+        tf,
         activePositionCount,
-        spreadPips: backtestSpreadPips,
-        sessionName: backtestSessionName,
-      },
-    });
-
-    // Skip blocked grades and setups without a tradeable plan.
-    if (setup.grade === "BLOCK" || !setup.entryZone || setup.stopLoss == null || setup.takeProfit == null) {
-      continue;
+        backtestSpreadPips,
+        backtestSlippagePips,
+        backtestSessionName,
+        all1mCandles,
+        htfStateByTs,
+        sessionNameByTs,
+        maxForwardBars,
+        trackOutcomeOptions
+      );
+      if (trade) trades.push(trade);
     }
-
-    const futureCandles = await fetch1mCandles(pool, symbol, asOf, maxForwardBars);
-    const tracked = trackOutcome(
-      setup.direction,
-      setup.entryZone,
-      setup.stopLoss,
-      setup.takeProfit,
-      futureCandles
+  } else {
+    const semaphore = new Semaphore(concurrency);
+    const results = await Promise.all(
+      sampleTimes.map((asOf, index) =>
+        semaphore.run(async () =>
+          evaluateAndTrack(
+            pool,
+            asOf,
+            symbol,
+            tf,
+            activePositionCount,
+            backtestSpreadPips,
+            backtestSlippagePips,
+            backtestSessionName,
+            all1mCandles,
+            htfStateByTs,
+            sessionNameByTs,
+            maxForwardBars,
+            trackOutcomeOptions,
+            index
+          )
+        )
+      )
     );
+    for (const trade of results) {
+      if (trade) trades.push(trade);
+    }
+  }
 
-    const htfState = await fetchHtfState(pool, symbol, tf, asOf);
-    const sessionName = backtestSessionName ?? (await fetchSessionName(pool, symbol, asOf));
+  // Sort chronologically to ensure report metrics and equity curve are correct.
+  trades.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
 
-    trades.push({
-      ts: setup.timestamp,
-      grade: setup.grade,
-      direction: setup.direction,
-      confidence: setup.confidence,
-      entryZone: setup.entryZone,
-      stopLoss: setup.stopLoss,
-      takeProfit: setup.takeProfit,
-      riskReward: setup.riskReward,
-      outcome: tracked.outcome,
-      outcomeR: tracked.outcomeR,
-      exitPrice: tracked.exitPrice,
-      exitTs: tracked.exitTs,
-      barsHeld: tracked.barsHeld,
-      htfState,
-      sessionName,
+  let equityCurve: number[] | undefined;
+  if (includeEquityCurve) {
+    let sum = 0;
+    equityCurve = trades.map((t) => {
+      sum += t.outcomeR;
+      return sum;
     });
   }
 
   if (recordResults) {
-    await persistResults(pool, runId, symbol, tf, startTs, endTs, trades);
+    await persistResults(pool, runId, symbol, tf, startTs, endTs, trades, variantId, familyId, strategyId);
   }
 
   return {
@@ -145,16 +197,101 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
     endTs,
     samplesEvaluated: sampleTimes.length,
     trades,
+    equityCurve,
   };
 }
 
-async function fetch1mCandles(pool: Pool, symbol: string, after: Date, limit: number): Promise<Candle[]> {
+async function evaluateAndTrack(
+  pool: Pool,
+  asOf: Date,
+  symbol: string,
+  tf: TimeFrame,
+  activePositionCount: number,
+  backtestSpreadPips: number | undefined,
+  backtestSlippagePips: number | undefined,
+  backtestSessionName: string | undefined,
+  all1mCandles: Candle[],
+  htfStateByTs: Map<string, string | null>,
+  sessionNameByTs: Map<string, string | null>,
+  maxForwardBars: number,
+  trackOutcomeOptions: TrackOutcomeOptions | undefined,
+  _index?: number
+): Promise<BacktestTrade | null> {
+  const setup = await evaluateSetup(pool, {
+    symbol,
+    tf,
+    asOf,
+    backtest: {
+      activePositionCount,
+      spreadPips: backtestSpreadPips,
+      sessionName: backtestSessionName,
+    },
+  });
+
+  // Skip blocked grades and setups without a tradeable plan.
+  if (setup.grade === "BLOCK" || !setup.entryZone || setup.stopLoss == null || setup.takeProfit == null) {
+    return null;
+  }
+
+  // Slice forward candles from the pre-fetched cache.
+  const futureCandles = sliceFutureCandles(all1mCandles, asOf, maxForwardBars);
+
+  const outcomeOptions: TrackOutcomeOptions = {
+    ...trackOutcomeOptions,
+    spreadPips: trackOutcomeOptions?.spreadPips ?? backtestSpreadPips,
+    slippagePips: trackOutcomeOptions?.slippagePips ?? backtestSlippagePips,
+  };
+
+  const tracked = trackOutcome(
+    setup.direction,
+    setup.entryZone,
+    setup.stopLoss,
+    setup.takeProfit,
+    futureCandles,
+    outcomeOptions
+  );
+
+  const tsKey = asOf.toISOString();
+  const htfState = htfStateByTs.get(tsKey) ?? null;
+  const sessionName = sessionNameByTs.get(tsKey) ?? null;
+
+  return {
+    ts: setup.timestamp,
+    grade: setup.grade,
+    direction: setup.direction,
+    confidence: setup.confidence,
+    entryZone: setup.entryZone,
+    stopLoss: setup.stopLoss,
+    takeProfit: setup.takeProfit,
+    riskReward: setup.riskReward,
+    outcome: tracked.outcome,
+    outcomeR: tracked.outcomeR,
+    exitPrice: tracked.exitPrice,
+    exitTs: tracked.exitTs,
+    barsHeld: tracked.barsHeld,
+    htfState,
+    sessionName,
+    effectiveEntry: tracked.effectiveEntry,
+    maxAdverseR: tracked.maxAdverseR,
+    maxFavorableR: tracked.maxFavorableR,
+  };
+}
+
+async function fetch1mCandles(
+  pool: Pool,
+  symbol: string,
+  startTs: Date,
+  endTs: Date,
+  maxForwardBars: number
+): Promise<Candle[]> {
+  // Do not fetch beyond the stated backtest end date. Trades that cannot
+  // resolve by endTs are reported as timeout/no-result, not as wins/losses.
+  const forwardEnd = endTs;
   const { rows } = await pool.query(
     `SELECT ts, o, h, l, c, v FROM candles_1m
-     WHERE symbol = $1 AND ts > $2
-     ORDER BY ts
-     LIMIT $3`,
-    [symbol, after, limit]
+     WHERE symbol = $1 AND ts > $2 AND ts <= $3
+     ORDER BY ts`,
+    [symbol, startTs, forwardEnd]
   );
   return rows.map((r: any) => ({
     ts: r.ts.toISOString(),
@@ -166,32 +303,64 @@ async function fetch1mCandles(pool: Pool, symbol: string, after: Date, limit: nu
   }));
 }
 
-async function fetchHtfState(pool: Pool, symbol: string, tf: TimeFrame, asOf: Date): Promise<string | null> {
-  try {
-    const { rows } = await pool.query(
-      `SELECT state FROM features_htf_bias
-       WHERE symbol = $1 AND tf = $2 AND ts <= $3
-       ORDER BY ts DESC LIMIT 1`,
-      [symbol, tf, asOf]
-    );
-    return rows[0]?.state ?? null;
-  } catch {
-    return null;
-  }
+function sliceFutureCandles(candles: Candle[], after: Date, limit: number): Candle[] {
+  const afterMs = after.getTime();
+  const startIdx = candles.findIndex((c) => new Date(c.ts).getTime() > afterMs);
+  if (startIdx < 0) return [];
+  return candles.slice(startIdx, startIdx + limit);
 }
 
-async function fetchSessionName(pool: Pool, symbol: string, asOf: Date): Promise<string | null> {
-  try {
-    const { rows } = await pool.query(
-      `SELECT session FROM features_session
-       WHERE symbol = $1 AND ts <= $2
-       ORDER BY ts DESC LIMIT 1`,
-      [symbol, asOf]
-    );
-    return rows[0]?.session ?? null;
-  } catch {
-    return null;
+async function fetchHtfStatesBulk(
+  pool: Pool,
+  symbol: string,
+  tf: TimeFrame,
+  sampleTimes: Date[]
+): Promise<Map<string, string | null>> {
+  if (sampleTimes.length === 0) return new Map();
+  const { rows } = await pool.query(
+    `WITH samples AS (
+       SELECT unnest($3::timestamptz[]) AS ts
+     )
+     SELECT s.ts AS sample_ts, (
+       SELECT state
+         FROM features_htf_bias
+        WHERE symbol = $1 AND tf = $2 AND ts <= s.ts
+        ORDER BY ts DESC LIMIT 1
+     ) AS state
+     FROM samples s`,
+    [symbol, tf, sampleTimes]
+  );
+  const map = new Map<string, string | null>();
+  for (const row of rows) {
+    map.set(new Date(row.sample_ts).toISOString(), row.state ?? null);
   }
+  return map;
+}
+
+async function fetchSessionNamesBulk(
+  pool: Pool,
+  symbol: string,
+  sampleTimes: Date[]
+): Promise<Map<string, string | null>> {
+  if (sampleTimes.length === 0) return new Map();
+  const { rows } = await pool.query(
+    `WITH samples AS (
+       SELECT unnest($2::timestamptz[]) AS ts
+     )
+     SELECT s.ts AS sample_ts, (
+       SELECT session
+         FROM features_session
+        WHERE symbol = $1 AND ts <= s.ts
+        ORDER BY ts DESC LIMIT 1
+     ) AS session
+     FROM samples s`,
+    [symbol, sampleTimes]
+  );
+  const map = new Map<string, string | null>();
+  for (const row of rows) {
+    map.set(new Date(row.sample_ts).toISOString(), row.session ?? null);
+  }
+  return map;
 }
 
 async function persistResults(
@@ -201,27 +370,41 @@ async function persistResults(
   tf: TimeFrame,
   startTs: Date,
   endTs: Date,
-  trades: BacktestTrade[]
+  trades: BacktestTrade[],
+  variantId?: string,
+  familyId?: string,
+  strategyId?: string
 ): Promise<void> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO backtest_runs (id, symbol, tf, start_ts, end_ts, sample_count)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (id) DO UPDATE SET sample_count = EXCLUDED.sample_count`,
-      [runId, symbol, tf, startTs, endTs, trades.length]
+      `INSERT INTO backtest_runs (id, symbol, tf, start_ts, end_ts, sample_count, variant_id, family_id, strategy_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (id) DO UPDATE SET
+         sample_count = EXCLUDED.sample_count,
+         variant_id = EXCLUDED.variant_id,
+         family_id = EXCLUDED.family_id,
+         strategy_id = EXCLUDED.strategy_id`,
+      [runId, symbol, tf, startTs, endTs, trades.length, variantId ?? null, familyId ?? null, strategyId ?? null]
     );
 
-    for (const t of trades) {
-      await client.query(
-        `INSERT INTO backtest_results (
-          run_id, symbol, tf, ts, grade, direction, confidence,
-          entry_zone, stop_loss, take_profit, risk_reward,
-          outcome, outcome_r, exit_price, exit_ts, bars_held, htf_state, session_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-        ON CONFLICT DO NOTHING`,
-        [
+    if (trades.length > 0) {
+      const columns = [
+        "run_id", "symbol", "tf", "ts", "grade", "direction", "confidence",
+        "entry_zone", "stop_loss", "take_profit", "risk_reward",
+        "outcome", "outcome_r", "exit_price", "exit_ts", "bars_held",
+        "htf_state", "session_name", "effective_entry", "max_adverse_r", "max_favorable_r",
+        "variant_id", "family_id", "strategy_id", "source"
+      ];
+      const values: unknown[] = [];
+      const placeholders: string[] = [];
+      let idx = 1;
+      for (const t of trades) {
+        placeholders.push(
+          `($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`
+        );
+        values.push(
           runId,
           symbol,
           tf,
@@ -240,14 +423,50 @@ async function persistResults(
           t.barsHeld,
           t.htfState,
           t.sessionName,
-        ]
+          t.effectiveEntry,
+          t.maxAdverseR,
+          t.maxFavorableR,
+          variantId ?? null,
+          familyId ?? null,
+          strategyId ?? null,
+          "analyzer"
+        );
+      }
+      await client.query(
+        `INSERT INTO backtest_results (
+          ${columns.join(", ")}
+        ) VALUES ${placeholders.join(",")}
+        ON CONFLICT DO NOTHING`,
+        values
       );
     }
+
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK").catch(() => {});
     throw err;
   } finally {
     client.release();
+  }
+}
+
+class Semaphore {
+  private running = 0;
+  private queue: Array<() => void> = [];
+
+  constructor(private max: number) {}
+
+  async run<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.running >= this.max) {
+      await new Promise<void>((resolve) => this.queue.push(resolve));
+    }
+    this.running++;
+    try {
+      return await fn();
+    } finally {
+      this.running--;
+      const next = this.queue.shift();
+      if (next) next();
+    }
   }
 }

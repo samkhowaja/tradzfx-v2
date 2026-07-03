@@ -27,10 +27,11 @@ describe("volatilityGate", () => {
     expect(result.passed).toBe(true);
   });
 
-  it("still supports raw price thresholds", async () => {
-    const gate = createVolatilityGate({ maxAtr5: 0.001 });
-    const result = await gate(ctx("EURUSD", 0.002));
+  it("uses the registry pip size for XAUUSD", async () => {
+    const gate = createVolatilityGate({ maxAtr5Pips: 10 });
+    // XAUUSD: pip size 0.1, so 2.0 = 20 pips
+    const result = await gate(ctx("XAUUSD", 2.0));
     expect(result.passed).toBe(false);
-    expect(result.reason).toContain("exceeds max=0.001");
+    expect(result.reason).toContain("20.00pips exceeds max=10pips");
   });
 });

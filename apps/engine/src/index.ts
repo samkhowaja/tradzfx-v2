@@ -23,12 +23,11 @@ import { sessionHlFeature } from "./features/sessionHl";
 import { openingRangeFeature } from "./features/openingRange";
 import { candlePatternFeature } from "./features/candlePattern";
 import { zoneRetestFeature } from "./features/zoneRetest";
-import { emaCrossFeature } from "./features/emaCross";
-import { smaCrossFeature } from "./features/smaCross";
 import { movingAverageFeature } from "./features/movingAverage";
 import { bollingerFeature } from "./features/bollinger";
 import { keltnerFeature } from "./features/keltner";
 import { ifvgFeature } from "./features/ifvg";
+import { fvgFeature } from "./features/fvg";
 import { correlationFeature } from "./features/correlation";
 import { timeOfDayEdgeFeature } from "./features/timeOfDayEdge";
 import { liquidityPoolsFeature } from "./features/liquidityPools";
@@ -51,12 +50,11 @@ globalDAG.register(sessionHlFeature);
 globalDAG.register(openingRangeFeature);
 globalDAG.register(candlePatternFeature);
 globalDAG.register(zoneRetestFeature);
-globalDAG.register(emaCrossFeature);
-globalDAG.register(smaCrossFeature);
 globalDAG.register(movingAverageFeature);
 globalDAG.register(bollingerFeature);
 globalDAG.register(keltnerFeature);
 globalDAG.register(ifvgFeature);
+globalDAG.register(fvgFeature);
 globalDAG.register(correlationFeature);
 globalDAG.register(timeOfDayEdgeFeature);
 globalDAG.register(liquidityPoolsFeature);
@@ -82,12 +80,11 @@ export * from "./features/sessionHl";
 export * from "./features/openingRange";
 export * from "./features/candlePattern";
 export * from "./features/zoneRetest";
-export * from "./features/emaCross";
-export * from "./features/smaCross";
 export * from "./features/movingAverage";
 export * from "./features/bollinger";
 export * from "./features/keltner";
 export * from "./features/ifvg";
+export * from "./features/fvg";
 export * from "./features/correlation";
 export * from "./features/timeOfDayEdge";
 export * from "./features/liquidityPools";
@@ -120,7 +117,6 @@ async function main() {
     "features_session_hl",
     "features_opening_range",
     "features_candle_pattern",
-    "features_ema_cross",
     "features_moving_average",
     "features_bollinger",
     "features_keltner",

@@ -1,3 +1,5 @@
+import { getRegistryPipSize, isPairRegistered } from "./pairCharacteristics";
+
 /**
  * Symbol-aware pip/point math.
  *
@@ -178,8 +180,12 @@ export function getPipInfo(
 
 /**
  * Backward-compatible wrapper for code that still calls getPipSize(symbol).
+ * Delegates to the registry first so XAUUSD consistently resolves to 0.1.
  */
 export function getPipSizeForSymbol(symbol: string, digits?: number): number {
+  if (symbol && isPairRegistered(symbol)) {
+    return getRegistryPipSize(symbol);
+  }
   return getPipInfo(symbol, digits).pipSize;
 }
 

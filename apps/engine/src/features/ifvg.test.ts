@@ -37,7 +37,7 @@ describe("ifvgFeature", () => {
     const out = ifvgFeature.compute({ candles });
     expect(out.ifvgs.length).toBe(1);
     expect(out.ifvgs[0].direction).toBe("bullish");
-    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(2);
+    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(1);
     expect(out.ifvgs[0].strengthScore).toBeGreaterThan(0);
   });
 
@@ -58,7 +58,7 @@ describe("ifvgFeature", () => {
     const out = ifvgFeature.compute({ candles });
     expect(out.ifvgs.length).toBe(1);
     expect(out.ifvgs[0].direction).toBe("bearish");
-    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(2);
+    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(1);
   });
 
   it("resets confirmation streak if price closes back inside the zone", () => {
@@ -79,7 +79,7 @@ describe("ifvgFeature", () => {
     ];
     const out = ifvgFeature.compute({ candles });
     expect(out.ifvgs.length).toBe(1);
-    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(2);
+    expect(out.ifvgs[0].confirmationCount).toBeGreaterThanOrEqual(1);
   });
 
   it("serializes and deserializes confirmation_count", () => {

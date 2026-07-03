@@ -25,9 +25,9 @@ interface RawFvg {
   formationIndex: number;
 }
 
-const MIN_FILL_PCT = 0.5;
-const MAX_AGE_BARS = 50;
-const MIN_CONFIRMATIONS = 2;
+const MIN_FILL_PCT = Number(process.env.IFVG_MIN_FILL_PCT ?? "0.5");
+const MAX_AGE_BARS = Number(process.env.IFVG_MAX_AGE_BARS ?? "50");
+const MIN_CONFIRMATIONS = Number(process.env.IFVG_MIN_CONFIRMATIONS ?? "1");
 
 function detectFVGs(candles: Candle[]): RawFvg[] {
   const fvgs: RawFvg[] = [];
@@ -71,14 +71,14 @@ function countConfirmations(fvg: RawFvg, candles: Candle[], fromIndex: number): 
     const bodyPct = range > 0 ? Math.abs(c.c - c.o) / range : 0;
     const outside =
       fvg.direction === "bullish" ? c.c > fvg.top : c.c < fvg.bottom;
-    if (outside) {
+    if (outside && bodyPct >= 0.5) {
       consecutive++;
-      // Require the latest confirming candle to have a decisive body.
-      if (consecutive >= MIN_CONFIRMATIONS && bodyPct >= 0.5) {
+      if (consecutive >= MIN_CONFIRMATIONS) {
         return consecutive;
       }
     } else {
-      // A close back inside the zone breaks the confirmation streak.
+      // A close back inside the zone (or a weak/indecisive close outside)
+      // breaks the confirmation streak.
       consecutive = 0;
     }
   }
@@ -87,7 +87,7 @@ function countConfirmations(fvg: RawFvg, candles: Candle[], fromIndex: number): 
 
 export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
   name: "features_ifvg",
-  version: "1.2.0",
+  version: "1.3.0",
   dependencies: [],
 
   compute(input): IfvgOutput {

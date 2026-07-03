@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { biasFeature } from "./bias";
-import type { Candle, HtfBiasOutput, AtrOutput, StructureOutput, TimeOfDayEdgeOutput } from "@tm/shared";
+import type { Candle, HtfBiasOutput, AtrOutput, StructureOutput, PivotOutput } from "@tm/shared";
 
 function makeCandles(basePrice: number, count: number, slope: number): Candle[] {
   const candles: Candle[] = [];
@@ -22,6 +22,23 @@ function makeCandles(basePrice: number, count: number, slope: number): Candle[] 
   return candles;
 }
 
+function makePivots(trend: "up" | "down"): PivotOutput {
+  const pivots: PivotOutput["pivots"] = [];
+  const base = trend === "up" ? 1.07 : 1.09;
+  const step = trend === "up" ? 0.0005 : -0.0005;
+  for (let i = 0; i < 6; i++) {
+    const price = base + i * step;
+    const kind = i % 2 === 0 ? "low" : "high";
+    pivots.push({
+      kind,
+      price,
+      confidence: 0.8,
+      ts: new Date(Date.UTC(2024, 0, 1, 0, 10 + i * 5)),
+    });
+  }
+  return { pivots };
+}
+
 const htfBullish: HtfBiasOutput = {
   direction: "bullish",
   confidence: 90,
@@ -31,13 +48,6 @@ const htfBullish: HtfBiasOutput = {
 };
 
 const atr: AtrOutput = { values: [{ period: 14, value: 0.001 }] };
-
-const edge: TimeOfDayEdgeOutput = {
-  edge: "GOOD",
-  score: 65,
-  session: "LONDON",
-  reasons: ["london_edge"],
-};
 
 const structure: StructureOutput = {
   events: [
@@ -58,13 +68,14 @@ describe("regimeBias", () => {
       features_structure: structure,
       features_htf_bias: htfBullish,
       features_atr: atr,
-      features_time_of_day_edge: edge,
+      features_pivot: makePivots("up"),
     });
 
     expect(result.direction).toBe("bullish");
     expect(result.confidence).toBeGreaterThan(0);
     expect(result.regime).toBeDefined();
     expect(result.score.htfAlignment).toBe(90);
+    expect(result.score.hhhl).toBeDefined();
     expect(result.factors.length).toBeGreaterThan(0);
   });
 
@@ -85,7 +96,7 @@ describe("regimeBias", () => {
         reason: "1D bearish OB",
       },
       features_atr: atr,
-      features_time_of_day_edge: edge,
+      features_pivot: makePivots("down"),
     });
 
     expect(result.direction).toBe("bearish");
@@ -99,7 +110,7 @@ describe("regimeBias", () => {
       features_structure: structure,
       features_htf_bias: htfBullish,
       features_atr: atr,
-      features_time_of_day_edge: edge,
+      features_pivot: makePivots("up"),
     });
 
     expect(result.direction).toBe("neutral");

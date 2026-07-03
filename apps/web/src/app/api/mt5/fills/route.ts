@@ -13,8 +13,15 @@ import {
 } from "@/lib/orderService";
 import { queueClosePosition, resolveTerminalKeyId } from "@/lib/positionCommandService";
 import { notifyBadFill, computeActualRR, isBadFill } from "@tm/trade-pipeline";
+import {
+  buildIdempotencyKey,
+  isEventProcessed,
+  markEventProcessed,
+} from "@/lib/eaEventIdempotency";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
+const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -37,6 +44,7 @@ export async function POST(req: NextRequest) {
     fillPrice?: number;
     status?: "filled" | "rejected";
     rejectReason?: string;
+    idempotencyKey?: string;
   };
   try {
     body = await req.json();
@@ -44,13 +52,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { signalId, mt5Ticket, fillPrice, status, rejectReason } = body;
+  const { signalId, mt5Ticket, fillPrice, status, rejectReason, idempotencyKey } = body;
 
   if (!signalId || !status) {
     return NextResponse.json({ ok: false, error: "Missing signalId or status" }, { status: 400 });
   }
 
-  // 3. Process based on status
+  // 3. Idempotency check for filled events
+  const effectiveKey =
+    idempotencyKey ??
+    (status === "filled" && mt5Ticket != null && fillPrice != null
+      ? buildIdempotencyKey("fill", signalId, mt5Ticket, fillPrice)
+      : undefined);
+
+  if (effectiveKey) {
+    if (await isEventProcessed(pool, effectiveKey)) {
+      console.log(`[mt5-fills] Duplicate event ignored: ${effectiveKey.slice(0, 40)}`);
+      return NextResponse.json({ ok: true, duplicate: true, terminalKeyId: terminalKeyId ?? null });
+    }
+  }
+
+  // 4. Process based on status
   if (status === "filled") {
     if (mt5Ticket == null || fillPrice == null) {
       return NextResponse.json(
@@ -58,13 +80,25 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const filled = await markOrderFilled(signalId, mt5Ticket, fillPrice, terminalKeyId ?? undefined);
+    const { success: filled, duplicate } = await markOrderFilled(
+      signalId,
+      mt5Ticket,
+      fillPrice,
+      terminalKeyId ?? undefined
+    );
     if (!filled) {
       console.warn(`[mt5-fills] Order ${signalId.slice(0, 8)} fill transition rejected`);
       return NextResponse.json(
         { ok: false, error: "Order fill transition rejected" },
         { status: 409 }
       );
+    }
+    if (duplicate) {
+      console.log(`[mt5-fills] Order ${signalId.slice(0, 8)} duplicate fill ignored`);
+    }
+
+    if (effectiveKey) {
+      await markEventProcessed(pool, effectiveKey, signalId, "fill");
     }
 
     // Post-fill safety net: if the actual effective R:R is below the strategy

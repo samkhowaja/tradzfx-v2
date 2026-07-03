@@ -5,7 +5,7 @@
 
 import type { Signal, StrategySpec, LiveExecutionConfig, SetupEvaluationSnapshot } from "@tm/shared";
 import type { QualityDecision } from "./qualityEngine";
-import { getPairCharacteristics, getPipValuePerLot } from "@tm/shared";
+import { getPairCharacteristics, getPipValuePerLot, getRegistryPipSize } from "@tm/shared";
 
 export interface OrderExecutorConfig {
   /** Default live config (can be overridden per strategy) */
@@ -45,8 +45,7 @@ export function computeLotSize(
   const riskAmount = accountBalance * (effectiveRiskPct / 100);
   const slDistance = Math.abs(entryPrice - stopLoss);
 
-  const pc = symbol ? getPairCharacteristics(symbol) : null;
-  const pipSize = pc?.pipSize ?? (entryPrice > 1000 ? 0.01 : entryPrice > 50 && entryPrice < 200 ? 0.01 : 0.0001);
+  const pipSize = symbol ? getRegistryPipSize(symbol) : 0.0001;
   const pipValuePerLot = symbol ? getPipValuePerLot(symbol) : 10.0;
 
   const slPips = slDistance / pipSize;
@@ -97,6 +96,45 @@ const DEFAULT_LIVE: Partial<LiveExecutionConfig> = {
   cooldownMinutes: 60,
 };
 
+/**
+ * Determine the lot size for an order.
+ *
+ * Behavior:
+ *   - If the spec explicitly sets `useGradeLotSizing: true`, size by grade (0.01–0.05 lots).
+ *   - If the spec has `riskPerTradePct` and `accountBalance`, use %-risk sizing via
+ *     `computeLotSize`, capped by `maxLot` / `MAX_LOT_PER_ORDER`.
+ *   - Otherwise fall back to grade-based sizing to preserve small-account safety.
+ *
+ * This fixes the previous behavior where risk-based sizing was always overridden to
+ * fixed micro lots, causing live trades to diverge from backtest expectations.
+ */
+function resolveLotSize(
+  signal: Signal,
+  live: Partial<LiveExecutionConfig>,
+  setupSnapshot?: SetupEvaluationSnapshot
+): number {
+  const envMaxLot = process.env.MAX_LOT_PER_ORDER
+    ? Number(process.env.MAX_LOT_PER_ORDER)
+    : undefined;
+  const maxLot = live.maxLot ?? envMaxLot ?? 50.0;
+
+  const hasRiskConfig =
+    (live.riskPerTradePct ?? 0) > 0 && (live.accountBalance ?? 0) > 0;
+
+  if (live.useGradeLotSizing || !hasRiskConfig) {
+    const gradeLotSize = gradeToLotSize(setupSnapshot?.grade);
+    return Math.max(0.01, Math.min(gradeLotSize, maxLot));
+  }
+
+  return computeLotSize(
+    signal.entryPrice,
+    signal.stopLoss,
+    live,
+    signal.symbol,
+    signal.side
+  );
+}
+
 export function buildOrderInput(
   signal: Signal,
   spec: StrategySpec,
@@ -105,18 +143,13 @@ export function buildOrderInput(
   setupSnapshot?: SetupEvaluationSnapshot,
   quality?: QualityDecision
 ) {
-  // Size orders by setup grade (0.01–0.05 lots). Risk-based sizing is disabled
-  // so a small account never receives a 1.0 lot order.
   const live: Partial<LiveExecutionConfig> = {
     ...DEFAULT_LIVE,
     ...spec.live,
     ...overrides,
-    lotSize: 0.01,
-    maxLot: 0.05,
   };
 
-  const gradeLotSize = gradeToLotSize(setupSnapshot?.grade);
-  const lotSize = Math.max(0.01, Math.min(gradeLotSize, live.maxLot ?? 0.05));
+  const lotSize = resolveLotSize(signal, live, setupSnapshot);
   const profile = live.executionProfile;
   const ttlSeconds = quality?.action === "limit" ? (profile?.limitTtlSeconds ?? 900) : (live.signalTtlMinutes ?? 15) * 60;
   const expiresAt = new Date(Date.now() + ttlSeconds * 1000);

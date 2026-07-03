@@ -20,10 +20,11 @@ import type {
   AtrOutput,
   HtfBiasOutput,
   StructureOutput,
+  ZoneOutcomeStats,
   CanonicalMarketLevel,
 } from "@tm/shared";
 import { sha256, computeZoneLifecycle } from "@tm/shared";
-import { recordZoneOutcome, getZoneOutcomeStats } from "@tm/shared";
+import { recordZoneOutcome } from "@tm/shared";
 
 export interface ZoneInput {
   candles: Candle[];
@@ -31,12 +32,14 @@ export interface ZoneInput {
   features_atr: AtrOutput;
   features_htf_bias: HtfBiasOutput;
   features_structure: StructureOutput;
+  /** Optional learned outcome stats (keyed by zone kind). When present and ZONE_USE_LEARNED_QUALITY is true they replace the heuristic quality score. */
+  zoneOutcomeStats?: Record<string, ZoneOutcomeStats>;
 }
 
 const MIN_BODY_PCT = 0.6;
 const MIN_VOLUME_RATIO = 1.2;
 const MAX_AGE_BARS = 10; // pivot must be within this many bars
-const LEARNED_SAMPLE_MIN = 30;
+const USE_LEARNED_QUALITY = process.env.ZONE_USE_LEARNED_QUALITY === "true";
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
@@ -128,7 +131,7 @@ function isHtfAligned(zoneDirection: Direction | undefined, htf: HtfBiasOutput):
   return htf.direction === zoneDirection;
 }
 
-async function computeZoneQuality(
+function computeZoneQuality(
   zone: ZoneOutput["zones"][number],
   candles: Candle[],
   zoneIndex: number,
@@ -136,11 +139,9 @@ async function computeZoneQuality(
   currentPrice: number,
   atr14: number,
   htf: HtfBiasOutput,
-  pool: import("@tm/shared").Pool | undefined,
-  symbol: string | undefined,
-  tf: string | undefined,
-  structureEvents: StructureOutput["events"]
-): Promise<void> {
+  structureEvents: StructureOutput["events"],
+  outcomeStats?: ZoneOutcomeStats
+): void {
   // Age: bars since zone formation
   zone.ageBars = candles.length - zoneIndex;
 
@@ -178,14 +179,10 @@ async function computeZoneQuality(
     }
   }
 
-  // Learned quality from historical zone outcomes
+  // Learned quality from historical zone outcomes (only when explicitly enabled).
   let learnedQuality: number | null = null;
-  if (pool && symbol && tf) {
-    const stats = await getZoneOutcomeStats(pool, symbol, tf, zone.zoneKind, LEARNED_SAMPLE_MIN);
-    if (stats) {
-      // Normalize expectancy to roughly 0-1; clamp for safety
-      learnedQuality = Math.max(0, Math.min(1, (stats.expectancy + 1) / 2));
-    }
+  if (USE_LEARNED_QUALITY && outcomeStats) {
+    learnedQuality = Math.max(0, Math.min(1, (outcomeStats.expectancy + 1) / 2));
   }
 
   zone.qualityScore = learnedQuality ?? baseQuality;
@@ -375,61 +372,78 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
   return zones;
 }
 
+/**
+ * Record completed zone outcomes to `zone_outcomes` for continuous learning.
+ * Intended to be called by the DAG runner after the zone feature has been
+ * persisted, so that `compute` stays pure and side-effect free.
+ */
+export async function recordZoneOutcomes(
+  pool: import("@tm/shared").Pool,
+  symbol: string,
+  tf: string,
+  zones: ZoneOutput["zones"],
+  candles: Candle[]
+): Promise<void> {
+  if (process.env.ZONE_BACKFILL_SKIP_OUTCOMES === "1") return;
+  for (const zone of zones) {
+    if (!zone.mitigatedAt && !zone.invalidatedAt) continue;
+    await recordZoneOutcome(pool, {
+      symbol,
+      tf,
+      zoneKind: zone.zoneKind,
+      top: zone.top,
+      bottom: zone.bottom,
+      formationTs: zone.ts,
+      candles,
+      mitigatedAt: zone.mitigatedAt,
+      invalidatedAt: zone.invalidatedAt,
+    });
+  }
+}
+
 export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   name: "features_zone",
-  version: "2.0.0",
+  version: "2.1.0",
   dependencies: ["features_pivot", "features_atr", "features_htf_bias", "features_structure"],
 
-  compute(input, context): ZoneOutput {
+  compute(input): ZoneOutput {
     const zones = detectZones(input);
+    const currentPrice = input.candles[input.candles.length - 1]?.c ?? 0;
+    const atr14 = getAtr14(input.features_atr);
+    const statsByKind = input.zoneOutcomeStats ?? {};
 
-    const pool = context?.pool as import("@tm/shared").Pool | undefined;
-    const symbol = context?.symbol;
-    const tf = context?.tf;
+    for (const zone of zones) {
+      const zoneIndex = input.candles.findIndex((c) => c.ts.getTime() === zone.ts.getTime());
+      const formingCandle = input.candles[zoneIndex] ?? input.candles[input.candles.length - 1];
+      computeZoneQuality(
+        zone,
+        input.candles,
+        zoneIndex,
+        formingCandle,
+        currentPrice,
+        atr14,
+        input.features_htf_bias,
+        input.features_structure.events,
+        statsByKind[zone.zoneKind]
+      );
+    }
 
-    // Enrich with async learned quality and record completed outcomes.
-    // The runner awaits the returned Promise even though FeatureDefinition's
-    // compute signature is synchronous.
-    const enrich = async () => {
-      for (const zone of zones) {
-        const zoneIndex = input.candles.findIndex((c) => c.ts.getTime() === zone.ts.getTime());
-        const formingCandle = input.candles.find((c) => c.ts.getTime() === zone.ts.getTime()) ?? input.candles[input.candles.length - 1];
-        await computeZoneQuality(
-          zone,
-          input.candles,
-          zoneIndex,
-          formingCandle,
-          input.candles[input.candles.length - 1].c,
-          getAtr14(input.features_atr),
-          input.features_htf_bias,
-          pool,
-          symbol,
-          tf,
-          input.features_structure.events
-        );
-
-        if (pool && symbol && tf && (zone.mitigatedAt || zone.invalidatedAt)) {
-          await recordZoneOutcome(pool, {
-            symbol,
-            tf,
-            zoneKind: zone.zoneKind,
-            top: zone.top,
-            bottom: zone.bottom,
-            formationTs: zone.ts,
-            candles: input.candles,
-            mitigatedAt: zone.mitigatedAt,
-            invalidatedAt: zone.invalidatedAt,
-          });
-        }
-      }
-      zones.sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0));
-      return { zones };
-    };
-
-    return enrich() as unknown as ZoneOutput;
+    zones.sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0));
+    return { zones };
   },
 
   hashInput(input): string {
+    let statsHash = "";
+    if (USE_LEARNED_QUALITY && input.zoneOutcomeStats) {
+      statsHash =
+        "|stats=" +
+        Object.entries(input.zoneOutcomeStats)
+          .map(
+            ([kind, s]) =>
+              `${kind}:${s.sampleCount}:${s.expectancy.toFixed(4)}:${s.reversalRate.toFixed(4)}`
+          )
+          .join(",");
+    }
     return sha256(
       input.candles
         .map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}:${c.v ?? 0}`)
@@ -445,7 +459,8 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         "|" +
         input.features_structure.events
           .map((e) => `${e.ts.toISOString()}:${e.eventType}:${e.direction}`)
-          .join("|")
+          .join("|") +
+        statsHash
     );
   },
 

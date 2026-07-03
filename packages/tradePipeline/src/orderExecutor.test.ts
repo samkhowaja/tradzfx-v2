@@ -20,7 +20,7 @@ function baseSignal(): Signal {
   };
 }
 
-function baseSpec(): StrategySpec {
+function baseSpec(gradeSizing = true): StrategySpec {
   return {
     id: "test-strat",
     name: "Test Strategy",
@@ -43,6 +43,7 @@ function baseSpec(): StrategySpec {
       maxPositionsPerSymbol: 1,
       maxPositionsTotal: 6,
       cooldownMinutes: 30,
+      useGradeLotSizing: gradeSizing,
     },
   };
 }
@@ -60,33 +61,58 @@ function snapshotWithGrade(grade: string): SetupEvaluationSnapshot {
 
 describe("buildOrderInput grade-based lot sizing", () => {
   it("uses 0.05 lots for A+ grade", () => {
-    const input = buildOrderInput(baseSignal(), baseSpec(), "trace-1", undefined, snapshotWithGrade("A+"));
+    const input = buildOrderInput(baseSignal(), baseSpec(true), "trace-1", undefined, snapshotWithGrade("A+"));
     expect(input.lot_size).toBe(0.05);
   });
 
   it("uses 0.04 lots for A grade", () => {
-    const input = buildOrderInput(baseSignal(), baseSpec(), "trace-1", undefined, snapshotWithGrade("A"));
+    const input = buildOrderInput(baseSignal(), baseSpec(true), "trace-1", undefined, snapshotWithGrade("A"));
     expect(input.lot_size).toBe(0.04);
   });
 
   it("uses 0.03 lots for B grade", () => {
-    const input = buildOrderInput(baseSignal(), baseSpec(), "trace-1", undefined, snapshotWithGrade("B"));
+    const input = buildOrderInput(baseSignal(), baseSpec(true), "trace-1", undefined, snapshotWithGrade("B"));
     expect(input.lot_size).toBe(0.03);
   });
 
   it("uses 0.02 lots for C grade", () => {
-    const input = buildOrderInput(baseSignal(), baseSpec(), "trace-1", undefined, snapshotWithGrade("C"));
+    const input = buildOrderInput(baseSignal(), baseSpec(true), "trace-1", undefined, snapshotWithGrade("C"));
     expect(input.lot_size).toBe(0.02);
   });
 
-  it("caps lot size at 0.05 even if overridden", () => {
+  it("caps lot size at maxLot when grade sizing is enabled", () => {
     const input = buildOrderInput(
       baseSignal(),
-      { ...baseSpec(), live: { ...baseSpec().live, maxLot: 100 } as any },
+      { ...baseSpec(true), live: { ...baseSpec(true).live, maxLot: 0.03 } as any },
       "trace-1",
       undefined,
       snapshotWithGrade("A+")
     );
+    expect(input.lot_size).toBe(0.03);
+  });
+});
+
+describe("buildOrderInput risk-based lot sizing", () => {
+  it("uses %-risk sizing when risk config is present and grade sizing is disabled", () => {
+    const spec = baseSpec(false);
+    const input = buildOrderInput(baseSignal(), spec, "trace-1", undefined, snapshotWithGrade("A+"));
+    // 1% of 10k = $100 risk. SL distance = 0.002 (20 pips). EURUSD pip value ≈ $10/lot.
+    // Required lot = $100 / (20 pips * $10/pip) = 0.5 lots.
+    expect(input.lot_size).toBeGreaterThan(0.05);
+  });
+
+  it("respects maxLot cap in risk-based sizing", () => {
+    const spec = { ...baseSpec(false), live: { ...baseSpec(false).live, maxLot: 0.2 } as any };
+    const input = buildOrderInput(baseSignal(), spec, "trace-1", undefined, snapshotWithGrade("A+"));
+    expect(input.lot_size).toBeLessThanOrEqual(0.2);
+  });
+
+  it("falls back to grade sizing when no risk config is provided", () => {
+    const spec = {
+      ...baseSpec(false),
+      live: { ...baseSpec(false).live, riskPerTradePct: undefined, accountBalance: undefined } as any,
+    };
+    const input = buildOrderInput(baseSignal(), spec, "trace-1", undefined, snapshotWithGrade("A+"));
     expect(input.lot_size).toBe(0.05);
   });
 });

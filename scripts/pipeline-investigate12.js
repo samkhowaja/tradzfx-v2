@@ -23,7 +23,7 @@ async function q(text, params) {
 }
 
 (async () => {
-  await q(`SELECT tc.table_name, kcu.column_name FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name=kcu.constraint_name AND tc.table_schema=kcu.table_schema WHERE tc.constraint_type='PRIMARY KEY' AND tc.table_schema='public' AND tc.table_name IN ('features_pivot','features_structure','features_zone_retest','features_candle_pattern','features_bollinger','features_bias','features_opening_range','features_sweep','features_sma_cross','features_keltner','features_ifvg') ORDER BY tc.table_name, kcu.ordinal_position`);
+  await q(`SELECT tc.table_name, kcu.column_name FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name=kcu.constraint_name AND tc.table_schema=kcu.table_schema WHERE tc.constraint_type='PRIMARY KEY' AND tc.table_schema='public' AND tc.table_name IN ('features_pivot','features_structure','features_zone_retest','features_candle_pattern','features_bollinger','features_bias','features_opening_range','features_sweep','features_keltner','features_ifvg') ORDER BY tc.table_name, kcu.ordinal_position`);
 
   await q(`SELECT table_name, constraint_name, constraint_type FROM information_schema.table_constraints WHERE table_schema='public' AND table_name IN ('features_pivot','features_structure') ORDER BY table_name, constraint_name`);
 

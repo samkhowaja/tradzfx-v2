@@ -6,6 +6,16 @@
 $ErrorActionPreference = "Stop"
 Set-Location C:\tradzfx-v2
 
+# Load environment variables from .env.local so PM2 inherits DB credentials.
+$EnvFile = Join-Path (Get-Location) '.env.local'
+if (Test-Path $EnvFile) {
+    Get-Content $EnvFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+?)\s*=\s*(.*?)\s*$') {
+            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
+        }
+    }
+}
+
 Write-Host "[deploy] Installing dependencies..." -ForegroundColor Cyan
 pnpm install
 
@@ -19,7 +29,7 @@ Write-Host "[deploy] Applying DB migrations..." -ForegroundColor Cyan
 pnpm db:migrate
 
 Write-Host "[deploy] Stopping any previous tradzfx-v2 PM2 services..." -ForegroundColor Cyan
-@("tz-web-v2", "tz-engine", "tz-ingestion") | ForEach-Object {
+@("tm-web-v2", "tm-web-v2-ninja-trail", "tz-web-v2", "tz-dxy-synthetic") | ForEach-Object {
     $name = $_
     $proc = pm2 show $name 2>$null | Out-String
     if ($proc -match "status") {

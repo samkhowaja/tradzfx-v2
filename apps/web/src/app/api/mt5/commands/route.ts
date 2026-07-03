@@ -11,7 +11,9 @@ import {
   resolveTerminalKeyId,
 } from "@/lib/positionCommandService";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
+const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");

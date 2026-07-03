@@ -16,11 +16,20 @@ export interface OrderBlockInput {
   features_structure: StructureOutput;
 }
 
+const DEFAULT_OB_LOOKBACK_BARS = 15;
+
+function getMaxLookbackBars(): number {
+  const env = process.env.OB_MAX_LOOKBACK_BARS;
+  if (!env) return DEFAULT_OB_LOOKBACK_BARS;
+  const n = parseInt(env, 10);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_OB_LOOKBACK_BARS;
+}
+
 function findOrderBlockCandle(
   candles: Candle[],
   eventTs: Date,
   direction: Direction,
-  maxLookbackBars = 15
+  maxLookbackBars = getMaxLookbackBars()
 ): { candle: Candle; index: number } | undefined {
   const eventIndex = candles.findIndex((c) => c.ts.getTime() === eventTs.getTime());
   if (eventIndex < 0) return undefined;
@@ -131,7 +140,7 @@ function detectOrderBlocks(
 
 export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOutput> = {
   name: "features_order_block",
-  version: "1.2.0",
+  version: "1.3.0",
   dependencies: ["features_structure"],
 
   compute(input): OrderBlockOutput {

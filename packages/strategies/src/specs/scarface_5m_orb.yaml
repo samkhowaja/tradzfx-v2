@@ -1,15 +1,17 @@
 id: scarface_5m_orb
+familyId: scarface_5m_orb
 active: true
 name: "Scarface 5m ORB"
 version: "1.1.0"
 description: >
-  Aggressive 5m opening range breakout for equities/forex with candle confirmation.
-  Based on Scarface Trades: NY session 9:30–11:00 AM ET (13:30–15:00 UTC),
-  minimum 2R target, max 2 attempts per session, stop after one win.
+  Aggressive 5m opening range breakout for equities/forex with candle
+  confirmation. Based on Scarface Trades: NY session 9:30–11:00 AM ET
+  (13:30–15:00 UTC), minimum 2R target, max 2 attempts per session, stop after
+  one win.
 
 filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY]
-  sessions: [LONDON, OVERLAP, NY]
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY ]
+  sessions: [ LONDON, OVERLAP, NY ]
   timeWindows:
     - { utcStart: "13:30", utcEnd: "15:00" }
 
@@ -31,20 +33,22 @@ setup:
     tf: 1m
     predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true"
     required: false
-    groupBy: [zone_kind]
+    groupBy: [ zone_kind ]
 
   - id: candle
     feature: features_candle_pattern
     tf: 1m
-    predicate: "pattern_name IN ('engulfing_bull', 'engulfing_bear', 'pin_bar') AND direction = features_bias.direction"
+    predicate: "pattern_name IN ('engulfing_bull', 'engulfing_bear', 'pin_bar') AND
+      direction = features_bias.direction"
     required: true
-    groupBy: [pattern_name]
+    groupBy: [ pattern_name ]
 
 entry:
   - id: displacement
     feature: features_displacement
     tf: 1m
-    predicate: "grade IN ('MEDIUM', 'HIGH') AND consecutive_count >= 2 AND sequence_grade IN ('LOW', 'MEDIUM', 'HIGH')"
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND consecutive_count >= 2 AND
+      sequence_grade IN ('LOW', 'MEDIUM', 'HIGH')"
     required: true
 
 signalSource: orb
@@ -60,7 +64,7 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 1.5
+      maxAtr5Pips: 1.5
 
   - id: spread_gate
     name: spread
@@ -76,7 +80,7 @@ gates:
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP, NY]
+      allowed: [ LONDON, OVERLAP, NY ]
 
   - id: rate_limit
     name: rateLimit

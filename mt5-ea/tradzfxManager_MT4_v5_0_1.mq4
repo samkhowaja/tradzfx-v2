@@ -1532,6 +1532,14 @@ void ExecuteSignalJson(string sigJson, bool paperMode)
 }
 
 //+------------------------------------------------------------------+
+//| Idempotency key helper                                             |
+//+------------------------------------------------------------------+
+string BuildFillIdempotencyKey(string signalId, long ticket, double price)
+{
+   return "fill:" + signalId + ":" + IntegerToString(ticket) + ":" + DoubleToString(price, 5);
+}
+
+//+------------------------------------------------------------------+
 //| Report fill or reject                                              |
 //+------------------------------------------------------------------+
 void ReportFill(string signalId, long ticket, double price, bool filled, string rejectReason)
@@ -1544,6 +1552,7 @@ void ReportFill(string signalId, long ticket, double price, bool filled, string 
       json += "\"status\":\"filled\"";
    else
       json += "\"status\":\"rejected\",\"rejectReason\":\"" + rejectReason + "\"";
+   json += ",\"idempotencyKey\":\"" + BuildFillIdempotencyKey(signalId, ticket, price) + "\"";
    json += "}";
 
    string url = g_serverUrl + "/api/mt5/fills";
@@ -1742,8 +1751,10 @@ string BuildBarsJson(string symbol, const MqlRates &rates[], int start, int end,
       bars += "\"h\":" + DoubleToString(rates[i].high, 6) + ",";
       bars += "\"l\":" + DoubleToString(rates[i].low, 6) + ",";
       bars += "\"c\":" + DoubleToString(rates[i].close, 6) + ",";
-      bars += "\"tickVol\":" + IntegerToString((long)rates[i].tick_volume) + ",";
-      bars += "\"spread\":" + IntegerToString((int)rates[i].spread);
+      bars += "\"tickVol\":" + IntegerToString((long)rates[i].tick_volume);
+#ifdef __MQL5__
+      bars += ",\"spread\":" + IntegerToString((int)rates[i].spread);
+#endif
       bars += "}";
    }
    bars += "]";

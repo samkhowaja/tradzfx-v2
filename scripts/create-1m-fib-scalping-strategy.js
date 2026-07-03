@@ -437,7 +437,13 @@ async function insertResults(results) {
     "entry_zone", "stop_loss", "take_profit", "risk_reward",
     "outcome", "outcome_r", "exit_price", "exit_ts", "bars_held",
     "htf_state", "session_name",
+    "variant_id", "family_id", "strategy_id",
   ];
+  for (const r of results) {
+    r.variant_id = VARIANT_ID;
+    r.family_id = FAMILY_ID;
+    r.strategy_id = VARIANT_ID;
+  }
   const placeholders = results
     .map((_, i) => `(${columns.map((_, c) => `$${i * columns.length + c + 1}`).join(", ")})`)
     .join(", ");

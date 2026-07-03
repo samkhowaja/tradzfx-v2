@@ -7,7 +7,7 @@
  */
 
 import type { Pool, Signal, StrategySpec, ExecutionProfile } from "@tm/shared";
-import { getPairCharacteristics } from "@tm/shared";
+import { getRegistryPipSize } from "@tm/shared";
 
 export interface QualityDecision {
   action: "market" | "limit" | "reject";
@@ -40,8 +40,7 @@ function getProfile(spec: StrategySpec): ExecutionProfile {
 }
 
 function pipSize(symbol: string): number {
-  const pc = getPairCharacteristics(symbol);
-  return pc?.pipSize ?? (symbol.includes("XAU") || symbol.includes("JPY") ? 0.01 : 0.0001);
+  return getRegistryPipSize(symbol);
 }
 
 function priceDiffToPips(symbol: string, diff: number): number {

@@ -1,84 +1,8 @@
 id: watukushay_fe
+familyId: watukushay
 active: true
-name: "Watukushay FE"
-version: "1.1.0"
+name: Watukushay FE
+version: 1.1.0
 description: >
-  RSI pullback strategy per Daniel Pinto's Watukushay FE system.
-  Enters in the direction of the 1h bias on RSI-20 confirmation.
-  Optimal thresholds: short at 72, long at 28.
-
-filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP, NY]
-
-setup:
-  - id: bias
-    feature: features_bias
-    tf: 1h
-    predicate: "direction != 'neutral'"
-    required: true
-
-  - id: rsi
-    feature: features_indicator
-    tf: 1h
-    predicate: "indicator_name = 'rsi' AND period = 20 AND ((features_bias.direction = 'bullish' AND value < 28) OR (features_bias.direction = 'bearish' AND value > 72))"
-    required: true
-    groupBy: [indicator_name, period]
-
-entry:
-  - id: displacement
-    feature: features_displacement
-    tf: 1h
-    predicate: "grade IN ('MEDIUM', 'HIGH')"
-    required: true
-
-signalSource: indicator
-
-risk:
-  sl: "atr(1h) * 0.5"
-  tp: "sl * 1.0"
-  minRR: 1.0
-  timeoutBars: 8
-  maxFillBars: 2
-
-gates:
-  - id: volatility_gate
-    name: volatility
-    params:
-      maxAtr5: 3.0
-
-  - id: spread_gate
-    name: spread
-    params:
-      maxSpreadPips: 3.0
-
-  - id: portfolio_heat
-    name: portfolioHeat
-    params:
-      maxConcurrentPerSymbol: 1
-      maxConcurrentTotal: 3
-
-  - id: session_gate
-    name: session
-    params:
-      allowed: [LONDON, OVERLAP, NY]
-
-  - id: rate_limit
-    name: rateLimit
-    params:
-      maxSignalsPerHour: 2
-      maxSignalsPerDay: 5
-
-live:
-  mode: paper
-  lotSize: 0.01
-  riskPerTradePct: 1.0
-  accountBalance: 10000
-  accountCurrency: USD
-  signalTtlMinutes: 60
-  maxSpreadPips: 3.0
-  maxSlippagePoints: 20
-  entryZonePips: null
-  maxPositionsPerSymbol: 1
-  maxPositionsTotal: 3
-  cooldownMinutes: 60
+  RSI pullback strategy per Daniel Pinto's Watukushay FE system. Enters in the direction of the 1h bias on RSI-20
+  confirmation. Optimal thresholds: short at 72, long at 28.

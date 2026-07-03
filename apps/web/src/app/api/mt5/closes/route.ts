@@ -7,8 +7,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
 import { markOrderClosed } from "@/lib/orderService";
 import { resolveTerminalKeyId } from "@/lib/positionCommandService";
+import {
+  buildIdempotencyKey,
+  isEventProcessed,
+  markEventProcessed,
+} from "@/lib/eaEventIdempotency";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
+const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
@@ -33,6 +40,7 @@ export async function POST(req: NextRequest) {
     closePrice?: number;
     closeReason?: string;
     realizedPnl?: number;
+    idempotencyKey?: string;
   };
   try {
     body = await req.json();
@@ -40,7 +48,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { signalId, closePrice, closeReason, realizedPnl } = body;
+  const { signalId, mt5Ticket, closePrice, closeReason, realizedPnl, idempotencyKey } = body;
 
   if (!signalId || closePrice == null || !closeReason || realizedPnl == null) {
     return NextResponse.json(
@@ -65,9 +73,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 3. Close the order
+  // 3. Idempotency check
+  const effectiveKey =
+    idempotencyKey ??
+    (mt5Ticket != null
+      ? buildIdempotencyKey("close", signalId, mt5Ticket, closePrice, closeReason)
+      : undefined);
+
+  if (effectiveKey) {
+    if (await isEventProcessed(pool, effectiveKey)) {
+      console.log(`[mt5-closes] Duplicate event ignored: ${effectiveKey.slice(0, 40)}`);
+      return NextResponse.json({ ok: true, duplicate: true, terminalKeyId: terminalKeyId ?? null });
+    }
+  }
+
+  // 4. Close the order
   try {
-    const closed = await markOrderClosed(signalId, closePrice, closeReason, realizedPnl, terminalKeyId ?? undefined);
+    const { success: closed } = await markOrderClosed(
+      signalId,
+      closePrice,
+      closeReason,
+      realizedPnl,
+      terminalKeyId ?? undefined
+    );
     if (!closed) {
       console.warn(`[mt5-closes] Order ${signalId.slice(0, 8)} close transition rejected`);
       return NextResponse.json(
@@ -75,6 +103,11 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
+
+    if (effectiveKey) {
+      await markEventProcessed(pool, effectiveKey, signalId, "close");
+    }
+
     console.log(
       `[mt5-closes] Order ${signalId.slice(0, 8)} CLOSED — ${closeReason} @ ${closePrice} (P&L: $${realizedPnl.toFixed(2)})`
     );

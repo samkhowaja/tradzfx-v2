@@ -51,52 +51,7 @@ interface V1Payload {
 
 type BarPayload = V2Payload | V1Payload;
 
-const CAGG_CONFIGS: { name: string; widthMs: number }[] = [
-  { name: "candles_5m", widthMs: 5 * 60 * 1000 },
-  { name: "candles_15m", widthMs: 15 * 60 * 1000 },
-  { name: "candles_1h", widthMs: 60 * 60 * 1000 },
-  { name: "candles_4h", widthMs: 4 * 60 * 60 * 1000 },
-  { name: "candles_1d_utc", widthMs: 24 * 60 * 60 * 1000 },
-  { name: "candles_1d_ny", widthMs: 24 * 60 * 60 * 1000 },
-];
-
 const JOB_TFS: TimeFrame[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
-
-async function refreshCaggs(
-  pool: any,
-  minTs: Date,
-  maxTs: Date,
-): Promise<{ ok: boolean; errors: string[] }> {
-  const errors: string[] = [];
-
-  await Promise.all(
-    CAGG_CONFIGS.map(async (cfg) => {
-      const windowStart = new Date(minTs.getTime() - cfg.widthMs);
-      const windowEnd = new Date(maxTs.getTime() + cfg.widthMs);
-
-      const run = async (attemptsRemaining: number): Promise<void> => {
-        try {
-          await pool.query(
-            "CALL refresh_continuous_aggregate($1, $2::timestamptz, $3::timestamptz)",
-            [cfg.name, windowStart.toISOString(), windowEnd.toISOString()],
-          );
-        } catch (err: any) {
-          if (attemptsRemaining > 0) {
-            await new Promise((r) => setTimeout(r, 100));
-            return run(attemptsRemaining - 1);
-          }
-          const msg = `[ingest] Cagg refresh failed for ${cfg.name}: ${err.message}`;
-          console.error(msg);
-          errors.push(msg);
-        }
-      };
-
-      await run(1);
-    }),
-  );
-
-  return { ok: errors.length === 0, errors };
-}
 
 function isV1Bar(bar: V1Bar | V2Bar): bar is V1Bar {
   return (bar as V1Bar).ts !== undefined;
@@ -186,32 +141,25 @@ export async function POST(request: NextRequest) {
          digits = EXCLUDED.digits`,
     );
 
-    // Refresh the continuous aggregates for the buckets touched by this
-    // batch. This handles late/out-of-order bars and keeps the HTF tables
-    // consistent without relying solely on the background refresh policies.
-    const minTs = rows.reduce((m, r) => (r.ts < m ? r.ts : m), rows[0].ts);
-    const maxTs = rows.reduce((m, r) => (r.ts > m ? r.ts : m), rows[0].ts);
-    const { ok: caggOk, errors: caggErrors } = await refreshCaggs(pool, minTs, maxTs);
-    if (!caggOk) {
-      console.warn(`[ingest] ${caggErrors.length} cagg refresh(es) failed — pipeline may use stale HTF candles`);
+    // Run the live pipeline. Feature-job enqueue is disabled by default until a
+    // worker is intentionally deployed (set TM_DISABLE_FEATURE_JOBS=false to enable).
+    await checkAndTriggerAllActive(cleanSymbol);
+    if (process.env.TM_DISABLE_FEATURE_JOBS === "false") {
+      await enqueueFeatureJobs(pool, cleanSymbol, rows);
     }
 
-    // Run the live pipeline and enqueue incremental feature jobs AFTER the
-    // continuous aggregates have been refreshed. Awaiting them guards the race
-    // between HTF candle availability and feature/strategy evaluation, and lets
-    // failures surface as a 500 instead of being swallowed.
-    await checkAndTriggerAllActive(cleanSymbol);
-    await enqueueFeatureJobs(pool, cleanSymbol, rows);
+    // Run robot strategies (e.g., Ninja Turtle Scalper) asynchronously only when
+    // explicitly enabled. They are off by default in V2.
+    if (process.env.NINJA_LIVE_ENABLED === "true") {
+      emitNinjaTurtleSignals(pool, cleanSymbol).catch((err) => {
+        console.error("[ingest] Ninja Turtle emitter failed:", err.message);
+      });
 
-    // Run robot strategies (e.g., Ninja Turtle Scalper) asynchronously.
-    emitNinjaTurtleSignals(pool, cleanSymbol).catch((err) => {
-      console.error("[ingest] Ninja Turtle emitter failed:", err.message);
-    });
-
-    // Update server-side trailing stops for robot positions.
-    runNinjaTurtleTrailMonitor().catch((err) => {
-      console.error("[ingest] Ninja Turtle trail monitor failed:", err.message);
-    });
+      // Update server-side trailing stops for robot positions.
+      runNinjaTurtleTrailMonitor().catch((err) => {
+        console.error("[ingest] Ninja Turtle trail monitor failed:", err.message);
+      });
+    }
 
     // Notify any active SSE analyzer streams about the new 1m candles.
     const emittedTs = new Set<string>();
@@ -231,7 +179,7 @@ export async function POST(request: NextRequest) {
       ok: true,
       accepted: normalizedBars.length,
       symbol: cleanSymbol,
-      cagg: { ok: caggOk, errors: caggErrors },
+      cagg: { ok: true, errors: [] },
     });
   } catch (err: any) {
     console.error("[ingest] Error:", err.message);

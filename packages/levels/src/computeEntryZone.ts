@@ -53,7 +53,7 @@ export async function computeEntryZone(
 
   const { rows } = await pool.query<Row>(
     `SELECT id, top, bottom, level_type, kind, strength, ts, source_id, source_json
-     FROM market_levels
+     FROM market_levels_view
      WHERE symbol = $1
        AND tf = $2
        AND kind = $3

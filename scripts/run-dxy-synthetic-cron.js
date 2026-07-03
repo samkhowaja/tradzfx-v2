@@ -62,36 +62,6 @@ function dxyLow(priceMap) {
   return value;
 }
 
-async function refreshCaggs(minTs, maxTs) {
-  const configs = [
-    { name: "candles_5m", widthMs: 5 * 60 * 1000 },
-    { name: "candles_15m", widthMs: 15 * 60 * 1000 },
-    { name: "candles_1h", widthMs: 60 * 60 * 1000 },
-    { name: "candles_4h", widthMs: 4 * 60 * 60 * 1000 },
-    { name: "candles_1d_utc", widthMs: 24 * 60 * 60 * 1000 },
-    { name: "candles_1d_ny", widthMs: 24 * 60 * 60 * 1000 },
-  ];
-
-  for (const cfg of configs) {
-    const start = new Date(minTs.getTime() - cfg.widthMs);
-    const end = new Date(maxTs.getTime() + cfg.widthMs);
-    // Skip aggregates where the expanded window is still smaller than the
-    // bucket width; TimescaleDB's refresh procedure rejects those.
-    if (end.getTime() - start.getTime() < cfg.widthMs * 2) {
-      continue;
-    }
-    try {
-      await pool.query("CALL refresh_continuous_aggregate($1, $2::timestamptz, $3::timestamptz)", [
-        cfg.name,
-        start.toISOString(),
-        end.toISOString(),
-      ]);
-    } catch (err) {
-      console.warn(`[dxy-cron] cagg refresh failed for ${cfg.name}: ${err.message}`);
-    }
-  }
-}
-
 async function computeAndInsert() {
   const { rows } = await pool.query(
     `SELECT symbol, ts, o, h, l, c FROM candles_1m
@@ -145,10 +115,6 @@ async function computeAndInsert() {
                ON CONFLICT (symbol, ts) DO UPDATE
                SET o = EXCLUDED.o, h = EXCLUDED.h, l = EXCLUDED.l, c = EXCLUDED.c, v = EXCLUDED.v, broker = EXCLUDED.broker`;
   await pool.query(sql, params);
-
-  const minTs = new Date(inserts[0].ts);
-  const maxTs = new Date(inserts[inserts.length - 1].ts);
-  await refreshCaggs(minTs, maxTs);
 
   console.log(`[dxy-cron] Upserted ${inserts.length} DXY rows @ ${new Date().toISOString()}`);
 }

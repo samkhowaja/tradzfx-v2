@@ -1,7 +1,7 @@
 /**
  * Point-in-Time backtest runner for all V2 strategy specs.
  *
- * Supports signalSource: zone | orb | ema_cross | indicator.
+ * Supports signalSource: zone | orb | indicator | moving_average.
  * Uses LATERAL lookups so each signal only sees features available at that time.
  *
  * Usage:
@@ -10,20 +10,41 @@
  */
 
 const { Pool } = require("pg");
+const { randomUUID } = require("crypto");
 const {
   loadStrategyFromDB,
-  buildEntryPriceSql,
-  buildSlSql,
-  buildTpSql,
+  buildEntryPriceSql: _buildEntryPriceSql,
+  buildSlSql: _buildSlSql,
+  buildTpSql: _buildTpSql,
 } = require("../packages/strategies/dist/index.js");
-const { getSession } = require("../packages/shared/dist/index.js");
+
+// The risk compiler leaves atr(15m) references intact for the live compiler.
+// The PIT signal SELECT already joins features_atr as `a`, so map any
+// atr(<tf>) token to that alias.
+function fixAtrReferences(sql) {
+  return sql.replace(/\batr\([^)]+\)/gi, "a.value");
+}
+
+const buildEntryPriceSql = (...args) => fixAtrReferences(_buildEntryPriceSql(...args));
+const buildSlSql = (...args) => fixAtrReferences(_buildSlSql(...args));
+const buildTpSql = (...args) => fixAtrReferences(_buildTpSql(...args));
+const { getSession, getPairCharacteristics, getSessionSpread, getSessionSlippage } = require("../packages/shared/dist/index.js");
 const {
   createSessionGate,
   createRateLimitGate,
   createDailyLossGate,
   createDailyWinGate,
-  createPortfolioHeatGate,
+  createSpreadGate,
+  createVolatilityGate,
+  createFamilyPositionGate,
 } = require("../packages/tradePipeline/dist/index.js");
+
+const STATEMENT_TIMEOUT_MS = (() => {
+  const raw = process.env.TM_DB_STATEMENT_TIMEOUT;
+  if (raw === "0" || raw === "false") return 0;
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : 300000; // 5 min default for backfill
+})();
 
 const pool = new Pool({
   host: "localhost",
@@ -32,7 +53,171 @@ const pool = new Pool({
   user: "postgres",
   password: process.env.TM_DB_PASSWORD,
   max: 5,
+  ...(STATEMENT_TIMEOUT_MS > 0 ? { statement_timeout: STATEMENT_TIMEOUT_MS } : {}),
 });
+
+// ---------------------------------------------------------------------------
+// Identifier whitelists (Phase 1 hardening)
+// ---------------------------------------------------------------------------
+
+const ALLOWED_FEATURES = new Set([
+  "features_bias",
+  "features_htf_bias",
+  "features_zone",
+  "features_ifvg",
+  "features_order_block",
+  "features_sweep",
+  "features_structure",
+  "features_pricing",
+  "features_atr",
+  "features_opening_range",
+  "features_indicator",
+  "features_moving_average",
+  "features_pivot",
+  "features_liquidity_pools",
+  "features_session",
+  "features_time_of_day",
+  "features_correlation",
+  "features_divergence",
+  "features_spread",
+  "features_displacement",
+  "features_zone_retest",
+  "features_candle_pattern",
+  "features_time_of_day_edge",
+]);
+
+const ALLOWED_TFS = new Set(["1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d"]);
+const ALLOWED_MA_TYPES = new Set(["sma", "ema"]);
+const ALLOWED_ENTRY_TYPES = new Set(["market", "limit", "stop"]);
+
+const ALLOWED_GROUP_BY = {
+  features_bias: ["direction"],
+  features_htf_bias: ["direction", "state"],
+  features_zone: [
+    "zone_kind", "direction", "fill_pct", "tapped", "grade", "age_bars",
+    "formation_ts", "strength_score", "is_fresh", "quality_score",
+  ],
+  features_ifvg: [
+    "zone_kind", "direction", "fill_pct", "tapped", "grade", "age_bars",
+    "formation_ts", "strength_score", "is_fresh", "quality_score",
+  ],
+  features_order_block: [
+    "ob_kind", "direction", "fill_pct", "grade", "age_bars",
+    "formation_ts", "strength_score", "is_fresh", "quality_score",
+  ],
+  features_sweep: [
+    "event_type", "direction", "pattern_name", "age_bars", "formation_ts",
+    "strength_score", "consecutive_count",
+  ],
+  features_structure: [
+    "pattern_name", "event_type", "direction", "degree", "age_bars", "formation_ts",
+    "strength_score", "sequence_grade", "consecutive_count",
+  ],
+  features_pricing: ["position"],
+  features_atr: ["period"],
+  features_moving_average: ["ma_type", "period", "fast_period", "slow_period", "direction"],
+  features_opening_range: ["range_minutes", "session"],
+  features_indicator: ["indicator_name", "period"],
+  features_pivot: ["period", "value"],
+  features_liquidity_pools: ["direction", "grade", "strength_score", "midpoint"],
+  features_session: ["session"],
+  features_time_of_day: ["value"],
+  features_correlation: ["reference_symbol", "period"],
+  features_divergence: ["divergence_type", "indicator_name", "period", "consecutive_count"],
+  features_displacement: ["event_type", "direction", "degree", "grade", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
+  features_zone_retest: ["direction", "wick_into_zone", "close_inside_zone", "grade", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
+  features_candle_pattern: ["pattern_name", "direction", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
+  features_time_of_day_edge: ["value", "session", "direction", "age_bars", "formation_ts", "strength_score"],
+};
+
+const TIME_WINDOW_RE = /^\d{2}:\d{2}$/;
+const SAFE_ID_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+function assertAllowedFeature(name) {
+  if (!ALLOWED_FEATURES.has(name)) {
+    throw new Error(`Disallowed feature table: ${name}`);
+  }
+}
+
+function assertAllowedTf(tf) {
+  if (!ALLOWED_TFS.has(tf)) {
+    throw new Error(`Disallowed timeframe: ${tf}`);
+  }
+}
+
+function assertAllowedMaType(maType) {
+  if (!ALLOWED_MA_TYPES.has(maType)) {
+    throw new Error(`Disallowed ma_type: ${maType}`);
+  }
+}
+
+function assertAllowedEntryType(type) {
+  if (!ALLOWED_ENTRY_TYPES.has(type)) {
+    throw new Error(`Disallowed entry type: ${type}`);
+  }
+}
+
+function assertAllowedGroupBy(feature, cols) {
+  const allowed = ALLOWED_GROUP_BY[feature];
+  if (!allowed) {
+    throw new Error(`No groupBy whitelist for feature: ${feature}`);
+  }
+  for (const col of cols) {
+    if (!allowed.includes(col)) {
+      throw new Error(`Disallowed groupBy column "${col}" for ${feature}`);
+    }
+  }
+}
+
+function assertAllowedSymbol(symbol, allowedSymbols) {
+  if (Array.isArray(allowedSymbols) && allowedSymbols.length > 0 && !allowedSymbols.includes(symbol)) {
+    throw new Error(`Symbol ${symbol} not in allowed list: ${allowedSymbols.join(", ")}`);
+  }
+}
+
+function assertValidId(id) {
+  if (typeof id !== "string" || !SAFE_ID_RE.test(id)) {
+    throw new Error(`Invalid identifier: ${id}`);
+  }
+}
+
+function assertInteger(name, value) {
+  const n = Number(value);
+  if (!Number.isInteger(n)) {
+    throw new Error(`${name} must be an integer, got ${value}`);
+  }
+  return n;
+}
+
+function validateTimeWindow(w) {
+  if (!w || typeof w.utcStart !== "string" || typeof w.utcEnd !== "string") {
+    throw new Error("Time window must have utcStart and utcEnd strings");
+  }
+  if (!TIME_WINDOW_RE.test(w.utcStart) || !TIME_WINDOW_RE.test(w.utcEnd)) {
+    throw new Error(`Time window must match HH:MM, got ${w.utcStart}-${w.utcEnd}`);
+  }
+  const [sh, sm] = w.utcStart.split(":").map(Number);
+  const [eh, em] = w.utcEnd.split(":").map(Number);
+  if (sh < 0 || sh > 23 || eh < 0 || eh > 23) {
+    throw new Error(`Time window hours out of range`);
+  }
+  if (sm < 0 || sm > 59 || em < 0 || em > 59) {
+    throw new Error(`Time window minutes out of range`);
+  }
+  return { startMin: sh * 60 + sm, endMin: eh * 60 + em };
+}
+
+function getPipSize(symbol) {
+  return getPairCharacteristics(symbol).pipSize;
+}
+
+function priceFromPips(pips, pipSize) {
+  return (pips ?? 0) * pipSize;
+}
+
+// ---------------------------------------------------------------------------
+// SQL compilation
+// ---------------------------------------------------------------------------
 
 function translatePredicate(predicate, tableRef, context) {
   const biasRef = context === "setup" ? "b.direction" : "s.bias_direction";
@@ -42,7 +227,6 @@ function translatePredicate(predicate, tableRef, context) {
     .replace(/features_htf_bias\.direction/g, "__BIAS_DIRECTION__")
     .replace(/features_htf_bias\.state/g, "__BIAS_STATE__")
     .replace(/features_htf_bias\b/g, "__BIAS_TABLE__");
-  // Use word boundaries so period/fast_period/etc don't overlap.
   sql = sql
     .replace(/\bzone_kind\b/g, `${tableRef}.zone_kind`)
     .replace(/\bevent_type\b/g, `${tableRef}.event_type`)
@@ -99,6 +283,7 @@ function translatePredicate(predicate, tableRef, context) {
 
 function buildEntryTypeColumn(spec) {
   const type = spec.entryConfig?.type ?? "market";
+  assertAllowedEntryType(type);
   return `'${type}' as entry_type`;
 }
 
@@ -108,18 +293,14 @@ function resolveTimeframes(spec) {
     if (cond.feature === "features_pricing") map.pricing = cond.tf;
     if (cond.feature === "features_zone") map.zone = cond.tf;
     if (cond.feature === "features_atr") map.atr = cond.tf;
-    if (cond.feature === "features_ema_cross") map.emaCross = cond.tf;
-    if (cond.feature === "features_sma_cross") map.smaCross = cond.tf;
+    if (cond.feature === "features_moving_average") map.movingAverage = cond.tf;
     if (cond.feature === "features_opening_range") map.orb = cond.tf;
     if (cond.feature === "features_indicator") map.indicator = cond.tf;
-    if (cond.feature === "features_moving_average") map.movingAverage = cond.tf;
   }
   return {
-    pricing: map.pricing ?? "15m",
+    pricing: map.pricing ?? map.zone ?? "15m",
     zone: map.zone ?? "15m",
     atr: map.atr ?? "15m",
-    emaCross: map.emaCross ?? "1h",
-    smaCross: map.smaCross ?? "1h",
     orb: map.orb ?? "15m",
     indicator: map.indicator ?? "1h",
     movingAverage: map.movingAverage ?? "1h",
@@ -127,12 +308,27 @@ function resolveTimeframes(spec) {
 }
 
 function buildPITSignalSelect(spec, tfs, symbol) {
+  assertAllowedSymbol(symbol, spec.filters?.symbols);
+
   const signalSource = spec.signalSource ?? "zone";
-  const { pricingTf, zoneTf, atrTf, emaCrossTf, smaCrossTf, orbTf, indicatorTf, movingAverageTf } = tfs;
+  const {
+    pricingTf, zoneTf, atrTf, orbTf, indicatorTf, movingAverageTf,
+  } = tfs;
+
+  for (const tf of [pricingTf, zoneTf, atrTf, orbTf, indicatorTf, movingAverageTf]) {
+    assertAllowedTf(tf);
+  }
+
   const entryTypeCol = buildEntryTypeColumn(spec);
   const riskCtx = { signalAlias: "e" };
 
+  const spreadJoin = `
+LEFT JOIN features_spread spr ON e.symbol = spr.symbol AND spr.tf = '1m'
+  AND spr.ts = (SELECT MAX(ts) FROM features_spread WHERE symbol = e.symbol AND tf = '1m' AND ts <= e.ts)`;
+  const spreadSelect = "COALESCE(spr.spread, 0) as spread_pips,"
+
   if (signalSource === "orb") {
+    assertAllowedTf("1m");
     const entryPriceSql = buildEntryPriceSql(spec, "orb", riskCtx);
     const slSql = buildSlSql(spec, "orb", riskCtx);
     const tpSql = buildTpSql(spec, "orb", riskCtx);
@@ -141,6 +337,7 @@ SELECT
   e.symbol, e.ts, e.bias_direction,
   o.high as orb_high, o.low as orb_low, o.midpoint as orb_midpoint,
   p.position as pricing_position, a.value as atr_5,
+  ${spreadSelect}
   CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
   ${entryTypeCol},
   ${entryPriceSql} as entry_price,
@@ -153,31 +350,7 @@ JOIN features_opening_range o ON e.symbol = o.symbol AND o.tf = '${orbTf}'
   AND o.ts = (SELECT MAX(ts) FROM features_opening_range WHERE symbol = e.symbol AND tf = '${orbTf}' AND ts <= e.ts)
 JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
   AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
-WHERE e.bias_direction IN ('bullish', 'bearish')
-ORDER BY e.ts`;
-  }
-
-  if (signalSource === "ema_cross") {
-    const entryPriceSql = buildEntryPriceSql(spec, "ema_cross", riskCtx);
-    const slSql = buildSlSql(spec, "ema_cross", riskCtx);
-    const tpSql = buildTpSql(spec, "ema_cross", riskCtx);
-    return `
-SELECT
-  e.symbol, e.ts, e.bias_direction,
-  ema.fast_value as ema_fast, ema.slow_value as ema_slow,
-  p.position as pricing_position, a.value as atr_5,
-  CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
-  ${entryTypeCol},
-  ${entryPriceSql} as entry_price,
-  ${slSql} as stop_loss,
-  ${tpSql} as take_profit
-FROM entry_passed e
-JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
-JOIN features_ema_cross ema ON e.symbol = ema.symbol AND ema.tf = '${emaCrossTf}'
-  AND ema.ts = (SELECT MAX(ts) FROM features_ema_cross WHERE symbol = e.symbol AND tf = '${emaCrossTf}' AND ts <= e.ts)
-JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
-  AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
+${spreadJoin}
 WHERE e.bias_direction IN ('bullish', 'bearish')
 ORDER BY e.ts`;
   }
@@ -191,6 +364,7 @@ SELECT
   e.symbol, e.ts, e.bias_direction,
   i.indicator_name, i.value as indicator_value,
   p.position as pricing_position, a.value as atr_5,
+  ${spreadSelect}
   CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
   ${entryTypeCol},
   ${entryPriceSql} as entry_price,
@@ -203,6 +377,7 @@ JOIN features_indicator i ON e.symbol = i.symbol AND i.tf = '${indicatorTf}'
   AND i.ts = (SELECT MAX(ts) FROM features_indicator WHERE symbol = e.symbol AND tf = '${indicatorTf}' AND ts <= e.ts)
 JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
   AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
+${spreadJoin}
 WHERE e.bias_direction IN ('bullish', 'bearish')
 ORDER BY e.ts`;
   }
@@ -212,6 +387,11 @@ ORDER BY e.ts`;
     const maType = cfg.maType ?? "sma";
     const fastPeriod = cfg.fastPeriod ?? 9;
     const slowPeriod = cfg.slowPeriod ?? 21;
+    assertAllowedMaType(maType);
+    assertInteger("fastPeriod", fastPeriod);
+    assertInteger("slowPeriod", slowPeriod);
+    assertAllowedTf(movingAverageTf);
+
     const entryPriceSql = buildEntryPriceSql(spec, "moving_average", riskCtx);
     const slSql = buildSlSql(spec, "moving_average", riskCtx);
     const tpSql = buildTpSql(spec, "moving_average", riskCtx);
@@ -220,6 +400,7 @@ SELECT
   e.symbol, e.ts, e.bias_direction,
   fast_ma.value as ma_fast, slow_ma.value as ma_slow,
   p.position as pricing_position, a.value as atr_5,
+  ${spreadSelect}
   CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
   ${entryTypeCol},
   ${entryPriceSql} as entry_price,
@@ -236,6 +417,7 @@ JOIN features_moving_average slow_ma ON e.symbol = slow_ma.symbol AND slow_ma.tf
   AND slow_ma.ts = (SELECT MAX(ts) FROM features_moving_average WHERE symbol = e.symbol AND tf = '${movingAverageTf}' AND ma_type = '${maType}' AND period = ${slowPeriod} AND ts <= e.ts)
 JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
   AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
+${spreadJoin}
 WHERE e.bias_direction IN ('bullish', 'bearish')
   AND (
     (e.bias_direction = 'bullish' AND fast_ma.value > slow_ma.value)
@@ -244,36 +426,10 @@ WHERE e.bias_direction IN ('bullish', 'bearish')
 ORDER BY e.ts`;
   }
 
-  if (signalSource === "sma_cross") {
-    const entryPriceSql = buildEntryPriceSql(spec, "sma_cross", riskCtx);
-    const slSql = buildSlSql(spec, "sma_cross", riskCtx);
-    const tpSql = buildTpSql(spec, "sma_cross", riskCtx);
-    return `
-SELECT
-  e.symbol, e.ts, e.bias_direction,
-  sma.fast_value as sma_fast, sma.slow_value as sma_slow,
-  p.position as pricing_position, a.value as atr_5,
-  CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
-  ${entryTypeCol},
-  ${entryPriceSql} as entry_price,
-  ${slSql} as stop_loss,
-  ${tpSql} as take_profit
-FROM entry_passed e
-JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
-JOIN features_sma_cross sma ON e.symbol = sma.symbol AND sma.tf = '${smaCrossTf}'
-  AND sma.ts = (SELECT MAX(ts) FROM features_sma_cross WHERE symbol = e.symbol AND tf = '${smaCrossTf}' AND ts <= e.ts)
-JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
-  AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
-WHERE e.bias_direction IN ('bullish', 'bearish')
-ORDER BY e.ts`;
-  }
-
   // zone (default)
   const entryPriceSql = buildEntryPriceSql(spec, "zone", riskCtx);
   const slSql = buildSlSql(spec, "zone", riskCtx);
   const tpSql = buildTpSql(spec, "zone", riskCtx);
-  // Use the strategy's pricing predicate if it exists, otherwise fall back to strict discount/premium.
   const pricingCond = spec.setup?.find((c) => c.feature === "features_pricing" && c.required);
   let pricingFilter;
   if (pricingCond?.predicate) {
@@ -291,6 +447,7 @@ SELECT
   e.symbol, e.ts, e.bias_direction,
   z.top as zone_top, z.bottom as zone_bottom, z.zone_kind,
   p.position as pricing_position, a.value as atr_5,
+  ${spreadSelect}
   CASE WHEN e.bias_direction = 'bullish' THEN 'buy' WHEN e.bias_direction = 'bearish' THEN 'sell' ELSE NULL END as side,
   ${entryTypeCol},
   ${entryPriceSql} as entry_price,
@@ -299,28 +456,43 @@ SELECT
 FROM entry_passed e
 JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
   AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
-JOIN features_zone z ON e.symbol = z.symbol AND z.tf = '${zoneTf}'
-  AND z.ts = (
-    SELECT ts FROM features_zone
-    WHERE symbol = e.symbol AND tf = '${zoneTf}' AND ts <= e.ts
-      AND (invalidated_at IS NULL OR invalidated_at > e.ts)
-    ORDER BY ts DESC, strength_score DESC NULLS LAST
-    LIMIT 1
-  )
+JOIN LATERAL (
+  SELECT top, bottom, zone_kind
+  FROM features_zone
+  WHERE symbol = e.symbol AND tf = '${zoneTf}'
+    AND ts <= e.ts
+    AND ts >= e.ts - INTERVAL '${pitLookbackInterval(zoneTf)}'
+    AND (invalidated_at IS NULL OR invalidated_at > e.ts)
+  ORDER BY ts DESC, strength_score DESC NULLS LAST
+  LIMIT 1
+) z ON true
 JOIN features_atr a ON e.symbol = a.symbol AND a.tf = '${atrTf}' AND a.period = 5
   AND a.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${atrTf}' AND period = 5 AND ts <= e.ts)
+${spreadJoin}
 WHERE e.bias_direction IN ('bullish', 'bearish')
   AND (${pricingFilter})
 ORDER BY e.ts`;
 }
 
+/**
+ * Remove is_fresh checks from a translated predicate. In a PIT backtest the
+ * LATERAL lookup already returns rows that were fresh as-of the anchor timestamp
+ * by checking invalidated_at / mitigated_at, so the static is_fresh flag is
+ * redundant and not PIT-aware.
+ */
+function stripPitFreshness(sql, ref) {
+  return sql
+    .replace(new RegExp(`\\s*AND\\s+${ref}\\.is_fresh\\s*=\\s*true`, "gi"), "")
+    .replace(new RegExp(`\\s*AND\\s+${ref}\\.is_fresh\\s*=\\s*false`, "gi"), "")
+    .replace(new RegExp(`\\s*${ref}\\.is_fresh\\s*=\\s*true\\s*AND\\s*`, "gi"), "")
+    .replace(new RegExp(`\\s*${ref}\\.is_fresh\\s*=\\s*false\\s*AND\\s*`, "gi"), "")
+    .trim();
+}
+
 function timeWindowsToSql(windows) {
   if (!windows || windows.length === 0) return "";
   const clauses = windows.map((w) => {
-    const [sh, sm] = w.utcStart.split(":").map(Number);
-    const [eh, em] = w.utcEnd.split(":").map(Number);
-    const startMin = sh * 60 + sm;
-    const endMin = eh * 60 + em;
+    const { startMin, endMin } = validateTimeWindow(w);
     return `EXTRACT(HOUR FROM ts) * 60 + EXTRACT(MINUTE FROM ts) BETWEEN ${startMin} AND ${endMin}`;
   });
   return "  AND (" + clauses.join("\n    OR ") + ")";
@@ -339,8 +511,8 @@ function needsLifecycleCheck(feature) {
 }
 
 function buildFreshnessPredicate(cond, tableRef, asOfRef) {
-  // Use stored lifecycle columns instead of the expensive is_band_fresh / is_structure_fresh
-  // helpers. The lifecycle refresh functions keep these columns up to date.
+  // Match the stored is_fresh semantics: for zones/iFVGs/OBs, "fresh" means
+  // not yet invalidated as-of the anchor timestamp.
   switch (cond.feature) {
     case "features_zone":
     case "features_ifvg":
@@ -355,7 +527,6 @@ function buildFreshnessPredicate(cond, tableRef, asOfRef) {
   }
 }
 
-
 function orderByTieBreaker(feature) {
   if (feature === "features_zone" || feature === "features_ifvg" || feature === "features_order_block") {
     return ", strength_score DESC NULLS LAST";
@@ -363,7 +534,34 @@ function orderByTieBreaker(feature) {
   return "";
 }
 
+/**
+ * Cap how far back a point-in-time lookup walks for lifecycle features.
+ * Zones/iFVGs/OBs are usually mitigated/invalidated quickly; scanning the full
+ * 90-day history for every candidate row is the main source of hangs.
+ */
+function pitLookbackInterval(tf) {
+  switch (tf) {
+    case "1m":
+    case "5m":
+      return "24 hours";
+    case "15m":
+    case "30m":
+      return "24 hours";
+    case "1h":
+      return "3 days";
+    case "4h":
+      return "7 days";
+    case "1d":
+      return "30 days";
+    default:
+      return "24 hours";
+  }
+}
+
 function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
+  const allowedSymbols = spec.filters?.symbols ?? [symbol];
+  assertAllowedSymbol(symbol, allowedSymbols);
+
   const setupConds = spec.setup.filter((c) => c.required);
   const entryConds = spec.entry.filter((c) => c.required);
   const biasCond = setupConds.find(
@@ -371,7 +569,17 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
   );
   const biasTf = biasCond?.tf ?? "15m";
   const biasTable = biasCond?.feature ?? "features_bias";
+  assertAllowedFeature(biasTable);
+  assertAllowedTf(biasTf);
+
   const timeFilter = timeWindowsToSql(spec.filters?.timeWindows);
+
+  for (const cond of [...setupConds, ...entryConds]) {
+    assertValidId(cond.id);
+    assertAllowedFeature(cond.feature);
+    assertAllowedTf(cond.tf);
+    assertAllowedGroupBy(cond.feature, cond.groupBy ?? []);
+  }
 
   const setupPIT = setupConds
     .filter((c) => c.feature !== "features_bias" && c.feature !== "features_htf_bias")
@@ -379,49 +587,63 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
       const groupCols = cond.groupBy ?? [];
       const distinctOn = ["symbol", ...groupCols].join(", ");
       const tieBreaker = orderByTieBreaker(cond.feature);
+      const freshness = needsLifecycleCheck(cond.feature)
+        ? buildFreshnessPredicate(cond, cond.feature, "b.ts")
+        : "";
       return `
       LATERAL (
         SELECT DISTINCT ON (${distinctOn}) *
         FROM ${cond.feature}
-        WHERE symbol = b.symbol AND tf = '${cond.tf}' AND ts <= b.ts
+        WHERE symbol = b.symbol AND tf = '${cond.tf}'
+          AND ts <= b.ts
+          AND ts >= b.ts - INTERVAL '${pitLookbackInterval(cond.tf)}'
+          ${freshness}
         ORDER BY ${distinctOn}, ts DESC${tieBreaker}
       ) AS pit_${cond.id}`;
     });
 
   const setupWheres = setupConds.map((cond) => {
     const ref = cond.feature === "features_bias" || cond.feature === "features_htf_bias" ? "b" : `pit_${cond.id}`;
-    const freshness = needsLifecycleCheck(cond.feature)
-      ? buildFreshnessPredicate(cond, ref, "b.ts")
-      : "";
-    return `(${translatePredicate(cond.predicate, ref, "setup")} ${freshness})`;
+    const pred = stripPitFreshness(translatePredicate(cond.predicate, ref, "setup"), ref);
+    return `(${pred})`;
   });
 
   const entryPIT = entryConds.map((cond) => {
     const groupCols = cond.groupBy ?? [];
     const distinctOn = ["symbol", ...groupCols].join(", ");
     const tieBreaker = orderByTieBreaker(cond.feature);
+    const freshness = needsLifecycleCheck(cond.feature)
+      ? buildFreshnessPredicate(cond, cond.feature, "s.ts")
+      : "";
     return `
       LATERAL (
         SELECT DISTINCT ON (${distinctOn}) *
         FROM ${cond.feature}
-        WHERE symbol = s.symbol AND tf = '${cond.tf}' AND ts <= s.ts
+        WHERE symbol = s.symbol AND tf = '${cond.tf}'
+          AND ts <= s.ts
+          AND ts >= s.ts - INTERVAL '${pitLookbackInterval(cond.tf)}'
+          ${freshness}
         ORDER BY ${distinctOn}, ts DESC${tieBreaker}
       ) AS pit_${cond.id}`;
   });
 
   const entryWheres = entryConds.map((cond) => {
     const ref = `pit_${cond.id}`;
-    const freshness = needsLifecycleCheck(cond.feature)
-      ? buildFreshnessPredicate(cond, ref, "s.ts")
-      : "";
-    return `(${translatePredicate(cond.predicate, ref, "entry")} ${freshness})`;
+    const pred = stripPitFreshness(translatePredicate(cond.predicate, ref, "entry"), ref);
+    return `(${pred})`;
   });
 
   const structureFreshnessMin = overrides.structureFreshnessMinutes ?? spec.live?.structureFreshnessMinutes ?? 30;
-  if (structureFreshnessMin > 0) {
+  const structureFreshnessInt = assertInteger("structureFreshnessMinutes", structureFreshnessMin);
+  let structureFreshnessParam = null;
+  const params = [symbol, from, to];
+
+  if (structureFreshnessInt > 0) {
     const structureCond = entryConds.find((c) => c.feature === "features_structure");
     if (structureCond) {
-      entryWheres.push(`(pit_${structureCond.id}.ts >= s.ts - interval '${structureFreshnessMin} minutes')`);
+      params.push(structureFreshnessInt);
+      structureFreshnessParam = `$${params.length}`;
+      entryWheres.push(`(pit_${structureCond.id}.ts >= s.ts - (${structureFreshnessParam} * interval '1 minute'))`);
     }
   }
 
@@ -430,33 +652,36 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
     if (cond.feature === "features_pricing") tfMap.pricing = cond.tf;
     if (cond.feature === "features_zone") tfMap.zone = cond.tf;
     if (cond.feature === "features_atr") tfMap.atr = cond.tf;
-    if (cond.feature === "features_ema_cross") tfMap.emaCross = cond.tf;
-    if (cond.feature === "features_sma_cross") tfMap.smaCross = cond.tf;
+    if (cond.feature === "features_moving_average") tfMap.movingAverage = cond.tf;
     if (cond.feature === "features_opening_range") tfMap.orb = cond.tf;
     if (cond.feature === "features_indicator") tfMap.indicator = cond.tf;
-    if (cond.feature === "features_moving_average") tfMap.movingAverage = cond.tf;
   }
-  const pricingTf = tfMap.pricing ?? "15m";
-  const zoneTf = tfMap.zone ?? "15m";
-  const atrTf = tfMap.atr ?? "15m";
-  const emaCrossTf = tfMap.emaCross ?? "1h";
-  const smaCrossTf = tfMap.smaCross ?? "1h";
-  const orbTf = tfMap.orb ?? "15m";
-  const indicatorTf = tfMap.indicator ?? "1h";
-  const movingAverageTf = tfMap.movingAverage ?? "1h";
+  // When no explicit pricing condition exists, use the same timeframe as the
+  // signal source (zone) so we don't depend on a hard-coded 15m pricing table.
+  const defaultTf = tfMap.zone ?? "15m";
+  // Honor ATR timeframe referenced in risk expressions (e.g. atr(5m)).
+  const riskExprs = [spec.risk?.sl, spec.risk?.tp].filter(Boolean).join(" ");
+  const firstAtrTf = riskExprs.match(/\batr\s*\(\s*(1m|5m|15m|30m|1h|4h|1d)\s*\)/i)?.[1];
+  const tfs = {
+    pricingTf: tfMap.pricing ?? defaultTf,
+    zoneTf: tfMap.zone ?? "15m",
+    atrTf: tfMap.atr ?? firstAtrTf ?? defaultTf,
+    orbTf: tfMap.orb ?? "15m",
+    indicatorTf: tfMap.indicator ?? "1h",
+    movingAverageTf: tfMap.movingAverage ?? "1h",
+  };
 
   const setupPITJoins = setupPIT.length > 0 ? ",\n" + setupPIT.join(",\n") : "";
   const entryPITJoins = entryPIT.length > 0 ? ",\n" + entryPIT.join(",\n") : "";
 
-  if (debug) {
-    return `
+  const cteBody = `
 WITH bias_times AS (
   SELECT symbol, ts, direction${biasTable === "features_htf_bias" ? ", state" : ", NULL::text as state"}
   FROM ${biasTable}
-  WHERE symbol = '${symbol}'
+  WHERE symbol = $1
     AND tf = '${biasTf}'
-    AND ts >= '${from.toISOString()}'::timestamp
-    AND ts <= '${to.toISOString()}'::timestamp
+    AND ts >= $2::timestamp
+    AND ts <= $3::timestamp
     AND direction != 'neutral'
     ${timeFilter ? timeFilter + "\n" : ""}),
 setup_passed AS (
@@ -470,39 +695,31 @@ entry_passed AS (
   FROM setup_passed s
   ${entryPITJoins}
   WHERE ${entryWheres.join("\n    AND ")}
-)
+)`;
+
+  if (debug) {
+    return {
+      sql: `${cteBody}
 SELECT
   (SELECT COUNT(*) FROM bias_times) AS bias_rows,
   (SELECT COUNT(*) FROM setup_passed) AS setup_rows,
   (SELECT COUNT(*) FROM entry_passed) AS entry_rows
-`;
+`,
+      params,
+    };
   }
 
-  return `
-WITH bias_times AS (
-  SELECT symbol, ts, direction${biasTable === "features_htf_bias" ? ", state" : ", NULL::text as state"}
-  FROM ${biasTable}
-  WHERE symbol = '${symbol}'
-    AND tf = '${biasTf}'
-    AND ts >= '${from.toISOString()}'::timestamp
-    AND ts <= '${to.toISOString()}'::timestamp
-    AND direction != 'neutral'
-    ${timeFilter ? timeFilter + "\n" : ""}),
-setup_passed AS (
-  SELECT b.symbol, b.ts, b.direction as bias_direction
-  FROM bias_times b
-  ${setupPITJoins}
-  WHERE ${setupWheres.join("\n    AND ")}
-),
-entry_passed AS (
-  SELECT s.symbol, s.ts, s.bias_direction
-  FROM setup_passed s
-  ${entryPITJoins}
-  WHERE ${entryWheres.join("\n    AND ")}
-)
-${buildPITSignalSelect(spec, { pricingTf, zoneTf, atrTf, emaCrossTf, smaCrossTf, orbTf, indicatorTf, movingAverageTf }, symbol)}
-`;
+  return {
+    sql: `${cteBody}
+${buildPITSignalSelect(spec, tfs, symbol)}
+`,
+    params,
+  };
 }
+
+// ---------------------------------------------------------------------------
+// Trade simulation (Phase 2 + Phase 4)
+// ---------------------------------------------------------------------------
 
 function isFill(side, entryType, entry, high, low) {
   if (entryType === "limit") {
@@ -517,7 +734,6 @@ function isFill(side, entryType, entry, high, low) {
 }
 
 function hashToFloat(str) {
-  // FNV-1a 32-bit hash -> [0,1)
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
@@ -530,7 +746,6 @@ function resolveIntrabar(side, entry, sl, tp, high, low, close, mode, seed) {
   if (mode === "sl_first") return "loss";
   if (mode === "tp_first") return "win";
   if (mode === "close") {
-    // whichever barrier the close is closer to
     if (side === "buy") {
       return close >= (sl + tp) / 2 ? "win" : "loss";
     }
@@ -541,10 +756,8 @@ function resolveIntrabar(side, entry, sl, tp, high, low, close, mode, seed) {
   const total = Math.abs(tp - sl);
   let pWin;
   if (mode === "random_walk") {
-    // Barrier hitting probability for a driftless random walk
     pWin = risk / total;
   } else if (mode === "momentum") {
-    // Assumes continuation: probability weighted by target distance
     pWin = reward / total;
   } else {
     return "loss";
@@ -552,14 +765,44 @@ function resolveIntrabar(side, entry, sl, tp, high, low, close, mode, seed) {
   return hashToFloat(seed) <= pWin ? "win" : "loss";
 }
 
-async function simulateTrade(signal, timeoutBars, intrabarMode = "sl_first") {
+function computeOutcomeR(side, effectiveEntry, closePrice, risk) {
+  if (risk <= 0) return 0;
+  const delta = side === "buy" ? closePrice - effectiveEntry : effectiveEntry - closePrice;
+  return delta / risk;
+}
+
+function findCandleIndexAfter(candles, ts) {
+  const target = ts instanceof Date ? ts.getTime() : new Date(ts).getTime();
+  let lo = 0;
+  let hi = candles.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    const t = candles[mid].ts instanceof Date
+      ? candles[mid].ts.getTime()
+      : new Date(candles[mid].ts).getTime();
+    if (t <= target) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+  return lo;
+}
+
+function simulateTrade(signal, candles, options = {}) {
+  const {
+    timeoutBars = 24,
+    intrabarMode = "sl_first",
+    spreadPips = 0,
+    slippagePips = 0,
+    pipSize = 0.0001,
+  } = options;
+
   const tsStr = signal.ts instanceof Date ? signal.ts.toISOString() : String(signal.ts);
-  const { rows: candles } = await pool.query(
-    `SELECT ts, h, l, c FROM candles_1m
-     WHERE symbol = $1 AND ts > $2
-     ORDER BY ts LIMIT $3`,
-    [signal.symbol, tsStr, timeoutBars]
-  );
+  const future = candles.slice(findCandleIndexAfter(candles, signal.ts));
+  if (future.length > timeoutBars) {
+    future.length = timeoutBars;
+  }
 
   const entry = parseFloat(signal.entry_price);
   const sl = parseFloat(signal.stop_loss);
@@ -567,54 +810,93 @@ async function simulateTrade(signal, timeoutBars, intrabarMode = "sl_first") {
   const side = signal.side;
   const entryType = signal.entry_type ?? "market";
 
-  // Pending orders: wait for fill first
+  const spreadPrice = priceFromPips(spreadPips, pipSize);
+  const slippagePrice = priceFromPips(slippagePips, pipSize);
+  const halfSpread = spreadPrice / 2;
+  const cost = halfSpread + slippagePrice;
+
+  let effectiveEntry = entry;
+  if (entryType === "market") {
+    effectiveEntry = side === "buy" ? entry + cost : entry - cost;
+  }
+
   let fillIndex = 0;
   if (entryType !== "market") {
     fillIndex = -1;
-    for (let i = 0; i < candles.length; i++) {
-      const high = parseFloat(candles[i].h);
-      const low = parseFloat(candles[i].l);
+    for (let i = 0; i < future.length; i++) {
+      const high = parseFloat(future[i].h);
+      const low = parseFloat(future[i].l);
       if (isFill(side, entryType, entry, high, low)) {
         fillIndex = i;
+        effectiveEntry = side === "buy" ? entry + slippagePrice : entry - slippagePrice;
         break;
       }
     }
     if (fillIndex === -1) {
-      const lastClose = candles.length > 0 ? parseFloat(candles[candles.length - 1].c) : entry;
-      return { outcome: "no_fill", r: 0, holdBars: candles.length, closePrice: lastClose, maxAdverse: null, maxFavorable: null };
+      // Limit/stop order was never filled within the simulation window.
+      // Report as timeout/no-result and exclude from win/loss/R stats.
+      return {
+        outcome: "timeout",
+        r: 0,
+        holdBars: 0,
+        closePrice: null,
+        effectiveEntry: null,
+        maxAdverse: null,
+        maxFavorable: null,
+      };
     }
   }
 
-  const rr = Math.abs((tp - entry) / (entry - sl));
-  let maxAdverse = side === "buy" ? entry : entry;
-  let maxFavorable = side === "buy" ? entry : entry;
+  const risk = side === "buy" ? effectiveEntry - sl : sl - effectiveEntry;
+  let maxAdverse = side === "buy" ? effectiveEntry : effectiveEntry;
+  let maxFavorable = side === "buy" ? effectiveEntry : effectiveEntry;
 
-  for (let i = fillIndex; i < candles.length; i++) {
-    const high = parseFloat(candles[i].h);
-    const low = parseFloat(candles[i].l);
-    const close = parseFloat(candles[i].c);
+  for (let i = fillIndex; i < future.length; i++) {
+    const high = parseFloat(future[i].h);
+    const low = parseFloat(future[i].l);
+    const close = parseFloat(future[i].c);
+
     if (side === "buy") {
       if (low < maxAdverse) maxAdverse = low;
       if (high > maxFavorable) maxFavorable = high;
       const slHit = low <= sl;
       const tpHit = high >= tp;
+      const slExit = sl - cost;
+      const tpExit = tp - cost;
+
       if (slHit && tpHit) {
-        const outcome = resolveIntrabar(side, entry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        const outcome = resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        const closePrice = outcome === "win" ? tpExit : slExit;
         return {
-          outcome, r: outcome === "win" ? rr : -1.0, holdBars: i + 1,
-          closePrice: outcome === "win" ? tp : sl, maxAdverse, maxFavorable,
+          outcome,
+          r: computeOutcomeR(side, effectiveEntry, closePrice, risk),
+          holdBars: i + 1,
+          closePrice,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
       if (slHit) {
         return {
-          outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl,
-          maxAdverse, maxFavorable,
+          outcome: "loss",
+          r: computeOutcomeR(side, effectiveEntry, slExit, risk),
+          holdBars: i + 1,
+          closePrice: slExit,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
       if (tpHit) {
         return {
-          outcome: "win", r: rr, holdBars: i + 1, closePrice: tp,
-          maxAdverse, maxFavorable,
+          outcome: "win",
+          r: computeOutcomeR(side, effectiveEntry, tpExit, risk),
+          holdBars: i + 1,
+          closePrice: tpExit,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
     } else {
@@ -622,64 +904,206 @@ async function simulateTrade(signal, timeoutBars, intrabarMode = "sl_first") {
       if (low < maxFavorable) maxFavorable = low;
       const slHit = high >= sl;
       const tpHit = low <= tp;
+      const slExit = sl + cost;
+      const tpExit = tp + cost;
+
       if (slHit && tpHit) {
-        const outcome = resolveIntrabar(side, entry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        const outcome = resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
+        const closePrice = outcome === "win" ? tpExit : slExit;
         return {
-          outcome, r: outcome === "win" ? rr : -1.0, holdBars: i + 1,
-          closePrice: outcome === "win" ? tp : sl, maxAdverse, maxFavorable,
+          outcome,
+          r: computeOutcomeR(side, effectiveEntry, closePrice, risk),
+          holdBars: i + 1,
+          closePrice,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
       if (slHit) {
         return {
-          outcome: "loss", r: -1.0, holdBars: i + 1, closePrice: sl,
-          maxAdverse, maxFavorable,
+          outcome: "loss",
+          r: computeOutcomeR(side, effectiveEntry, slExit, risk),
+          holdBars: i + 1,
+          closePrice: slExit,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
       if (tpHit) {
         return {
-          outcome: "win", r: rr, holdBars: i + 1, closePrice: tp,
-          maxAdverse, maxFavorable,
+          outcome: "win",
+          r: computeOutcomeR(side, effectiveEntry, tpExit, risk),
+          holdBars: i + 1,
+          closePrice: tpExit,
+          effectiveEntry,
+          maxAdverse,
+          maxFavorable,
         };
       }
     }
   }
 
-  const lastClose = candles.length > 0 ? parseFloat(candles[candles.length - 1].c) : entry;
-  const risk = Math.abs(entry - sl);
-  const r = risk > 0 ? (side === "buy" ? lastClose - entry : entry - lastClose) / risk : 0;
+  // Trade was still open at the end of the backtest window.
+  // Report as timeout/no-result and exclude from win/loss/R stats.
   return {
-    outcome: "timeout", r, holdBars: candles.length, closePrice: lastClose,
-    maxAdverse, maxFavorable,
+    outcome: "timeout",
+    r: 0,
+    holdBars: future.length,
+    closePrice: null,
+    effectiveEntry,
+    maxAdverse,
+    maxFavorable,
   };
 }
 
-function computeStats(trades) {
-  const wins = trades.filter((t) => t.outcome === "win");
-  const losses = trades.filter((t) => t.outcome === "loss");
-  const timeouts = trades.filter((t) => t.outcome === "timeout");
-  const noFills = trades.filter((t) => t.outcome === "no_fill");
+function computeStats(trades, timeouts = 0) {
+  const active = trades.filter((t) => t.heatDropped !== true);
+  const wins = active.filter((t) => t.outcome === "win");
+  const losses = active.filter((t) => t.outcome === "loss");
   const decisive = wins.length + losses.length;
-  const longs = trades.filter((t) => t.side === "buy");
-  const shorts = trades.filter((t) => t.side === "sell");
+  const longs = active.filter((t) => t.side === "buy");
+  const shorts = active.filter((t) => t.side === "sell");
   return {
-    total: trades.length,
+    total: active.length,
+    heatDropped: trades.length - active.length,
     wins: wins.length,
     losses: losses.length,
-    timeouts: timeouts.length,
-    noFills: noFills.length,
+    timeouts,
     winRate: decisive > 0 ? wins.length / decisive : 0,
-    netR: trades.reduce((s, t) => s + t.r, 0),
+    netR: active.reduce((s, t) => s + t.r, 0),
     avgWinR: wins.length > 0 ? wins.reduce((s, t) => s + t.r, 0) / wins.length : 0,
     avgLossR: losses.length > 0 ? losses.reduce((s, t) => s + t.r, 0) / losses.length : 0,
     longWinRate: longs.length > 0 ? longs.filter((t) => t.outcome === "win").length / longs.length : 0,
     shortWinRate: shorts.length > 0 ? shorts.filter((t) => t.outcome === "win").length / shorts.length : 0,
     longCount: longs.length,
     shortCount: shorts.length,
-    avgHoldBars: trades.length > 0 ? trades.reduce((s, t) => s + t.holdBars, 0) / trades.length : 0,
+    avgHoldBars: active.length > 0 ? active.reduce((s, t) => s + t.holdBars, 0) / active.length : 0,
   };
 }
 
-function buildGateEvaluators(gates) {
+// ---------------------------------------------------------------------------
+// Gates (Phase 3)
+// ---------------------------------------------------------------------------
+
+function createSimulatedSmallAccountGate(config) {
+  const cfg = {
+    enabled: false,
+    maxPositionsPerSymbol: 1,
+    maxPositionsTotal: 5,
+    cooldownMinutes: 0,
+    maxDailyLossPct: 0,
+    maxConsecutiveLosses: 0,
+    ...config,
+  };
+
+  return async (ctx) => {
+    if (!cfg.enabled) return { passed: true };
+
+    const active = ctx.activeOrders ?? [];
+    const recent = ctx.recentOrders ?? [];
+
+    if (cfg.maxPositionsPerSymbol > 0) {
+      const symbolActive = active.filter((o) => o.symbol === ctx.symbol).length;
+      if (symbolActive >= cfg.maxPositionsPerSymbol) {
+        return {
+          passed: false,
+          reason: `${symbolActive} active position(s) on ${ctx.symbol} (max=${cfg.maxPositionsPerSymbol})`,
+        };
+      }
+    }
+
+    if (cfg.maxPositionsTotal > 0) {
+      if (active.length >= cfg.maxPositionsTotal) {
+        return {
+          passed: false,
+          reason: `${active.length} active positions total (max=${cfg.maxPositionsTotal})`,
+        };
+      }
+    }
+
+    if (cfg.cooldownMinutes > 0) {
+      const cutoff = new Date(ctx.ts.getTime() - cfg.cooldownMinutes * 60000);
+      const recentlyClosed = recent.some(
+        (o) => o.symbol === ctx.symbol && o.closedAt > cutoff && o.closedAt <= ctx.ts
+      );
+      if (recentlyClosed) {
+        return {
+          passed: false,
+          reason: `Cooldown active on ${ctx.symbol} (${cfg.cooldownMinutes}m)`,
+        };
+      }
+    }
+
+    if (cfg.maxDailyLossPct > 0) {
+      const dayStart = new Date(Date.UTC(ctx.ts.getUTCFullYear(), ctx.ts.getUTCMonth(), ctx.ts.getUTCDate()));
+      const dailyR = recent
+        .filter((o) => o.closedAt >= dayStart && o.closedAt <= ctx.ts)
+        .reduce((s, o) => s + (o.realizedPnl ?? 0), 0);
+      if (dailyR <= -cfg.maxDailyLossPct) {
+        return {
+          passed: false,
+          reason: `Daily loss ${dailyR.toFixed(2)}R exceeds limit ${cfg.maxDailyLossPct}R`,
+        };
+      }
+    }
+
+    if (cfg.maxConsecutiveLosses > 0) {
+      let consecutive = 0;
+      for (let i = recent.length - 1; i >= 0; i--) {
+        const o = recent[i];
+        if (o.closedAt > ctx.ts) continue;
+        if ((o.realizedPnl ?? 0) < 0) {
+          consecutive++;
+          if (consecutive >= cfg.maxConsecutiveLosses) {
+            return {
+              passed: false,
+              reason: `${consecutive} consecutive losses (max=${cfg.maxConsecutiveLosses})`,
+            };
+          }
+        } else {
+          break;
+        }
+      }
+    }
+
+    return { passed: true };
+  };
+}
+
+function numberEnv(name) {
+  const v = process.env[name];
+  if (v === undefined) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function resolveSmallAccountConfig(spec, params) {
+  const env = Object.fromEntries(
+    Object.entries({
+      enabled: process.env.TM_SMALL_ACCOUNT_ENABLED === "true" ? true : undefined,
+      maxPositionsPerSymbol: numberEnv("TM_SMALL_ACCOUNT_MAX_POSITIONS_PER_SYMBOL"),
+      maxPositionsTotal: numberEnv("TM_SMALL_ACCOUNT_MAX_POSITIONS_TOTAL"),
+      cooldownMinutes: numberEnv("TM_SMALL_ACCOUNT_COOLDOWN_MINUTES"),
+      maxDailyLossPct: numberEnv("TM_SMALL_ACCOUNT_MAX_DAILY_LOSS_PCT"),
+      maxConsecutiveLosses: numberEnv("TM_SMALL_ACCOUNT_MAX_CONSECUTIVE_LOSSES"),
+    }).filter(([, v]) => v !== undefined)
+  );
+  return {
+    enabled: false,
+    maxPositionsPerSymbol: 1,
+    maxPositionsTotal: 5,
+    cooldownMinutes: 0,
+    maxDailyLossPct: 0,
+    maxConsecutiveLosses: 0,
+    ...env,
+    ...(spec.live?.smallAccount ?? {}),
+    ...(params ?? {}),
+  };
+}
+
+function buildGateEvaluators(gates, spec = {}) {
   return (gates ?? []).map((g) => {
     switch (g.name) {
       case "session":
@@ -690,12 +1114,67 @@ function buildGateEvaluators(gates) {
         return { name: g.name, fn: createDailyLossGate(g.params) };
       case "dailyWin":
         return { name: g.name, fn: createDailyWinGate(g.params) };
-      case "portfolioHeat":
-        return { name: g.name, fn: createPortfolioHeatGate(g.params) };
+      case "spread":
+        return { name: g.name, fn: createSpreadGate(g.params) };
+      case "volatility":
+        return { name: g.name, fn: createVolatilityGate(g.params) };
+      case "familyPosition":
+        return { name: g.name, fn: createFamilyPositionGate(g.params) };
+      case "smallAccount":
+        return { name: g.name, fn: createSimulatedSmallAccountGate(resolveSmallAccountConfig(spec, g.params)) };
       default:
         return null;
     }
   }).filter(Boolean);
+}
+
+function extractPortfolioHeatConfig(spec) {
+  const gate = (spec.gates ?? []).find((g) => g.name === "portfolioHeat");
+  if (!gate) return null;
+  return {
+    maxConcurrentPerSymbol: Number(gate.params?.maxConcurrentPerSymbol ?? 0),
+    maxConcurrentTotal: Number(gate.params?.maxConcurrentTotal ?? 0),
+  };
+}
+
+/**
+ * Portfolio heat is evaluated as a post-pass so raw trades are always persisted.
+ * Returns the same trades with `heatDropped` set to true for any trade that would
+ * have exceeded the spec's per-symbol or total concurrent limits.
+ */
+function evaluatePortfolioHeat(trades, spec) {
+  const config = extractPortfolioHeatConfig(spec);
+  if (!config) return trades.map((t) => ({ ...t, heatDropped: false }));
+
+  const sorted = trades.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  const active = [];
+  const droppedIds = new Set();
+
+  for (const t of sorted) {
+    const ts = new Date(t.ts).getTime();
+    // Evict trades that have already closed by this entry time.
+    for (let i = active.length - 1; i >= 0; i--) {
+      if (active[i].closedAt <= ts) active.splice(i, 1);
+    }
+
+    const symbolActive = active.filter((o) => o.symbol === t.symbol).length;
+    const perSymbolLimit = config.maxConcurrentPerSymbol > 0 && symbolActive >= config.maxConcurrentPerSymbol;
+    const totalLimit = config.maxConcurrentTotal > 0 && active.length >= config.maxConcurrentTotal;
+
+    if (perSymbolLimit || totalLimit) {
+      droppedIds.add(t.id ?? t);
+      continue;
+    }
+
+    const holdBars = t.holdBars ?? 0;
+    const closedAt = ts + holdBars * 60000;
+    active.push({ symbol: t.symbol, closedAt });
+  }
+
+  return trades.map((t) => ({
+    ...t,
+    heatDropped: droppedIds.has(t.id ?? t),
+  }));
 }
 
 async function evaluateGates(gateEvaluators, ctx) {
@@ -707,8 +1186,12 @@ async function evaluateGates(gateEvaluators, ctx) {
 }
 
 async function applyGates(trades, spec) {
-  const gateEvaluators = buildGateEvaluators(spec.gates);
-  if (gateEvaluators.length === 0) return { executed: trades, skipped: 0, reasons: {} };
+  const gateEvaluators = buildGateEvaluators(spec.gates, spec);
+  if (gateEvaluators.length === 0) {
+    const decisive = trades.filter((t) => t.outcome === "win" || t.outcome === "loss");
+    const timeouts = trades.filter((t) => t.outcome === "timeout").length;
+    return { executed: decisive, skipped: 0, reasons: {}, timeouts };
+  }
 
   const sorted = trades.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
   const executed = [];
@@ -716,12 +1199,11 @@ async function applyGates(trades, spec) {
   const activeOrders = [];
   const reasons = {};
   let skipped = 0;
+  let timeouts = 0;
 
   for (const t of sorted) {
     const ts = new Date(t.ts);
 
-    // Expire positions whose close time has passed or which never filled.
-    // An open position is active from entry (ts) until its close time.
     const stillActive = activeOrders.filter((o) => o.closedAt > ts);
     activeOrders.length = 0;
     activeOrders.push(...stillActive);
@@ -730,8 +1212,12 @@ async function applyGates(trades, spec) {
     const ctx = {
       ts,
       symbol: t.symbol,
-      signal: { strategyId: spec.id, side: t.side },
-      features: { features_session: { session } },
+      signal: { strategyId: spec.id, side: t.side, familyId: spec.familyId },
+      features: {
+        features_session: { session },
+        features_atr: { values: [{ period: 5, value: t.atr_5 }] },
+        features_spread: { spread: t.spread_pips },
+      },
       recentOrders: executedOrders,
       activeOrders,
     };
@@ -743,12 +1229,18 @@ async function applyGates(trades, spec) {
       continue;
     }
 
-    // no_fill means the order never opened a position, so it is not active and closes immediately.
-    const isNoFill = t.outcome === "no_fill";
-    const holdBars = isNoFill ? 0 : (t.holdBars ?? 0);
+    // Trades that could not resolve by the backtest end date are counted
+    // as timeouts/no-result but excluded from win/loss/R and portfolio heat.
+    if (t.outcome === "timeout") {
+      timeouts++;
+      continue;
+    }
+
+    const holdBars = t.holdBars ?? 0;
     const closeTs = new Date(ts.getTime() + holdBars * 60000);
     const order = {
       strategyId: spec.id,
+      familyId: spec.familyId,
       symbol: t.symbol,
       side: t.side,
       createdAt: ts,
@@ -756,22 +1248,46 @@ async function applyGates(trades, spec) {
       realizedPnl: t.r ?? 0,
     };
     executedOrders.push(order);
-    if (!isNoFill && closeTs > ts) {
-      // Track open positions for portfolio-heat calculations.
+    if (closeTs > ts) {
       activeOrders.push(order);
     }
     executed.push(t);
   }
 
-  return { executed, skipped, reasons };
+  return { executed, skipped, reasons, timeouts };
 }
+
+// ---------------------------------------------------------------------------
+// Candle prefetch (Phase 4)
+// ---------------------------------------------------------------------------
+
+async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
+  // Do not fetch beyond the stated backtest end date. Trades that cannot
+  // resolve by `to` are reported as timeout/no-result, not as wins/losses.
+  const upper = to;
+  const t0 = performance.now();
+  const { rows } = await pool.query(
+    `SELECT ts, o, h, l, c FROM candles_1m
+     WHERE symbol = $1 AND ts >= $2 AND ts <= $3
+     ORDER BY ts`,
+    [symbol, from, upper]
+  );
+  if (process.argv.includes("--debug")) {
+    console.log(`  [prefetch] ${rows.length} candles in ${(performance.now() - t0).toFixed(0)}ms`);
+  }
+  return rows;
+}
+
+// ---------------------------------------------------------------------------
+// CLI
+// ---------------------------------------------------------------------------
 
 const jsonMode = process.argv.includes("--json");
 const includeTrades = process.argv.includes("--trades");
+const persistMode = process.argv.includes("--persist");
 const debugMode = process.argv.includes("--debug");
 const stdoutLog = console.log;
 if (jsonMode) {
-  // Route normal logs to stderr so stdout stays pure JSON.
   console.log = (...args) => console.error(...args);
 }
 
@@ -823,7 +1339,6 @@ async function main() {
     from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
   }
 
-  // Sanity check: the requested window cannot extend before the available feature data.
   const biasCond = spec.setup?.find((c) => c.feature === "features_bias" || c.feature === "features_htf_bias");
   const biasTf = biasCond?.tf ?? "15m";
   for (const symbol of symbols) {
@@ -848,21 +1363,26 @@ async function main() {
   const allTrades = [];
   const perSymbolResults = [];
 
+  const timeoutBars = spec.risk?.timeoutBars ?? 24;
+
   for (const symbol of symbols) {
-    const sql = compilePITSQL(spec, symbol, from, to);
+    const { sql, params } = compilePITSQL(spec, symbol, from, to);
     if (debugMode) {
-      const debugSql = compilePITSQL(spec, symbol, from, to, {}, true);
+      const { sql: debugSql, params: debugParams } = compilePITSQL(spec, symbol, from, to, {}, true);
       try {
-        const { rows: debugRows } = await pool.query(debugSql);
+        const { rows: debugRows } = await pool.query(debugSql, debugParams);
         console.log(`  DEBUG ${symbol}:`, debugRows[0]);
       } catch (err) {
         console.error(`  DEBUG ${symbol} ERROR:`, err.message);
       }
     }
     const t0 = performance.now();
-    const { rows: signals } = await pool.query(sql);
-    const tQuery = performance.now();
-    const queryMs = tQuery - t0;
+    const { rows: signals } = await pool.query(sql, params);
+    const tSignals = performance.now();
+    const queryMs = tSignals - t0;
+
+    const candles = await prefetchCandles(pool, symbol, from, to, timeoutBars);
+    const tPrefetch = performance.now();
 
     if (signals.length === 0) {
       console.log(`${symbol}: no signals`);
@@ -873,11 +1393,11 @@ async function main() {
         rawSignals: 0,
         executed: 0,
         skipped: 0,
+        heatDropped: 0,
         gateSkips: {},
         wins: 0,
         losses: 0,
         timeouts: 0,
-        noFills: 0,
         winRate: 0,
         netR: 0,
         avgWinR: 0,
@@ -892,10 +1412,21 @@ async function main() {
       continue;
     }
 
-    const timeoutBars = spec.risk?.timeoutBars ?? 24;
+    const pipSize = getPipSize(symbol);
     const rawTrades = [];
     for (const sig of signals) {
-      const out = await simulateTrade(sig, timeoutBars, intrabarMode);
+      const session = getSession(new Date(sig.ts).getUTCHours());
+      const atr5Pips = pipSize > 0 && typeof sig.atr_5 === "number" ? sig.atr_5 / pipSize : 0;
+      const sessionSpread = getSessionSpread(symbol, session);
+      const sessionSlippage = getSessionSlippage(symbol, atr5Pips);
+      const simOptions = {
+        timeoutBars,
+        intrabarMode,
+        spreadPips: sessionSpread,
+        slippagePips: sessionSlippage,
+        pipSize,
+      };
+      const out = simulateTrade(sig, candles, simOptions);
       rawTrades.push({
         symbol: sig.symbol,
         side: sig.side,
@@ -904,16 +1435,20 @@ async function main() {
         tp: parseFloat(sig.take_profit),
         ts: sig.ts,
         entryType: sig.entry_type ?? "market",
+        atr_5: sig.atr_5,
+        spread_pips: sig.spread_pips,
         ...out,
       });
     }
+    const tSimEnd = performance.now();
 
-    const { executed, skipped, reasons } = await applyGates(rawTrades, spec);
-    const stats = computeStats(executed);
-    allTrades.push(...executed);
+    const { executed, skipped, reasons, timeouts } = await applyGates(rawTrades, spec);
+    const heatMarked = evaluatePortfolioHeat(executed, spec);
+    const stats = computeStats(heatMarked, timeouts);
+    allTrades.push(...heatMarked.map((t) => ({ ...t, symbol })));
 
-    console.log(`${symbol}: ${signals.length} raw signals | query ${queryMs.toFixed(0)}ms`);
-    console.log(`  Executed: ${stats.total} | Skipped: ${skipped}`);
+    console.log(`${symbol}: ${signals.length} raw signals | signal query ${queryMs.toFixed(0)}ms | prefetch ${(tPrefetch - tSignals).toFixed(0)}ms | simulation ${(tSimEnd - tPrefetch).toFixed(0)}ms`);
+    console.log(`  Executed: ${stats.total} | Skipped: ${skipped} | Heat dropped: ${stats.heatDropped}`);
     if (Object.keys(reasons).length > 0) {
       console.log(`  Gate skips: ${Object.entries(reasons).map(([k, v]) => `${k}=${v}`).join(", ")}`);
     }
@@ -927,11 +1462,11 @@ async function main() {
       rawSignals: signals.length,
       executed: stats.total,
       skipped,
+      heatDropped: stats.heatDropped,
       gateSkips: reasons,
       wins: stats.wins,
       losses: stats.losses,
       timeouts: stats.timeouts,
-      noFills: stats.noFills,
       winRate: stats.winRate,
       netR: stats.netR,
       avgWinR: stats.avgWinR,
@@ -947,6 +1482,7 @@ async function main() {
             ts: t.ts instanceof Date ? t.ts.toISOString() : t.ts,
             closeTs: new Date(new Date(t.ts).getTime() + (t.holdBars ?? 0) * 60000).toISOString(),
             entry: t.entry,
+            effectiveEntry: t.effectiveEntry,
             stopLoss: t.sl,
             takeProfit: t.tp,
             entryType: t.entryType,
@@ -963,7 +1499,8 @@ async function main() {
   }
 
   if (symbols.length > 1) {
-    const agg = computeStats(allTrades);
+    const totalTimeouts = perSymbolResults.reduce((s, r) => s + (r.timeouts ?? 0), 0);
+    const agg = computeStats(allTrades, totalTimeouts);
     const aggregate = {
       spec: strategyId,
       symbol: "ALL",
@@ -971,11 +1508,11 @@ async function main() {
       rawSignals: perSymbolResults.reduce((s, r) => s + r.rawSignals, 0),
       executed: agg.total,
       skipped: perSymbolResults.reduce((s, r) => s + r.skipped, 0),
+      heatDropped: perSymbolResults.reduce((s, r) => s + (r.heatDropped ?? 0), 0),
       gateSkips: mergeGateSkips(perSymbolResults.map((r) => r.gateSkips)),
       wins: agg.wins,
       losses: agg.losses,
       timeouts: agg.timeouts,
-      noFills: agg.noFills,
       winRate: agg.winRate,
       netR: agg.netR,
       avgWinR: agg.avgWinR,
@@ -993,7 +1530,175 @@ async function main() {
     }
   }
 
+  let runId;
+  if (persistMode && allTrades.length > 0) {
+    runId = await persistTrades(allTrades, spec, strategyId, from, to, biasTf);
+    if (runId) {
+      await applyPortfolioHeatPostPass(runId, spec);
+    }
+  }
+
   await pool.end();
+}
+
+async function persistTrades(trades, spec, strategyId, from, to, tf) {
+  const runId = `${strategyId}-${from.toISOString()}-${to.toISOString()}-${randomUUID().slice(0, 8)}`;
+  const variantId = strategyId;
+  const familyId = spec.familyId || strategyId;
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      `INSERT INTO backtest_runs (id, symbol, tf, start_ts, end_ts, sample_count, variant_id, family_id, strategy_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (id) DO UPDATE SET sample_count = EXCLUDED.sample_count`,
+      [runId, "ALL", tf, from, to, trades.length, variantId, familyId, strategyId]
+    );
+
+    const columns = [
+      "run_id", "symbol", "tf", "ts", "grade", "direction", "confidence",
+      "entry_zone", "stop_loss", "take_profit", "risk_reward",
+      "outcome", "outcome_r", "exit_price", "exit_ts", "bars_held",
+      "htf_state", "session_name", "effective_entry", "max_adverse_r", "max_favorable_r",
+      "variant_id", "family_id", "strategy_id", "source", "heat_dropped", "heat_run_id"
+    ];
+
+    const values = [];
+    const placeholders = [];
+    let idx = 1;
+    for (const t of trades) {
+      const entry = parseFloat(t.entry);
+      const sl = parseFloat(t.sl);
+      const tp = parseFloat(t.tp);
+      const effectiveEntry = t.effectiveEntry != null ? parseFloat(t.effectiveEntry) : entry;
+      const risk = Math.abs(effectiveEntry - sl);
+      const rr = risk > 0 ? Math.abs((tp - entry) / risk) : null;
+      const exitTs = new Date(new Date(t.ts).getTime() + (t.holdBars ?? 0) * 60_000).toISOString();
+
+      let maxAdverseR = null;
+      let maxFavorableR = null;
+      if (risk > 0 && t.maxAdverse != null && t.maxFavorable != null) {
+        if (t.side === "buy") {
+          maxAdverseR = (effectiveEntry - parseFloat(t.maxAdverse)) / risk;
+          maxFavorableR = (parseFloat(t.maxFavorable) - effectiveEntry) / risk;
+        } else {
+          maxAdverseR = (parseFloat(t.maxAdverse) - effectiveEntry) / risk;
+          maxFavorableR = (effectiveEntry - parseFloat(t.maxFavorable)) / risk;
+        }
+      }
+
+      placeholders.push(
+        `($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`
+      );
+      values.push(
+        runId,
+        t.symbol,
+        tf,
+        t.ts,
+        "A",
+        t.side,
+        0,
+        JSON.stringify({ entry, sl, tp, entryType: t.entryType ?? "market" }),
+        sl,
+        tp,
+        rr,
+        t.outcome,
+        t.r,
+        t.closePrice ?? null,
+        exitTs,
+        t.holdBars ?? 0,
+        null,
+        null,
+        effectiveEntry,
+        maxAdverseR,
+        maxFavorableR,
+        variantId,
+        familyId,
+        strategyId,
+        "pit",
+        t.heatDropped === true,
+        runId
+      );
+    }
+
+    await client.query(
+      `INSERT INTO backtest_results (${columns.join(", ")}) VALUES ${placeholders.join(", ")} ON CONFLICT DO NOTHING`,
+      values
+    );
+    await client.query("COMMIT");
+    console.log(`[backtest-pit-v2] Persisted ${trades.length} trades to backtest_results (run ${runId})`);
+    return runId;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.error("[backtest-pit-v2] Failed to persist trades:", err.message);
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * DB post-pass for portfolio heat. Re-evaluates concurrency for all trades in
+ * the run and marks those that would have exceeded the spec's heat limits.
+ * This is idempotent and keeps raw trades in the table for audit/debugging.
+ */
+async function applyPortfolioHeatPostPass(runId, spec) {
+  const config = extractPortfolioHeatConfig(spec);
+  if (!config) return 0;
+
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(
+      `SELECT id, symbol, ts, exit_ts, bars_held
+       FROM backtest_results
+       WHERE run_id = $1 AND outcome IN ('win', 'loss')
+       ORDER BY ts, id`,
+      [runId]
+    );
+
+    const active = [];
+    const droppedIds = [];
+
+    for (const row of rows) {
+      const ts = new Date(row.ts).getTime();
+      const closedAt = row.exit_ts ? new Date(row.exit_ts).getTime() : ts + (row.bars_held ?? 0) * 60000;
+
+      for (let i = active.length - 1; i >= 0; i--) {
+        if (active[i].closedAt <= ts) active.splice(i, 1);
+      }
+
+      const symbolActive = active.filter((o) => o.symbol === row.symbol).length;
+      const perSymbolLimit = config.maxConcurrentPerSymbol > 0 && symbolActive >= config.maxConcurrentPerSymbol;
+      const totalLimit = config.maxConcurrentTotal > 0 && active.length >= config.maxConcurrentTotal;
+
+      if (perSymbolLimit || totalLimit) {
+        droppedIds.push(row.id);
+      } else {
+        active.push({ symbol: row.symbol, closedAt });
+      }
+    }
+
+    await client.query("BEGIN");
+    await client.query(
+      `UPDATE backtest_results SET heat_dropped = false, heat_run_id = $1 WHERE run_id = $1`,
+      [runId]
+    );
+    if (droppedIds.length > 0) {
+      await client.query(
+        `UPDATE backtest_results SET heat_dropped = true, heat_run_id = $1 WHERE id = ANY($2::bigint[])`,
+        [runId, droppedIds]
+      );
+    }
+    await client.query("COMMIT");
+    console.log(`[backtest-pit-v2] Heat post-pass: ${droppedIds.length}/${rows.length} trades dropped (run ${runId})`);
+    return droppedIds.length;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.error("[backtest-pit-v2] Heat post-pass failed:", err.message);
+    return 0;
+  } finally {
+    client.release();
+  }
 }
 
 function mergeGateSkips(skipsArray) {
@@ -1006,8 +1711,27 @@ function mergeGateSkips(skipsArray) {
   return out;
 }
 
-main().catch((e) => {
-  console.error("[backtest-pit-v2] Fatal:", e);
-  pool.end();
-  process.exit(1);
-});
+// ---------------------------------------------------------------------------
+// Exports (Phase 5) and top-level guard
+// ---------------------------------------------------------------------------
+
+module.exports = {
+  compilePITSQL,
+  simulateTrade,
+  buildGateEvaluators,
+  applyGates,
+  computeStats,
+  evaluatePortfolioHeat,
+  prefetchCandles,
+  validateTimeWindow,
+  assertAllowedFeature,
+  assertAllowedTf,
+};
+
+if (require.main === module) {
+  main().catch((e) => {
+    console.error("[backtest-pit-v2] Fatal:", e);
+    pool.end();
+    process.exit(1);
+  });
+}

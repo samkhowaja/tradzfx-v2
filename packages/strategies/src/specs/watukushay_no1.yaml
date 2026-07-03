@@ -1,95 +1,39 @@
 id: watukushay_no1
+familyId: watukushay
 active: true
-name: "Watukushay No.1"
-version: "1.2.0"
+name: Watukushay No.1
+version: 1.2.0
 description: >
-  MA cross strategy per Daniel Pinto's Watukushay No.1 system.
-  Trades in the direction of the 1h bias when SMA 15 is above/below SMA 250.
-  Uses the new configurable features_moving_average table.
-
-filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP, NY]
-
-setup:
-  - id: bias
-    feature: features_bias
-    tf: 1h
-    predicate: "direction != 'neutral'"
-    required: true
-
-  - id: ma_fast
-    feature: features_moving_average
-    tf: 1h
-    predicate: "ma_type = 'sma' AND period = 15 AND value > 0"
-    required: true
-    groupBy: [ma_type, period]
-
-  - id: ma_slow
-    feature: features_moving_average
-    tf: 1h
-    predicate: "ma_type = 'sma' AND period = 250 AND value > 0"
-    required: true
-    groupBy: [ma_type, period]
-
-entry:
-  - id: displacement
-    feature: features_displacement
-    tf: 1h
-    predicate: "grade IN ('MEDIUM', 'HIGH')"
-    required: true
-
-signalSource: moving_average
-signalSourceConfig:
-  maType: sma
-  fastPeriod: 15
-  slowPeriod: 250
-
-risk:
-  sl: "atr(1h) * 0.5"
-  tp: "sl * 1.0"
-  minRR: 1.0
-  timeoutBars: 8
-  maxFillBars: 2
-
-gates:
-  - id: volatility_gate
-    name: volatility
-    params:
-      maxAtr5: 3.0
-
-  - id: spread_gate
-    name: spread
-    params:
-      maxSpreadPips: 3.0
-
-  - id: portfolio_heat
-    name: portfolioHeat
-    params:
-      maxConcurrentPerSymbol: 1
-      maxConcurrentTotal: 3
-
-  - id: session_gate
-    name: session
-    params:
-      allowed: [LONDON, OVERLAP, NY]
-
-  - id: rate_limit
-    name: rateLimit
-    params:
-      maxSignalsPerHour: 2
-      maxSignalsPerDay: 5
-
-live:
-  mode: paper
-  lotSize: 0.01
-  riskPerTradePct: 1.0
-  accountBalance: 10000
-  accountCurrency: USD
-  signalTtlMinutes: 60
-  maxSpreadPips: 3.0
-  maxSlippagePoints: 20
-  entryZonePips: null
-  maxPositionsPerSymbol: 2
-  maxPositionsTotal: 6
-  cooldownMinutes: 60
+  MA cross strategy per Daniel Pinto's Watukushay No.1 system. Trades in the direction of the 1h bias when SMA 15 is
+  above/below SMA 250. Uses the new configurable features_moving_average table.
+overrides:
+  setup:
+    - id: bias
+      feature: features_bias
+      tf: 1h
+      predicate: direction != 'neutral'
+      required: true
+    - id: ma_fast
+      feature: features_moving_average
+      tf: 1h
+      predicate: ma_type = 'sma' AND period = 15 AND value > 0
+      required: true
+      groupBy:
+        - ma_type
+        - period
+    - id: ma_slow
+      feature: features_moving_average
+      tf: 1h
+      predicate: ma_type = 'sma' AND period = 250 AND value > 0
+      required: true
+      groupBy:
+        - ma_type
+        - period
+  signalSource: moving_average
+  signalSourceConfig:
+    maType: sma
+    fastPeriod: 15
+    slowPeriod: 250
+  live:
+    maxPositionsPerSymbol: 2
+    maxPositionsTotal: 6

@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   Assumes the V2 workspace has already been built (pnpm -r build).
-  Uses C:\tradzfx-v2\ecosystem.config.js. If a tm-web-v2 process is already running,
+  Uses C:\tradzfx-v2\ecosystem.config.js. If a tz-web-v2 process is already running,
   this script will fail — use restart-web-v2.ps1 instead.
 #>
 
@@ -21,9 +21,19 @@ if (-not (Test-Path $LogsDir)) {
 
 cd $V2Root
 
-Write-Host "Starting tm-web-v2 on port 3003..." -ForegroundColor Cyan
-& pm2 start ecosystem.config.js
+# Load environment variables from .env.local so PM2 inherits DB credentials.
+$EnvFile = Join-Path $V2Root '.env.local'
+if (Test-Path $EnvFile) {
+    Get-Content $EnvFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+?)\s*=\s*(.*?)\s*$') {
+            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
+        }
+    }
+}
+
+Write-Host "Starting tz-web-v2 on port 3003..." -ForegroundColor Cyan
+& pm2 start ecosystem.config.js --only tz-web-v2
 if ($LASTEXITCODE -ne 0) { throw "pm2 start failed" }
 
 & pm2 save
-Write-Host "tm-web-v2 started. Run 'pm2 logs tm-web-v2' to follow logs." -ForegroundColor Green
+Write-Host "tz-web-v2 started. Run 'pm2 logs tz-web-v2' to follow logs." -ForegroundColor Green

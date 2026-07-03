@@ -116,7 +116,7 @@ export async function getGradeCalibration(
     sim AS (
       SELECT grade, outcome_r, symbol, tf
       FROM backtest_results
-      WHERE outcome IN ('win', 'loss') AND outcome_r IS NOT NULL
+      WHERE outcome IN ('win', 'loss') AND outcome_r IS NOT NULL AND source = 'analyzer'
     ),
     combined AS (SELECT * FROM live UNION ALL SELECT * FROM sim)
     SELECT

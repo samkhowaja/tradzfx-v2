@@ -28,6 +28,10 @@ export interface SmallAccountPositionConfig {
   accountBalance: number;
   /** Halt new entries after N consecutive losing closes (default 3) */
   maxConsecutiveLosses: number;
+  /** Optional terminal scoping for daily-loss calculation */
+  terminalKeyId?: string;
+  /** Account currency for P&L normalization (optional) */
+  accountCurrency?: string;
 }
 
 function envNumber(name: string, fallback: number): number {
@@ -37,7 +41,7 @@ function envNumber(name: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-export function loadSmallAccountConfig(): SmallAccountPositionConfig {
+export function loadSmallAccountConfig(terminalKeyId?: string): SmallAccountPositionConfig {
   return {
     enabled: process.env.SMALL_ACCOUNT_POSITION_MANAGER !== "false",
     maxPositionsPerSymbol: envNumber("SMALL_ACCOUNT_MAX_PER_SYMBOL", 1),
@@ -46,6 +50,8 @@ export function loadSmallAccountConfig(): SmallAccountPositionConfig {
     maxDailyLossPct: envNumber("SMALL_ACCOUNT_MAX_DAILY_LOSS_PCT", 5),
     accountBalance: envNumber("SMALL_ACCOUNT_BALANCE", 0),
     maxConsecutiveLosses: envNumber("SMALL_ACCOUNT_MAX_CONSECUTIVE_LOSSES", 3),
+    terminalKeyId,
+    accountCurrency: process.env.SMALL_ACCOUNT_CURRENCY ?? "USD",
   };
 }
 
@@ -68,13 +74,22 @@ async function countActiveOrders(
   return rows[0]?.cnt ?? 0;
 }
 
-async function getDailyRealizedPnl(pool: ReturnType<typeof getPool>): Promise<number> {
-  const { rows } = await pool.query(
-    `SELECT COALESCE(SUM(realized_pnl), 0)::double precision AS total
+async function getDailyRealizedPnl(
+  pool: ReturnType<typeof getPool>,
+  terminalKeyId?: string
+): Promise<number> {
+  const params: (string | string[])[] = [];
+  let sql = `SELECT COALESCE(SUM(realized_pnl), 0)::double precision AS total
      FROM orders
      WHERE status = 'closed'
-       AND closed_at >= date_trunc('day', now() AT TIME ZONE 'UTC')`,
-  );
+       AND closed_at >= date_trunc('day', now() AT TIME ZONE 'UTC')`;
+
+  if (terminalKeyId) {
+    params.push(terminalKeyId);
+    sql += ` AND terminal_key_id = $${params.length}`;
+  }
+
+  const { rows } = await pool.query(sql, params);
   return rows[0]?.total ?? 0;
 }
 
@@ -88,33 +103,49 @@ async function getLastCloseTimestamp(
      WHERE symbol = $1 AND status = 'closed'
      ORDER BY closed_at DESC
      LIMIT 1`,
-    [symbol],
+    [symbol]
   );
   const ts = rows[0]?.ts;
   return ts ? Number(ts) : null;
 }
 
 async function getLatestTerminalBalance(
-  pool: ReturnType<typeof getPool>
+  pool: ReturnType<typeof getPool>,
+  terminalKeyId?: string
 ): Promise<number | null> {
-  const { rows } = await pool.query(
-    `SELECT balance FROM mt5_terminals
-     WHERE balance IS NOT NULL
-     ORDER BY last_seen_at DESC
-     LIMIT 1`,
-  );
+  let sql = `SELECT balance FROM mt5_terminals
+     WHERE balance IS NOT NULL`;
+  const params: string[] = [];
+
+  if (terminalKeyId) {
+    params.push(terminalKeyId);
+    sql += ` AND id = $${params.length}`;
+  }
+
+  sql += ` ORDER BY last_seen_at DESC LIMIT 1`;
+
+  const { rows } = await pool.query(sql, params);
   const bal = rows[0]?.balance;
   return typeof bal === "number" ? bal : null;
 }
 
-async function getConsecutiveLosses(pool: ReturnType<typeof getPool>): Promise<number> {
-  const { rows } = await pool.query(
-    `SELECT outcome, realized_pnl
+async function getConsecutiveLosses(
+  pool: ReturnType<typeof getPool>,
+  terminalKeyId?: string
+): Promise<number> {
+  let sql = `SELECT outcome, realized_pnl
      FROM orders
-     WHERE status = 'closed'
-     ORDER BY closed_at DESC
-     LIMIT 50`,
-  );
+     WHERE status = 'closed'`;
+  const params: string[] = [];
+
+  if (terminalKeyId) {
+    params.push(terminalKeyId);
+    sql += ` AND terminal_key_id = $${params.length}`;
+  }
+
+  sql += ` ORDER BY closed_at DESC LIMIT 50`;
+
+  const { rows } = await pool.query(sql, params);
 
   let streak = 0;
   for (const r of rows) {
@@ -139,9 +170,9 @@ async function getConsecutiveLosses(pool: ReturnType<typeof getPool>): Promise<n
 export async function checkSmallAccountGate(
   pool: ReturnType<typeof getPool>,
   symbol: string,
-  config?: Partial<SmallAccountPositionConfig>,
+  config?: Partial<SmallAccountPositionConfig>
 ): Promise<GateResult> {
-  const cfg = { ...loadSmallAccountConfig(), ...config };
+  const cfg = { ...loadSmallAccountConfig(config?.terminalKeyId), ...config };
   if (!cfg.enabled) return { ok: true };
 
   // 1. One position per symbol.
@@ -167,14 +198,14 @@ export async function checkSmallAccountGate(
     const balance =
       cfg.accountBalance > 0
         ? cfg.accountBalance
-        : (await getLatestTerminalBalance(pool)) ?? 0;
+        : (await getLatestTerminalBalance(pool, cfg.terminalKeyId)) ?? 0;
     if (balance > 0) {
-      const dailyPnl = await getDailyRealizedPnl(pool);
-      const limitUsd = balance * (cfg.maxDailyLossPct / 100);
-      if (dailyPnl <= -limitUsd) {
+      const dailyPnl = await getDailyRealizedPnl(pool, cfg.terminalKeyId);
+      const limit = balance * (cfg.maxDailyLossPct / 100);
+      if (dailyPnl <= -limit) {
         return {
           ok: false,
-          reason: `small_account: daily loss limit reached ($${dailyPnl.toFixed(2)} <= -$${limitUsd.toFixed(2)})`,
+          reason: `small_account: daily loss limit reached (${dailyPnl.toFixed(2)} ${cfg.accountCurrency} <= -${limit.toFixed(2)} ${cfg.accountCurrency})`,
         };
       }
     }
@@ -196,7 +227,7 @@ export async function checkSmallAccountGate(
 
   // 5. Consecutive-loss circuit breaker.
   if (cfg.maxConsecutiveLosses > 0) {
-    const streak = await getConsecutiveLosses(pool);
+    const streak = await getConsecutiveLosses(pool, cfg.terminalKeyId);
     if (streak >= cfg.maxConsecutiveLosses) {
       return {
         ok: false,

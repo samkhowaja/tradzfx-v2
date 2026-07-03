@@ -470,7 +470,13 @@ async function insertResults(results) {
     "bars_held",
     "htf_state",
     "session_name",
+    "variant_id", "family_id", "strategy_id",
   ];
+  for (const r of results) {
+    r.variant_id = VARIANT_ID;
+    r.family_id = FAMILY_ID;
+    r.strategy_id = VARIANT_ID;
+  }
 
   const placeholders = results
     .map(

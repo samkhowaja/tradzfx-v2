@@ -14,7 +14,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
 
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
+const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "";
 
 function validateApiKey(req: NextRequest): boolean {
   if (!EXPECTED_API_KEY) return true;

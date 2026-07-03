@@ -1,15 +1,16 @@
 id: waqar_v2
+familyId: waqar_v2
 active: true
 name: "Waqar Asim Scalp V2"
 version: "2.0.0"
 description: >
-  ICT-based supply/demand scalp strategy.
-  1H decisional context, 15m trend bias, 1m entry after MSB/BOS + zone retest.
-  Only long in discount, only short in premium.
+  ICT-based supply/demand scalp strategy. 1H decisional context, 15m trend bias,
+  1m entry after MSB/BOS + zone retest. Only long in discount, only short in
+  premium.
 
 filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP]
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD ]
+  sessions: [ LONDON, OVERLAP ]
   timeWindows:
     - { utcStart: "08:00", utcEnd: "09:00" }
     - { utcStart: "14:00", utcEnd: "15:00" }
@@ -79,7 +80,7 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 2.0
+      maxAtr5Pips: 2.0
 
   - id: spread_gate
     name: spread
@@ -95,7 +96,7 @@ gates:
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP]
+      allowed: [ LONDON, OVERLAP ]
 
 live:
   mode: paper
@@ -106,7 +107,7 @@ live:
   signalTtlMinutes: 15
   maxSpreadPips: 3.0
   maxSlippagePoints: 20
-  entryZonePips: null  # disabled for market orders; zone guard only makes sense for limit orders
+  entryZonePips: null # disabled for market orders; zone guard only makes sense for limit orders
   maxPositionsPerSymbol: 1
   maxPositionsTotal: 6
   cooldownMinutes: 30

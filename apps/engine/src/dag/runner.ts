@@ -9,14 +9,13 @@ import type {
   FeatureOutputs,
   Candle,
   TimeFrame,
-  CanonicalMarketLevel,
 } from "@tm/shared";
 import { getCandleTableForTf } from "@tm/shared";
-import crypto from "node:crypto";
 
 import { FeatureDAG, globalDAG } from "./graph";
 import { FeatureCache } from "./cache";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
+import { recordZoneOutcomes } from "../features/zone";
 
 export interface RunOptions {
   symbol: string;
@@ -38,7 +37,6 @@ export class DAGRunner {
   private tableColumnsCache = new Map<string, string[]>();
   private candlesCache = new Map<string, Candle[]>();
   private pendingInserts = new Map<string, Record<string, unknown>[]>();
-  private pendingMarketLevels: CanonicalMarketLevel[] = [];
   private defaultBatchSize = 1000;
 
   constructor(
@@ -54,7 +52,6 @@ export class DAGRunner {
       await this.insertRows(tableName, rows);
       rows.length = 0;
     }
-    await this.insertMarketLevels();
   }
 
   private tablePKCache = new Map<string, string[]>();
@@ -153,12 +150,28 @@ export class DAGRunner {
       } else {
         await this.persist(feature, opts, output, inputHash, outputHash);
       }
-      this.stageMarketLevels(feature, opts, output);
       if (!opts.skipCache) {
         await this.cache.set(feature.name, inputHash, output, outputHash);
       }
 
       results[feature.name] = output;
+
+      // Record completed zone outcomes for continuous learning. Kept outside
+      // the feature compute so the feature remains pure and testable.
+      if (feature.name === "features_zone") {
+        const zoneOutput = output as { zones: any[] };
+        try {
+          await recordZoneOutcomes(
+            this.pool,
+            opts.symbol,
+            opts.tf,
+            zoneOutput.zones,
+            (input.candles as Candle[]) ?? []
+          );
+        } catch (err: any) {
+          console.warn(`[engine] Failed to record zone outcomes:`, err.message);
+        }
+      }
 
       if (latency > 100) {
         console.warn(
@@ -224,6 +237,21 @@ export class DAGRunner {
         );
       }
       input.referenceCandles = referenceCandles;
+    }
+
+    // Add higher-timeframe candles for features that reason across TFs
+    if (feature.referenceTimeFrames && feature.referenceTimeFrames.length > 0) {
+      const higherTfCandles: Record<TimeFrame, Candle[]> = {} as Record<TimeFrame, Candle[]>;
+      const htfLookback = opts.lookbackBars ?? 500;
+      for (const htf of feature.referenceTimeFrames) {
+        higherTfCandles[htf] = await this.fetchCandles(
+          opts.symbol,
+          htf,
+          opts.endTs,
+          htfLookback
+        );
+      }
+      input.higherTfCandles = higherTfCandles;
     }
 
     return input;
@@ -389,111 +417,4 @@ export class DAGRunner {
     await this.insertRows(tableName, rows);
   }
 
-  private stageMarketLevels(
-    feature: FeatureDefinition<any, any>,
-    opts: RunOptions,
-    output: unknown
-  ): void {
-    if (!feature.publishLevels) return;
-    const levels = feature.publishLevels(output, {
-      tf: opts.tf,
-      symbol: opts.symbol,
-      endTs: opts.endTs,
-    });
-    if (!levels || levels.length === 0) return;
-    for (const level of levels) {
-      if (!level.symbol) level.symbol = opts.symbol;
-      if (!level.tf) level.tf = opts.tf;
-      if (!level.ts) level.ts = opts.endTs;
-    }
-    this.pendingMarketLevels.push(...levels);
-  }
-
-  private async insertMarketLevels(): Promise<void> {
-    if (this.pendingMarketLevels.length === 0) return;
-
-    const seen = new Set<string>();
-    const uniqueLevels: CanonicalMarketLevel[] = [];
-    for (const level of this.pendingMarketLevels) {
-      const hash = crypto
-        .createHash("sha256")
-        .update(
-          `${level.symbol}:${level.tf}:${level.level_type}:${level.kind}:${level.top}:${level.bottom}:${level.ts.toISOString()}`
-        )
-        .digest("hex");
-      if (seen.has(hash)) continue;
-      seen.add(hash);
-      uniqueLevels.push(level);
-    }
-    this.pendingMarketLevels.length = 0;
-
-    if (uniqueLevels.length === 0) return;
-
-    const columns = [
-      "level_hash",
-      "symbol",
-      "tf",
-      "level_type",
-      "kind",
-      "top",
-      "bottom",
-      "strength",
-      "invalidated_at",
-      "tapped_at",
-      "touch_count",
-      "source_id",
-      "source_json",
-      "ts",
-    ];
-
-    const placeholders = uniqueLevels
-      .map(
-        (_, i) =>
-          `(${columns.map((_, j) => `$${i * columns.length + j + 1}`).join(", ")})`
-      )
-      .join(", ");
-
-    const values = uniqueLevels.flatMap((level) => {
-      const hash = crypto
-        .createHash("sha256")
-        .update(
-          `${level.symbol}:${level.tf}:${level.level_type}:${level.kind}:${level.top}:${level.bottom}:${level.ts.toISOString()}`
-        )
-        .digest("hex");
-      return [
-        hash,
-        level.symbol,
-        level.tf,
-        level.level_type,
-        level.kind,
-        level.top,
-        level.bottom,
-        level.strength ?? null,
-        level.invalidated_at ?? null,
-        level.tapped_at ?? null,
-        level.touch_count ?? 0,
-        level.source_id ?? null,
-        level.source_json ? JSON.stringify(level.source_json) : null,
-        level.ts,
-      ];
-    });
-
-    try {
-      await this.pool.query(
-        `INSERT INTO market_levels (${columns.join(", ")})
-         VALUES ${placeholders}
-         ON CONFLICT (level_hash) DO UPDATE SET
-           strength = EXCLUDED.strength,
-           invalidated_at = EXCLUDED.invalidated_at,
-           tapped_at = EXCLUDED.tapped_at,
-           touch_count = EXCLUDED.touch_count,
-           source_id = EXCLUDED.source_id,
-           source_json = EXCLUDED.source_json,
-           updated_at = NOW()`,
-        values
-      );
-    } catch (err: any) {
-      console.error("[engine] Failed to persist market_levels:", err.message);
-    }
-  }
 }

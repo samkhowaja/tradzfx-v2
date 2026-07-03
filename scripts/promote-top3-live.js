@@ -1,5 +1,5 @@
 /**
- * Promote the top-3 PIT specs to real live execution and deactivate everything else.
+ * Promote the top-3 variants to real live execution and deactivate everything else.
  *
  * Usage:
  *   node scripts/promote-top3-live.js
@@ -9,7 +9,7 @@ const { spawn } = require("child_process");
 const { Pool } = require("pg");
 const path = require("path");
 
-const LIVE_SPECS = ["doyle_sd", "orb_classic", "watukushay_no1"];
+const LIVE_VARIANTS = ["doyle_sd", "orb_classic", "watukushay_no1"];
 
 const pool = new Pool({
   host: "localhost",
@@ -37,41 +37,43 @@ async function main() {
   console.log("[promote] Seeding specs from YAML...\n");
   await runSeed();
 
-  console.log("\n[promote] Activating top-3 specs in live mode...");
-  const livePlaceholders = LIVE_SPECS.map((_, i) => `$${i + 1}`).join(",");
+  console.log("\n[promote] Activating top-3 variants in live mode...");
+  const livePlaceholders = LIVE_VARIANTS.map((_, i) => `$${i + 1}`).join(",");
   await pool.query(
-    `UPDATE strategy_specs
-     SET spec_json = jsonb_set(spec_json, '{live,mode}', '"live"'),
-         is_active = true
+    `UPDATE strategy_variants
+     SET is_active = true,
+         overrides = jsonb_set(COALESCE(overrides, '{}'), '{live,mode}', '"live"')
      WHERE id IN (${livePlaceholders})`,
-    LIVE_SPECS
+    LIVE_VARIANTS
   );
 
-  console.log("[promote] Deactivating all other specs...");
+  console.log("[promote] Deactivating all other variants...");
   await pool.query(
-    `UPDATE strategy_specs
+    `UPDATE strategy_variants
      SET is_active = false
      WHERE id NOT IN (${livePlaceholders})`,
-    LIVE_SPECS
+    LIVE_VARIANTS
   );
 
   const { rows } = await pool.query(
-    `SELECT id,
-            is_active,
-            spec_json->'live'->>'mode' AS mode
-     FROM strategy_specs
-     ORDER BY is_active DESC, id`
+    `SELECT v.id,
+            v.is_active,
+            v.overrides->'live'->>'mode' AS mode,
+            f.name AS family_name
+     FROM strategy_variants v
+     JOIN strategy_families f ON f.id = v.family_id
+     ORDER BY v.is_active DESC, f.name, v.id`
   );
 
-  console.log("\n[promote] Current strategy_specs state:\n");
-  console.log("id                  | is_active | mode");
-  console.log("--------------------+-----------+------");
+  console.log("\n[promote] Current strategy_variants state:\n");
+  console.log("family              | variant             | is_active | mode");
+  console.log("--------------------+---------------------+-----------+------");
   for (const r of rows) {
-    console.log(`${r.id.padEnd(19)} | ${String(r.is_active).padEnd(9)} | ${r.mode}`);
+    console.log(`${r.family_name.padEnd(19)} | ${r.id.padEnd(19)} | ${String(r.is_active).padEnd(9)} | ${r.mode ?? "paper"}`);
   }
 
   const activeLive = rows.filter((r) => r.is_active && r.mode === "live");
-  console.log(`\n[promote] Active live specs: ${activeLive.map((r) => r.id).join(", ") || "NONE"}`);
+  console.log(`\n[promote] Active live variants: ${activeLive.map((r) => r.id).join(", ") || "NONE"}`);
 
   await pool.end();
 }

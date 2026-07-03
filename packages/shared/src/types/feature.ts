@@ -69,6 +69,11 @@ export interface FeatureDefinition<Input, Output> {
    * into `input.referenceCandles` (keyed by symbol).
    */
   referenceSymbols?: string[];
+  /**
+   * Optional higher timeframes whose candles should be fetched and injected
+   * into `input.higherTfCandles` (keyed by timeframe).
+   */
+  referenceTimeFrames?: TimeFrame[];
   /** Pure computation function. May be async for features that query the DB. */
   compute: (
     input: Input,
@@ -144,6 +149,7 @@ export interface SweepOutput {
     extreme: number;
     close: number;
     ts: Date;
+    sweepType?: "post_structure" | "inducement";
     evidence?: Record<string, unknown>;
     mitigatedAt?: Date;
   }>;
@@ -181,6 +187,17 @@ export interface ZoneOutcomeStats {
   avgReward: number;
   avgRisk: number;
   expectancy: number;
+}
+
+export interface FvgOutput {
+  fvgs: Array<{
+    direction: Direction;
+    top: number;
+    bottom: number;
+    ts: Date;
+    ageBars: number;
+    isFresh: boolean;
+  }>;
 }
 
 export interface ZoneRetestOutput {
@@ -228,8 +245,10 @@ export interface PricingOutput {
 
 export interface RegimeBiasFactorScores {
   htfAlignment: number;
-  emaSlope: number;
+  hhhl: number;
   structure: number;
+  // Deprecated factors kept at 0 for backward compatibility.
+  emaSlope: number;
   volume: number;
   session: number;
   volatility: number;
@@ -268,6 +287,11 @@ export interface HtfBiasOutput {
   byTimeFrame?: Record<TimeFrame, BiasNode>;
   /** The timeframe this output was computed for. */
   tradingTf?: TimeFrame;
+  /**
+   * Agreement between the local (trading) timeframe and higher timeframes.
+   * 1.0 = perfect agreement, 0.0 = complete disagreement, undefined when not computed.
+   */
+  localAgreement?: number;
 }
 
 export interface BiasOutput {
@@ -386,17 +410,6 @@ export interface CorrelationOutput {
   }>;
 }
 
-export interface EmaCrossOutput {
-  crosses: Array<{
-    fastPeriod: number;
-    slowPeriod: number;
-    direction: "bullish" | "bearish" | "neutral";
-    fastValue: number;
-    slowValue: number;
-    ts: Date;
-  }>;
-}
-
 export interface MovingAverageOutput {
   values: Array<{
     maType: "sma" | "ema";
@@ -404,16 +417,14 @@ export interface MovingAverageOutput {
     value: number;
     ts?: Date;
   }>;
-}
-
-export interface SmaCrossOutput {
   crosses: Array<{
+    maType: "ema" | "sma";
     fastPeriod: number;
     slowPeriod: number;
     direction: "bullish" | "bearish" | "neutral";
     fastValue: number;
     slowValue: number;
-    ts: Date;
+    ts?: Date;
   }>;
 }
 

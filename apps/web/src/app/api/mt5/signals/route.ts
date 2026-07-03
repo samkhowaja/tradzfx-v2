@@ -9,7 +9,9 @@ import { getPendingOrders, markOrderSent, expireStaleOrders } from "@/lib/orderS
 import { resolveTerminalKeyId, expireStaleCommands } from "@/lib/positionCommandService";
 
 // Simple API key validation (reuse same key as bar ingest for now)
-const EXPECTED_API_KEY = process.env.MT5_API_KEY ?? "";
+const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
+  process.env.MT5_API_KEY ??
+  "";
 
 function validateApiKey(req: NextRequest): boolean {
   const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");

@@ -21,7 +21,7 @@ import type {
   HtfBiasOutput,
   AtrOutput,
   StructureOutput,
-  TimeOfDayEdgeOutput,
+  PivotOutput,
 } from "@tm/shared";
 import { sha256 } from "@tm/shared";
 
@@ -30,31 +30,19 @@ export interface BiasInput {
   features_structure: StructureOutput;
   features_htf_bias: HtfBiasOutput;
   features_atr: AtrOutput;
-  features_time_of_day_edge: TimeOfDayEdgeOutput;
+  features_pivot: PivotOutput;
 }
 
 const WEIGHTS: Record<keyof RegimeBiasFactorScores, number> = {
-  htfAlignment: 0.30,
-  emaSlope: 0.20,
-  structure: 0.20,
-  volume: 0.15,
-  session: 0.10,
-  volatility: 0.05,
+  htfAlignment: 0.50,
+  hhhl: 0.20,
+  structure: 0.30,
+  // Deprecated factors are kept at zero weight for backward compatibility.
+  emaSlope: 0,
+  volume: 0,
+  session: 0,
+  volatility: 0,
 };
-
-function computeEMA(values: number[], period: number): number[] {
-  const ema: number[] = [];
-  const multiplier = 2 / (period + 1);
-  let sum = 0;
-  for (let i = 0; i < period && i < values.length; i++) {
-    sum += values[i];
-  }
-  ema.push(sum / Math.min(period, values.length));
-  for (let i = period; i < values.length; i++) {
-    ema.push((values[i] - ema[ema.length - 1]) * multiplier + ema[ema.length - 1]);
-  }
-  return ema;
-}
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
@@ -66,15 +54,29 @@ function htfAlignmentScore(htf: HtfBiasOutput): number {
   return 0;
 }
 
-function emaSlopeScore(candles: Candle[], atr14: number): number {
-  if (candles.length < 50 || atr14 <= 0) return 0;
-  const closes = candles.map((c) => c.c);
-  const ema20 = computeEMA(closes, 20);
-  const ema50 = computeEMA(closes, 50);
-  const diff = ema20[ema20.length - 1] - ema50[ema50.length - 1];
-  // Normalize so 1x ATR ~= 50 points, 2x ATR ~= 100 points
-  const raw = (diff / atr14) * 50;
-  return Math.max(-100, Math.min(100, raw));
+function hhhlScore(pivots: PivotOutput["pivots"]): number {
+  // Score based on the last 5 swing pivots: HH/HL = bullish, LH/LL = bearish.
+  const recent = [...pivots]
+    .sort((a, b) => a.ts.getTime() - b.ts.getTime())
+    .slice(-5);
+  if (recent.length < 3) return 0;
+
+  let bullish = 0;
+  let bearish = 0;
+  for (let i = 1; i < recent.length; i++) {
+    const prev = recent[i - 1];
+    const curr = recent[i];
+    if (prev.kind === "high" && curr.kind === "high") {
+      if (curr.price > prev.price) bullish += 1;
+      else bearish += 1;
+    } else if (prev.kind === "low" && curr.kind === "low") {
+      if (curr.price > prev.price) bullish += 1;
+      else bearish += 1;
+    }
+  }
+  const net = bullish - bearish;
+  const max = Math.max(bullish, bearish, 1);
+  return Math.max(-100, Math.min(100, (net / max) * 100));
 }
 
 function structureScore(events: StructureOutput["events"]): number {
@@ -92,27 +94,6 @@ function structureScore(events: StructureOutput["events"]): number {
   const max = Math.max(bullish, bearish, 1);
   // Scale to ~ ±100 based on the dominant side
   return Math.max(-100, Math.min(100, (net / max) * 100));
-}
-
-function volumeScore(candles: Candle[]): number {
-  if (candles.length < 21) return 0;
-  const last = candles[candles.length - 1];
-  const prev = candles[candles.length - 2];
-  const window = candles.slice(-21, -1);
-  const avg = window.reduce((s, c) => s + (c.v ?? 0), 0) / window.length;
-  if (avg <= 0) return 0;
-  const ratio = (last.v ?? 0) / avg;
-  const impulse = Math.min(100, (ratio - 1) * 100); // 2x avg -> 100
-  const direction: Direction =
-    last.c > (prev?.o ?? last.o) ? "bullish" : last.c < (prev?.o ?? last.o) ? "bearish" : "neutral";
-  if (direction === "bullish") return impulse;
-  if (direction === "bearish") return -impulse;
-  return 0;
-}
-
-function sessionScore(edge: TimeOfDayEdgeOutput): number {
-  // Center the 0-100 edge score around 50 and expand to ±100
-  return Math.max(-100, Math.min(100, (edge.score - 50) * 2));
 }
 
 function volatilityScore(candles: Candle[], atr14: number): number {
@@ -139,16 +120,16 @@ function volatilityScore(candles: Candle[], atr14: number): number {
 
 function classifyRegime(
   atrPercentile: number,
-  emaScore: number,
   htfScore: number,
   structureScoreValue: number,
+  hhhlScoreValue: number,
   events: StructureOutput["events"]
 ): RegimeBiasOutput["regime"] {
   if (atrPercentile > 0.75) return "volatile";
   if (atrPercentile < 0.2) return "low_volatility";
 
   const hasStrongDirection =
-    Math.abs(emaScore) > 50 || Math.abs(htfScore) >= 70 || Math.abs(structureScoreValue) > 50;
+    Math.abs(htfScore) >= 70 || Math.abs(structureScoreValue) > 50 || Math.abs(hhhlScoreValue) > 50;
   if (hasStrongDirection) return "trending";
 
   const recent = events.slice(-5);
@@ -180,7 +161,7 @@ function computeAtrPercentile(candles: Candle[], atr14: number): number {
 }
 
 function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
-  const { candles, features_structure, features_htf_bias, features_atr, features_time_of_day_edge } =
+  const { candles, features_structure, features_htf_bias, features_atr, features_pivot } =
     input;
 
   if (candles.length < 50) {
@@ -190,8 +171,9 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
       regime: "low_volatility",
       score: {
         htfAlignment: 0,
-        emaSlope: 0,
+        hhhl: 0,
         structure: 0,
+        emaSlope: 0,
         volume: 0,
         session: 0,
         volatility: 0,
@@ -206,10 +188,12 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
 
   const scores: RegimeBiasFactorScores = {
     htfAlignment: htfAlignmentScore(features_htf_bias),
-    emaSlope: emaSlopeScore(candles, atr14),
+    hhhl: hhhlScore(features_pivot.pivots),
     structure: structureScore(features_structure.events),
-    volume: volumeScore(candles),
-    session: sessionScore(features_time_of_day_edge),
+    // Deprecated factors retained at 0 for backward compatibility.
+    emaSlope: 0,
+    volume: 0,
+    session: 0,
     volatility: volatilityScore(candles, atr14),
   };
 
@@ -229,9 +213,9 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
 
   const regime = classifyRegime(
     atrPercentile,
-    scores.emaSlope,
     scores.htfAlignment,
     scores.structure,
+    scores.hhhl,
     features_structure.events
   );
 
@@ -256,12 +240,12 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
 
 export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
   name: "features_bias",
-  version: "2.0.0",
+  version: "3.0.0",
   dependencies: [
     "features_structure",
     "features_htf_bias",
     "features_atr",
-    "features_time_of_day_edge",
+    "features_pivot",
   ],
 
   compute(input): RegimeBiasOutput {
@@ -282,7 +266,9 @@ export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
         "|" +
         input.features_atr.values.map((v) => `${v.period}=${v.value.toFixed(6)}`).join("|") +
         "|" +
-        `${input.features_time_of_day_edge.edge}:${input.features_time_of_day_edge.score}:${input.features_time_of_day_edge.session}`
+        input.features_pivot.pivots
+          .map((p) => `${p.ts.toISOString()}:${p.kind}:${p.price}`)
+          .join("|")
     );
   },
 
@@ -304,8 +290,9 @@ export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
         reason: output.reason,
         regime: output.regime,
         score_htf_alignment: output.score.htfAlignment,
-        score_ema_slope: output.score.emaSlope,
+        score_hhhl: output.score.hhhl,
         score_structure: output.score.structure,
+        score_ema_slope: output.score.emaSlope,
         score_volume: output.score.volume,
         score_session: output.score.session,
         score_volatility: output.score.volatility,
@@ -321,7 +308,7 @@ export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
         direction: "neutral",
         confidence: 0,
         regime: "low_volatility",
-        score: { htfAlignment: 0, emaSlope: 0, structure: 0, volume: 0, session: 0, volatility: 0 },
+        score: { htfAlignment: 0, hhhl: 0, structure: 0, emaSlope: 0, volume: 0, session: 0, volatility: 0 },
         reason: "no_data",
         factors: ["no_data"],
       };
@@ -332,8 +319,9 @@ export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
       regime: (r.regime as RegimeBiasOutput["regime"]) ?? "trending",
       score: {
         htfAlignment: (r.score_htf_alignment as number) ?? 0,
-        emaSlope: (r.score_ema_slope as number) ?? 0,
+        hhhl: (r.score_hhhl as number) ?? 0,
         structure: (r.score_structure as number) ?? 0,
+        emaSlope: (r.score_ema_slope as number) ?? 0,
         volume: (r.score_volume as number) ?? 0,
         session: (r.score_session as number) ?? 0,
         volatility: (r.score_volatility as number) ?? 0,

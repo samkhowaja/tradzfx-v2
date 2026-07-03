@@ -1874,6 +1874,14 @@ void ExecuteSignalJson(string sigJson, bool paperMode)
 }
 
 //+------------------------------------------------------------------+
+//| Idempotency key helper                                             |
+//+------------------------------------------------------------------+
+string BuildFillIdempotencyKey(string signalId, long ticket, double price)
+{
+   return "fill:" + signalId + ":" + IntegerToString(ticket) + ":" + DoubleToString(price, 5);
+}
+
+//+------------------------------------------------------------------+
 //| Report fill or reject to server                                    |
 //+------------------------------------------------------------------+
 void ReportFill(string signalId, long ticket, double price, bool filled, string rejectReason)
@@ -1886,6 +1894,7 @@ void ReportFill(string signalId, long ticket, double price, bool filled, string 
       json += "\"status\":\"filled\"";
    else
       json += "\"status\":\"rejected\",\"rejectReason\":\"" + rejectReason + "\"";
+   json += ",\"idempotencyKey\":\"" + BuildFillIdempotencyKey(signalId, ticket, price) + "\"";
    json += "}";
 
    string url = g_serverUrl + "/api/mt5/fills";

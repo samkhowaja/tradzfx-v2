@@ -444,6 +444,14 @@ export function getPairCharacteristics(symbol: string): PairCharacteristics {
   };
 }
 
+/**
+ * Registry-based pip size. This is the single source of truth for pip sizing.
+ * XAUUSD = 0.1, JPY pairs = 0.01, standard FX = 0.0001.
+ */
+export function getRegistryPipSize(symbol: string): number {
+  return getPairCharacteristics(symbol).pipSize;
+}
+
 export function getSessionSpread(symbol: string, session: string): number {
   const pc = getPairCharacteristics(symbol);
   const mult = pc.sessionSpreadMultiplier[session] ?? 1.0;

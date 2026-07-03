@@ -1,16 +1,18 @@
 /**
- * Higher-TimeFrame Bias feature v2.0.0 — HTF Bias Tree.
+ * Higher-TimeFrame Bias feature v3.1.0 — pure HTF Bias Tree with local-agreement signal.
  *
- * Computes a top-down bias tree: 1D is computed first, then each child TF is
- * constrained by its parent. Aligned directions boost confidence; opposing
- * directions mark the child state as "opposing".
+ * Computes a top-down bias tree from higher-timeframe candles only.  No DB
+ * queries, no dependency on other feature rows.  The aggregate fields
+ * (direction, confidence, state, score, reason) and per-timeframe tree remain
+ * unchanged for backward compatibility.
  *
- * The legacy aggregate fields (direction, confidence, state, score, reason)
- * remain unchanged for backward compatibility with the strategy compiler,
- * structure/zone HTF-alignment flags, and the setup engine.
+ * v3.1.0 changes:
+ *   - 15m weight is boosted when the trading TF is 15m so the entry timeframe
+ *     is no longer the weakest voice.
+ *   - Exposes a localAgreement score so specs can block when HTF and local
+ *     structure disagree.
  */
 
-import type { Pool } from "@tm/shared";
 import type {
   Candle,
   Direction,
@@ -25,11 +27,12 @@ import { sha256 } from "@tm/shared";
 
 export interface HtfBiasInput {
   candles: Candle[];
+  higherTfCandles?: Record<TimeFrame, Candle[]>;
 }
 
 const TF_ORDER: TimeFrame[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
 
-const TF_WEIGHTS: Record<TimeFrame, number> = {
+const BASE_TF_WEIGHTS: Record<TimeFrame, number> = {
   "1d": 3.0,
   "4h": 2.0,
   "1h": 1.0,
@@ -38,64 +41,57 @@ const TF_WEIGHTS: Record<TimeFrame, number> = {
   "1m": 0.0,
 };
 
+function tfWeightsFor(featureTf: TimeFrame): Record<TimeFrame, number> {
+  const weights = { ...BASE_TF_WEIGHTS };
+  if (featureTf === "15m") {
+    // The entry timeframe should not be the weakest input.
+    weights["15m"] = 1.5;
+  }
+  return weights;
+}
+
 function tfIndex(tf: TimeFrame): number {
   return TF_ORDER.indexOf(tf);
 }
 
-function getContributingTfs(featureTf: TimeFrame): TimeFrame[] {
+function getContributingTfs(featureTf: TimeFrame, weights: Record<TimeFrame, number>): TimeFrame[] {
   const idx = tfIndex(featureTf);
-  return TF_ORDER.filter((tf) => tfIndex(tf) >= idx && TF_WEIGHTS[tf] > 0);
+  return TF_ORDER.filter((tf) => tfIndex(tf) >= idx && weights[tf] > 0);
 }
 
-function parentTf(tf: TimeFrame): TimeFrame | undefined {
+function parentTf(tf: TimeFrame, weights: Record<TimeFrame, number>): TimeFrame | undefined {
   const idx = tfIndex(tf);
   if (idx < 0 || idx >= TF_ORDER.length - 1) return undefined;
-  // Walk toward higher timeframes to find the next weighted parent.
   for (let i = idx + 1; i < TF_ORDER.length; i++) {
-    if (TF_WEIGHTS[TF_ORDER[i]] > 0) return TF_ORDER[i];
+    if (weights[TF_ORDER[i]] > 0) return TF_ORDER[i];
   }
   return undefined;
 }
 
-async function fetchLatestFreshOb(
-  pool: Pool,
-  symbol: string,
-  tf: TimeFrame,
-  asOfTs: Date
-): Promise<{ ob_kind: string } | null> {
-  const { rows } = await pool.query(
-    `SELECT ob_kind
-     FROM features_order_block
-     WHERE symbol = $1
-       AND tf = $2
-       AND ts <= $3
-       AND (mitigated_at IS NULL OR mitigated_at > $3)
-       AND (invalidated_at IS NULL OR invalidated_at > $3)
-     ORDER BY ts DESC
-     LIMIT 1`,
-    [symbol, tf, asOfTs]
-  );
-  return rows[0] ?? null;
+interface SwingBreak {
+  direction: Direction;
+  level: number;
+  eventType: "bos" | "choch";
+  ts: Date;
 }
 
-async function fetchLatestFreshStructure(
-  pool: Pool,
-  symbol: string,
-  tf: TimeFrame,
-  asOfTs: Date
-): Promise<{ direction: string; event_type: string } | null> {
-  const { rows } = await pool.query(
-    `SELECT direction, event_type
-     FROM features_structure
-     WHERE symbol = $1
-       AND tf = $2
-       AND ts <= $3
-       AND (invalidated_at IS NULL OR invalidated_at > $3)
-     ORDER BY ts DESC
-     LIMIT 1`,
-    [symbol, tf, asOfTs]
-  );
-  return rows[0] ?? null;
+function detectSwingBreak(candles: Candle[]): SwingBreak | null {
+  if (candles.length < 20) return null;
+  const lookback = 10;
+  const current = candles[candles.length - 1];
+  const prior = candles.slice(-lookback - 1, -1);
+  if (prior.length === 0) return null;
+
+  const highest = Math.max(...prior.map((c) => c.h));
+  const lowest = Math.min(...prior.map((c) => c.l));
+
+  if (current.c > highest) {
+    return { direction: "bullish", level: highest, eventType: "bos", ts: current.ts };
+  }
+  if (current.c < lowest) {
+    return { direction: "bearish", level: lowest, eventType: "bos", ts: current.ts };
+  }
+  return null;
 }
 
 interface RawNode {
@@ -105,40 +101,27 @@ interface RawNode {
   reasons: string[];
 }
 
-async function computeRawNodes(
-  pool: Pool,
-  symbol: string,
-  tfs: TimeFrame[],
-  asOfTs: Date
-): Promise<RawNode[]> {
+function computeRawNodes(
+  featureTf: TimeFrame,
+  higherTfCandles: Record<TimeFrame, Candle[]> | undefined,
+  weights: Record<TimeFrame, number>
+): RawNode[] {
+  const tfs = getContributingTfs(featureTf, weights);
   const nodes: RawNode[] = [];
   for (const tf of tfs) {
-    const weight = TF_WEIGHTS[tf];
-    const [ob, structure] = await Promise.all([
-      fetchLatestFreshOb(pool, symbol, tf, asOfTs),
-      fetchLatestFreshStructure(pool, symbol, tf, asOfTs),
-    ]);
-
+    const candles = higherTfCandles?.[tf];
+    const weight = weights[tf];
     let score = 0;
     const reasons: string[] = [];
 
-    if (ob) {
-      if (ob.ob_kind === "bullish") {
+    const swing = candles && candles.length > 0 ? detectSwingBreak(candles) : null;
+    if (swing) {
+      if (swing.direction === "bullish") {
         score += weight;
-        reasons.push(`${tf} bullish OB`);
-      } else if (ob.ob_kind === "bearish") {
+        reasons.push(`${tf} bullish ${swing.eventType}`);
+      } else if (swing.direction === "bearish") {
         score -= weight;
-        reasons.push(`${tf} bearish OB`);
-      }
-    }
-
-    if (structure) {
-      if (structure.direction === "bullish") {
-        score += weight;
-        reasons.push(`${tf} bullish ${structure.event_type}`);
-      } else if (structure.direction === "bearish") {
-        score -= weight;
-        reasons.push(`${tf} bearish ${structure.event_type}`);
+        reasons.push(`${tf} bearish ${swing.eventType}`);
       }
     }
 
@@ -172,8 +155,10 @@ function baseConfidence(state: BiasNodeState): number {
   }
 }
 
-function propagateTree(rawNodes: RawNode[]): Record<TimeFrame, BiasNode> {
-  // Sort from highest TF to lowest so parents are processed first.
+function propagateTree(
+  rawNodes: RawNode[],
+  weights: Record<TimeFrame, number>
+): Record<TimeFrame, BiasNode> {
   const sorted = [...rawNodes].sort((a, b) => tfIndex(b.tf) - tfIndex(a.tf));
   const byTf = new Map<TimeFrame, BiasNode>();
 
@@ -181,14 +166,12 @@ function propagateTree(rawNodes: RawNode[]): Record<TimeFrame, BiasNode> {
     const rawState = rawNodeState(raw.score);
     let state: BiasNodeState = rawState;
     let confidence = baseConfidence(rawState);
-    const pTf = parentTf(raw.tf);
+    const pTf = parentTf(raw.tf, weights);
     const parent = pTf ? byTf.get(pTf) : undefined;
 
     if (parent && parent.direction !== "neutral") {
       const aligned = raw.direction === parent.direction;
       if (aligned) {
-        // Aligned with parent: boost confidence and ensure state is at least
-        // as strong as the parent's influence.
         if (parent.state === "strong") {
           state = "strong";
           confidence = Math.max(confidence, 90);
@@ -197,7 +180,6 @@ function propagateTree(rawNodes: RawNode[]): Record<TimeFrame, BiasNode> {
           confidence = Math.max(confidence, 70);
         }
       } else if (raw.direction !== "neutral") {
-        // Opposing the parent: mark as opposing and reduce confidence.
         state = "opposing";
         confidence = 25;
       }
@@ -219,22 +201,36 @@ function propagateTree(rawNodes: RawNode[]): Record<TimeFrame, BiasNode> {
 
 function computeAggregate(
   tree: Record<TimeFrame, BiasNode>,
-  featureTf: TimeFrame
-): { direction: Direction; confidence: number; state: HtfBiasState; score: number; reason: string } {
-  const tfs = getContributingTfs(featureTf);
+  featureTf: TimeFrame,
+  weights: Record<TimeFrame, number>
+): {
+  direction: Direction;
+  confidence: number;
+  state: HtfBiasState;
+  score: number;
+  reason: string;
+  localAgreement: number | undefined;
+} {
+  const tfs = getContributingTfs(featureTf, weights);
   let score = 0;
   const reasons: string[] = [];
+  let localContribution = 0;
+  let higherContribution = 0;
 
   for (const tf of tfs) {
     const node = tree[tf];
     if (!node) continue;
-    const weight = TF_WEIGHTS[tf];
-    if (node.direction === "bullish") {
-      score += weight;
-      reasons.push(`${tf} bullish`);
-    } else if (node.direction === "bearish") {
-      score -= weight;
-      reasons.push(`${tf} bearish`);
+    const weight = weights[tf];
+    const signed =
+      node.direction === "bullish" ? weight : node.direction === "bearish" ? -weight : 0;
+    score += signed;
+    if (node.direction !== "neutral") {
+      reasons.push(`${tf} ${node.direction}`);
+    }
+    if (tf === featureTf) {
+      localContribution += Math.abs(signed);
+    } else {
+      higherContribution += Math.abs(signed);
     }
   }
 
@@ -256,23 +252,39 @@ function computeAggregate(
   if (score > 0) direction = "bullish";
   else if (score < 0) direction = "bearish";
 
-  const reason = reasons.length > 0
-    ? `${direction} ${state} (score=${score.toFixed(1)}): ${reasons.join(", ")}`
-    : `${direction} ${state} (score=${score.toFixed(1)}): no fresh HTF context`;
+  const reason =
+    reasons.length > 0
+      ? `${direction} ${state} (score=${score.toFixed(1)}): ${reasons.join(", ")}`
+      : `${direction} ${state} (score=${score.toFixed(1)}): no fresh HTF context`;
 
-  return { direction, confidence, state, score, reason };
+  // localAgreement = how much the local TF lines up with the higher-TF consensus.
+  // Undefined when the local TF does not contribute (e.g. 1m/5m trading TFs).
+  let localAgreement: number | undefined;
+  const localNode = tree[featureTf];
+  if (localContribution > 0 || (localNode && localNode.direction !== "neutral")) {
+    const aligned =
+      direction === "neutral"
+        ? 0
+        : localNode && localNode.direction === direction
+        ? 1
+        : localNode && localNode.direction !== "neutral"
+        ? 0
+        : 0;
+    const total = localContribution + higherContribution;
+    localAgreement = total > 0 ? aligned * (localContribution / total) : aligned;
+  }
+
+  return { direction, confidence, state, score, reason, localAgreement };
 }
 
-async function computeHtfBias(
-  pool: Pool,
-  symbol: string,
+function computeHtfBias(
   featureTf: TimeFrame,
-  asOfTs: Date
-): Promise<HtfBiasOutput> {
-  const tfs = getContributingTfs(featureTf);
-  const rawNodes = await computeRawNodes(pool, symbol, tfs, asOfTs);
-  const byTimeFrame = propagateTree(rawNodes);
-  const aggregate = computeAggregate(byTimeFrame, featureTf);
+  higherTfCandles: Record<TimeFrame, Candle[]> | undefined
+): HtfBiasOutput {
+  const weights = tfWeightsFor(featureTf);
+  const rawNodes = computeRawNodes(featureTf, higherTfCandles, weights);
+  const byTimeFrame = propagateTree(rawNodes, weights);
+  const aggregate = computeAggregate(byTimeFrame, featureTf, weights);
 
   const treeSummary = Object.values(byTimeFrame)
     .sort((a, b) => tfIndex(b.tf) - tfIndex(a.tf))
@@ -280,44 +292,53 @@ async function computeHtfBias(
     .join(", ");
 
   return {
-    ...aggregate,
+    direction: aggregate.direction,
+    confidence: aggregate.confidence,
+    state: aggregate.state,
+    score: aggregate.score,
+    reason: `${aggregate.reason} | tree={${treeSummary}}`,
     byTimeFrame,
     tradingTf: featureTf,
-    reason: `${aggregate.reason} | tree={${treeSummary}}`,
+    localAgreement: aggregate.localAgreement,
   };
 }
 
-export const htfBiasFeature: FeatureDefinition<
-  HtfBiasInput,
-  HtfBiasOutput
-> = {
+export const htfBiasFeature: FeatureDefinition<HtfBiasInput, HtfBiasOutput> = {
   name: "features_htf_bias",
-  version: "2.0.0",
+  version: "3.1.0",
   dependencies: [],
+  referenceTimeFrames: ["1h", "4h", "1d"],
 
-  compute(_input, context): HtfBiasOutput {
-    const pool = context?.pool as Pool | undefined;
-    const symbol = context?.symbol;
-    const endTs = context?.endTs;
+  compute(input, context): HtfBiasOutput {
     const tf = context?.tf ?? "15m";
-
-    if (!pool || !symbol || !endTs) {
+    if (!input.higherTfCandles || Object.keys(input.higherTfCandles).length === 0) {
       return {
         direction: "neutral",
         confidence: 0,
         state: "BLOCK",
         score: 0,
-        reason: "missing context (pool/symbol/endTs)",
+        reason: "missing higher-timeframe candles",
       };
     }
-
-    return computeHtfBias(pool, symbol, tf, endTs) as unknown as HtfBiasOutput;
+    return computeHtfBias(tf, input.higherTfCandles);
   },
 
-  hashInput(): string {
-    // Bumped to v2.0.1 so existing cached rows with NULL by_time_frame are
-    // recomputed and upserted.
-    return sha256("htfBias:v2.0.1");
+  hashInput(input): string {
+    const htf = input.higherTfCandles;
+    let htfHash = "";
+    if (htf) {
+      for (const tf of TF_ORDER) {
+        const candles = htf[tf];
+        if (!candles || candles.length === 0) continue;
+        htfHash +=
+          `${tf}:` +
+          candles
+            .map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}:${c.v ?? 0}`)
+            .join("|") +
+          "||";
+      }
+    }
+    return sha256(`htfBias:v3.1.0|${htfHash}`);
   },
 
   hashOutput(output): string {
@@ -327,7 +348,7 @@ export const htfBiasFeature: FeatureDefinition<
           .join("|")
       : "";
     return sha256(
-      `${output.direction}:${output.confidence}:${output.state}:${output.score}:${output.reason}:${treeHash}`
+      `${output.direction}:${output.confidence}:${output.state}:${output.score}:${output.reason}:${output.localAgreement ?? ""}:${treeHash}`
     );
   },
 
@@ -341,6 +362,7 @@ export const htfBiasFeature: FeatureDefinition<
         reason: output.reason,
         by_time_frame: output.byTimeFrame ?? null,
         trading_tf: output.tradingTf ?? null,
+        local_agreement: output.localAgreement ?? null,
       },
     ];
   },
@@ -375,6 +397,7 @@ export const htfBiasFeature: FeatureDefinition<
       reason: r.reason as string,
       byTimeFrame: parseTree(r.by_time_frame),
       tradingTf: (r.trading_tf as TimeFrame) ?? undefined,
+      localAgreement: r.local_agreement != null ? Number(r.local_agreement) : undefined,
     };
   },
 };

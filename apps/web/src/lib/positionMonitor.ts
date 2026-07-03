@@ -12,7 +12,7 @@
  *   - pip value per lot derived from the current price and account currency
  */
 
-import { getPool, getPipInfo } from "@tm/shared";
+import { getPool, getRegistryPipSize, getPipValuePerLotForSymbol } from "@tm/shared";
 import { markOrderClosed } from "./orderService";
 
 export interface MonitorOptions {
@@ -138,13 +138,15 @@ export async function monitorPositions(
     const minutesOpen = (now - filledAt) / 60000;
 
     if (minutesOpen > maxStaleMinutes) {
-      await markOrderClosed(
+      const { success } = await markOrderClosed(
         order.id,
         parseFloat(order.fill_price ?? order.entry_price),
         "MANUAL",
         0
       );
-      result.stale++;
+      if (success) {
+        result.stale++;
+      }
       continue;
     }
 
@@ -155,8 +157,8 @@ export async function monitorPositions(
 
     const sl = parseFloat(order.stop_loss);
     const tp = parseFloat(order.take_profit);
-    const pipInfo = getPipInfo(order.symbol, undefined, md.c, accountCurrency);
-    const spreadPrice = (md.spreadPips ?? 0) * pipInfo.pipSize;
+    const pipSize = getRegistryPipSize(order.symbol);
+    const spreadPrice = (md.spreadPips ?? 0) * pipSize;
     const slippagePrice = (md.atr ?? 0) * slippageAtrFraction;
     const halfSpread = spreadPrice / 2;
 
@@ -193,9 +195,11 @@ export async function monitorPositions(
 
     if (closePrice != null && outcome != null) {
       const realizedPnl = computePaperPnl(order, closePrice, md.c, accountCurrency);
-      await markOrderClosed(order.id, closePrice, outcome, realizedPnl);
-      if (outcome === "SL_HIT") result.slHit++;
-      else result.tpHit++;
+      const { success } = await markOrderClosed(order.id, closePrice, outcome, realizedPnl);
+      if (success) {
+        if (outcome === "SL_HIT") result.slHit++;
+        else result.tpHit++;
+      }
     }
   }
 
@@ -208,7 +212,8 @@ function computePaperPnl(order: any, closePrice: number, referencePrice: number,
   const direction = order.side === "buy" ? 1 : -1;
   const priceMove = (closePrice - entry) * direction;
 
-  const pipInfo = getPipInfo(order.symbol, undefined, referencePrice, accountCurrency);
-  const pips = pipInfo.pipSize > 0 ? priceMove / pipInfo.pipSize : 0;
-  return parseFloat((pips * pipInfo.pipValuePerLot * lotSize).toFixed(2));
+  const pipSize = getRegistryPipSize(order.symbol);
+  const pipValuePerLot = getPipValuePerLotForSymbol(order.symbol, undefined, referencePrice, accountCurrency);
+  const pips = pipSize > 0 ? priceMove / pipSize : 0;
+  return parseFloat((pips * pipValuePerLot * lotSize).toFixed(2));
 }

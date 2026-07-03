@@ -4,7 +4,7 @@
   Health monitor for the V2 web app.
 
 .DESCRIPTION
-  Verifies that the tm-web-v2 PM2 process is online and that the public
+  Verifies that the tz-web-v2 PM2 process is online and that the public
   /api/health endpoint and the MT5 ingest heartbeat are responding.
   Emits an alert and exits non-zero on any failure.
 #>
@@ -18,7 +18,7 @@ $HealthUrl     = 'http://127.0.0.1:3003/api/health'
 $HeartbeatUrl  = 'http://127.0.0.1:3003/api/ingest/heartbeat'
 $ApiKey        = $env:TM_MT5_API_KEY
 if (-not $ApiKey) { throw "TM_MT5_API_KEY is not set" }
-$ProcessName   = 'tm-web-v2'
+$ProcessName   = 'tz-web-v2'
 
 $failures = @()
 

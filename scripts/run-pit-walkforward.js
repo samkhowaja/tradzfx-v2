@@ -15,7 +15,17 @@ const { Pool } = require("pg");
 const yaml = require("js-yaml");
 
 const RUNNER = path.join(__dirname, "backtest-pit-v2.js");
-const SPECS = ["doyle_sd", "orb_classic", "watukushay_no1"];
+const SPECS_DIR = path.join(__dirname, "..", "packages", "strategies", "src", "specs");
+const activeOnly = process.argv.includes("--active-only");
+const SPECS = fs
+  .readdirSync(SPECS_DIR)
+  .filter((f) => f.endsWith(".yaml"))
+  .map((f) => f.replace(/\.yaml$/, ""))
+  .filter((id) => {
+    if (!activeOnly) return true;
+    const spec = loadSpec(id);
+    return spec.active !== false;
+  });
 const CONCURRENCY = 4;
 
 const pool = new Pool({
@@ -97,9 +107,10 @@ async function withConcurrency(tasks, limit) {
 }
 
 async function main() {
-  const windowDays = parseInt(process.argv[2] || "30", 10);
-  const stepDays = parseInt(process.argv[3] || "15", 10);
-  const outputDir = process.argv[4] || path.join(__dirname, "..", "reports", `walkforward-${windowDays}d-${stepDays}d-step-${new Date().toISOString().slice(0, 10)}`);
+  const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+  const windowDays = parseInt(args[0] || "30", 10);
+  const stepDays = parseInt(args[1] || "15", 10);
+  const outputDir = args[2] || path.join(__dirname, "..", "reports", `walkforward-${windowDays}d-${stepDays}d-step-${new Date().toISOString().slice(0, 10)}`);
   fs.mkdirSync(outputDir, { recursive: true });
 
   const { rows } = await pool.query(`SELECT MAX(ts) AS max_ts FROM candles_1m`);

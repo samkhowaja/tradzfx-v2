@@ -1,82 +1,52 @@
 id: waqar_v2_tune_eq
+familyId: waqar_v2
 active: true
-name: "Waqar Asim Scalp V2 — equilibrium pricing variant"
-version: "2.2.0"
-description: >
+name: Waqar Asim Scalp V2 — equilibrium pricing variant
+version: 2.2.0
+description: |
   Same as waqar_v2 but allows equilibrium pricing for both directions.
-
-filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP]
-  timeWindows:
-    - { utcStart: "08:00", utcEnd: "09:00" }
-    - { utcStart: "14:00", utcEnd: "15:00" }
-
-setup:
-  - id: htf_zone
-    feature: features_zone
-    tf: 1h
-    predicate: "zone_kind IN ('demand', 'supply')"
-    required: true
-
-  - id: trend_bias
-    feature: features_htf_bias
-    tf: 15m
-    predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
-    required: true
-
-  - id: directional_zone
-    feature: features_pricing
-    tf: 4h
-    predicate: |
-      (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))
-      OR
-      (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))
-    required: true
-
-entry:
-  - id: structure_break
-    feature: features_structure
-    tf: 1m
-    predicate: "event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction"
-    required: true
-
-  - id: zone_retest
-    feature: features_zone
-    tf: 1m
-    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8"
-    required: true
-
-risk:
-  sl: "atr(1m) * 1.2"
-  tp: "sl * 3.0"
-  minRR: 3.0
-  timeoutBars: 180
-  maxFillBars: 45
-
-gates:
-  - id: session_gate
-    name: session
-    params:
-      allowed: [LONDON, OVERLAP]
-
-  - id: portfolio_heat
-    name: portfolioHeat
-    params:
-      maxConcurrentPerSymbol: 2
-      maxConcurrentTotal: 6
-
-live:
-  mode: paper
-  lotSize: 0.01
-  riskPerTradePct: 1.0
-  accountBalance: 10000
-  accountCurrency: USD
-  signalTtlMinutes: 15
-  maxSpreadPips: 3.0
-  maxSlippagePoints: 20
-  entryZonePips: null
-  maxPositionsPerSymbol: 1
-  maxPositionsTotal: 6
-  cooldownMinutes: 30
-  structureFreshnessMinutes: 120
+overrides:
+  setup:
+    - id: htf_zone
+      feature: features_zone
+      tf: 1h
+      predicate: zone_kind IN ('demand', 'supply')
+      required: true
+    - id: trend_bias
+      feature: features_htf_bias
+      tf: 15m
+      predicate: direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')
+      required: true
+    - id: directional_zone
+      feature: features_pricing
+      tf: 4h
+      predicate: |
+        (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))
+        OR
+        (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))
+      required: true
+  entry:
+    - id: structure_break
+      feature: features_structure
+      tf: 1m
+      predicate: event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction
+      required: true
+    - id: zone_retest
+      feature: features_zone
+      tf: 1m
+      predicate: zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8
+      required: true
+  gates:
+    - id: session_gate
+      name: session
+      params:
+        allowed:
+          - LONDON
+          - OVERLAP
+    - id: portfolio_heat
+      name: portfolioHeat
+      params:
+        maxConcurrentPerSymbol: 2
+        maxConcurrentTotal: 6
+  live:
+    structureFreshnessMinutes: 120

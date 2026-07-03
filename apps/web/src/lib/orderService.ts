@@ -28,14 +28,6 @@ function isValidOrderTransition(from: OrderStatus, to: OrderStatus): boolean {
   return from === to || (VALID_ORDER_TRANSITIONS[from]?.includes(to) ?? false);
 }
 
-async function getOrderStatus(pool: ReturnType<typeof getPool>, orderId: string): Promise<OrderStatus | null> {
-  const { rows } = await pool.query(
-    `SELECT status FROM orders WHERE id = $1 LIMIT 1`,
-    [orderId]
-  );
-  return (rows[0]?.status as OrderStatus | undefined) ?? null;
-}
-
 export interface OrderRow {
   id: string;
   symbol: string;
@@ -201,24 +193,79 @@ export async function getPendingOrders(symbols?: string[]): Promise<OrderRow[]> 
   return rows as OrderRow[];
 }
 
+/**
+ * Atomic status transition helper.
+ * Performs the UPDATE with the valid-from statuses in the WHERE clause so the
+ * database enforces the state machine. Avoids the previous read-then-update
+ * race condition where concurrent EA callbacks could observe stale status.
+ */
+async function atomicTransition(
+  pool: ReturnType<typeof getPool>,
+  orderId: string,
+  targetStatus: OrderStatus,
+  validFrom: OrderStatus[],
+  setClause: string,
+  params: unknown[],
+  options?: { requireMatch?: (row: OrderRow) => boolean }
+): Promise<{ success: boolean; previousStatus?: OrderStatus; row?: OrderRow }> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const fromList = validFrom.map((s) => `'${s}'`).join(", ");
+    const { rows } = await client.query(
+      `UPDATE orders
+       SET ${setClause}
+       WHERE id = $1 AND status IN (${fromList})
+       RETURNING *`,
+      [orderId, ...params]
+    );
+
+    const row = rows[0] as OrderRow | undefined;
+    if (!row) {
+      // No row matched — either order doesn't exist or status was already advanced.
+      // Fetch current status for diagnostics without locking.
+      const { rows: diag } = await client.query(
+        `SELECT status FROM orders WHERE id = $1`,
+        [orderId]
+      );
+      const previousStatus = diag[0]?.status as OrderStatus | undefined;
+      await client.query("ROLLBACK");
+      return { success: false, previousStatus };
+    }
+
+    if (options?.requireMatch && !options.requireMatch(row)) {
+      await client.query("ROLLBACK");
+      return { success: false, previousStatus: row.status };
+    }
+
+    await client.query("COMMIT");
+    return { success: true, previousStatus: row.status, row };
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 export async function markOrderSent(
   orderId: string,
   terminalKeyId?: string
 ): Promise<boolean> {
   const pool = getPool();
-  const current = await getOrderStatus(pool, orderId);
-  if (current === "sent") return true;
-  if (current !== "pending") {
-    console.warn(`[orderService] markOrderSent skipped: order ${orderId.slice(0, 8)} is ${current}`);
-    return false;
-  }
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'sent', terminal_key_id = COALESCE($2, terminal_key_id), sent_at = NOW()
-     WHERE id = $1 AND status = 'pending'`,
-    [orderId, terminalKeyId ?? null]
+  const result = await atomicTransition(
+    pool,
+    orderId,
+    "sent",
+    ["pending"],
+    "status = 'sent', terminal_key_id = COALESCE($2, terminal_key_id), sent_at = NOW()",
+    [terminalKeyId ?? null]
   );
-  return (rowCount ?? 0) > 0;
+  if (!result.success && result.previousStatus !== "sent") {
+    console.warn(`[orderService] markOrderSent skipped: order ${orderId.slice(0, 8)} is ${result.previousStatus}`);
+  }
+  return result.success || result.previousStatus === "sent";
 }
 
 export async function markOrderAcked(
@@ -226,19 +273,18 @@ export async function markOrderAcked(
   terminalKeyId?: string
 ): Promise<boolean> {
   const pool = getPool();
-  const current = await getOrderStatus(pool, orderId);
-  if (!current) return false;
-  if (["rejected", "expired", "closed"].includes(current)) {
-    console.warn(`[orderService] markOrderAcked ignored: order ${orderId.slice(0, 8)} is ${current}`);
-    return false;
-  }
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'sent', terminal_key_id = COALESCE($2, terminal_key_id), acked_at = NOW()
-     WHERE id = $1 AND status IN ('pending', 'sent')`,
-    [orderId, terminalKeyId ?? null]
+  const result = await atomicTransition(
+    pool,
+    orderId,
+    "sent",
+    ["pending", "sent"],
+    "status = 'sent', terminal_key_id = COALESCE($2, terminal_key_id), acked_at = NOW()",
+    [terminalKeyId ?? null]
   );
-  return (rowCount ?? 0) > 0;
+  if (!result.success && !["pending", "sent"].includes(result.previousStatus ?? "")) {
+    console.warn(`[orderService] markOrderAcked ignored: order ${orderId.slice(0, 8)} is ${result.previousStatus}`);
+  }
+  return result.success;
 }
 
 export async function markOrderFilled(
@@ -246,37 +292,41 @@ export async function markOrderFilled(
   mt5Ticket: number,
   fillPrice: number,
   terminalKeyId?: string
-): Promise<boolean> {
+): Promise<{ success: boolean; duplicate: boolean }> {
   const pool = getPool();
-  const current = await getOrderStatus(pool, orderId);
-  if (!current) return false;
 
   // Idempotent fill: same ticket already recorded.
-  if (current === "filled") {
-    const { rows } = await pool.query(
-      `SELECT mt5_ticket FROM orders WHERE id = $1`,
-      [orderId]
-    );
-    if (Number(rows[0]?.mt5_ticket) === mt5Ticket) {
-      return true;
-    }
-  }
-
-  if (!isValidOrderTransition(current, "filled")) {
-    console.warn(
-      `[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${current}`
-    );
-    return false;
-  }
-
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'filled', mt5_ticket = $2, fill_price = $3,
-         terminal_key_id = COALESCE($4, terminal_key_id), filled_at = NOW()
-     WHERE id = $1 AND status IN ('pending', 'sent')`,
-    [orderId, mt5Ticket, fillPrice, terminalKeyId ?? null]
+  const { rows: existing } = await pool.query(
+    `SELECT status, mt5_ticket FROM orders WHERE id = $1`,
+    [orderId]
   );
-  return (rowCount ?? 0) > 0;
+  const existingRow = existing[0] as { status: OrderStatus; mt5_ticket: number | null } | undefined;
+  if (existingRow?.status === "filled" && Number(existingRow.mt5_ticket) === mt5Ticket) {
+    return { success: true, duplicate: true };
+  }
+
+  if (!isValidOrderTransition(existingRow?.status ?? "pending", "filled")) {
+    console.warn(
+      `[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${existingRow?.status}`
+    );
+    return { success: false, duplicate: false };
+  }
+
+  const result = await atomicTransition(
+    pool,
+    orderId,
+    "filled",
+    ["pending", "sent"],
+    "status = 'filled', mt5_ticket = $2, fill_price = $3, " +
+      "terminal_key_id = COALESCE($4, terminal_key_id), filled_at = NOW()",
+    [mt5Ticket, fillPrice, terminalKeyId ?? null]
+  );
+
+  if (!result.success) {
+    console.warn(`[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${result.previousStatus}`);
+  }
+
+  return { success: result.success, duplicate: false };
 }
 
 export async function markOrderRejected(
@@ -285,22 +335,19 @@ export async function markOrderRejected(
   terminalKeyId?: string
 ): Promise<boolean> {
   const pool = getPool();
-  const current = await getOrderStatus(pool, orderId);
-  if (current === "rejected") return true;
-  if (!isValidOrderTransition(current ?? "pending", "rejected")) {
-    console.warn(
-      `[orderService] markOrderRejected rejected: order ${orderId.slice(0, 8)} is ${current}`
-    );
-    return false;
-  }
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'rejected', reject_reason = $2,
-         terminal_key_id = COALESCE($3, terminal_key_id)
-     WHERE id = $1 AND status IN ('pending', 'sent')`,
-    [orderId, reason, terminalKeyId ?? null]
+  const result = await atomicTransition(
+    pool,
+    orderId,
+    "rejected",
+    ["pending", "sent"],
+    "status = 'rejected', reject_reason = $2, " +
+      "terminal_key_id = COALESCE($3, terminal_key_id)",
+    [reason, terminalKeyId ?? null]
   );
-  return (rowCount ?? 0) > 0;
+  if (!result.success && result.previousStatus !== "rejected") {
+    console.warn(`[orderService] markOrderRejected rejected: order ${orderId.slice(0, 8)} is ${result.previousStatus}`);
+  }
+  return result.success || result.previousStatus === "rejected";
 }
 
 export async function markOrderClosed(
@@ -309,61 +356,59 @@ export async function markOrderClosed(
   outcome: string,
   realizedPnl: number,
   terminalKeyId?: string
-): Promise<boolean> {
+): Promise<{ success: boolean; outcomeR?: number }> {
   const pool = getPool();
-  const current = await getOrderStatus(pool, orderId);
-  if (current === "closed") return true;
-  if (!isValidOrderTransition(current ?? "filled", "closed")) {
-    console.warn(
-      `[orderService] markOrderClosed rejected: order ${orderId.slice(0, 8)} is ${current}`
+
+  // Compute outcome_r (R-multiple) inside the transaction to avoid a separate
+  // read outside the atomic update.
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const { rows } = await client.query(
+      `UPDATE orders
+       SET status = 'closed',
+           close_price = $2,
+           outcome = $3,
+           outcome_r = CASE
+             WHEN (fill_price IS NOT NULL OR entry_price IS NOT NULL) AND stop_loss IS NOT NULL THEN
+               ROUND(
+                 (($2 - COALESCE(fill_price, entry_price)) * CASE WHEN side = 'buy' THEN 1 ELSE -1 END)
+                 / NULLIF(ABS(COALESCE(fill_price, entry_price) - stop_loss), 0),
+                 2
+               )
+             ELSE NULL
+           END,
+           realized_pnl = $4,
+           terminal_key_id = COALESCE($5, terminal_key_id),
+           closed_at = NOW()
+       WHERE id = $1 AND status = 'filled'
+       RETURNING *`,
+      [orderId, closePrice, outcome, realizedPnl, terminalKeyId ?? null]
     );
-    return false;
-  }
 
-  // Compute outcome_r (R-multiple)
-  const { rows } = await pool.query(
-    `SELECT entry_price, stop_loss, take_profit, side, fill_price
-     FROM orders WHERE id = $1`,
-    [orderId]
-  );
-
-  let outcomeR = 0;
-  if (rows.length > 0) {
-    const o = rows[0];
-    const entry = o.fill_price ?? o.entry_price;
-    const sl = parseFloat(o.stop_loss);
-    const risk = Math.abs(entry - sl);
-
-    if (risk > 0) {
-      const priceMove = closePrice - entry;
-      const direction = o.side === "buy" ? 1 : -1;
-      outcomeR = (priceMove * direction) / risk;
-      outcomeR = parseFloat(outcomeR.toFixed(2));
+    const row = rows[0] as OrderRow | undefined;
+    if (!row) {
+      await client.query("ROLLBACK");
+      console.warn(`[orderService] markOrderClosed rejected: order ${orderId.slice(0, 8)} not filled`);
+      return { success: false };
     }
-  }
 
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'closed',
-         close_price = $2,
-         outcome = $3,
-         outcome_r = $4,
-         realized_pnl = $5,
-         terminal_key_id = COALESCE($6, terminal_key_id),
-         closed_at = NOW()
-     WHERE id = $1 AND status = 'filled'`,
-    [orderId, closePrice, outcome, outcomeR, realizedPnl, terminalKeyId ?? null]
-  );
+    await client.query("COMMIT");
 
-  if ((rowCount ?? 0) > 0) {
     try {
-      await updateSetupEvaluationOutcome(pool, orderId, outcome, outcomeR);
+      await updateSetupEvaluationOutcome(pool, orderId, outcome, row.outcome_r ?? 0);
     } catch (err: any) {
       console.warn("[orderService] Failed to update setup evaluation outcome:", err.message);
     }
-  }
 
-  return (rowCount ?? 0) > 0;
+    return { success: true, outcomeR: row.outcome_r ?? undefined };
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 export async function getOrderById(orderId: string): Promise<OrderRow | null> {

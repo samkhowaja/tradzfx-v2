@@ -1,4 +1,5 @@
 id: smart_risk_ob_ifvg_1m
+familyId: smart_risk_ob_ifvg_1m
 active: true
 name: "Smart Risk Scalp 1 — OB + iFVG"
 version: "1.0.1"
@@ -7,8 +8,8 @@ description: >
   then a lower-timeframe inverse FVG aligned with the bias for entry.
 
 filters:
-  symbols: [XAUUSD]
-  sessions: [LONDON, OVERLAP, NY]
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, OVERLAP, NY ]
   timeWindows:
     - { utcStart: "08:00", utcEnd: "11:30" }
     - { utcStart: "13:30", utcEnd: "16:30" }
@@ -24,7 +25,8 @@ setup:
   - id: htf_zone
     feature: features_zone
     tf: 15m
-    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND is_fresh = true"
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND
+      is_fresh = true"
     required: true
     weight: 8
 
@@ -45,7 +47,8 @@ setup:
   - id: pricing_filter
     feature: features_pricing
     tf: 5m
-    predicate: "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')"
+    predicate: "position IN ('premium', 'deep_premium', 'equilibrium', 'discount',
+      'deep_discount')"
     required: true
     weight: 1
 
@@ -53,7 +56,8 @@ entry:
   - id: ltf_ifvg
     feature: features_ifvg
     tf: 5m
-    predicate: "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true"
+    predicate: "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh
+      = true"
     required: true
     weight: 10
 
@@ -79,7 +83,7 @@ gates:
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP, NY]
+      allowed: [ LONDON, OVERLAP, NY ]
 
   - id: spread_gate
     name: spread
@@ -89,7 +93,7 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 3.0
+      maxAtr5Pips: 3.0
 
   - id: portfolio_heat
     name: portfolioHeat

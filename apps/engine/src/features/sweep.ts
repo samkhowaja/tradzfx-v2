@@ -1,13 +1,15 @@
 /**
- * Sweep (liquidity sweep) feature v1.2.0.
+ * Sweep (liquidity sweep) feature v1.3.0.
  * Detects when price briefly exceeds a pivot level before reversing.
  *
- * v1.2.0 filters:
- *   - Wick size must be >= 20% of ATR (or the candle is too small to be
- *     considered a meaningful liquidity grab).
- *   - A structure event (BOS / MSS / CHoCH) must have occurred within the
- *     last 10 bars before the sweep, confirming the sweep is context-driven
- *     rather than random noise.
+ * v1.3.0 supports two sweep types:
+ *   - "post_structure": a structure event (BOS / MSS / CHoCH) occurred within the
+ *     last 10 bars before the sweep, confirming the sweep is context-driven.
+ *   - "inducement": no preceding structure, but a confirming CHoCH / MSS occurs
+ *     within 10 bars after the sweep. This matches the canonical ICT sequence of
+ *     inducement → sweep → CHoCH → entry.
+ *
+ *   - Wick size must be >= 20% of ATR.
  *   - Sweeps are recorded on the wick-piercing candle, not on a later close.
  */
 
@@ -30,8 +32,10 @@ export interface SweepInput {
 }
 
 const STRUCTURE_LOOKBACK_BARS = 10;
+const INDUCEMENT_CONFIRMATION_BARS = 10;
 const MIN_WICK_SIZE_ATR_PCT = 0.2;
 const VALID_STRUCTURE_EVENTS = new Set(["bos", "mss", "choch"]);
+const VALID_CONFIRMING_EVENTS = new Set(["mss", "choch"]);
 
 function getAtr14(input: SweepInput): number {
   const atr = input.features_atr?.values?.find((v) => v.period === 14)?.value;
@@ -63,6 +67,28 @@ function hasPrecedingStructureEvent(
   );
 }
 
+function hasFollowingConfirmationEvent(
+  events: StructureOutput["events"],
+  candles: Candle[],
+  sweepIdx: number,
+  sweepDirection: "bullish" | "bearish"
+): boolean {
+  const endIdx = Math.min(candles.length - 1, sweepIdx + INDUCEMENT_CONFIRMATION_BARS);
+  const sweepTs = candles[sweepIdx]?.ts;
+  const endTs = candles[endIdx]?.ts;
+  if (!sweepTs || !endTs) return false;
+
+  // Inducement sweep of lows → bullish reversal should be confirmed by bullish
+  // CHoCH/MSS; sweep of highs → bearish reversal by bearish CHoCH/MSS.
+  return events.some(
+    (e) =>
+      VALID_CONFIRMING_EVENTS.has(e.eventType) &&
+      e.direction === sweepDirection &&
+      e.ts > sweepTs &&
+      e.ts <= endTs
+  );
+}
+
 function detectSweeps(input: SweepInput): SweepOutput["sweeps"] {
   const { candles, features_pivot: pivotFeature, features_structure: structureFeature } = input;
   const pivots = pivotFeature?.pivots ?? [];
@@ -88,22 +114,29 @@ function detectSweeps(input: SweepInput): SweepOutput["sweeps"] {
         if (
           candle.l < pivot.price &&
           candle.c > pivot.price &&
-          wickSize >= minWickSize &&
-          hasPrecedingStructureEvent(events, candles, sweepIdx)
+          wickSize >= minWickSize
         ) {
-          sweeps.push({
-            direction: "bullish",
-            level: pivot.price,
-            extreme: candle.l,
-            close: candle.c,
-            ts: candle.ts,
-            evidence: {
-              pivotTs: pivot.ts.toISOString(),
-              wickPct: ((pivot.price - candle.l) / (candle.h - candle.l)) * 100,
-              wickSizeAtrPct: atr > 0 ? wickSize / atr : 0,
-              structureWithinBars: STRUCTURE_LOOKBACK_BARS,
-            },
-          });
+          const postStructure = hasPrecedingStructureEvent(events, candles, sweepIdx);
+          const inducement = !postStructure &&
+            hasFollowingConfirmationEvent(events, candles, sweepIdx, "bullish");
+
+          if (postStructure || inducement) {
+            sweeps.push({
+              direction: "bullish",
+              level: pivot.price,
+              extreme: candle.l,
+              close: candle.c,
+              ts: candle.ts,
+              sweepType: postStructure ? "post_structure" : "inducement",
+              evidence: {
+                pivotTs: pivot.ts.toISOString(),
+                wickPct: ((pivot.price - candle.l) / (candle.h - candle.l)) * 100,
+                wickSizeAtrPct: atr > 0 ? wickSize / atr : 0,
+                structureWithinBars: STRUCTURE_LOOKBACK_BARS,
+                inducementConfirmationBars: INDUCEMENT_CONFIRMATION_BARS,
+              },
+            });
+          }
           break; // One sweep per pivot
         }
       } else {
@@ -112,22 +145,29 @@ function detectSweeps(input: SweepInput): SweepOutput["sweeps"] {
         if (
           candle.h > pivot.price &&
           candle.c < pivot.price &&
-          wickSize >= minWickSize &&
-          hasPrecedingStructureEvent(events, candles, sweepIdx)
+          wickSize >= minWickSize
         ) {
-          sweeps.push({
-            direction: "bearish",
-            level: pivot.price,
-            extreme: candle.h,
-            close: candle.c,
-            ts: candle.ts,
-            evidence: {
-              pivotTs: pivot.ts.toISOString(),
-              wickPct: ((candle.h - pivot.price) / (candle.h - candle.l)) * 100,
-              wickSizeAtrPct: atr > 0 ? wickSize / atr : 0,
-              structureWithinBars: STRUCTURE_LOOKBACK_BARS,
-            },
-          });
+          const postStructure = hasPrecedingStructureEvent(events, candles, sweepIdx);
+          const inducement = !postStructure &&
+            hasFollowingConfirmationEvent(events, candles, sweepIdx, "bearish");
+
+          if (postStructure || inducement) {
+            sweeps.push({
+              direction: "bearish",
+              level: pivot.price,
+              extreme: candle.h,
+              close: candle.c,
+              ts: candle.ts,
+              sweepType: postStructure ? "post_structure" : "inducement",
+              evidence: {
+                pivotTs: pivot.ts.toISOString(),
+                wickPct: ((candle.h - pivot.price) / (candle.h - candle.l)) * 100,
+                wickSizeAtrPct: atr > 0 ? wickSize / atr : 0,
+                structureWithinBars: STRUCTURE_LOOKBACK_BARS,
+                inducementConfirmationBars: INDUCEMENT_CONFIRMATION_BARS,
+              },
+            });
+          }
           break;
         }
       }
@@ -139,7 +179,7 @@ function detectSweeps(input: SweepInput): SweepOutput["sweeps"] {
 
 export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
   name: "features_sweep",
-  version: "1.2.0",
+  version: "1.3.0",
   dependencies: ["features_pivot", "features_atr", "features_structure"],
 
   compute(input): SweepOutput {
@@ -181,7 +221,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       output.sweeps
         .map(
           (s) =>
-            `${s.ts.toISOString()}:${s.direction}:${s.level}:${s.extreme}:${s.close}:${s.mitigatedAt?.toISOString() ?? ""}`
+            `${s.ts.toISOString()}:${s.direction}:${s.sweepType ?? "post_structure"}:${s.level}:${s.extreme}:${s.close}:${s.mitigatedAt?.toISOString() ?? ""}`
         )
         .join("|")
     );
@@ -194,6 +234,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       extreme: s.extreme,
       close: s.close,
       ts: s.ts,
+      sweep_type: s.sweepType ?? "post_structure",
       evidence: s.evidence ? JSON.stringify(s.evidence) : null,
       mitigated_at: s.mitigatedAt ?? null,
     }));
@@ -207,6 +248,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
         extreme: r.extreme as number,
         close: r.close as number,
         ts: new Date(r.ts as string),
+        sweepType: (r.sweep_type as "post_structure" | "inducement") ?? "post_structure",
         evidence: r.evidence ? JSON.parse(r.evidence as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
       })),

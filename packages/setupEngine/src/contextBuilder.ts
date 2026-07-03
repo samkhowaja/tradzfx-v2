@@ -2,7 +2,7 @@ import type { Pool, TimeFrame, BiasNode } from "@tm/shared";
 import {
   CANDLE_TABLE_BY_TF,
   getPairCharacteristics,
-  getPipSizeForSymbol,
+  getRegistryPipSize,
 } from "@tm/shared";
 import type {
   SetupDirection,
@@ -66,7 +66,7 @@ export async function buildContext(
 
   const spreadPips = spreadRow?.spread ?? pair.baseSpreadPips;
   const atrPrice = atrRow?.value ?? 0;
-  const pipSize = getPipSizeForSymbol(symbol);
+  const pipSize = getRegistryPipSize(symbol);
   const atrPips = pipSize > 0 ? atrPrice / pipSize : 0;
 
   const volatilityRegime = classifyVolatility(atrPips, latestCandle?.c ?? 0, pair.volLowAtrPct, pair.volHighAtrPct);

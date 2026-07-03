@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "test": "node --test scripts/backtest-pit-v2.test.js && pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:repair": "tsx scripts/migrate.ts --repair",

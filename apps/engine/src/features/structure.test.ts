@@ -123,12 +123,12 @@ describe("structureFeature v2", () => {
     expect(bos!.confirmationTs).toBeDefined();
   });
 
-  it("emits a bos_failed event when price closes back through the level", () => {
+  it("does not emit failure events in v2.1", () => {
     const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
     const candles: Candle[] = [
       makeCandle(new Date(t0.getTime() + 0 * 60000), 2500, 2505, 2495, 2498),
       makeCandle(new Date(t0.getTime() + 1 * 60000), 2498, 2512, 2497, 2511), // break above 2505
-      makeCandle(new Date(t0.getTime() + 2 * 60000), 2511, 2512, 2502, 2503), // fail: close below 2505
+      makeCandle(new Date(t0.getTime() + 2 * 60000), 2511, 2512, 2502, 2503), // close below 2505
     ];
     const pivots: PivotOutput["pivots"] = [
       { kind: "low", price: 2490, confidence: 1, ts: candles[0].ts },
@@ -136,9 +136,7 @@ describe("structureFeature v2", () => {
       { kind: "high", price: 2512, confidence: 1, ts: candles[1].ts },
     ];
     const out = structureFeature.compute(makeInput(candles, pivots));
-    const failed = out.events.find((e) => e.eventType === "bos_failed" && e.direction === "bullish");
-    expect(failed).toBeDefined();
-    expect(failed!.level).toBe(2505);
+    expect(out.events.some((e) => e.eventType.includes("failed"))).toBe(false);
   });
 
   it("marks htf_aligned when event direction matches HTF bias", () => {

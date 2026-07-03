@@ -1,16 +1,17 @@
 id: doyle_sd
+familyId: doyle_sd
 active: true
 name: "Doyle Supply/Demand"
 version: "1.1.0"
 description: >
-  Supply/Demand strategy with EMA trend filter.
-  Based on Doyle Exchange: 5m primary, NY session 7:30–11:30 AM ET (11:30–15:30 UTC),
-  price above/below 200 EMA, fresh zone, structure break.
-  Uses 50/200 EMA cross direction as proxy for 200 EMA trend until single EMA values are exposed.
+  Supply/Demand strategy with EMA trend filter. Based on Doyle Exchange: 5m
+  primary, NY session 7:30–11:30 AM ET (11:30–15:30 UTC), price above/below 200
+  EMA, fresh zone, structure break. Uses 50/200 EMA cross direction as proxy for
+  200 EMA trend until single EMA values are exposed.
 
 filters:
-  symbols: [EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD]
-  sessions: [LONDON, OVERLAP, NY]
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD ]
+  sessions: [ LONDON, OVERLAP, NY ]
   timeWindows:
     - { utcStart: "11:30", utcEnd: "15:30" }
 
@@ -22,18 +23,20 @@ setup:
     required: true
 
   - id: trend_ema
-    feature: features_ema_cross
+    feature: features_moving_average
     tf: 5m
-    predicate: "fast_period = 50 AND slow_period = 200 AND direction = features_bias.direction"
+    predicate: "ma_type = 'ema_cross' AND fast_period = 50 AND slow_period = 200 AND direction =
+      features_bias.direction"
     required: true
-    groupBy: [fast_period, slow_period]
+    groupBy: [ ma_type, fast_period, slow_period ]
 
   - id: sd_zone
     feature: features_zone
     tf: 5m
-    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND quality_score > 0.5"
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND
+      quality_score > 0.05"
     required: true
-    groupBy: [zone_kind]
+    groupBy: [ zone_kind ]
 
 entry:
   - id: msb
@@ -41,12 +44,13 @@ entry:
     tf: 5m
     predicate: "event_type IN ('bos', 'mss') AND direction = features_bias.direction"
     required: true
-    groupBy: [event_type, direction]
+    groupBy: [ event_type, direction ]
 
   - id: zone_retest
     feature: features_zone_retest
     tf: 5m
-    predicate: "wick_into_zone = true AND close_inside_zone = false AND direction = features_bias.direction"
+    predicate: "wick_into_zone = true AND close_inside_zone = false AND direction =
+      features_bias.direction"
     required: true
 
   - id: displacement
@@ -68,7 +72,7 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5: 2.0
+      maxAtr5Pips: 800
 
   - id: spread_gate
     name: spread
@@ -84,7 +88,7 @@ gates:
   - id: session_gate
     name: session
     params:
-      allowed: [LONDON, OVERLAP, NY]
+      allowed: [ LONDON, OVERLAP, NY ]
 
   - id: rate_limit
     name: rateLimit

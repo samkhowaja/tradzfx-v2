@@ -8,6 +8,13 @@
 import type { Pool } from "./db";
 import type { ZoneOutput, ZoneOutcomeStats } from "../types/feature";
 
+const STATS_CACHE_TTL_MS = Number(process.env.ZONE_OUTCOME_STATS_CACHE_TTL_MS ?? "60000");
+const statsCache = new Map<string, { cachedAt: number; value: ZoneOutcomeStats | null }>();
+
+function statsCacheKey(symbol: string, tf: string, zoneKind: string): string {
+  return `${symbol}:${tf}:${zoneKind}`;
+}
+
 export interface ZoneOutcomeInput {
   symbol: string;
   tf: string;
@@ -98,6 +105,9 @@ export async function recordZoneOutcome(
         exitTs ?? null,
       ]
     );
+    // Invalidate cached stats so the next zone quality calculation sees the
+    // newly-recorded outcome.
+    statsCache.delete(statsCacheKey(input.symbol, input.tf, input.zoneKind));
   } catch (err: any) {
     console.warn(`[zoneOutcomes] Failed to record outcome:`, err.message);
   }
@@ -110,6 +120,13 @@ export async function getZoneOutcomeStats(
   zoneKind: string,
   minSamples = 30
 ): Promise<ZoneOutcomeStats | null> {
+  const key = statsCacheKey(symbol, tf, zoneKind);
+  const now = Date.now();
+  const cached = statsCache.get(key);
+  if (cached && now - cached.cachedAt < STATS_CACHE_TTL_MS) {
+    return cached.value;
+  }
+
   try {
     const { rows } = await pool.query<{
       count: number;
@@ -127,23 +144,27 @@ export async function getZoneOutcomeStats(
       [symbol, tf, zoneKind]
     );
     const row = rows[0];
-    if (!row || row.count < minSamples) return null;
+    let result: ZoneOutcomeStats | null = null;
+    if (row && row.count >= minSamples) {
+      const reversalRate = row.count > 0 ? row.reversal_count / row.count : 0;
+      const avgReward = row.avg_reward;
+      const avgRisk = Math.max(row.avg_risk, 1e-9);
+      const expectancy = reversalRate * (avgReward / avgRisk) - (1 - reversalRate);
 
-    const reversalRate = row.count > 0 ? row.reversal_count / row.count : 0;
-    const avgReward = row.avg_reward;
-    const avgRisk = Math.max(row.avg_risk, 1e-9);
-    const expectancy = reversalRate * (avgReward / avgRisk) - (1 - reversalRate);
+      result = {
+        symbol,
+        tf: tf as any,
+        zoneKind,
+        sampleCount: row.count,
+        reversalRate,
+        avgReward,
+        avgRisk,
+        expectancy,
+      };
+    }
 
-    return {
-      symbol,
-      tf: tf as any,
-      zoneKind,
-      sampleCount: row.count,
-      reversalRate,
-      avgReward,
-      avgRisk,
-      expectancy,
-    };
+    statsCache.set(key, { cachedAt: now, value: result });
+    return result;
   } catch (err: any) {
     console.warn(`[zoneOutcomes] Failed to load stats for ${symbol}/${tf}/${zoneKind}:`, err.message);
     return null;

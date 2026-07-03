@@ -20,7 +20,7 @@ import type {
 } from "@tm/shared";
 import {
   sha256,
-  getPipSizeForSymbol,
+  getRegistryPipSize,
   getVolatilityThresholds,
 } from "@tm/shared";
 
@@ -42,38 +42,30 @@ function resolvePipSize(symbol: string, digits?: number): number {
   if (typeof digits === "number" && digits > 0) {
     return Math.pow(10, 1 - digits);
   }
-  return getPipSizeForSymbol(symbol);
+  return getRegistryPipSize(symbol);
 }
 
-function getPricingConfig(symbol: string): PricingConfig {
-  const s = (symbol ?? "").toUpperCase();
-  if (s.includes("XAU") || s.includes("GOLD")) {
-    return {
-      lookbackBars: 50,
-      premiumThreshold: 0.7,
-      deepPremiumThreshold: 0.6,
-      deepDiscountThreshold: 0.4,
-      discountThreshold: 0.3,
-    };
-  }
+function parseNumberEnv(env: string | undefined, fallback: number): number {
+  if (!env) return fallback;
+  const n = Number(env);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function getPricingConfig(): PricingConfig {
+  // Unified thresholds for all symbols. Pair-specific tuning should live in the
+  // registry (used for volatility regimes), not in hardcoded branches here.
   return {
-    lookbackBars: 20,
-    premiumThreshold: 0.75,
-    deepPremiumThreshold: 0.6,
-    deepDiscountThreshold: 0.4,
-    discountThreshold: 0.25,
+    lookbackBars: parseNumberEnv(process.env.PRICING_LOOKBACK_BARS, 20),
+    premiumThreshold: parseNumberEnv(process.env.PRICING_PREMIUM_THRESHOLD, 0.7),
+    deepPremiumThreshold: parseNumberEnv(process.env.PRICING_DEEP_PREMIUM_THRESHOLD, 0.6),
+    deepDiscountThreshold: parseNumberEnv(process.env.PRICING_DEEP_DISCOUNT_THRESHOLD, 0.4),
+    discountThreshold: parseNumberEnv(process.env.PRICING_DISCOUNT_THRESHOLD, 0.3),
   };
 }
 
 function getAtr14(values?: AtrOutput["values"]): number | undefined {
   const v = values?.find((x) => x.period === 14);
   return v?.value;
-}
-
-function avgVolume(candles: Candle[]): number {
-  if (!candles.length) return 0;
-  const sum = candles.reduce((acc, c) => acc + (c.v ?? 0), 0);
-  return sum / candles.length;
 }
 
 function findCandleIndexByTs(candles: Candle[], ts: Date): number {
@@ -100,10 +92,7 @@ function detectImpulseLegs(
 ): ImpulseLeg[] {
   if (!pivots?.length || atr14 <= 0 || candles.length < 3) return [];
 
-  const sorted = [...pivots].sort(
-    (a, b) => a.ts.getTime() - b.ts.getTime()
-  );
-  const globalAvgVol = avgVolume(candles);
+  const sorted = [...pivots].sort((a, b) => a.ts.getTime() - b.ts.getTime());
   const minMove = atr14 * 1.5;
   const legs: ImpulseLeg[] = [];
 
@@ -133,19 +122,13 @@ function detectImpulseLegs(
 
     const startIndex = findCandleIndexByTs(candles, a.ts);
     const endIndex = findCandleIndexByTs(candles, b.ts);
-    if (
-      startIndex < 0 ||
-      endIndex < 0 ||
-      endIndex <= startIndex
-    ) {
+    if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex) {
       continue;
     }
 
     const legCandles = candles.slice(startIndex, endIndex + 1);
-    const legAvgVol = avgVolume(legCandles);
-
-    // Volume confirmation: the leg must trade with above-average participation.
-    if (globalAvgVol > 0 && legAvgVol < globalAvgVol * 1.1) continue;
+    const legAvgVol =
+      legCandles.reduce((acc, c) => acc + (c.v ?? 0), 0) / legCandles.length;
 
     legs.push({
       direction,
@@ -207,14 +190,10 @@ function selectActiveLeg(
   return null;
 }
 
-function legQuality(leg: ImpulseLeg, globalAvgVol: number): number {
+function legQuality(leg: ImpulseLeg): number {
   const moveFactor = Math.min(1, leg.moveAtr / 2.5);
-  const volFactor =
-    globalAvgVol > 0
-      ? Math.min(1, leg.avgVolume / globalAvgVol)
-      : 1;
-  // Base 0.5 for meeting minimum criteria; additional up to 0.5 for size/volume.
-  return 0.5 + (moveFactor * 0.3 + volFactor * 0.2);
+  // Base 0.5 for meeting minimum criteria; additional up to 0.5 for leg size.
+  return 0.5 + moveFactor * 0.5;
 }
 
 type VolRegime = "low" | "normal" | "high";
@@ -248,14 +227,36 @@ function adjustThresholdsByRegime(
   };
 }
 
+function computePivotRangeOte(
+  candles: Candle[],
+  pivots: PivotOutput["pivots"],
+  lookbackBars: number
+): { low: number; high: number } | null {
+  if (!pivots?.length) return null;
+  const cutoff = Math.max(0, candles.length - lookbackBars);
+  const recent = pivots.filter((p) => findCandleIndexByTs(candles, p.ts) >= cutoff);
+  if (recent.length < 2) return null;
+
+  let high = -Infinity;
+  let low = Infinity;
+  for (const p of recent) {
+    if (p.kind === "high" && p.price > high) high = p.price;
+    if (p.kind === "low" && p.price < low) low = p.price;
+  }
+  if (!isFinite(high) || !isFinite(low) || high <= low) return null;
+
+  const range = high - low;
+  return { low: low + range * 0.618, high: low + range * 0.786 };
+}
+
 function computePricing(input: PricingInput): PricingOutput {
   const candles = input.candles;
   const last = candles[candles.length - 1];
-  const cfgBase = getPricingConfig(last.symbol);
+  const cfg = getPricingConfig();
 
-  if (candles.length < cfgBase.lookbackBars) return {};
+  if (candles.length < cfg.lookbackBars) return {};
 
-  const lookback = candles.slice(-cfgBase.lookbackBars);
+  const lookback = candles.slice(-cfg.lookbackBars);
   const high = Math.max(...lookback.map((c) => c.h));
   const low = Math.min(...lookback.map((c) => c.l));
   const range = high - low;
@@ -265,19 +266,17 @@ function computePricing(input: PricingInput): PricingOutput {
 
   const atr14 = getAtr14(input.features_atr?.values) ?? 0;
   const regime =
-    atr14 > 0
-      ? classifyVolatilityRegime(atr14, price, last.symbol)
-      : "normal";
-  const cfg = adjustThresholdsByRegime(cfgBase, regime);
+    atr14 > 0 ? classifyVolatilityRegime(atr14, price, last.symbol) : "normal";
+  const cfgAdjusted = adjustThresholdsByRegime(cfg, regime);
 
   const positionInRange = (price - low) / range;
   const premiumDiscountScore = Math.max(-1, Math.min(1, (positionInRange - 0.5) * 2));
 
   let position: PricingOutput["position"];
-  if (positionInRange > cfg.premiumThreshold) position = "premium";
-  else if (positionInRange > cfg.deepPremiumThreshold) position = "deep_premium";
-  else if (positionInRange < cfg.discountThreshold) position = "discount";
-  else if (positionInRange < cfg.deepDiscountThreshold) position = "deep_discount";
+  if (positionInRange > cfgAdjusted.premiumThreshold) position = "premium";
+  else if (positionInRange > cfgAdjusted.deepPremiumThreshold) position = "deep_premium";
+  else if (positionInRange < cfgAdjusted.discountThreshold) position = "discount";
+  else if (positionInRange < cfgAdjusted.deepDiscountThreshold) position = "deep_discount";
   else position = "equilibrium";
 
   const fibPositionLabel = (() => {
@@ -289,28 +288,35 @@ function computePricing(input: PricingInput): PricingOutput {
     return "below_236";
   })();
 
-  // Static OTE fallback: 0.618-0.786 of the recent range.
-  const staticOteLow = low + range * 0.618;
-  const staticOteHigh = low + range * 0.786;
-
-  // Dynamic OTE from impulse legs.
-  const legs =
-    atr14 > 0 && input.features_pivot
-      ? detectImpulseLegs(candles, input.features_pivot.pivots, atr14)
-      : [];
-
-  const activeLeg = selectActiveLeg(candles, legs, price);
-  let oteLow = staticOteLow;
-  let oteHigh = staticOteHigh;
+  // Default OTE band: 0.618-0.786 of the recent swing pivot-to-pivot range.
+  let oteLow = low + range * 0.618;
+  let oteHigh = low + range * 0.786;
   let dynamicOteSource: PricingOutput["dynamicOteSource"] = "recent_range";
   let dynamicOteQuality = 0;
 
+  const pivotOte =
+    input.features_pivot
+      ? computePivotRangeOte(candles, input.features_pivot.pivots, cfg.lookbackBars)
+      : null;
+  if (pivotOte) {
+    oteLow = pivotOte.low;
+    oteHigh = pivotOte.high;
+  }
+
+  // Impulse-leg OTE is opt-in and disabled by default to keep the feature simple.
+  const useImpulseLeg = process.env.PRICING_USE_IMPULSE_LEG === "true";
+  const legs =
+    useImpulseLeg && atr14 > 0 && input.features_pivot
+      ? detectImpulseLegs(candles, input.features_pivot.pivots, atr14)
+      : [];
+
+  const activeLeg = useImpulseLeg ? selectActiveLeg(candles, legs, price) : null;
   if (activeLeg) {
     const band = legOteBand(activeLeg);
     oteLow = Math.min(band.low, band.high);
     oteHigh = Math.max(band.low, band.high);
     dynamicOteSource = "impulse_leg";
-    dynamicOteQuality = legQuality(activeLeg, avgVolume(candles));
+    dynamicOteQuality = legQuality(activeLeg);
   }
 
   const inOte = price >= oteLow && price <= oteHigh;
@@ -334,15 +340,17 @@ function computePricing(input: PricingInput): PricingOutput {
     dynamicOteSource,
     dynamicOteQuality,
     premiumDiscountScore,
-    impulseLegs: legs.map((l) => ({
-      direction: l.direction,
-      startPrice: l.startPrice,
-      endPrice: l.endPrice,
-      startTs: l.startTs,
-      endTs: l.endTs,
-      moveAtr: l.moveAtr,
-      avgVolume: l.avgVolume,
-    })),
+    impulseLegs: useImpulseLeg
+      ? legs.map((l) => ({
+          direction: l.direction,
+          startPrice: l.startPrice,
+          endPrice: l.endPrice,
+          startTs: l.startTs,
+          endTs: l.endTs,
+          moveAtr: l.moveAtr,
+          avgVolume: l.avgVolume,
+        }))
+      : undefined,
     lltTarget,
     balanced,
     pipSize: resolvePipSize(last.symbol, last.digits),
@@ -351,7 +359,7 @@ function computePricing(input: PricingInput): PricingOutput {
 
 export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
   name: "features_pricing",
-  version: "2.0.0",
+  version: "2.1.0",
   dependencies: ["features_pivot", "features_atr"],
 
   compute(input): PricingOutput {

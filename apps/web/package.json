@@ -6,9 +6,11 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start -p 3002",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@tm/analyzer-backtest": "workspace:*",
     "@tm/engine": "workspace:*",
     "@tm/setup-engine": "workspace:*",
     "@tm/shared": "workspace:*",
@@ -30,6 +32,7 @@
     "eslint-config-next": "^16.2.10",
     "postcss": "^8.5.15",
     "tailwindcss": "^4.3.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
   }
 }

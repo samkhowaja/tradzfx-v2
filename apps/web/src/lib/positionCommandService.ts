@@ -214,7 +214,26 @@ export async function markCommandCompleted(
 ): Promise<{ ok: boolean; alreadyCompleted: boolean; previousStatus?: PositionCommandRow["status"] }> {
   const pool = getPool();
   const targetStatus: PositionCommandRow["status"] = success ? "completed" : "failed";
+  const validFrom: PositionCommandRow["status"][] = success
+    ? ["pending", "sent"]
+    : ["pending", "sent"];
 
+  const fromList = validFrom.map((s) => `'${s}'`).join(", ");
+  const { rows } = await pool.query(
+    `UPDATE position_commands
+     SET status = $2,
+         completed_at = NOW(),
+         error = COALESCE($3, error)
+     WHERE id = $1 AND status IN (${fromList})
+     RETURNING status`,
+    [commandId, targetStatus, error ?? null]
+  );
+
+  if (rows.length > 0) {
+    return { ok: true, alreadyCompleted: false, previousStatus: rows[0].status as PositionCommandRow["status"] };
+  }
+
+  // No row updated — check if already in target state or invalid transition.
   const existing = await getCommandById(commandId);
   if (!existing) {
     return { ok: false, alreadyCompleted: false };
@@ -224,22 +243,10 @@ export async function markCommandCompleted(
     return { ok: true, alreadyCompleted: true, previousStatus: existing.status };
   }
 
-  if (!isValidCommandTransition(existing.status, targetStatus)) {
-    console.warn(
-      `[positionCommandService] Invalid transition for ${commandId}: ${existing.status} -> ${targetStatus}`
-    );
-    return { ok: false, alreadyCompleted: false, previousStatus: existing.status };
-  }
-
-  await pool.query(
-    `UPDATE position_commands
-     SET status = $2,
-         completed_at = NOW(),
-         error = COALESCE($3, error)
-     WHERE id = $1`,
-    [commandId, targetStatus, error ?? null]
+  console.warn(
+    `[positionCommandService] Invalid transition for ${commandId}: ${existing.status} -> ${targetStatus}`
   );
-  return { ok: true, alreadyCompleted: false, previousStatus: existing.status };
+  return { ok: false, alreadyCompleted: false, previousStatus: existing.status };
 }
 
 /**
