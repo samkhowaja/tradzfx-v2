@@ -587,7 +587,7 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
       const groupCols = cond.groupBy ?? [];
       const distinctOn = ["symbol", ...groupCols].join(", ");
       const tieBreaker = orderByTieBreaker(cond.feature);
-      const freshness = needsLifecycleCheck(cond.feature)
+      const freshness = needsLifecycleCheck(cond.feature) && !cond.ignoreLifecycle
         ? buildFreshnessPredicate(cond, cond.feature, "b.ts")
         : "";
       return `
@@ -612,7 +612,7 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false) {
     const groupCols = cond.groupBy ?? [];
     const distinctOn = ["symbol", ...groupCols].join(", ");
     const tieBreaker = orderByTieBreaker(cond.feature);
-    const freshness = needsLifecycleCheck(cond.feature)
+    const freshness = needsLifecycleCheck(cond.feature) && !cond.ignoreLifecycle
       ? buildFreshnessPredicate(cond, cond.feature, "s.ts")
       : "";
     return `
@@ -691,7 +691,7 @@ setup_passed AS (
   WHERE ${setupWheres.join("\n    AND ")}
 ),
 entry_passed AS (
-  SELECT s.symbol, s.ts, s.bias_direction
+  SELECT DISTINCT ON (s.symbol, s.ts) s.symbol, s.ts, s.bias_direction
   FROM setup_passed s
   ${entryPITJoins}
   WHERE ${entryWheres.join("\n    AND ")}

@@ -1,15 +1,17 @@
 id: waqar_v2
 familyId: waqar_v2
 active: true
-name: "Waqar Asim Scalp V2"
-version: "2.0.0"
+name: "Waqar Asim Scalp"
+version: "3.0.0"
 description: >
-  ICT-based supply/demand scalp strategy. 1H decisional context, 15m trend bias,
-  1m entry after MSB/BOS + zone retest. Only long in discount, only short in
-  premium.
+  Waqar Asim's Forex scalping strategy per the PDF: 1H decisional supply/demand
+  context, 15m trend bias, 1m execution. Trade only during the 8-9am and 2-3pm
+  London windows, only EURUSD/GBPUSD, only long in discount / short in premium.
+  Entry after MSB/BOS followed by an inducement/retest into a lower-timeframe
+  S/D zone. 5 pip stop, 3R take-profit.
 
 filters:
-  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD ]
+  symbols: [ EURUSD, GBPUSD ]
   sessions: [ LONDON, OVERLAP ]
   timeWindows:
     - { utcStart: "08:00", utcEnd: "09:00" }
@@ -19,84 +21,72 @@ setup:
   - id: htf_zone
     feature: features_zone
     tf: 1h
-    predicate: "zone_kind IN ('demand', 'supply')"
+    predicate: "zone_kind IN ('demand', 'supply') AND is_fresh = true"
     required: true
-    weight: 8
+    groupBy: [ zone_kind ]
 
   - id: trend_bias
     feature: features_htf_bias
     tf: 15m
     predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
     required: true
-    weight: 8
 
-  - id: directional_zone
+  - id: premium_discount
     feature: features_pricing
-    tf: 4h
+    tf: 1h
     predicate: |
       (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
       OR
       (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
     required: true
-    weight: 10
 
 entry:
   - id: structure_break
     feature: features_structure
     tf: 1m
-    predicate: "event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction"
+    predicate: "event_type IN ('bos', 'mss') AND direction = features_htf_bias.direction AND confirmed = true"
     required: true
-    weight: 10
+    groupBy: [ direction ]
+    ignoreLifecycle: true
 
   - id: zone_retest
     feature: features_zone
     tf: 1m
-    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8"
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct < 0.8 AND direction = features_htf_bias.direction"
     required: true
-    weight: 10
+    groupBy: [ zone_kind ]
 
   - id: displacement_confirm
     feature: features_displacement
     tf: 1m
-    predicate: "grade IN ('MEDIUM', 'HIGH')"
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND direction = features_htf_bias.direction"
     required: false
-    weight: 5
 
-  - id: dxy_alignment
-    feature: features_correlation
-    tf: 15m
-    predicate: "reference_symbol = 'DXY' AND divergence_detected = false"
-    required: false
-    weight: 6
+signalSource: zone
 
 risk:
-  sl: "atr(1m) * 1.2"
+  sl: "5 pips"
   tp: "sl * 3.0"
   minRR: 3.0
   timeoutBars: 180
   maxFillBars: 45
 
 gates:
-  - id: volatility_gate
-    name: volatility
-    params:
-      maxAtr5Pips: 2.0
-
   - id: spread_gate
     name: spread
     params:
       maxSpreadPips: 3.0
 
-  - id: portfolio_heat
-    name: portfolioHeat
-    params:
-      maxConcurrentPerSymbol: 2
-      maxConcurrentTotal: 6
-
   - id: session_gate
     name: session
     params:
       allowed: [ LONDON, OVERLAP ]
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
 
 live:
   mode: paper
@@ -107,15 +97,13 @@ live:
   signalTtlMinutes: 15
   maxSpreadPips: 3.0
   maxSlippagePoints: 20
-  entryZonePips: null # disabled for market orders; zone guard only makes sense for limit orders
+  entryZonePips: null
   maxPositionsPerSymbol: 1
-  maxPositionsTotal: 6
+  maxPositionsTotal: 2
   cooldownMinutes: 30
-  structureFreshnessMinutes: 30
+  structureFreshnessMinutes: 120
 
 notes:
-  - " STRICT EBOOK TRANSLATION"
-  - "Symbols: All 8 major pairs + gold"
-  - "Directional zone check is REQUIRED — replaces two optional zone checks"
-  - "SL uses ATR * 1.2 (~5-8 pips on forex during London)"
-  - "Single TP at 3R (no partials)"
+  - "PDF-based version: EURUSD & GBPUSD only, London 08-09 and 14-15 UTC."
+  - "5 pip hard stop, 3R TP (full position)."
+  - "Premium/discount filter applied on 1H."
