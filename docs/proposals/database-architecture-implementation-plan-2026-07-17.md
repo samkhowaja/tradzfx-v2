@@ -416,6 +416,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 11. Cut production one process at a time: monitor, backtest, ingestion, engine, lifecycle, strategy, execution, web.
 12. Disable direct runtime use of `postgres`; retain for controlled administration only.
 
+### Contract-first evidence — 2026-07-17
+
+- Added `infra/db/runtime-role-contract.json` as fail-closed runtime policy. It declares exact runtime roles, `NOINHERIT`, allowed write domains, forbidden write domains, ownership rules, and revoked `PUBLIC` capabilities.
+- Added `scripts/runtime-role-contract.test.js` to enforce exact role inventory, valid/disjoint domains, zero direct writes for web-read/web-command/monitor, execute-only web commands, centralized ownership, and closed `PUBLIC` policy.
+- This artifact defines invariants only. It creates no roles, grants no privileges, changes no ownership, and does not connect to PostgreSQL.
+- `infra/db/relation-contract.yaml` currently records relation ownership but not per-consumer `SELECT`/`INSERT`/`UPDATE`/`DELETE`, sequence, or function execution needs. Generating grants from ownership or broad domains would violate least privilege. Next WS-2 artifact must add relation/function/sequence allowlists and a read-only catalog preflight before any migration is generated.
+- Validation passed: credential scan, 133 root tests, every workspace Vitest suite, and `pnpm -r build`. No PostgreSQL restart, termination, role creation, grant, or production mutation occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

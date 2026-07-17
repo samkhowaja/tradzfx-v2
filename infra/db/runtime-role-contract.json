@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "ownerRole": "tradzfx_owner",
+  "migratorRole": "tradzfx_migrator",
+  "runtimeRoles": {
+    "tradzfx_ingest": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["raw"],
+      "forbiddenWriteDomains": ["market", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_engine": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["market", "ops"],
+      "forbiddenWriteDomains": ["raw", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_lifecycle": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["market", "ops"],
+      "forbiddenWriteDomains": ["raw", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_strategy": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["strategy"],
+      "forbiddenWriteDomains": ["raw", "market", "execution", "analysis"]
+    },
+    "tradzfx_execution": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["execution"],
+      "forbiddenWriteDomains": ["raw", "market", "strategy", "analysis"]
+    },
+    "tradzfx_web_read": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": [],
+      "forbiddenWriteDomains": ["raw", "market", "ops", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_web_command": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": [],
+      "executeOnly": true,
+      "forbiddenWriteDomains": ["raw", "market", "ops", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_backtest": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["analysis"],
+      "forbiddenWriteDomains": ["raw", "market", "strategy", "execution"]
+    },
+    "tradzfx_monitor": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": [],
+      "forbiddenWriteDomains": ["raw", "market", "ops", "strategy", "execution", "analysis"]
+    }
+  },
+  "ownershipPolicy": {
+    "businessRelationsOwnedBy": "tradzfx_owner",
+    "runtimeRolesOwnRelations": false,
+    "schemaMigrationsOwnedBy": "tradzfx_migrator"
+  },
+  "publicPolicy": {
+    "publicSchemaCreate": false,
+    "functionExecuteByPublic": false
+  }
+}
