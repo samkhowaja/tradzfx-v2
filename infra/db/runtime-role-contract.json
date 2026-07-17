@@ -57,6 +57,12 @@
       "inherit": false,
       "writeDomains": [],
       "forbiddenWriteDomains": ["raw", "market", "ops", "strategy", "execution", "analysis"]
+    },
+    "tradzfx_maintenance": {
+      "login": true,
+      "inherit": false,
+      "writeDomains": ["strategy"],
+      "forbiddenWriteDomains": ["raw", "market", "ops", "execution", "analysis"]
     }
   },
   "ownershipPolicy": {

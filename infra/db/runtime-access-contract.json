@@ -159,7 +159,6 @@
     "tradzfx_monitor": {
       "activationReady": false,
       "entrypoints": [
-        "scripts/cleanup-rejection-log-cron.js",
         "scripts/feature-freshness-monitor.js",
         "scripts/db-session-inventory.js",
         "scripts/audit-db-sessions.js"
@@ -171,17 +170,27 @@
       "sequences": {},
       "functions": {},
       "evidence": [
-        "scripts/cleanup-rejection-log-cron.js:39",
         "scripts/feature-freshness-monitor.js:119",
         "scripts/feature-freshness-monitor.js:124",
         "scripts/feature-freshness-monitor.js:153",
         "scripts/audit-db-sessions.js:44"
       ],
       "blockers": [
-        "Cleanup process deletes public.live_signal_rejection but monitor role forbids strategy writes; move retention to dedicated maintenance role or bounded procedure",
         "Freshness observer is now read-only and healer runs under TM_DATABASE_URL_ENGINE, but monitor activation still requires exact bounded feature SELECT allowlists",
         "pg_stat_activity visibility may require pg_monitor membership or bounded security-definer health view; do not grant catalog-wide access"
       ]
+    },
+    "tradzfx_maintenance": {
+      "activationReady": true,
+      "entrypoints": ["scripts/cleanup-rejection-log-cron.js"],
+      "schemas": ["public"],
+      "relations": {
+        "public.live_signal_rejection": ["DELETE"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": ["scripts/cleanup-rejection-log-cron.js:33"],
+      "blockers": []
     }
   }
 }

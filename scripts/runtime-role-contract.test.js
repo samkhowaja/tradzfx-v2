@@ -20,6 +20,7 @@ const EXPECTED_RUNTIME_ROLES = [
   "tradzfx_web_command",
   "tradzfx_backtest",
   "tradzfx_monitor",
+  "tradzfx_maintenance",
 ];
 const BUSINESS_DOMAINS = ["raw", "market", "ops", "strategy", "execution", "analysis"];
 

@@ -46,6 +46,7 @@ test("every PM2 DB process resolves an explicit workload role URL", () => {
     "TM_DATABASE_URL_EXECUTION",
     "TM_DATABASE_URL_BACKTEST",
     "TM_DATABASE_URL_MONITOR",
+    "TM_DATABASE_URL_MAINTENANCE",
   ]);
 
   for (const app of DB_PROCESSES) {
@@ -74,6 +75,13 @@ test("direct long-running PM2 pools declare safeguards and graceful shutdown", (
     assert.match(source, /keepAlive\s*:\s*true/, `${relativePath}: missing TCP keepalive`);
     assert.match(source, /pool\.end\(\)/, `${relativePath}: missing graceful pool shutdown`);
   }
+});
+
+test("rejection cleanup uses dedicated maintenance identity", () => {
+  const cleanup = ecosystem.apps.find((app) => app.name === "tz-cleanup-rejection-log");
+  assert.ok(cleanup, "missing rejection cleanup process");
+  assert.equal(cleanup.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_MAINTENANCE");
+  assert.notEqual(cleanup.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_MONITOR");
 });
 
 test("freshness observer and healer use isolated runtime identities", () => {

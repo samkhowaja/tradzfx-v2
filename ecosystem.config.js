@@ -6,7 +6,7 @@ const DB_ROLE_BY_PROCESS = Object.freeze({
   "tz-web-v2": "TM_DATABASE_URL_WEB_COMMAND",
   "tz-dxy-synthetic": "TM_DATABASE_URL_ENGINE",
   "tz-expire-pending-orders": "TM_DATABASE_URL_EXECUTION",
-  "tz-cleanup-rejection-log": "TM_DATABASE_URL_MONITOR",
+  "tz-cleanup-rejection-log": "TM_DATABASE_URL_MAINTENANCE",
   "tz-ingestion": "TM_DATABASE_URL_INGEST",
   "tz-refresh-lifecycle": "TM_DATABASE_URL_LIFECYCLE",
   "tz-shadow-run": "TM_DATABASE_URL_BACKTEST",

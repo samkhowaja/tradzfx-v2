@@ -64,6 +64,7 @@ Schema migration occurs through rename/move plus compatibility views. No big tab
 | `tradzfx_web_command` | Yes | Execute bounded command procedures |
 | `tradzfx_backtest` | Yes | Read PIT data; write analysis/backtest facts |
 | `tradzfx_monitor` | Yes | Read health projections and permitted statistics |
+| `tradzfx_maintenance` | Yes | Run exact retention/housekeeping mutations; no DDL |
 
 Credentials stay outside repository. Every connection sets unique `application_name`. PM2 apps receive separate `DATABASE_URL` variables. Connection pools use bounded maximum, idle timeout, connection timeout, and graceful shutdown.
 
@@ -356,6 +357,7 @@ Do this before privilege changes. Access cannot be reduced until actual process 
    - `TM_DATABASE_URL_EXECUTION`
    - `TM_DATABASE_URL_BACKTEST`
    - `TM_DATABASE_URL_MONITOR`
+   - `TM_DATABASE_URL_MAINTENANCE`
 2. Update shared pool factory to require `application_name`.
 3. Set bounded `max`, `idleTimeoutMillis`, `connectionTimeoutMillis`, and statement timeout by workload.
 4. Add shutdown hooks that call `pool.end()`.
@@ -447,6 +449,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Governance tests enforce distinct application names, observer/monitor mapping, healer/engine mapping, opposite heal flags, inherited recompute identity, bounded pool settings, and graceful shutdown.
 - Runtime access contract records healer entrypoints and keeps engine/monitor activation blocked until exact dynamic feature/candle/cache/ledger reads and writes are enumerated. No broad feature wildcard was added.
 - Configuration is committed only. No PM2 process was started, stopped, restarted, or reloaded; no role URL was activated; no DB mutation occurred.
+
+### Rejection-retention maintenance isolation — 2026-07-17
+
+- Added `tradzfx_maintenance` as a `LOGIN NOINHERIT` runtime target and `TM_DATABASE_URL_MAINTENANCE` with legacy fallback for staged cutover.
+- `tz-cleanup-rejection-log` now resolves maintenance credentials instead of monitor credentials. Monitor therefore has no reachable rejection-log mutation path.
+- Exact access is one relation privilege: `DELETE` on `public.live_signal_rejection`. Maintenance forbids raw, market, ops, execution, and analysis writes; strategy write scope exists only for explicit housekeeping evidence.
+- Direct `DELETE` remains transitional. A future bounded security-definer retention function must be created only after `tradzfx_owner` exists, can own it, uses fixed `search_path`, validates retention bounds, and has `PUBLIC EXECUTE` revoked. Creating it now under legacy migration ownership would weaken rather than improve ownership governance.
+- Governance tests enforce exact role inventory, URL allowlist, PM2 mapping, and access contract. No role, grant, function, migration, PM2 reload, credential activation, or DB mutation occurred.
 
 ### Acceptance
 

@@ -9,6 +9,7 @@ const ROLE_URL_NAMES = Object.freeze([
   "TM_DATABASE_URL_EXECUTION",
   "TM_DATABASE_URL_BACKTEST",
   "TM_DATABASE_URL_MONITOR",
+  "TM_DATABASE_URL_MAINTENANCE",
 ]);
 
 function parseDatabaseUrl(name, value) {
