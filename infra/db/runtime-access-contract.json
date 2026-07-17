@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "policy": {
+    "defaultPrivilege": "none",
+    "wildcardsAllowed": false,
+    "unqualifiedFunctionsAllowed": false,
+    "activationRequiresNoBlockers": true
+  },
+  "roles": {
+    "tradzfx_ingest": {
+      "activationReady": false,
+      "entrypoints": ["scripts/ingestion-server.js"],
+      "schemas": ["public"],
+      "relations": {
+        "public.candles_1m": ["INSERT", "UPDATE"],
+        "public.mt5_terminals": ["SELECT", "INSERT", "UPDATE"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": [
+        "scripts/ingestion-server.js:213",
+        "scripts/ingestion-server.js:285",
+        "scripts/ingestion-server.js:318"
+      ],
+      "blockers": [
+        "mt5_terminals belongs to execution domain but ingestion heartbeat directly writes it; split ingest source identity from execution terminal state or approve bounded procedure"
+      ]
+    },
+    "tradzfx_engine": {
+      "activationReady": false,
+      "entrypoints": ["scripts/run-dxy-synthetic-cron.js"],
+      "schemas": ["public"],
+      "relations": {
+        "public.candles_1m": ["SELECT", "INSERT", "UPDATE"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": [
+        "scripts/run-dxy-synthetic-cron.js:74",
+        "scripts/run-dxy-synthetic-cron.js:122"
+      ],
+      "blockers": [
+        "DXY producer writes raw candles_1m while tradzfx_engine forbids raw writes; assign dedicated synthetic-ingest path or bounded owner procedure"
+      ]
+    },
+    "tradzfx_lifecycle": {
+      "activationReady": true,
+      "entrypoints": ["scripts/refresh-lifecycle-cron.js", "scripts/refresh-lifecycle.js"],
+      "schemas": ["public", "market", "ops"],
+      "relations": {
+        "market.candles_1m_canonical": ["SELECT"],
+        "ops.feature_pipeline_symbols": ["SELECT"],
+        "public.lifecycle_refresh_state": ["DELETE"],
+        "public.feature_producer_runs": ["INSERT"]
+      },
+      "sequences": {},
+      "functions": {
+        "public.refresh_zone_lifecycle(text,timestamp with time zone,interval,integer,text,boolean)": ["EXECUTE"],
+        "public.refresh_order_block_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_ifvg_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_sweep_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_structure_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_atr_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_spread_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_zone_retest_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_candle_pattern_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_pricing_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_displacement_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"],
+        "public.refresh_opening_range_lifecycle(text,timestamp with time zone,interval,integer)": ["EXECUTE"]
+      },
+      "evidence": [
+        "scripts/refresh-lifecycle.js:82",
+        "scripts/refresh-lifecycle.js:93",
+        "scripts/refresh-lifecycle.js:113",
+        "scripts/refresh-lifecycle.js:119",
+        "scripts/refresh-lifecycle.js:127",
+        "scripts/refresh-lifecycle.js:163"
+      ],
+      "blockers": []
+    },
+    "tradzfx_strategy": {
+      "activationReady": false,
+      "entrypoints": [],
+      "schemas": [],
+      "relations": {},
+      "sequences": {},
+      "functions": {},
+      "evidence": [],
+      "blockers": [
+        "No independently attributed PM2 strategy process exists; strategy writes currently run inside tz-web-v2"
+      ]
+    },
+    "tradzfx_execution": {
+      "activationReady": true,
+      "entrypoints": ["scripts/expire-pending-orders-cron.js"],
+      "schemas": ["public"],
+      "relations": {
+        "public.orders": ["SELECT", "UPDATE"],
+        "public.position_commands": ["INSERT", "UPDATE"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": [
+        "scripts/expire-pending-orders-cron.js:37",
+        "scripts/expire-pending-orders-cron.js:49",
+        "scripts/expire-pending-orders-cron.js:65",
+        "scripts/expire-pending-orders-cron.js:76"
+      ],
+      "blockers": []
+    },
+    "tradzfx_web_read": {
+      "activationReady": false,
+      "entrypoints": [],
+      "schemas": [],
+      "relations": {},
+      "sequences": {},
+      "functions": {},
+      "evidence": [],
+      "blockers": [
+        "Next.js process has one singleton pool shared by read routes, strategy pipeline, ingestion compatibility routes, and execution commands; split pools before WEB_READ activation"
+      ]
+    },
+    "tradzfx_web_command": {
+      "activationReady": false,
+      "entrypoints": ["apps/web"],
+      "schemas": [],
+      "relations": {},
+      "sequences": {},
+      "functions": {},
+      "evidence": [
+        "apps/web/src/lib/pipelineTrigger.ts:84",
+        "apps/web/src/lib/orderService.ts:120",
+        "apps/web/src/app/api/ingest/route.ts:148"
+      ],
+      "blockers": [
+        "Execute-only role cannot run current direct SELECT, INSERT, UPDATE, and DELETE statements",
+        "Create bounded command procedures and separate web read, strategy, execution, engine, and compatibility-ingest pools before activation"
+      ]
+    },
+    "tradzfx_backtest": {
+      "activationReady": true,
+      "entrypoints": ["scripts/shadow-run-cron.js", "scripts/shadow-run-candidates.js"],
+      "schemas": ["market"],
+      "relations": {
+        "market.candles_1m_canonical": ["SELECT"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": ["scripts/shadow-run-candidates.js:266"],
+      "blockers": []
+    },
+    "tradzfx_monitor": {
+      "activationReady": false,
+      "entrypoints": [
+        "scripts/cleanup-rejection-log-cron.js",
+        "scripts/feature-freshness-monitor.js",
+        "scripts/db-session-inventory.js",
+        "scripts/audit-db-sessions.js"
+      ],
+      "schemas": ["pg_catalog"],
+      "relations": {
+        "pg_catalog.pg_stat_activity": ["SELECT"]
+      },
+      "sequences": {},
+      "functions": {},
+      "evidence": [
+        "scripts/cleanup-rejection-log-cron.js:39",
+        "scripts/feature-freshness-monitor.js:119",
+        "scripts/feature-freshness-monitor.js:124",
+        "scripts/feature-freshness-monitor.js:153",
+        "scripts/audit-db-sessions.js:44"
+      ],
+      "blockers": [
+        "Cleanup process deletes public.live_signal_rejection but monitor role forbids strategy writes; move retention to dedicated maintenance role or bounded procedure",
+        "Freshness monitor spawns recompute-feature-recent.js, which uses hardcoded postgres identity and writes engine feature tables; split observer from healer and assign healer to engine role",
+        "pg_stat_activity visibility may require pg_monitor membership or bounded security-definer health view; do not grant catalog-wide access"
+      ]
+    }
+  }
+}

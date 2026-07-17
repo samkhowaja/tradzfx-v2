@@ -429,7 +429,15 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Added `scripts/audit-runtime-roles.js` with strict `pnpm db:roles:check` and non-blocking inventory `pnpm db:roles:report` modes. Both inspect role attributes, governed relation ownership, `PUBLIC` schema creation, and `PUBLIC` function execution inside `BEGIN READ ONLY`; fixture mode requires no DB connection.
 - Added `scripts/audit-runtime-roles.test.js` for clean catalog, missing/elevated role, runtime ownership, legacy ownership, `PUBLIC` exposure, undeclared role, and argument-parser behavior.
 - Baseline live report found 253 expected pre-cutover violations: 11 missing governed roles, all 80 contracted relations still owned by `postgres`, and 162 functions executable by `PUBLIC`. `public` schema `CREATE` is already revoked. Report mode recorded these findings without failing or changing DB state; strict mode remains blocked until staging remediation.
-- Per-object relation/function/sequence allowlists remain intentionally unresolved. Runtime call-site tracing must complete first, especially dynamic engine feature tables and mixed web command/read/execution paths. No broad domain grant will substitute for evidence.
+
+### Source-backed runtime access contract — 2026-07-17
+
+- Added `infra/db/runtime-access-contract.json` with default-deny policy, exact qualified relation privileges, exact function signatures, explicit empty sequence grants, entrypoints, source-line evidence, and per-role activation blockers. Wildcards and broad domain grants remain forbidden.
+- Ready slices are deliberately narrow: lifecycle, pending-order expiry, and shadow backtest. Lifecycle receives direct access only to its orchestration inputs/checkpoint reset/producer ledger plus `EXECUTE` on 12 exact refresh signatures; writes inside refresh functions remain function-owned implementation details.
+- Call-site tracing exposed four architecture conflicts that grants must not conceal: DXY runs as engine but writes raw `candles_1m`; ingestion writes execution-owned `mt5_terminals`; monitor cleanup deletes strategy audit while freshness monitoring spawns engine recompute; one Next.js singleton pool performs reads plus strategy, execution, engine, and compatibility-ingest writes despite execute-only web policy.
+- Web-read, web-command, strategy, ingest, engine, and monitor activation therefore remain blocked. Required remediation: split web pools and bounded command procedures; split monitor observer from engine healer; move retention cleanup to maintenance procedure/role; route synthetic candles through ingestion authority; resolve terminal heartbeat ownership.
+- No sequence privilege is inferred from inserts. Current evidenced inserts use supplied identifiers or defaults whose exact backing identity sequence has not yet been proven. Contract stays empty rather than granting sequence families.
+- Added `scripts/runtime-access-contract.test.js` to enforce exact runtime-role coverage, qualified non-wildcard object names, known privileges, exact function signatures, blocker semantics, and zero direct web writes. This phase creates no roles, grants, functions, ownership changes, or DB mutations.
 
 ### Acceptance
 
