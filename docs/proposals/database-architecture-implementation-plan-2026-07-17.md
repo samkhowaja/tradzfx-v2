@@ -482,6 +482,21 @@ Use **view-first canonical architecture** unless measured workload proves materi
 7. Compare `market_levels` against `market_levels_view` by semantic type and sampled PIT anchors.
 8. Benchmark view queries with real entry, SL, and TP workloads.
 
+### Read-only evidence captured 2026-07-17
+
+`scripts/audit-market-levels.js` now provides bounded catalog/sample inspection and an opt-in `--exact` scan. It runs inside `BEGIN READ ONLY`, sets lock and statement timeouts, and never runs `ANALYZE` or mutation.
+
+- Physical `public.market_levels` is a persistent heap, not an empty relation: exact count is **22,679,851 rows**, with about **14.97 GB heap**, **5.21 GB indexes**, and **20.19 GB total**.
+- `pg_class.reltuples` estimates 23,125,492 rows while `pg_stat_user_tables.n_live_tup` reports zero. Exact count proves the latter is stale/reset statistics, not emptiness evidence.
+- Every physical row was created during one bulk window from 2026-07-02 12:49 UTC through 2026-07-03 00:39 UTC. Source `ts` spans 2026-02-02 through 2026-07-02, so this is a stale snapshot rather than an advancing live projection.
+- Exact grouping shows only `level_type='zone'`, across nine symbols and five timeframes. The table does not contain the six semantic types promised by its original canonical schema.
+- All 22,679,851 rows have `source_id IS NULL`; `source_json` is populated. Stable source identity is absent.
+- Catalog dependency inspection found no dependent views and no stored functions/procedures referencing the physical table.
+- Workspace SQL search found no current physical-table writer or reader. Active entry/SL/TP helpers read `market_levels_view`; `FeatureDefinition.publishLevels` remains an unused interface hook in current runner code.
+- Index scan counters alone remain insufficient deletion evidence. `idx_market_levels_symbol_ts` has one recorded scan; `pg_stat_statements` is unavailable, so external/BI usage remains unproven.
+
+**Decision:** treat physical table as a legacy bulk snapshot candidate, not canonical live storage. Do not drop table or indexes yet. Next gates: stable hash/source parity against `features_zone`, sampled PIT output parity for entry/SL/TP, external-client check, then planned 30-day shadow period.
+
 ### Implementation options
 
 #### Preferred: canonical view plus optional object projection

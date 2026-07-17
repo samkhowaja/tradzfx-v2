@@ -18,6 +18,8 @@
     "db:indexes:duplicates:removed": "node scripts/audit-duplicate-indexes.js --expect-removed",
     "db:indexes:bloat": "node scripts/audit-index-bloat.js",
     "db:indexes:workload": "node scripts/audit-index-workload.js",
+    "db:market-levels:audit": "node scripts/audit-market-levels.js",
+    "db:market-levels:audit:exact": "node scripts/audit-market-levels.js --exact",
     "db:universe:check": "tsx scripts/check-feature-universe.ts",
     "db:seed": "node scripts/seed-strategy-specs.js",
     "db:seed:check": "node scripts/seed-strategy-specs.js --check",
