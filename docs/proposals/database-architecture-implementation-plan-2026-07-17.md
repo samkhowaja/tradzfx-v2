@@ -482,6 +482,13 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Static governance now covers fifteen migrated routes and forbids primary `getPool()` usage or SQL mutation verbs in every route.
 - WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Candle export web-read migration — 2026-07-17
+
+- Live catalog verification confirmed exact public relations: `candles_1m` is a table; `candles_5m`, `candles_15m`, `candles_1h`, `candles_4h`, `candles_1d_utc`, and `candles_1d_ny` are views.
+- Migrated `/api/candles/export` to `getWebReadPool()` and schema-qualified its existing bounded timeframe allowlist. Dynamic SQL remains restricted to seven fixed values; symbol, time bounds, and offset remain parameters.
+- Added exact `SELECT` access evidence for all seven relations and a static allowlist regression. Governance now covers sixteen migrated pure-read routes.
+- WEB_READ activation remains blocked pending complete intended route enumeration and grant verification. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

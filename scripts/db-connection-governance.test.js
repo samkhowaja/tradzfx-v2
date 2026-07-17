@@ -110,6 +110,7 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts",
     "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
     "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts",
+    "apps/web/src/app/api/candles/export/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");
@@ -117,6 +118,26 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     assert.doesNotMatch(source, /\bgetPool\b/);
     assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
   }
+});
+
+test("candle export uses only its exact schema-qualified relation allowlist", () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, "apps/web/src/app/api/candles/export/route.ts"),
+    "utf8"
+  );
+  const relations = [...source.matchAll(/"(?:1m|5m|15m|1h|4h|1d_utc|1d_ny)":\s*"([^"]+)"/g)]
+    .map((match) => match[1])
+    .sort();
+
+  assert.deepEqual(relations, [
+    "public.candles_15m",
+    "public.candles_1d_ny",
+    "public.candles_1d_utc",
+    "public.candles_1h",
+    "public.candles_1m",
+    "public.candles_4h",
+    "public.candles_5m",
+  ]);
 });
 
 test("freshness observer and healer use isolated runtime identities", () => {

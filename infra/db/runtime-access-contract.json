@@ -132,7 +132,8 @@
         "apps/web/src/app/api/strategies/detail/route.ts",
         "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts",
         "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
-        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts"
+        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts",
+        "apps/web/src/app/api/candles/export/route.ts"
       ],
       "schemas": ["public", "market"],
       "relations": {
@@ -145,6 +146,13 @@
         "public.features_bias": ["SELECT"],
         "public.features_pricing": ["SELECT"],
         "public.backtest_results": ["SELECT"],
+        "public.candles_1m": ["SELECT"],
+        "public.candles_5m": ["SELECT"],
+        "public.candles_15m": ["SELECT"],
+        "public.candles_1h": ["SELECT"],
+        "public.candles_4h": ["SELECT"],
+        "public.candles_1d_utc": ["SELECT"],
+        "public.candles_1d_ny": ["SELECT"],
         "market.candles_1m_canonical": ["SELECT"]
       },
       "sequences": {},
@@ -164,7 +172,8 @@
         "apps/web/src/app/api/strategies/detail/route.ts:2",
         "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts:2",
         "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts:2",
-        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts:2"
+        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts:2",
+        "apps/web/src/app/api/candles/export/route.ts:14"
       ],
       "blockers": [
         "Migrated pure-read route cohorts are independently pooled, but remaining Next.js read routes still use the web-command pool",

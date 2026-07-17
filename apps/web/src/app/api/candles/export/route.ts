@@ -12,7 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
   process.env.MT5_API_KEY ??
@@ -25,13 +25,13 @@ function validateApiKey(req: NextRequest): boolean {
 }
 
 const VALID_TFS: Record<string, string> = {
-  "1m": "candles_1m",
-  "5m": "candles_5m",
-  "15m": "candles_15m",
-  "1h": "candles_1h",
-  "4h": "candles_4h",
-  "1d_utc": "candles_1d_utc",
-  "1d_ny": "candles_1d_ny",
+  "1m": "public.candles_1m",
+  "5m": "public.candles_5m",
+  "15m": "public.candles_15m",
+  "1h": "public.candles_1h",
+  "4h": "public.candles_4h",
+  "1d_utc": "public.candles_1d_utc",
+  "1d_ny": "public.candles_1d_ny",
 };
 
 export async function GET(req: NextRequest) {
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid from/to date" }, { status: 400 });
   }
 
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   try {
     const { rows } = await pool.query(
