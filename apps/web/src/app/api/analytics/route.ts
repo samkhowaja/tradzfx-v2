@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const days = parseInt(searchParams.get("days") ?? "30", 10);
 
-  const pool = getPool();
+  const pool = getWebReadPool();
   const daysInterval = `${days} days`;
 
   const { rows: summary } = await pool.query(`

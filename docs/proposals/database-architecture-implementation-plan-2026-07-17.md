@@ -466,6 +466,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Access contract now lists exact relations reached by this cohort and remains activation-blocked until remaining intended read routes and live catalog evidence are complete.
 - `closePool()` drains both pools. No role URL was populated, no PM2 reload occurred, and no DB role/grant/data mutation occurred.
 
+### Second web-read route cohort — 2026-07-17
+
+- Migrated six additional GET-only routes: analytics, dashboard performance, dashboard activity, dashboard strategies, paginated signals, and pair status.
+- Added exact read evidence for `public.orders`, `public.decision_trace`, `public.strategy_specs`, `public.features_bias`, `public.features_pricing`, and `market.candles_1m_canonical`; existing family/variant/rejection relations remain unchanged.
+- Static governance requires every migrated route to import `getWebReadPool()`, forbids primary `getPool()` usage, and rejects SQL mutation verbs. Query text and response behavior were not changed.
+- WEB_READ activation remains blocked. Remaining read routes still use the command pool, and catalog/grant verification has not occurred.
+- Configuration-only staged cutover: no role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

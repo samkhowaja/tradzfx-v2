@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 const MAJOR_PAIRS = [
   "EURUSD", "GBPUSD", "AUDUSD", "NZDUSD",
@@ -8,7 +8,7 @@ const MAJOR_PAIRS = [
 ];
 
 export async function GET() {
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   const [biasRes, pricingRes, candleRes, signalRes] = await Promise.all([
     // Latest bias per symbol

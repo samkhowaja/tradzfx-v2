@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 function getFamilyId(strategyId: string): string {
   return strategyId.replace(/(_v\d+.*|_\d+m)$/, "");
 }
 
 export async function GET() {
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   // Fetch all strategy specs
   const { rows: specRows } = await pool.query(`

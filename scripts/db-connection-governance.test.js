@@ -93,12 +93,18 @@ test("web process exposes bounded staged read credentials", () => {
   assert.ok(Number(web.env.TM_DB_WEB_READ_POOL_MAX) > 0);
 });
 
-test("initial pure-read web routes use only the web-read pool", () => {
+test("migrated pure-read web routes use only the web-read pool", () => {
   const routes = [
     "apps/web/src/app/api/dashboard/signals/route.ts",
     "apps/web/src/app/api/dashboard/positions/route.ts",
     "apps/web/src/app/api/dashboard/rejections/route.ts",
     "apps/web/src/app/api/strategies/route.ts",
+    "apps/web/src/app/api/analytics/route.ts",
+    "apps/web/src/app/api/dashboard/performance/route.ts",
+    "apps/web/src/app/api/dashboard/activity/route.ts",
+    "apps/web/src/app/api/dashboard/strategies/route.ts",
+    "apps/web/src/app/api/signals/route.ts",
+    "apps/web/src/app/api/pairs/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");
