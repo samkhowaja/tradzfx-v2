@@ -1,6 +1,7 @@
 // Check temporal alignment: when are iFVGs vs setups?
 const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.TM_DB_URL || 'postgresql://postgres:2k16Dub@i@localhost:5432/tradzfx_v2' });
+const { getDbConnectionString } = require('./db-config.cjs');
+const pool = new Pool({ connectionString: getDbConnectionString() });
 
 async function main() {
   // iFVG bullish 15m distribution

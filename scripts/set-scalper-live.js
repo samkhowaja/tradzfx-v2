@@ -1,14 +1,9 @@
 // Set scalper_20sma_1m to live mode
 const { Pool } = require('pg');
+const { getDbConfig } = require('./db-config.cjs');
 
 async function main() {
-  const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    database: 'tradzfx_v2',
-    user: 'postgres',
-    password: '2k16Dub@i'
-  });
+  const pool = new Pool(getDbConfig());
 
   await pool.query(
     `UPDATE strategy_variants SET overrides = '{"live": {"mode": "live"}}'::jsonb WHERE id = 'scalper_20sma_1m'`

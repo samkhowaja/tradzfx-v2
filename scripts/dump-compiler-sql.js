@@ -1,13 +1,13 @@
 /**
  * Dump the actual compiler SQL for strat 3 and compare with manual.
  */
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const YAML = require('yaml');
+const { getDbConfig } = require('./db-config.cjs');
 
-const pool = new Pool({ connectionString: process.env.TM_DB_URL || 'postgresql://postgres:2k16Dub@i@localhost:5432/tradzfx_v2' });
+const pool = new Pool(getDbConfig());
 
 async function main() {
   // Load spec from DB
@@ -105,9 +105,9 @@ async function main() {
   console.log('=== Compiler-style LATERAL SQL ===');
   console.log(manualSql);
 
-  const result = await pool.query(manualSql);
+  const manualResult = await pool.query(manualSql);
   console.log('\n=== LATERAL (8h structure, 240h zone) ===');
-  console.log(result.rows[0]);
+  console.log(manualResult.rows[0]);
 
   // Also try EXISTS approach with same lookbacks
   const existsSql = `

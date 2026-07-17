@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
-const pool = new Pool({ host: 'localhost', port: 5432, database: 'tradzfx_v2', user: 'postgres', password: '2k16Dub@i' });
+const { getDbConfig } = require('./scripts/db-config.cjs');
+const pool = new Pool(getDbConfig());
 async function run() {
   const { rows } = await pool.query(`
     SELECT zone_kind, direction, top, bottom, tapped, first_touch_at, mitigated_at, invalidated_at, touch_count, retest_count, ts

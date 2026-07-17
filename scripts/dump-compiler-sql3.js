@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const path = require('path');
-const pool = new Pool({ connectionString: process.env.TM_DB_URL || 'postgresql://postgres:2k16Dub@i@localhost:5432/tradzfx_v2' });
+const { getDbConfig } = require('./db-config.cjs');
+const pool = new Pool(getDbConfig());
 
 async function main() {
   // Load spec from DB

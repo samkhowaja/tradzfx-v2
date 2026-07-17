@@ -67,6 +67,15 @@ Schema migration occurs through rename/move plus compatibility views. No big tab
 
 Credentials stay outside repository. Every connection sets unique `application_name`. PM2 apps receive separate `DATABASE_URL` variables. Connection pools use bounded maximum, idle timeout, connection timeout, and graceful shutdown.
 
+#### Credential remediation status — 2026-07-17
+
+- Removed plaintext PostgreSQL password fallbacks from 53 tracked ad-hoc and operational scripts.
+- Added `scripts/db-config.cjs` as fail-closed environment-backed config for scripts. It loads ignored root `.env.local`, accepts `TM_DB_URL`, and throws when `TM_DB_PASSWORD` is absent.
+- Added `pnpm db:credentials:check` to reject likely literal PostgreSQL URLs, password properties, and `TM_DB_PASSWORD` assignments in tracked text files.
+- Static syntax checks, known-secret absence scan, generic credential scan, and full `pnpm test` suite passed.
+- Exposed credential remains compromised because Git history retains it. Rotate PostgreSQL credential outside chat, then update ignored deployment environment files and process configuration.
+- History removal is a separate coordinated incident-response action requiring backup, explicit approval, force-push, and every clone/deployment checkout to rebase or reclone. Source cleanup does not substitute for rotation.
+
 ### 3.3 Canonical data flow
 
 ```mermaid

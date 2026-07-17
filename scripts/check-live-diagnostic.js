@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
-const p = new Pool({ host: 'localhost', database: 'tradzfx_v2', user: 'postgres', password: '2k16Dub@i' });
+const { getDbConfig } = require('./db-config.cjs');
+const p = new Pool(getDbConfig());
 
 async function main() {
   // Variant table columns

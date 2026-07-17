@@ -1,5 +1,6 @@
 const {Client} = require('pg');
-const conn = process.env.TM_DB_URL || 'postgresql://postgres:2k16Dub@i@localhost:5432/tradzfx_v2';
+const { getDbConnectionString } = require('./db-config.cjs');
+const conn = getDbConnectionString();
 
 (async () => {
   const c = new Client({connectionString: conn});

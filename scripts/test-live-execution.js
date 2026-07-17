@@ -9,14 +9,9 @@
  */
 const { Pool } = require("pg");
 const crypto = require("crypto");
+const { getDbConfig } = require("./db-config.cjs");
 
-const pool = new Pool({
-  host: process.env.TM_DB_HOST || "localhost",
-  port: parseInt(process.env.TM_DB_PORT || "5432"),
-  database: process.env.TM_DB_NAME || "tradzfx_v2",
-  user: process.env.TM_DB_USER || "postgres",
-  password: process.env.TM_DB_PASSWORD || "2k16Dub@i",
-});
+const pool = new Pool(getDbConfig());
 
 // 1xTrade terminal, OANDA terminal
 const TERMINALS = [
