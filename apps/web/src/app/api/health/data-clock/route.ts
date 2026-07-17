@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 const DB_TIMEOUT_MS = 5_000;
 const DEFAULT_MAX_LAG_MINUTES: Record<string, number> = {
@@ -36,35 +36,33 @@ const DEFAULT_MAX_LAG_MINUTES: Record<string, number> = {
   features_pivot: 120,
   features_liquidity_pools: 120,
   features_correlation: 240,
-  features_time_of_day: 240,
 };
 
-const DATA_CLOCK_TABLES = [
-  "candles_1m",
-  "features_bias",
-  "features_direction_state",
-  "features_htf_bias",
-  "features_pricing",
-  "features_atr",
-  "features_session",
-  "features_spread",
-  "features_zone",
-  "features_ifvg",
-  "features_order_block",
-  "features_structure",
-  "features_sweep",
-  "features_displacement",
-  "features_zone_retest",
-  "features_opening_range",
-  "features_candle_pattern",
-  "features_time_of_day_edge",
-  "features_indicator",
-  "features_moving_average",
-  "features_pivot",
-  "features_liquidity_pools",
-  "features_correlation",
-  "features_time_of_day",
-];
+const DATA_CLOCK_RELATIONS = {
+  candles_1m: "public.candles_1m",
+  features_bias: "public.features_bias",
+  features_direction_state: "public.features_direction_state",
+  features_htf_bias: "public.features_htf_bias",
+  features_pricing: "public.features_pricing",
+  features_atr: "public.features_atr",
+  features_session: "public.features_session",
+  features_spread: "public.features_spread",
+  features_zone: "public.features_zone",
+  features_ifvg: "public.features_ifvg",
+  features_order_block: "public.features_order_block",
+  features_structure: "public.features_structure",
+  features_sweep: "public.features_sweep",
+  features_displacement: "public.features_displacement",
+  features_zone_retest: "public.features_zone_retest",
+  features_opening_range: "public.features_opening_range",
+  features_candle_pattern: "public.features_candle_pattern",
+  features_time_of_day_edge: "public.features_time_of_day_edge",
+  features_indicator: "public.features_indicator",
+  features_moving_average: "public.features_moving_average",
+  features_pivot: "public.features_pivot",
+  features_liquidity_pools: "public.features_liquidity_pools",
+  features_correlation: "public.features_correlation",
+} as const;
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   const timeout = new Promise<never>((_, reject) =>
@@ -74,7 +72,7 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
 }
 
 export async function GET(req: NextRequest) {
-  const pool = getPool();
+  const pool = getWebReadPool();
   const url = new URL(req.url);
   const symbolsParam = url.searchParams.get("symbols");
   const symbols = symbolsParam ? symbolsParam.split(",").map((s) => s.trim()).filter(Boolean) : null;
@@ -84,7 +82,7 @@ export async function GET(req: NextRequest) {
   if (!activeSymbols || activeSymbols.length === 0) {
     try {
       const { rows } = await withTimeout(
-        pool.query("SELECT DISTINCT symbol FROM candles_1m WHERE ts >= NOW() - INTERVAL '24 hours' ORDER BY symbol"),
+        pool.query("SELECT DISTINCT symbol FROM public.candles_1m WHERE ts >= NOW() - INTERVAL '24 hours' ORDER BY symbol"),
         DB_TIMEOUT_MS,
         "symbol_list"
       );
@@ -114,11 +112,11 @@ export async function GET(req: NextRequest) {
   for (const symbol of activeSymbols) {
     const tables: TableClock[] = [];
 
-    for (const table of DATA_CLOCK_TABLES) {
+    for (const [table, relation] of Object.entries(DATA_CLOCK_RELATIONS)) {
       try {
         const { rows } = await withTimeout(
           pool.query(
-            `SELECT MAX(ts) as latest_ts FROM ${table} WHERE symbol = $1`,
+            `SELECT MAX(ts) as latest_ts FROM ${relation} WHERE symbol = $1`,
             [symbol]
           ),
           DB_TIMEOUT_MS,

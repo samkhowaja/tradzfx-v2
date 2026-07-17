@@ -115,6 +115,7 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     "apps/web/src/app/api/v2/pipeline/alerts/route.ts",
     "apps/web/src/app/api/ingest/status/route.ts",
     "apps/web/src/app/api/orders/[orderId]/setup/route.ts",
+    "apps/web/src/app/api/health/data-clock/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");
@@ -130,6 +131,43 @@ test("monitor helper used by migrated alerts route contains no mutations", () =>
     "utf8"
   );
   assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
+});
+
+test("data-clock uses only its exact live schema-qualified relation allowlist", () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, "apps/web/src/app/api/health/data-clock/route.ts"),
+    "utf8"
+  );
+  const relations = [...source.matchAll(/^\s{2}[a-z0-9_]+:\s*"(public\.[a-z0-9_]+)",$/gm)]
+    .map((match) => match[1])
+    .sort();
+
+  assert.deepEqual(relations, [
+    "public.candles_1m",
+    "public.features_atr",
+    "public.features_bias",
+    "public.features_candle_pattern",
+    "public.features_correlation",
+    "public.features_direction_state",
+    "public.features_displacement",
+    "public.features_htf_bias",
+    "public.features_ifvg",
+    "public.features_indicator",
+    "public.features_liquidity_pools",
+    "public.features_moving_average",
+    "public.features_opening_range",
+    "public.features_order_block",
+    "public.features_pivot",
+    "public.features_pricing",
+    "public.features_session",
+    "public.features_spread",
+    "public.features_structure",
+    "public.features_sweep",
+    "public.features_time_of_day_edge",
+    "public.features_zone",
+    "public.features_zone_retest",
+  ]);
+  assert.doesNotMatch(source, /features_time_of_day["':,]/);
 });
 
 test("candle export uses only its exact schema-qualified relation allowlist", () => {

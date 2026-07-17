@@ -497,6 +497,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Root `/api/health` remains on the command pool because it reports command-pool telemetry. Data-clock remains deferred because its dynamic allowlist spans twenty-four relations and requires separate exact-contract review.
 - WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Data-clock web-read migration — 2026-07-17
+
+- Migrated `/api/health/data-clock` to `getWebReadPool()` after confirming its symbol discovery and per-relation clock checks are SELECT-only.
+- Replaced unqualified dynamic table names with a fixed, schema-qualified 23-relation map and added an exact static allowlist regression.
+- Live catalog verification found all 23 retained `public` relations as tables. Removed `features_time_of_day` from the clock because no migration or live relation exists; `features_time_of_day_edge` remains the active producer-backed clock.
+- Added exact `SELECT` evidence for every retained relation. Governance now covers twenty-one migrated routes.
+- WEB_READ activation remains blocked. Root `/api/health` stays on the command pool for command-pool telemetry. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.
