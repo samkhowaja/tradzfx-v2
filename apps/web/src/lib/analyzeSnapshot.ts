@@ -1,4 +1,4 @@
-import { getPool, getCandleTableForTf, type TimeFrame, getGradeCalibration } from "@tm/shared";
+import { getCandleTableForTf, type TimeFrame, getGradeCalibration } from "@tm/shared";
 import { evaluateSetup } from "@tm/setup-engine";
 
 async function safeQuery(

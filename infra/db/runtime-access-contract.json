@@ -141,7 +141,9 @@
         "apps/web/src/app/api/health/data-clock/route.ts",
         "apps/web/src/app/api/calibration/route.ts",
         "apps/web/src/app/api/analyze/backtest/report/route.ts",
-        "apps/web/src/app/api/strategies/[familyId]/route.ts"
+        "apps/web/src/app/api/strategies/[familyId]/route.ts",
+        "apps/web/src/app/api/analyze/route.ts",
+        "apps/web/src/app/api/analyze/stream/route.ts"
       ],
       "schemas": ["public", "market"],
       "relations": {
@@ -184,6 +186,9 @@
         "public.features_pivot": ["SELECT"],
         "public.features_liquidity_pools": ["SELECT"],
         "public.features_correlation": ["SELECT"],
+        "public.features_bollinger": ["SELECT"],
+        "public.features_keltner": ["SELECT"],
+        "public.features_eq_liquidity": ["SELECT"],
         "public.calibration_tuning": ["SELECT"],
         "market.candles_1m_canonical": ["SELECT"]
       },
@@ -213,7 +218,10 @@
         "apps/web/src/app/api/health/data-clock/route.ts:12",
         "apps/web/src/app/api/calibration/route.ts:2",
         "apps/web/src/app/api/analyze/backtest/report/route.ts:2",
-        "apps/web/src/app/api/strategies/[familyId]/route.ts:2"
+        "apps/web/src/app/api/strategies/[familyId]/route.ts:2",
+        "apps/web/src/app/api/analyze/route.ts:2",
+        "apps/web/src/app/api/analyze/stream/route.ts:2",
+        "apps/web/src/lib/analyzeSnapshot.ts:1"
       ],
       "blockers": [
         "Migrated pure-read route cohorts are independently pooled, but remaining Next.js read routes still use the web-command pool",

@@ -513,6 +513,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Deferred analyze snapshot because it delegates a broad feature/candle helper. Strategy variant creation/update routes remain on the command pool because they write.
 - WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Analyzer snapshot read cohort — 2026-07-17
+
+- Audited `fetchAnalyzeSnapshot()`, `evaluateSetup()`, setup context construction, calibration lookup, and grade calibration. All execution paths used by analyzer snapshot and stream are SELECT-only.
+- Migrated `/api/analyze` and `/api/analyze/stream` to `getWebReadPool()` and removed the unused primary-pool import from the shared snapshot helper.
+- Live catalog verification confirmed the additional optional snapshot relations `public.features_bollinger`, `public.features_keltner`, and `public.features_eq_liquidity`; added exact `SELECT` evidence. Existing candle, feature, order, setup-evaluation, backtest, and calibration relations were already declared.
+- Added static regression preventing primary-pool or SQL mutation dependencies in the analyzer snapshot helper. Governance now covers twenty-six migrated routes.
+- WEB_READ activation remains blocked. MT5 auth remains on the command pool because moving it would expose direct read access to secret-bearing `public.mt5_terminals`. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

@@ -119,6 +119,8 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     "apps/web/src/app/api/calibration/route.ts",
     "apps/web/src/app/api/analyze/backtest/report/route.ts",
     "apps/web/src/app/api/strategies/[familyId]/route.ts",
+    "apps/web/src/app/api/analyze/route.ts",
+    "apps/web/src/app/api/analyze/stream/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");
@@ -134,6 +136,24 @@ test("monitor helper used by migrated alerts route contains no mutations", () =>
     "utf8"
   );
   assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
+});
+
+test("analyzer snapshot dependency closure has no primary-pool or mutation dependency", () => {
+  const files = [
+    "apps/web/src/lib/analyzeSnapshot.ts",
+    "packages/setupEngine/src/evaluateSetup.ts",
+    "packages/setupEngine/src/contextBuilder.ts",
+    "packages/setupEngine/src/calibrationTuning.ts",
+  ];
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(ROOT, file), "utf8");
+    assert.doesNotMatch(source, /\bgetPool\b/, file);
+    assert.doesNotMatch(
+      source,
+      /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i,
+      file
+    );
+  }
 });
 
 test("data-clock uses only its exact live schema-qualified relation allowlist", () => {

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getPool, timeBucket, type TimeFrame } from "@tm/shared";
+import { getWebReadPool, timeBucket, type TimeFrame } from "@tm/shared";
 import { fetchAnalyzeSnapshot } from "@/lib/analyzeSnapshot";
 import { subscribe, type StreamEvent } from "@/lib/analyzeStreamBus";
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   if (tfParam === "1D") tfParam = "1d";
   const tf = VALID_TFS.includes(tfParam as TimeFrame) ? (tfParam as TimeFrame) : "1m";
 
-  const pool = getPool();
+  const pool = getWebReadPool();
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
