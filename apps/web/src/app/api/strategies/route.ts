@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET() {
-  const pool = getPool();
+  const pool = getWebReadPool();
   const { rows } = await pool.query(
     `
     SELECT

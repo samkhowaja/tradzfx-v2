@@ -84,6 +84,30 @@ test("rejection cleanup uses dedicated maintenance identity", () => {
   assert.notEqual(cleanup.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_MONITOR");
 });
 
+test("web process exposes bounded staged read credentials", () => {
+  const web = ecosystem.apps.find((app) => app.name === "tz-web-v2");
+  assert.ok(web, "missing web process");
+  assert.equal(web.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_WEB_COMMAND");
+  assert.equal(web.env.TM_DATABASE_URL_WEB_READ, process.env.TM_DATABASE_URL_WEB_READ);
+  assert.match(String(web.env.TM_DB_WEB_READ_POOL_MAX), /^\d+$/);
+  assert.ok(Number(web.env.TM_DB_WEB_READ_POOL_MAX) > 0);
+});
+
+test("initial pure-read web routes use only the web-read pool", () => {
+  const routes = [
+    "apps/web/src/app/api/dashboard/signals/route.ts",
+    "apps/web/src/app/api/dashboard/positions/route.ts",
+    "apps/web/src/app/api/dashboard/rejections/route.ts",
+    "apps/web/src/app/api/strategies/route.ts",
+  ];
+  for (const route of routes) {
+    const source = fs.readFileSync(path.join(ROOT, route), "utf8");
+    assert.match(source, /getWebReadPool/);
+    assert.doesNotMatch(source, /\bgetPool\b/);
+    assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
+  }
+});
+
 test("freshness observer and healer use isolated runtime identities", () => {
   const observer = ecosystem.apps.find((app) => app.name === "tz-feature-freshness");
   const healer = ecosystem.apps.find((app) => app.name === "tz-feature-freshness-healer");

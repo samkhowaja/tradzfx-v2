@@ -117,14 +117,31 @@
     },
     "tradzfx_web_read": {
       "activationReady": false,
-      "entrypoints": [],
-      "schemas": [],
-      "relations": {},
+      "entrypoints": [
+        "apps/web/src/app/api/dashboard/signals/route.ts",
+        "apps/web/src/app/api/dashboard/positions/route.ts",
+        "apps/web/src/app/api/dashboard/rejections/route.ts",
+        "apps/web/src/app/api/strategies/route.ts"
+      ],
+      "schemas": ["public", "market"],
+      "relations": {
+        "public.orders": ["SELECT"],
+        "public.live_signal_rejection": ["SELECT"],
+        "public.strategy_families": ["SELECT"],
+        "public.strategy_variants": ["SELECT"],
+        "market.candles_1m_canonical": ["SELECT"]
+      },
       "sequences": {},
       "functions": {},
-      "evidence": [],
+      "evidence": [
+        "apps/web/src/app/api/dashboard/signals/route.ts:5",
+        "apps/web/src/app/api/dashboard/positions/route.ts:5",
+        "apps/web/src/app/api/dashboard/rejections/route.ts:5",
+        "apps/web/src/app/api/strategies/route.ts:5"
+      ],
       "blockers": [
-        "Next.js process has one singleton pool shared by read routes, strategy pipeline, ingestion compatibility routes, and execution commands; split pools before WEB_READ activation"
+        "Initial pure-read route cohort is independently pooled, but remaining Next.js read routes still use the web-command pool",
+        "Do not activate WEB_READ until every migrated route relation is verified against the live catalog and the complete intended read cohort is enumerated"
       ]
     },
     "tradzfx_web_command": {

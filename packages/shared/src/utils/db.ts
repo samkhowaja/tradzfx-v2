@@ -16,6 +16,7 @@ export type PoolStats = {
 };
 
 let pool: Pool | null = null;
+let webReadPool: Pool | null = null;
 
 function positiveInteger(name: string, fallback: string): number {
   const raw = process.env[name] ?? fallback;
@@ -23,6 +24,32 @@ function positiveInteger(name: string, fallback: string): number {
     throw new Error(`${name} must be a positive integer`);
   }
   return Number(raw);
+}
+
+function parsePoolUrl(name: string, value: string): Pick<PoolConfig, "host" | "port" | "database" | "user" | "password"> {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(`${name} must be a valid PostgreSQL URL`);
+  }
+  if (url.protocol !== "postgres:" && url.protocol !== "postgresql:") {
+    throw new Error(`${name} must use postgres:// or postgresql://`);
+  }
+  if (!url.hostname || !url.username || !url.password || !url.pathname.slice(1)) {
+    throw new Error(`${name} must include host, database, user, and password`);
+  }
+  const port = url.port ? Number(url.port) : 5432;
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+    throw new Error(`${name} contains an invalid port`);
+  }
+  return {
+    host: url.hostname,
+    port,
+    database: decodeURIComponent(url.pathname.slice(1)),
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+  };
 }
 
 export function buildPoolConfig(): PoolConfig {
@@ -74,6 +101,31 @@ export function getPool(): Pool {
   return pool;
 }
 
+export function buildWebReadPoolConfig(): PoolConfig {
+  const roleUrl = process.env.TM_DATABASE_URL_WEB_READ;
+  const config = roleUrl
+    ? {
+        ...buildPoolConfig(),
+        ...parsePoolUrl("TM_DATABASE_URL_WEB_READ", roleUrl),
+      }
+    : buildPoolConfig();
+  return {
+    ...config,
+    application_name: `${process.env.TM_DB_APPLICATION_NAME ?? "tradzfx-unattributed"}-read`,
+    max: positiveInteger("TM_DB_WEB_READ_POOL_MAX", "10"),
+  };
+}
+
+export function getWebReadPool(): Pool {
+  if (!webReadPool) {
+    webReadPool = new Pool(buildWebReadPoolConfig());
+    webReadPool.on("error", (err) => {
+      console.error("[db:web-read] Unexpected pool error:", err.message);
+    });
+  }
+  return webReadPool;
+}
+
 export function getPoolStats(): PoolStats | null {
   if (!pool) return null;
   return {
@@ -86,8 +138,8 @@ export function getPoolStats(): PoolStats | null {
 }
 
 export async function closePool(): Promise<void> {
-  if (pool) {
-    await pool.end();
-    pool = null;
-  }
+  const pools = [pool, webReadPool].filter((candidate): candidate is Pool => candidate !== null);
+  pool = null;
+  webReadPool = null;
+  await Promise.all(pools.map((candidate) => candidate.end()));
 }

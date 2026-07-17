@@ -458,6 +458,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Direct `DELETE` remains transitional. A future bounded security-definer retention function must be created only after `tradzfx_owner` exists, can own it, uses fixed `search_path`, validates retention bounds, and has `PUBLIC EXECUTE` revoked. Creating it now under legacy migration ownership would weaken rather than improve ownership governance.
 - Governance tests enforce exact role inventory, URL allowlist, PM2 mapping, and access contract. No role, grant, function, migration, PM2 reload, credential activation, or DB mutation occurred.
 
+### Initial web-read pool split — 2026-07-17
+
+- Shared DB utility now supports a second bounded singleton pool through `getWebReadPool()`. `TM_DATABASE_URL_WEB_READ` selects read credentials; absence preserves legacy credentials for staged cutover. Sessions use distinct `tradzfx-web-read` attribution and `TM_DB_WEB_READ_POOL_MAX`.
+- Migrated four pure-read routes: dashboard signals, positions, rejections, and strategy-family list. Governance rejects primary-pool imports and SQL mutation verbs in this cohort.
+- Primary `getPool()` remains unchanged for command, pipeline, engine, lifecycle, execution, and compatibility-ingest paths. No mixed transaction was split in this slice.
+- Access contract now lists exact relations reached by this cohort and remains activation-blocked until remaining intended read routes and live catalog evidence are complete.
+- `closePool()` drains both pools. No role URL was populated, no PM2 reload occurred, and no DB role/grant/data mutation occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

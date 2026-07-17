@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { buildPoolConfig } from "./db";
+import { buildPoolConfig, buildWebReadPoolConfig } from "./db";
 
 const ORIGINAL_ENV = { ...process.env };
 const TEST_PASSWORD = ["test", "only"].join("-");
@@ -61,6 +61,51 @@ describe("buildPoolConfig", () => {
 
     expect(config.options).toBe(
       "-c statement_timeout=60000 -c idle_in_transaction_session_timeout=30000"
+    );
+  });
+
+  it("builds an independently attributed web-read pool from its role URL", () => {
+    process.env.NODE_ENV = "test";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
+    process.env.TM_DB_APPLICATION_NAME = "tradzfx-web";
+    process.env.TM_DB_WEB_READ_POOL_MAX = "7";
+    const readPassword = ["read", "pass"].join("-");
+    process.env.TM_DATABASE_URL_WEB_READ = `postgresql://reader:${readPassword}@db.example:5544/read_db`;
+
+    const config = buildWebReadPoolConfig();
+
+    expect(config).toMatchObject({
+      host: "db.example",
+      port: 5544,
+      database: "read_db",
+      user: "reader",
+      application_name: "tradzfx-web-read",
+      max: 7,
+    });
+    expect(config.password).toBe(readPassword);
+  });
+
+  it("keeps legacy credentials when web-read role URL is absent", () => {
+    process.env.NODE_ENV = "test";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
+    process.env.TM_DB_USER = "legacy-user";
+    process.env.TM_DB_APPLICATION_NAME = "tradzfx-web";
+    delete process.env.TM_DATABASE_URL_WEB_READ;
+
+    const config = buildWebReadPoolConfig();
+
+    expect(config.user).toBe("legacy-user");
+    expect(config.application_name).toBe("tradzfx-web-read");
+    expect(config.max).toBe(10);
+  });
+
+  it("rejects malformed web-read role URLs", () => {
+    process.env.NODE_ENV = "test";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
+    process.env.TM_DATABASE_URL_WEB_READ = "https://reader:pass@example.com/db";
+
+    expect(() => buildWebReadPoolConfig()).toThrow(
+      "TM_DATABASE_URL_WEB_READ must use postgres:// or postgresql://"
     );
   });
 });
