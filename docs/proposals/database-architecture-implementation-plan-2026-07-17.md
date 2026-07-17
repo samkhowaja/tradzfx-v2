@@ -376,10 +376,12 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Shared and ad-hoc pool factories apply bounded pool size, connection timeout, idle timeout, TCP keepalive, and process attribution. Optional PostgreSQL statement and idle-in-transaction timeouts are validated before serialization.
 - Direct long-running PM2 pool owners (`tz-ingestion`, DXY synthesis, pending-order expiry, rejection cleanup, and feature-freshness monitor) carry matching safeguards and close pools on `SIGTERM`/`SIGINT`.
 - `scripts/db-connection-governance.test.js` checks unique PM2 application names, positive pool bounds, direct-pool safeguards, and graceful shutdown contracts. It runs in root `pnpm test`.
-- `scripts/audit-db-sessions.js` reports only `application_name`, state, and session count from `pg_stat_activity` inside `BEGIN READ ONLY`; query text and credentials are excluded.
-- Validation passed: credential scan, 120 root Node tests, all workspace tests, and `pnpm -r build`.
-- Read-only live sample found only `tradzfx-connection-audit` (one active session); no idle or unattributed sessions existed at sample time. PM2 process-to-session comparison remains observable only when those processes hold DB sessions.
-- Remaining WS-1 work: split process-specific role URLs, health pool counters, seven-day session inventory, monitor thresholding, and restart/outage connection-growth proof. No PostgreSQL restart performed.
+- `scripts/audit-db-sessions.js` reports only `application_name`, state, and session count from `pg_stat_activity` inside `BEGIN READ ONLY`; query text and credentials are excluded. `--json` supports automation and `--append <path>` builds a credential-free JSONL inventory for seven-day sampling.
+- `/api/health` exposes safe local pool counters (`applicationName`, `max`, `total`, `idle`, `waiting`) plus grouped PostgreSQL session counts. It excludes connection strings, passwords, client addresses, and query text; session telemetry failure degrades only telemetry, not DB reachability.
+- `ops/monitor-v2-health.ps1` fails on empty/`tradzfx-unattributed` sessions or totals above `TM_DB_SESSION_ALERT_MAX` (default 60). Capacity alerts never terminate or restart PostgreSQL; existing app-pool recycle remains limited to failed DB connectivity.
+- Validation passed: credential scan, governance tests, shared tests, full root/workspace tests, web build, and `pnpm -r build`. Existing unrelated web lint warnings remain warnings.
+- Read-only live samples found only `tradzfx-connection-audit` (one active session); no idle or unattributed sessions existed at sample time. PM2 process-to-session comparison remains observable only when those processes hold DB sessions.
+- Remaining WS-1 work: split process-specific role URLs, collect/analyze seven days of session inventory, and prove restart/outage connection counts remain bounded. No PostgreSQL restart performed.
 
 ## WS-2 — Least-privilege ownership and runtime roles
 

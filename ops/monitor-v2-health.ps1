@@ -32,6 +32,8 @@ $ApiKey           = $env:TM_MT5_API_KEY
 if (-not $ApiKey) { throw "TM_MT5_API_KEY is not set" }
 $CooldownFile     = Join-Path $V2Root 'logs\.last-auto-recycle'
 $CooldownMinutes  = 10
+$MaxDbSessions    = if ($env:TM_DB_SESSION_ALERT_MAX) { [int]$env:TM_DB_SESSION_ALERT_MAX } else { 60 }
+if ($MaxDbSessions -le 0) { throw "TM_DB_SESSION_ALERT_MAX must be a positive integer" }
 
 $failures = @()
 $notes    = @()
@@ -89,6 +91,27 @@ if ($null -eq $health) {
     $dbConnected = ($health.database.connected -eq $true)
     if ($health.status -ne 'ok' -or -not $dbConnected) {
         $failures += "/api/health returned degraded status: $($health | ConvertTo-Json -Compress)"
+    }
+    if ($health.database.sessionsError) {
+        $notes += "DB session telemetry unavailable: $($health.database.sessionsError)"
+    } elseif ($null -ne $health.database.sessions) {
+        $sessionTotal = 0
+        $unattributed = 0
+        foreach ($group in $health.database.sessions) {
+            $count = [int]$group.sessions
+            $sessionTotal += $count
+            if ($group.applicationName -eq '(empty)' -or $group.applicationName -eq 'tradzfx-unattributed') {
+                $unattributed += $count
+            }
+        }
+        if ($unattributed -gt 0) {
+            $failures += "PostgreSQL has $unattributed unattributed client session(s)."
+        }
+        if ($sessionTotal -gt $MaxDbSessions) {
+            $failures += "PostgreSQL client sessions $sessionTotal exceed configured cap $MaxDbSessions."
+        } else {
+            $notes += "PostgreSQL client sessions: $sessionTotal/$MaxDbSessions."
+        }
     }
 }
 

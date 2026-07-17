@@ -21,7 +21,23 @@ const pool = new Pool({
   idleTimeoutMillis: 5000,
 });
 
+function parseArgs(argv) {
+  const args = { json: false, append: null };
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] === "--json") args.json = true;
+    else if (argv[index] === "--append") {
+      args.append = argv[index + 1];
+      index += 1;
+      if (!args.append) throw new Error("--append requires a file path");
+    } else {
+      throw new Error(`Unknown argument: ${argv[index]}`);
+    }
+  }
+  return args;
+}
+
 async function main() {
+  const args = parseArgs(process.argv.slice(2));
   const client = await pool.connect();
   try {
     await client.query("BEGIN READ ONLY");
@@ -36,7 +52,19 @@ async function main() {
       GROUP BY 1, 2
       ORDER BY 1, 2
     `);
-    console.table(result.rows);
+    const snapshot = {
+      capturedAt: new Date().toISOString(),
+      database: process.env.TM_DB_NAME || "tradzfx_v2",
+      sessions: result.rows,
+    };
+    if (args.json) console.log(JSON.stringify(snapshot));
+    else console.table(result.rows);
+    if (args.append) {
+      const fs = require("node:fs");
+      const outputPath = path.resolve(args.append);
+      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+      fs.appendFileSync(outputPath, `${JSON.stringify(snapshot)}\n`, "utf8");
+    }
     await client.query("ROLLBACK");
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});

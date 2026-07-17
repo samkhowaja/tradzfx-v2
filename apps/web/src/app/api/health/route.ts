@@ -5,11 +5,17 @@
  */
 
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getPool, getPoolStats } from "@tm/shared";
 
 const DB_TIMEOUT_MS = 2_000;
 const MAX_CANDLE_AGE_MINUTES = 15;
 const MAX_FEATURE_AGE_MINUTES = 15;
+
+type DbSessionCount = {
+  applicationName: string;
+  state: string;
+  sessions: number;
+};
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   const timeout = new Promise<never>((_, reject) =>
@@ -23,6 +29,8 @@ export async function GET() {
   let dbOk = false;
   let dbNow: string | null = null;
   let dbError: string | null = null;
+  let dbSessions: DbSessionCount[] = [];
+  let dbSessionsError: string | null = null;
 
   try {
     const { rows } = await withTimeout(
@@ -35,6 +43,33 @@ export async function GET() {
   } catch (err: any) {
     dbError = err.message;
     console.error("[health] DB check failed:", err.message);
+  }
+
+  if (dbOk) {
+    try {
+      const { rows } = await withTimeout(
+        pool.query(
+          `SELECT COALESCE(NULLIF(application_name, ''), '(empty)') AS application_name,
+                  COALESCE(state, 'unknown') AS state,
+                  COUNT(*)::int AS sessions
+             FROM pg_stat_activity
+            WHERE datname = current_database()
+              AND backend_type = 'client backend'
+            GROUP BY 1, 2
+            ORDER BY 1, 2`
+        ),
+        DB_TIMEOUT_MS,
+        "db_sessions_query"
+      );
+      dbSessions = rows.map((row: any) => ({
+        applicationName: row.application_name,
+        state: row.state,
+        sessions: Number(row.sessions),
+      }));
+    } catch (err: any) {
+      dbSessionsError = err.message;
+      console.error("[health] DB session telemetry failed:", err.message);
+    }
   }
 
   type SymbolHealth = {
@@ -122,6 +157,9 @@ export async function GET() {
         connected: dbOk,
         now: dbNow,
         error: dbError,
+        pool: getPoolStats(),
+        sessions: dbSessions,
+        sessionsError: dbSessionsError,
       },
       ingest: {
         lastIngestAt,

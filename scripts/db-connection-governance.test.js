@@ -54,3 +54,18 @@ test("direct long-running PM2 pools declare safeguards and graceful shutdown", (
     assert.match(source, /pool\.end\(\)/, `${relativePath}: missing graceful pool shutdown`);
   }
 });
+
+test("health and monitor expose safe pool telemetry and enforce session bounds", () => {
+  const health = fs.readFileSync(
+    path.join(ROOT, "apps/web/src/app/api/health/route.ts"),
+    "utf8"
+  );
+  const monitor = fs.readFileSync(path.join(ROOT, "ops/monitor-v2-health.ps1"), "utf8");
+
+  assert.match(health, /getPoolStats\(\)/);
+  assert.match(health, /FROM pg_stat_activity/);
+  assert.doesNotMatch(health, /\bquery\s*,/i, "health must not expose PostgreSQL query text");
+  assert.match(monitor, /TM_DB_SESSION_ALERT_MAX/);
+  assert.match(monitor, /unattributed client session/);
+  assert.doesNotMatch(monitor, /pg_terminate_backend|Stop-Service\s+postgres|Restart-Service\s+postgres/i);
+});

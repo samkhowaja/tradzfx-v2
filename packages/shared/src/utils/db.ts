@@ -7,6 +7,13 @@ import { Pool, type PoolConfig } from "pg";
 export type { Pool, PoolConfig } from "pg";
 export type PoolClientLike = { query: Pool["query"] };
 export type Queryable = Pool | PoolClientLike;
+export type PoolStats = {
+  applicationName: string;
+  max: number;
+  total: number;
+  idle: number;
+  waiting: number;
+};
 
 let pool: Pool | null = null;
 
@@ -65,6 +72,17 @@ export function getPool(): Pool {
   }
 
   return pool;
+}
+
+export function getPoolStats(): PoolStats | null {
+  if (!pool) return null;
+  return {
+    applicationName: process.env.TM_DB_APPLICATION_NAME ?? "tradzfx-unattributed",
+    max: positiveInteger("TM_DB_POOL_MAX", "20"),
+    total: pool.totalCount,
+    idle: pool.idleCount,
+    waiting: pool.waitingCount,
+  };
 }
 
 export async function closePool(): Promise<void> {
