@@ -224,8 +224,8 @@
         "apps/web/src/lib/analyzeSnapshot.ts:1"
       ],
       "blockers": [
-        "Migrated pure-read route cohorts are independently pooled, but remaining Next.js read routes still use the web-command pool",
-        "Do not activate WEB_READ until every migrated route relation is verified against the live catalog and the complete intended read cohort is enumerated"
+        "Live catalog preflight on 2026-07-17 found tradzfx_web_read and every other planned governance role absent; runtime relations remain owned by postgres",
+        "Exact WEB_READ credentials and grants are not staged, and PUBLIC function EXECUTE findings must be classified before role activation"
       ]
     },
     "tradzfx_web_command": {

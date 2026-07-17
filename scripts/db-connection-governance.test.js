@@ -93,6 +93,14 @@ test("web process exposes bounded staged read credentials", () => {
   assert.ok(Number(web.env.TM_DB_WEB_READ_POOL_MAX) > 0);
 });
 
+function findRouteFiles(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return findRouteFiles(fullPath);
+    return entry.name === "route.ts" ? [fullPath] : [];
+  });
+}
+
 test("migrated pure-read web routes use only the web-read pool", () => {
   const routes = [
     "apps/web/src/app/api/dashboard/signals/route.ts",
@@ -128,6 +136,29 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     assert.doesNotMatch(source, /\bgetPool\b/);
     assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
   }
+});
+
+test("remaining web-command route inventory is exact and intentional", () => {
+  const apiRoot = path.join(ROOT, "apps/web/src/app/api");
+  const actual = findRouteFiles(apiRoot)
+    .filter((file) => /\bgetPool\s*\(/.test(fs.readFileSync(file, "utf8")))
+    .map((file) => path.relative(ROOT, file).replaceAll("\\", "/"))
+    .sort();
+
+  assert.deepEqual(actual, [
+    "apps/web/src/app/api/calibration/apply/route.ts",
+    "apps/web/src/app/api/health/route.ts",
+    "apps/web/src/app/api/ingest/heartbeat/route.ts",
+    "apps/web/src/app/api/ingest/mt5/register/route.ts",
+    "apps/web/src/app/api/ingest/route.ts",
+    "apps/web/src/app/api/mt5/closes/route.ts",
+    "apps/web/src/app/api/mt5/commands/route.ts",
+    "apps/web/src/app/api/mt5/fills/route.ts",
+    "apps/web/src/app/api/mt5/signals/route.ts",
+    "apps/web/src/app/api/strategies/[familyId]/variants/route.ts",
+    "apps/web/src/app/api/strategies/update-spec/route.ts",
+    "apps/web/src/app/api/strategies/variants/[variantId]/route.ts",
+  ]);
 });
 
 test("monitor helper used by migrated alerts route contains no mutations", () => {

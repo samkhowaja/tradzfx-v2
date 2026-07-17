@@ -521,6 +521,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Added static regression preventing primary-pool or SQL mutation dependencies in the analyzer snapshot helper. Governance now covers twenty-six migrated routes.
 - WEB_READ activation remains blocked. MT5 auth remains on the command pool because moving it would expose direct read access to secret-bearing `public.mt5_terminals`. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Web-read enumeration and live activation preflight — 2026-07-17
+
+- Full App Router inventory found exactly twelve remaining direct `getPool()` routes: root health command-pool telemetry plus eleven command/mixed ingestion, MT5, calibration, and strategy mutation routes. No additional pure-read candidate remains on the primary pool.
+- Added fail-closed governance that recursively inventories API routes and requires that exact command-pool set. Any new or removed direct `getPool()` route now requires explicit contract review.
+- Read-only live role preflight reported 254 governance findings. Every planned `tradzfx_*` role, including `tradzfx_web_read`, is absent; governed relations remain owned by `postgres`; PUBLIC function `EXECUTE` findings remain unclassified.
+- Replaced stale route-enumeration blockers with actual activation blockers. `activationReady` remains `false`: credentials/grants have not been staged, ownership has not transferred, and PUBLIC function policy is unresolved.
+- No role creation, ownership transfer, grant, credential change, PM2 reload, DB data/schema mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.
