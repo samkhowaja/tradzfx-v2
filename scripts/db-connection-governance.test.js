@@ -36,6 +36,26 @@ test("every PM2 DB process has unique attribution and bounded pool settings", ()
   assert.equal(new Set(names).size, names.length, "TM_DB_APPLICATION_NAME values must be unique");
 });
 
+test("every PM2 DB process resolves an explicit workload role URL", () => {
+  const allowedRoleUrls = new Set([
+    "TM_DATABASE_URL_INGEST",
+    "TM_DATABASE_URL_ENGINE",
+    "TM_DATABASE_URL_LIFECYCLE",
+    "TM_DATABASE_URL_WEB_READ",
+    "TM_DATABASE_URL_WEB_COMMAND",
+    "TM_DATABASE_URL_EXECUTION",
+    "TM_DATABASE_URL_BACKTEST",
+    "TM_DATABASE_URL_MONITOR",
+  ]);
+
+  for (const app of DB_PROCESSES) {
+    assert.ok(
+      allowedRoleUrls.has(app.env.TM_DB_ROLE_URL_NAME),
+      `${app.name}: missing recognized TM_DB_ROLE_URL_NAME`
+    );
+  }
+});
+
 test("direct long-running PM2 pools declare safeguards and graceful shutdown", () => {
   const directPoolScripts = [
     "scripts/ingestion-server.js",

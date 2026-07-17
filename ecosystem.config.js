@@ -1,5 +1,18 @@
 const fs = require("fs");
 const path = require("path");
+const { roleDbEnv } = require("./scripts/db-role-env.cjs");
+
+const DB_ROLE_BY_PROCESS = Object.freeze({
+  "tz-web-v2": "TM_DATABASE_URL_WEB_COMMAND",
+  "tz-dxy-synthetic": "TM_DATABASE_URL_ENGINE",
+  "tz-expire-pending-orders": "TM_DATABASE_URL_EXECUTION",
+  "tz-cleanup-rejection-log": "TM_DATABASE_URL_MONITOR",
+  "tz-ingestion": "TM_DATABASE_URL_INGEST",
+  "tz-refresh-lifecycle": "TM_DATABASE_URL_LIFECYCLE",
+  "tz-shadow-run": "TM_DATABASE_URL_BACKTEST",
+  "tz-feature-freshness": "TM_DATABASE_URL_MONITOR",
+  "tz-db-session-inventory": "TM_DATABASE_URL_MONITOR",
+});
 
 // Load root .env files into process.env so PM2 apps get secrets even when the
 // PM2 daemon was started from a shell that did not export them.
@@ -23,7 +36,7 @@ function loadEnvFile(name) {
 loadEnvFile(".env.local");
 loadEnvFile(".env.production.local");
 
-module.exports = {
+const config = {
   apps: [
     {
       name: 'tz-web-v2',
@@ -344,3 +357,11 @@ module.exports = {
     // scripts/run-mt5-python-backfill.bat in that session.
   ],
 };
+
+for (const app of config.apps) {
+  const roleUrlName = DB_ROLE_BY_PROCESS[app.name];
+  if (!roleUrlName) continue;
+  Object.assign(app.env, roleDbEnv(roleUrlName), { TM_DB_ROLE_URL_NAME: roleUrlName });
+}
+
+module.exports = config;
