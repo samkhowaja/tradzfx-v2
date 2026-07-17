@@ -23,6 +23,8 @@ const pool = new Pool({
   max: Number(process.env.TM_DB_POOL_MAX ?? 2),
   connectionTimeoutMillis: Number(process.env.TM_DB_CONNECTION_TIMEOUT ?? 5000),
   idleTimeoutMillis: Number(process.env.TM_DB_IDLE_TIMEOUT ?? 30000),
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 const INTERVAL_MS = Number(process.env.CLEANUP_REJECTION_LOG_INTERVAL_MS ?? 3_600_000); // 1h
@@ -59,6 +61,14 @@ async function runLoop() {
     }
   }, INTERVAL_MS);
 }
+
+async function shutdown() {
+  await pool.end();
+  process.exit(0);
+}
+
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);
 
 runLoop().catch((err) => {
   console.error("[cleanup-rejection-log] Fatal:", err.message);

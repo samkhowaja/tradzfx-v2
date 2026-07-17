@@ -105,6 +105,8 @@ const pool = new Pool({
   max: parseInt(process.env.TM_DB_POOL_MAX || "2", 10),
   connectionTimeoutMillis: parseInt(process.env.TM_DB_CONNECTION_TIMEOUT || "5000", 10),
   idleTimeoutMillis: parseInt(process.env.TM_DB_IDLE_TIMEOUT || "30000", 10),
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 function ageMinutes(ts) {
@@ -230,6 +232,14 @@ async function main() {
   await tick();
   setInterval(tick, INTERVAL_MS);
 }
+
+async function shutdown() {
+  await pool.end();
+  process.exit(0);
+}
+
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);
 
 main().catch((e) => {
   console.error("[freshness] Fatal:", e);

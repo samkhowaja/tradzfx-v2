@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "test": "node --test scripts/audit-db-contract.test.js scripts/backtest-pit-v2.test.js scripts/backfill-candles-from-mt5-csv.test.js scripts/ingestion-server.test.js scripts/observe-broker-session-quality.test.js scripts/policy-transition-governance.test.js scripts/session-failover-governance.test.js scripts/golden-fixture-parity.js && pnpm -r test",
+    "test": "node --test scripts/audit-db-contract.test.js scripts/backtest-pit-v2.test.js scripts/backfill-candles-from-mt5-csv.test.js scripts/db-connection-governance.test.js scripts/ingestion-server.test.js scripts/observe-broker-session-quality.test.js scripts/policy-transition-governance.test.js scripts/session-failover-governance.test.js scripts/golden-fixture-parity.js && pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:repair": "tsx scripts/migrate.ts --repair",
@@ -21,6 +21,7 @@
     "db:market-levels:audit": "node scripts/audit-market-levels.js",
     "db:market-levels:audit:exact": "node scripts/audit-market-levels.js --exact",
     "db:credentials:check": "node scripts/check-no-hardcoded-db-credentials.js",
+    "db:sessions:audit": "node scripts/audit-db-sessions.js",
     "db:universe:check": "tsx scripts/check-feature-universe.ts",
     "db:seed": "node scripts/seed-strategy-specs.js",
     "db:seed:check": "node scripts/seed-strategy-specs.js --check",

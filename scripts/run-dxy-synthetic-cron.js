@@ -10,10 +10,15 @@ const { Pool } = require("pg");
 const pool = new Pool({
   host: process.env.TM_DB_HOST ?? "localhost",
   port: Number(process.env.TM_DB_PORT ?? 5432),
-  database: process.env.TM_DB_NAME ?? (process.env.TM_DB_NAME || "tradzfx_v2"),
+  database: process.env.TM_DB_NAME ?? "tradzfx_v2",
   user: process.env.TM_DB_USER ?? "postgres",
-  password: process.env.TM_DB_PASSWORD ?? process.env.TM_DB_PASSWORD,
-  max: 2,
+  password: process.env.TM_DB_PASSWORD,
+  application_name: process.env.TM_DB_APPLICATION_NAME ?? "tradzfx-dxy-synthetic",
+  max: Number(process.env.TM_DB_POOL_MAX ?? 2),
+  connectionTimeoutMillis: Number(process.env.TM_DB_CONNECTION_TIMEOUT ?? 5000),
+  idleTimeoutMillis: Number(process.env.TM_DB_IDLE_TIMEOUT ?? 30000),
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 const CONSTANT = 50.14348112;
@@ -132,6 +137,14 @@ async function main() {
   await tick();
   setInterval(tick, 60_000);
 }
+
+async function shutdown() {
+  await pool.end();
+  process.exit(0);
+}
+
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);
 
 main().catch((e) => {
   console.error("[dxy-cron] Fatal:", e);

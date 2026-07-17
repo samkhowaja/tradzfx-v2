@@ -18,7 +18,12 @@ const pool = new Pool({
   database: process.env.TM_DB_NAME ?? "tradzfx_v2",
   user: process.env.TM_DB_USER ?? "postgres",
   password: process.env.TM_DB_PASSWORD,
+  application_name: process.env.TM_DB_APPLICATION_NAME ?? "tradzfx-expire-orders",
   max: Number(process.env.TM_DB_POOL_MAX ?? 2),
+  connectionTimeoutMillis: Number(process.env.TM_DB_CONNECTION_TIMEOUT ?? 5000),
+  idleTimeoutMillis: Number(process.env.TM_DB_IDLE_TIMEOUT ?? 30000),
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 const INTERVAL_MS = Number(process.env.EXPIRE_PENDING_ORDERS_INTERVAL_MS ?? 30_000);
@@ -103,14 +108,15 @@ async function runLoop() {
   }
 }
 
-function shutdown() {
+async function shutdown() {
   running = false;
   if (timer) clearTimeout(timer);
-  pool.end().catch(() => {});
+  await pool.end();
+  process.exit(0);
 }
 
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);
 
 runLoop().catch((err) => {
   console.error("[expire-cron] Fatal:", err);

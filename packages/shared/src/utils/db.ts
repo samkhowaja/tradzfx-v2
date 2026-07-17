@@ -10,34 +10,54 @@ export type Queryable = Pool | PoolClientLike;
 
 let pool: Pool | null = null;
 
+function positiveInteger(name: string, fallback: string): number {
+  const raw = process.env[name] ?? fallback;
+  if (!/^\d+$/.test(raw) || Number(raw) <= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return Number(raw);
+}
+
+export function buildPoolConfig(): PoolConfig {
+  const password = process.env.TM_DB_PASSWORD;
+  if (!password) throw new Error("TM_DB_PASSWORD is not set");
+
+  const applicationName = process.env.TM_DB_APPLICATION_NAME;
+  if (process.env.NODE_ENV === "production" && !applicationName) {
+    throw new Error("TM_DB_APPLICATION_NAME is required in production");
+  }
+
+  const pgOptions: string[] = [];
+  if (process.env.TM_DB_STATEMENT_TIMEOUT) {
+    pgOptions.push(
+      `-c statement_timeout=${positiveInteger("TM_DB_STATEMENT_TIMEOUT", "60000")}`
+    );
+  }
+  if (process.env.TM_DB_IDLE_IN_TRANSACTION_TIMEOUT) {
+    pgOptions.push(
+      `-c idle_in_transaction_session_timeout=${positiveInteger("TM_DB_IDLE_IN_TRANSACTION_TIMEOUT", "30000")}`
+    );
+  }
+
+  return {
+    host: process.env.TM_DB_HOST ?? "localhost",
+    port: positiveInteger("TM_DB_PORT", "5432"),
+    database: process.env.TM_DB_NAME || "tradzfx_v2",
+    user: process.env.TM_DB_USER ?? "postgres",
+    password,
+    application_name: applicationName ?? "tradzfx-unattributed",
+    max: positiveInteger("TM_DB_POOL_MAX", "20"),
+    idleTimeoutMillis: positiveInteger("TM_DB_IDLE_TIMEOUT", "30000"),
+    connectionTimeoutMillis: positiveInteger("TM_DB_CONNECTION_TIMEOUT", "5000"),
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
+    options: pgOptions.length > 0 ? pgOptions.join(" ") : undefined,
+  };
+}
+
 export function getPool(): Pool {
   if (!pool) {
-    const pgOptions: string[] = [];
-    const statementTimeout = process.env.TM_DB_STATEMENT_TIMEOUT;
-    if (statementTimeout) {
-      pgOptions.push(`-c statement_timeout=${statementTimeout}`);
-    }
-    const idleInTransactionTimeout = process.env.TM_DB_IDLE_IN_TRANSACTION_TIMEOUT;
-    if (idleInTransactionTimeout) {
-      pgOptions.push(`-c idle_in_transaction_session_timeout=${idleInTransactionTimeout}`);
-    }
-
-    const config: PoolConfig = {
-      host: process.env.TM_DB_HOST ?? "localhost",
-      port: parseInt(process.env.TM_DB_PORT ?? "5432", 10),
-      database: process.env.TM_DB_NAME || "tradzfx_v2",
-      user: process.env.TM_DB_USER ?? "postgres",
-      password: process.env.TM_DB_PASSWORD || (() => { throw new Error("TM_DB_PASSWORD is not set"); })(),
-      application_name: process.env.TM_DB_APPLICATION_NAME ?? "tradzfx-unattributed",
-      max: parseInt(process.env.TM_DB_POOL_MAX ?? "20", 10),
-      idleTimeoutMillis: parseInt(process.env.TM_DB_IDLE_TIMEOUT ?? "30000", 10),
-      connectionTimeoutMillis: parseInt(process.env.TM_DB_CONNECTION_TIMEOUT ?? "5000", 10),
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10000,
-      options: pgOptions.length > 0 ? pgOptions.join(" ") : undefined,
-    };
-
-    pool = new Pool(config);
+    pool = new Pool(buildPoolConfig());
 
     pool.on("error", (err) => {
       console.error("[db] Unexpected pool error:", err.message);
