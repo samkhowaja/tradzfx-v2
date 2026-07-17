@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ familyId: string }> }
 ) {
-  const pool = getPool();
+  const pool = getWebReadPool();
   const { familyId } = await params;
 
   const familyRes = await pool.query(
@@ -24,9 +24,9 @@ export async function GET(
       COALESCE(SUM(o.outcome_r) FILTER (WHERE o.status = 'closed'), 0) AS net_r,
       COALESCE(AVG(o.outcome_r) FILTER (WHERE o.status = 'closed' AND o.outcome_r > 0), 0) AS avg_win_r,
       COALESCE(AVG(o.outcome_r) FILTER (WHERE o.status = 'closed' AND o.outcome_r < 0), 0) AS avg_loss_r
-    FROM strategy_families f
-    LEFT JOIN strategy_variants v ON v.family_id = f.id
-    LEFT JOIN orders o ON o.variant_id = v.id
+    FROM public.strategy_families f
+    LEFT JOIN public.strategy_variants v ON v.family_id = f.id
+    LEFT JOIN public.orders o ON o.variant_id = v.id
     WHERE f.id = $1
     GROUP BY f.id
     `,
@@ -53,8 +53,8 @@ export async function GET(
       COUNT(o.id) FILTER (WHERE o.status = 'closed' AND o.outcome_r > 0) AS wins,
       COUNT(o.id) FILTER (WHERE o.status = 'closed' AND o.outcome_r < 0) AS losses,
       COALESCE(SUM(o.outcome_r) FILTER (WHERE o.status = 'closed'), 0) AS net_r
-    FROM strategy_variants v
-    LEFT JOIN orders o ON o.variant_id = v.id
+    FROM public.strategy_variants v
+    LEFT JOIN public.orders o ON o.variant_id = v.id
     WHERE v.family_id = $1
     GROUP BY v.id
     ORDER BY v.created_at

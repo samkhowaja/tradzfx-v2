@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol")?.toUpperCase() ?? null;
   const tf = searchParams.get("tf") ?? null;
 
-  const pool = getPool();
+  const pool = getWebReadPool();
   const conditions: string[] = [];
   const params: (string | null)[] = [];
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       `SELECT symbol, tf, grade, avg_r, sample_count, recommendation,
               weight_delta, threshold_delta, win_rate, expectancy, min_trades,
               tuned_at, applied_at
-         FROM calibration_tuning
+         FROM public.calibration_tuning
          ${whereClause}
          ORDER BY symbol, tf, grade
          LIMIT 500`,

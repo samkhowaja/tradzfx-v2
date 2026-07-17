@@ -505,6 +505,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Added exact `SELECT` evidence for every retained relation. Governance now covers twenty-one migrated routes.
 - WEB_READ activation remains blocked. Root `/api/health` stays on the command pool for command-pool telemetry. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Calibration, report, and family read cohort — 2026-07-17
+
+- Migrated calibration recommendations GET, analyzer backtest report GET, and strategy family detail GET to `getWebReadPool()` after direct source verification found SELECT-only behavior.
+- Schema-qualified every relation in the three routes. Live catalog verification confirmed `public.calibration_tuning`, `public.backtest_results`, `public.strategy_families`, `public.strategy_variants`, and `public.orders` are tables.
+- Added the only new privilege, exact `SELECT` on `public.calibration_tuning`; other relations were already in WEB_READ evidence. Governance now covers twenty-four migrated routes.
+- Deferred analyze snapshot because it delegates a broad feature/candle helper. Strategy variant creation/update routes remain on the command pool because they write.
+- WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

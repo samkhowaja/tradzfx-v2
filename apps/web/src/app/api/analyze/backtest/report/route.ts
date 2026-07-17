@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 import { generateReport, runMonteCarlo } from "@tm/analyzer-backtest";
 
 export const runtime = "nodejs";
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const withMonteCarlo = searchParams.get("monteCarlo") === "true";
   const mcIterations = parseInt(searchParams.get("mcIterations") ?? "5000", 10);
 
-  const pool = getPool();
+  const pool = getWebReadPool();
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   try {
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         entry_zone, stop_loss, take_profit, risk_reward,
         outcome, outcome_r, exit_price, exit_ts, bars_held,
         htf_state, session_name, effective_entry, max_adverse_r, max_favorable_r
-      FROM backtest_results
+      FROM public.backtest_results
       WHERE symbol = $1 AND tf = $2 AND ts >= $3`;
     const params: (string | Date)[] = [symbol, tf, since];
     if (variantId) {
