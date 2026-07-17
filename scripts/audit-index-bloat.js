@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 "use strict";
 
-require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "..", ".env.local"),
+  quiet: true,
+});
 const { getPool } = require("../packages/shared/dist/index.js");
 
 const TARGET_TABLES = [
