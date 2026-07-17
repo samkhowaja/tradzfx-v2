@@ -5,6 +5,8 @@ import {
   checkReconcileTarget,
   ALREADY_EXISTS_CODES,
   runMigrations,
+  findDestructive,
+  PROTECTED_TABLES,
   type Migration,
 } from "./migrationRunner";
 
@@ -259,6 +261,137 @@ describe("runMigrations", () => {
     expect(pool.query).toHaveBeenCalledWith(
       "INSERT INTO schema_migrations (version) VALUES ($1)",
       ["005_test"]
+    );
+  });
+});
+
+
+describe("findDestructive (SK-51 destructive-migration classifier)", () => {
+  it("flags TRUNCATE on a protected table", () => {
+    const h = findDestructive("TRUNCATE TABLE orders;");
+    expect(h?.op).toBe("TRUNCATE");
+    expect(h?.table).toBe("orders");
+  });
+
+  it("normalizes schema-qualified names (public.orders -> orders)", () => {
+    expect(findDestructive("TRUNCATE public.orders;")?.table).toBe("orders");
+  });
+
+  it("flags DROP TABLE on a prefix-protected table (features_*)", () => {
+    const h = findDestructive("DROP TABLE IF EXISTS features_atr;");
+    expect(h?.op).toBe("DROP TABLE");
+    expect(h?.table).toBe("features_atr");
+  });
+
+  it("flags ALTER ... DROP COLUMN on candles_*", () => {
+    const h = findDestructive("ALTER TABLE candles_5m DROP COLUMN tick_count;");
+    expect(h?.op).toBe("DROP COLUMN");
+    expect(h?.table).toBe("candles_5m");
+  });
+
+  it("flags DELETE without WHERE on a protected table", () => {
+    expect(findDestructive("DELETE FROM backtest_results;")?.op).toBe("DELETE");
+  });
+
+  it("does NOT flag a targeted DELETE ... WHERE", () => {
+    expect(findDestructive("DELETE FROM backtest_results WHERE run_id = 5;")).toBeNull();
+  });
+
+  it("ignores destructive verbs inside comments", () => {
+    expect(findDestructive("-- TRUNCATE TABLE orders;\nCREATE TABLE test (id INT);")).toBeNull();
+  });
+
+  it("does NOT flag benign migrations", () => {
+    expect(findDestructive("CREATE TABLE test (id INT);")).toBeNull();
+    expect(findDestructive("ALTER TABLE test ADD COLUMN note TEXT;")).toBeNull();
+  });
+
+  it("does NOT flag non-protected tables", () => {
+    expect(findDestructive("TRUNCATE TABLE scratch_tmp;")).toBeNull();
+  });
+
+  it("protected list includes the live trading/ledger tables", () => {
+    for (const t of ["orders", "backtest_results", "strategy_families", "feature_producer_runs"]) {
+      expect(PROTECTED_TABLES).toContain(t);
+    }
+  });
+});
+
+describe("runMigrations destructive guard (SK-51)", () => {
+  const baseHandlers = [
+    { match: /CREATE TABLE IF NOT EXISTS schema_migrations/, rows: [] },
+    { match: /SELECT 1 FROM schema_migrations/, rows: [] },
+  ];
+
+  it("blocks TRUNCATE on a protected table that contains data", async () => {
+    const migrations: Migration[] = [
+      { version: "900_test", sql: "TRUNCATE TABLE orders;" },
+    ];
+    const pool = createFakePool([
+      ...baseHandlers,
+      { match: /SELECT 1 FROM orders LIMIT 1/, rows: [{ "?column?": 1 }] }, // has data
+    ]);
+    await expect(runMigrations({ migrations, pool })).rejects.toThrow(/blocked: TRUNCATE/);
+    expect(pool.query).not.toHaveBeenCalledWith(
+      expect.stringContaining("TRUNCATE TABLE orders"),
+      expect.anything()
+    );
+  });
+
+  it("allows TRUNCATE on a protected table that is empty (fresh bootstrap)", async () => {
+    const migrations: Migration[] = [
+      { version: "901_test", sql: "TRUNCATE TABLE orders;" },
+    ];
+    const pool = createFakePool([
+      ...baseHandlers,
+      { match: /SELECT 1 FROM orders LIMIT 1/, rows: [] }, // empty -> nothing to destroy
+      { match: /TRUNCATE TABLE orders/, rows: [] },
+      { match: /INSERT INTO schema_migrations/, rows: [] },
+    ]);
+    await runMigrations({ migrations, pool });
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining("TRUNCATE TABLE orders")
+    );
+  });
+
+  it("allows with TM_ALLOW_DESTRUCTIVE=1 (no row-check query issued)", async () => {
+    const prev = process.env.TM_ALLOW_DESTRUCTIVE;
+    process.env.TM_ALLOW_DESTRUCTIVE = "1";
+    try {
+      const migrations: Migration[] = [
+        { version: "902_test", sql: "TRUNCATE TABLE orders;" },
+      ];
+      const pool = createFakePool([
+        ...baseHandlers,
+        { match: /TRUNCATE TABLE orders/, rows: [] },
+        { match: /INSERT INTO schema_migrations/, rows: [] },
+      ]);
+      await runMigrations({ migrations, pool });
+      expect(pool.query).not.toHaveBeenCalledWith(
+        expect.stringMatching(/SELECT 1 FROM orders LIMIT 1/),
+        expect.anything()
+      );
+      expect(pool.query).toHaveBeenCalledWith(
+        expect.stringContaining("TRUNCATE TABLE orders")
+      );
+    } finally {
+      if (prev === undefined) delete process.env.TM_ALLOW_DESTRUCTIVE;
+      else process.env.TM_ALLOW_DESTRUCTIVE = prev;
+    }
+  });
+
+  it("does not affect benign migrations (no guard query issued)", async () => {
+    const migrations: Migration[] = [
+      { version: "903_test", sql: "CREATE TABLE test (id INT);" },
+    ];
+    const pool = createFakePool([
+      ...baseHandlers,
+      { match: /CREATE TABLE test/, rows: [] },
+      { match: /INSERT INTO schema_migrations/, rows: [] },
+    ]);
+    await runMigrations({ migrations, pool });
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining("CREATE TABLE test")
     );
   });
 });

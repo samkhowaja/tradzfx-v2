@@ -13,6 +13,7 @@ export interface Candle {
   v?: number;
   spread?: number;
   digits?: number;
+  tickCount?: number;
 }
 
 export type TimeFrame = "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
@@ -98,12 +99,34 @@ export interface FeatureDefinition<Input, Output> {
     output: Output,
     context?: { tf: TimeFrame; symbol?: string; endTs?: Date }
   ) => CanonicalMarketLevel[];
+  /**
+   * Compute policy — skip execution when input candles unchanged since last run.
+   * - "everyBar": output per bar (ATR, pricing, spread, session). Always runs.
+   * - "onEvent": output only on structural events (zone, structure, sweep, etc).
+   *   Skipped if input candle MAX(ts) matches last-computed ts for (symbol, tf).
+   * Defaults "everyBar" (conservative). (Audit item #5)
+   */
+  computePolicy?: "everyBar" | "onEvent";
 }
 
 // ── Feature outputs (narrow, typed) ─────────────────────────────────────────
 
 export interface AtrOutput {
-  values: Array<{ period: number; value: number }>;
+  values: Array<{
+    period: number;
+    /** Raw ATR (PIT fidelity; may contain bad-tick outliers). */
+    value: number;
+    /** Winsorized ATR consumers should use (== value for normal bars). */
+    effectiveValue?: number;
+    /** false when the raw value was capped as an outlier or the bucket is warmup. */
+    isValid?: boolean;
+    /** value / medianTR over the window (>WINSOR_MULT ⇒ outlier). */
+    outlierScore?: number;
+    /** Underlying 1m tick count of the bucket (sparseness signal). */
+    tickCount?: number;
+    /** 'winsorized' | 'sparse_bucket' | 'warmup' | undefined */
+    qualityReason?: string;
+  }>;
 }
 
 export interface PivotOutput {
@@ -142,6 +165,13 @@ export interface StructureOutput {
   events: StructureEvent[];
 }
 
+export type SweepTargetType =
+  | "swing"
+  | "pdh"
+  | "pdl"
+  | "equal_high"
+  | "equal_low";
+
 export interface SweepOutput {
   sweeps: Array<{
     direction: Direction;
@@ -150,6 +180,8 @@ export interface SweepOutput {
     close: number;
     ts: Date;
     sweepType?: "post_structure" | "inducement";
+    /** Classification of the liquidity level that was swept (P3a). */
+    targetType?: SweepTargetType;
     evidence?: Record<string, unknown>;
     mitigatedAt?: Date;
   }>;
@@ -175,6 +207,10 @@ export interface ZoneOutput {
     firstTouchAt?: Date;
     mitigatedAt?: Date;
     invalidatedAt?: Date;
+    /** Total candle interactions with the zone after formation. */
+    touchCount?: number;
+    /** Candle interactions after the first touch; retest candidates have retestCount > 0. */
+    retestCount?: number;
   }>;
 }
 
@@ -300,6 +336,20 @@ export interface BiasOutput {
   reason?: string;
 }
 
+export type DirectionRegime = "trending" | "ranging" | "volatile" | "low_volatility";
+
+/** Direction Arbiter output: one reconciled, regime-classified direction per bar. */
+export interface DirectionStateOutput {
+  direction: Direction;
+  regime: DirectionRegime;
+  agreement: boolean;
+  biasDirection: Direction;
+  htfDirection: Direction;
+  htfState: HtfBiasState;
+  confidence: number;
+  reason: string;
+}
+
 export interface SessionOutput {
   session: "ASIA" | "LONDON" | "OVERLAP" | "NY" | "OFF_HOURS";
   utcHour: number;
@@ -383,6 +433,9 @@ export interface OpeningRangeOutput {
     low: number;
     midpoint: number;
     date: string; // ISO date
+    /** Range completion time (session start + rangeMinutes). Serialized as the
+     *  row's ts so consumers can require "range complete as-of signal time". */
+    completedAt: Date;
   }>;
 }
 

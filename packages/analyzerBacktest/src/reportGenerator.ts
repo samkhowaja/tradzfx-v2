@@ -81,7 +81,7 @@ export interface RiskReturnMetrics {
   maxDrawdownPct: number;
   /** Sharpe ratio assuming R multiples as returns and zero risk-free rate */
   sharpeRatio: number;
-  /** Sortino ratio using downside deviation below zero */
+  /** Sortino ratio using downside deviation below zero (per-trade, not annualized) */
   sortinoRatio: number;
   /** Calmar ratio = annualized return / max drawdown (simplified using totalR / |maxDrawdownR|) */
   calmarRatio: number;
@@ -360,7 +360,7 @@ function computeRiskReturn(trades: BacktestTrade[]): RiskReturnMetrics {
   const downsideDeviation = Math.sqrt(downsideVariance);
 
   const sharpeRatio = stdDevR > 0 ? (avgR / stdDevR) * Math.sqrt(completed.length) : 0;
-  const sortinoRatio = downsideDeviation > 0 ? (avgR / downsideDeviation) * Math.sqrt(completed.length) : 0;
+  const sortinoRatio = downsideDeviation > 0 ? avgR / downsideDeviation : 0;
   const calmarRatio = maxDrawdownR !== 0 ? totalR / Math.abs(maxDrawdownR) : 0;
 
   return {

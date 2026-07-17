@@ -386,6 +386,9 @@ export const pricingFeature: FeatureDefinition<PricingInput, PricingOutput> = {
   },
 
   serialize(output): Record<string, unknown>[] {
+    // Warm-up bars (or zero-range bars) return an empty object from computePricing.
+    // Do not persist an all-NULL row for those bars.
+    if (!output.position) return [];
     return [
       {
         position: output.position,

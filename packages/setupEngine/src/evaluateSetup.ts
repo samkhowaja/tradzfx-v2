@@ -1,6 +1,6 @@
-import type { Pool, TimeFrame, BiasNode, Direction } from "@tm/shared";
+import type { Pool, Queryable, TimeFrame, BiasNode, Direction } from "@tm/shared";
 import type { SetupEvaluation, EvaluationInput, EvaluationContext, SetupGrade, SetupStatus, EntryZone, EvidenceItem, SetupDirection } from "./types";
-import { buildContext } from "./contextBuilder";
+import { buildContext, buildContextBatch } from "./contextBuilder";
 import { getCalibrationTuning } from "./calibrationTuning";
 import { runHardRules } from "./rules/hardRules";
 import { runSoftRules } from "./rules/softRules";
@@ -76,8 +76,16 @@ function htfTreeGradeCap(ctx: EvaluationContext): SetupGrade | null {
     return "BLOCK";
   }
 
-  // Phase 7 setup quality mapping.
-  if (parentState === "strong" && tradingState === "strong") return "A+";
+  // Track B (v3.2.0): with rebalanced weights (1d=1.5, 4h=1.5, 1h=1.5, 15m=1.0),
+  // a single "strong" parent no longer auto-promotes the trading TF to A+.
+  // Require either two strong nodes OR a strong parent with a soft trading TF
+  // AND a non-trivial localAgreement score (>= 0.4) so the entry TF is
+  // actually confirming the higher-TF direction.
+  const localAgreement = ctx.htfBias?.localAgreement;
+  const localConfirms =
+    localAgreement == null || localAgreement >= 0.4;
+
+  if (parentState === "strong" && tradingState === "strong" && localConfirms) return "A+";
   if (
     (parentState === "strong" && tradingState === "soft") ||
     (parentState === "soft" && tradingState === "strong")
@@ -105,18 +113,28 @@ function isAPlusEligible(
 
   const zone = ctx.zones.find((z) => z.id === entryZone.zoneId);
   if (!zone) return false;
-  if (zone.tapped) return false;
-  if (zone.qualityScore != null && zone.qualityScore < 0.5) return false;
+  // Invalidated zones never qualify for A+.
+  if (zone.invalidatedAt) return false;
+  // Retest zones (already tapped once) can still earn A+ when their quality
+  // score is high enough — they often produce the cleanest reversals.
+  if (zone.tapped && (zone.qualityScore == null || zone.qualityScore < 0.7)) return false;
+  if (!zone.tapped && zone.qualityScore != null && zone.qualityScore < 0.5) return false;
 
   return true;
 }
 
 export async function evaluateSetup(
-  pool: Pool,
+  pool: Queryable,
   input: EvaluationInput
 ): Promise<SetupEvaluation> {
   const ctx = await buildContext(pool, input);
+  return finalizeSetup(pool, ctx);
+}
 
+async function finalizeSetup(
+  pool: Queryable,
+  ctx: EvaluationContext
+): Promise<SetupEvaluation> {
   // 1. Hard rules (BLOCK conditions)
   const blockReasons = runHardRules(ctx);
   if (blockReasons.length > 0) {
@@ -223,7 +241,7 @@ async function mapConfidenceToGrade(
   confidence: number,
   ctx: EvaluationContext,
   entryZone: EntryZone | null,
-  pool: import("@tm/shared").Pool
+  pool: import("@tm/shared").Queryable
 ): Promise<SetupGrade> {
   // Legacy HTF opposition can force BLOCK even if confidence is high.
   if (ctx.htfBias && ctx.htfBias.state === "BLOCK" && ctx.htfBias.direction !== "neutral" && ctx.htfBias.direction !== ctx.direction) {
@@ -263,4 +281,66 @@ async function mapConfidenceToGrade(
   }
 
   return grade;
+}
+
+/**
+ * Evaluate many setups for the same symbol/timeframe in a single batched pass
+ * over the feature tables. This avoids the per-signal query storm that made
+ * long-range full-mode backtests time out. Results are returned in the same
+ * order as the inputs.
+ */
+export async function evaluateSetupBatch(
+  pool: Queryable,
+  inputs: EvaluationInput[]
+): Promise<SetupEvaluation[]> {
+  if (!inputs.length) return [];
+
+  const groups = new Map<
+    string,
+    { symbol: string; tf: TimeFrame; inputs: EvaluationInput[]; indices: number[] }
+  >();
+  inputs.forEach((inp, idx) => {
+    const symbol = inp.symbol.toUpperCase();
+    const tf = inp.tf;
+    const key = `${symbol}|${tf}`;
+    let g = groups.get(key);
+    if (!g) {
+      g = { symbol, tf, inputs: [], indices: [] };
+      groups.set(key, g);
+    }
+    g.inputs.push(inp);
+    g.indices.push(idx);
+  });
+
+  const results: SetupEvaluation[] = new Array(inputs.length);
+
+  for (const g of groups.values()) {
+    const asOfs = g.inputs.map((inp) => inp.asOf ?? new Date());
+    const directions = g.inputs.map((inp) => inp.direction) as SetupDirection[];
+    const minRRs = g.inputs.map((inp) => inp.minRR ?? 2);
+    const setupFamilies = g.inputs.map((inp) => inp.setupFamily);
+    const strategyIds = g.inputs.map((inp) => inp.strategyId);
+    const familyIds = g.inputs.map((inp) => inp.familyId);
+    const signalSources = g.inputs.map((inp) => inp.signalSource);
+    const signalZones = g.inputs.map((inp) => inp.signalZone);
+    const backtest = g.inputs[0].backtest;
+
+    const contexts = await buildContextBatch(pool, g.symbol, g.tf, asOfs, {
+      directions,
+      minRRs,
+      setupFamilies,
+      strategyIds,
+      familyIds,
+      signalSources,
+      signalZones,
+      backtest,
+    });
+
+    for (let i = 0; i < g.inputs.length; i++) {
+      const ctx = contexts[i];
+      results[g.indices[i]] = await finalizeSetup(pool, ctx);
+    }
+  }
+
+  return results;
 }

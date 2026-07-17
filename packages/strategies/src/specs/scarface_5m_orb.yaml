@@ -25,6 +25,9 @@ setup:
   - id: orb
     feature: features_opening_range
     tf: 5m
+    # Session-scoped join (V4 BUG-11 fix): 13:30-15:00 UTC window -> the only
+    # same-day completed opening range is London's (complete 07:05 UTC).
+    session: london
     predicate: "1 = 1"
     required: true
 

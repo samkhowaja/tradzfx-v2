@@ -88,7 +88,7 @@ export class FeatureCache {
     // Try Redis
     const redis = await getRedisClient();
     const redisKey = `tm:feature:${featureName}:${inputHash}`;
-    if (redis) {
+    if (redis?.isOpen) {
       try {
         const raw = await redis.get(redisKey);
         if (raw) {
@@ -112,7 +112,7 @@ export class FeatureCache {
         const output = rows[0].output_jsonb;
         memoryCache.set(memKey, output);
         // Backfill Redis if it is available
-        if (redis) {
+        if (redis?.isOpen) {
           try {
             await redis.setEx(redisKey, getRedisTtlSeconds(), serializeOutput(output));
           } catch (err: any) {
@@ -139,7 +139,7 @@ export class FeatureCache {
 
     const redis = await getRedisClient();
     const redisKey = `tm:feature:${featureName}:${inputHash}`;
-    if (redis) {
+    if (redis?.isOpen) {
       try {
         await redis.setEx(redisKey, getRedisTtlSeconds(), serializeOutput(output));
       } catch (err: any) {

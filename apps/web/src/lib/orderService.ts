@@ -4,7 +4,7 @@
  */
 
 import { getPool, recordSetupEvaluation, updateSetupEvaluationOutcome } from "@tm/shared";
-import type { SetupEvaluationSnapshot } from "@tm/shared";
+import type { Queryable, SetupEvaluationSnapshot } from "@tm/shared";
 import { createCancelPendingOrderCommand } from "./positionCommandService";
 
 export type OrderStatus =
@@ -95,14 +95,14 @@ export interface CreateOrderInput {
   signal_fingerprint?: string;
 }
 
-async function checkTerminalHeartbeat(pool: ReturnType<typeof getPool>): Promise<void> {
-  const { rows } = await pool.query(
+async function checkTerminalHeartbeat(db: Queryable): Promise<void> {
+  const { rows } = await db.query(
     `SELECT id, last_seen_at FROM mt5_terminals
      WHERE last_seen_at >= NOW() - INTERVAL '2 minutes'
      ORDER BY last_seen_at DESC LIMIT 1`
   );
   if (rows.length === 0) {
-    const { rows: stale } = await pool.query(
+    const { rows: stale } = await db.query(
       `SELECT id, last_seen_at FROM mt5_terminals ORDER BY last_seen_at DESC LIMIT 1`
     );
     const lastSeen = stale[0]?.last_seen_at;
@@ -113,12 +113,15 @@ async function checkTerminalHeartbeat(pool: ReturnType<typeof getPool>): Promise
   }
 }
 
-export async function createOrder(input: CreateOrderInput): Promise<OrderRow> {
-  const pool = getPool();
+export async function createOrder(
+  input: CreateOrderInput,
+  client?: Queryable
+): Promise<OrderRow> {
+  const db = client ?? getPool();
 
   // Do not accept live orders when the MT5 terminal is not heartbeating
   if ((input.trade_mode ?? "paper") === "live") {
-    await checkTerminalHeartbeat(pool);
+    await checkTerminalHeartbeat(db);
   }
 
   const id = crypto.randomUUID();
@@ -127,7 +130,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRow> {
 
   const instr = input.executionInstruction;
   const executionStrategy = instr?.executionStrategy ?? input.entry_type ?? "market";
-  const { rows } = await pool.query(
+  const { rows } = await db.query(
     `INSERT INTO orders (
       id, symbol, strategy_id, variant_id, family_id, side, entry_type, entry_price, stop_loss, take_profit,
       lot_size, risk_reward, status, trade_mode, expires_at, entry_zone_pips,
@@ -167,7 +170,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRow> {
 
   if (input.setupSnapshot) {
     try {
-      await recordSetupEvaluation(pool, input.setupSnapshot, order.id);
+      await recordSetupEvaluation(db, input.setupSnapshot, order.id);
     } catch (err: any) {
       console.warn("[orderService] Failed to record setup snapshot:", err.message);
     }
@@ -176,20 +179,24 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRow> {
   return order;
 }
 
-export async function getPendingOrders(symbols?: string[]): Promise<OrderRow[]> {
-  const pool = getPool();
+export async function getPendingOrders(
+  symbols?: string[],
+  options?: { client?: Queryable; lockRows?: boolean }
+): Promise<OrderRow[]> {
+  const db = options?.client ?? getPool();
+  const lockSql = options?.lockRows ? " FOR UPDATE SKIP LOCKED" : "";
   const sql = symbols?.length
     ? `SELECT * FROM orders
        WHERE status = 'pending'
          AND symbol = ANY($1)
          AND (expires_at IS NULL OR expires_at > NOW())
-       ORDER BY created_at ASC`
+       ORDER BY created_at ASC${lockSql}`
     : `SELECT * FROM orders
        WHERE status = 'pending'
          AND (expires_at IS NULL OR expires_at > NOW())
-       ORDER BY created_at ASC`;
+       ORDER BY created_at ASC${lockSql}`;
 
-  const { rows } = await pool.query(sql, symbols?.length ? [symbols] : []);
+  const { rows } = await db.query(sql, symbols?.length ? [symbols] : []);
   return rows as OrderRow[];
 }
 
@@ -295,38 +302,56 @@ export async function markOrderFilled(
 ): Promise<{ success: boolean; duplicate: boolean }> {
   const pool = getPool();
 
-  // Idempotent fill: same ticket already recorded.
-  const { rows: existing } = await pool.query(
-    `SELECT status, mt5_ticket FROM orders WHERE id = $1`,
-    [orderId]
-  );
-  const existingRow = existing[0] as { status: OrderStatus; mt5_ticket: number | null } | undefined;
-  if (existingRow?.status === "filled" && Number(existingRow.mt5_ticket) === mt5Ticket) {
-    return { success: true, duplicate: true };
-  }
+  // Single transaction: lock row, check, update — eliminates pre-read race.
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  if (!isValidOrderTransition(existingRow?.status ?? "pending", "filled")) {
-    console.warn(
-      `[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${existingRow?.status}`
+    const { rows: existing } = await client.query(
+      `SELECT status, mt5_ticket FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId]
     );
-    return { success: false, duplicate: false };
+    const existingRow = existing[0] as { status: OrderStatus; mt5_ticket: number | null } | undefined;
+
+    if (existingRow?.status === "filled" && Number(existingRow.mt5_ticket) === mt5Ticket) {
+      await client.query("COMMIT");
+      return { success: true, duplicate: true };
+    }
+
+    if (!isValidOrderTransition(existingRow?.status ?? "pending", "filled")) {
+      await client.query("COMMIT");
+      console.warn(
+        `[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${existingRow?.status}`
+      );
+      return { success: false, duplicate: false };
+    }
+
+    const { rows } = await client.query(
+      `UPDATE orders
+       SET status = 'filled',
+           mt5_ticket = $2,
+           fill_price = $3,
+           terminal_key_id = COALESCE($4, terminal_key_id),
+           filled_at = NOW()
+       WHERE id = $1 AND status IN ('pending', 'sent')
+       RETURNING *`,
+      [orderId, mt5Ticket, fillPrice, terminalKeyId ?? null]
+    );
+
+    if (rows.length === 0) {
+      await client.query("COMMIT");
+      console.warn(`[orderService] markOrderFilled race: order ${orderId.slice(0, 8)} status changed after lock`);
+      return { success: false, duplicate: false };
+    }
+
+    await client.query("COMMIT");
+    return { success: true, duplicate: false };
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
   }
-
-  const result = await atomicTransition(
-    pool,
-    orderId,
-    "filled",
-    ["pending", "sent"],
-    "status = 'filled', mt5_ticket = $2, fill_price = $3, " +
-      "terminal_key_id = COALESCE($4, terminal_key_id), filled_at = NOW()",
-    [mt5Ticket, fillPrice, terminalKeyId ?? null]
-  );
-
-  if (!result.success) {
-    console.warn(`[orderService] markOrderFilled rejected: order ${orderId.slice(0, 8)} is ${result.previousStatus}`);
-  }
-
-  return { success: result.success, duplicate: false };
 }
 
 export async function markOrderRejected(
@@ -431,36 +456,49 @@ export async function updateOrderActualRR(
 export async function expireStaleOrders(): Promise<number> {
   const pool = getPool();
 
-  // Before expiring limit orders that already have a pending ticket, tell the
-  // EA to cancel them so they cannot fill after the server has given up.
-  const { rows: staleLimits } = await pool.query(
-    `SELECT id, mt5_ticket, terminal_key_id
-     FROM orders
-     WHERE status IN ('pending', 'sent')
-       AND expires_at IS NOT NULL
-       AND expires_at < NOW()
-       AND execution_strategy = 'limit'
-       AND mt5_ticket IS NOT NULL`
-  );
+  // Serialize with FOR UPDATE SKIP LOCKED so two concurrent expiry runs
+  // never both send cancel commands nor both attempt to expire the same order.
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  for (const row of staleLimits) {
-    try {
-      await createCancelPendingOrderCommand(
-        row.id as string,
-        Number(row.mt5_ticket),
-        (row.terminal_key_id as string) ?? undefined
-      );
-    } catch (err) {
-      console.warn(`[orderService] Failed to queue cancel for expired limit ${row.id}:`, err);
+    const { rows: staleLimits } = await client.query(
+      `SELECT id, mt5_ticket, terminal_key_id
+       FROM orders
+       WHERE status IN ('pending', 'sent')
+         AND expires_at IS NOT NULL
+         AND expires_at < NOW()
+         AND execution_strategy = 'limit'
+         AND mt5_ticket IS NOT NULL
+       FOR UPDATE SKIP LOCKED`
+    );
+
+    for (const row of staleLimits) {
+      try {
+        await createCancelPendingOrderCommand(
+          row.id as string,
+          Number(row.mt5_ticket),
+          (row.terminal_key_id as string) ?? undefined
+        );
+      } catch (err) {
+        console.warn(`[orderService] Failed to queue cancel for expired limit ${row.id}:`, err);
+      }
     }
-  }
 
-  const { rowCount } = await pool.query(
-    `UPDATE orders
-     SET status = 'expired'
-     WHERE status IN ('pending', 'sent')
-       AND expires_at IS NOT NULL
-       AND expires_at < NOW()`
-  );
-  return rowCount ?? 0;
+    const { rowCount } = await client.query(
+      `UPDATE orders
+       SET status = 'expired'
+       WHERE status IN ('pending', 'sent')
+         AND expires_at IS NOT NULL
+         AND expires_at < NOW()`
+    );
+
+    await client.query("COMMIT");
+    return rowCount ?? 0;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
 }

@@ -5,22 +5,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 
-const EXPECTED_API_KEY =
-  process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function auth(request: NextRequest) {
-  const apiKey = request.headers.get("X-API-Key");
-  if (apiKey !== EXPECTED_API_KEY) {
+async function auth(request: NextRequest) {
+  if (!(await validateMt5ApiKey(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return null;
 }
 
 export async function GET(request: NextRequest) {
-  const denied = auth(request);
+  const denied = await auth(request);
   if (denied) return denied;
 
   const symbol = request.nextUrl.searchParams.get("symbol") ?? "";
@@ -49,7 +44,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const denied = auth(request);
+  const denied = await auth(request);
   if (denied) return denied;
 
   // Fire-and-forget status snapshot from the EA. We currently just ack it;

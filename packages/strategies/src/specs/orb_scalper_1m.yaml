@@ -1,0 +1,117 @@
+id: orb_scalper_1m
+familyId: orb_scalper
+setupFamily: orb_breakout
+active: true
+experimental: true
+name: "ORB Scalper 1m"
+version: "1.2.0"
+description: >
+  1-minute ORB scalper based on NY open (9:30am ET / 13:30 UTC). Uses 15m bias
+  direction and the London-session opening range (completed 07:15 UTC) to identify
+  intraday levels. Enters when the ORB high/low is broken with displacement on
+  the 15m timeframe during the NY open window. Tight ATR-based stop loss, 2R
+  target. No setup-family hard rules so the signal SQL runs full breadth.
+
+filters:
+  symbols: [XAUUSD]
+  sessions: [OVERLAP]
+  timeWindows:
+    - { utcStart: "13:30", utcEnd: "16:00" }
+
+setup:
+  - id: bias
+    feature: features_bias
+    tf: 15m
+    predicate: "direction != 'neutral'"
+    required: true
+    weight: 8
+    lookbackBars: 16
+
+  - id: session
+    feature: features_session
+    tf: 15m
+    predicate: "session IN ('OVERLAP')"
+    required: true
+
+  - id: orb
+    feature: features_opening_range
+    tf: 15m
+    # Session-scoped join: this strategy trades the 13:30-16:00 UTC window
+    # (OVERLAP / early NY), so the only same-day completed opening range
+    # is London's (complete 07:15 UTC). Pinning session=london prevents
+    # stale ranges from prior sessions/days from matching.
+    session: london
+    predicate: "1 = 1"
+    required: true
+
+entry:
+  - id: displacement
+    feature: features_displacement
+    tf: 15m
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND direction = features_bias.direction"
+    required: true
+
+signalSource: orb
+
+risk:
+  sl: "atr(15m) * 0.6"
+  tp: "sl * 2.5"
+  minRR: 2.0
+  timeoutBars: 8
+  maxFillBars: 2
+  minSlDistancePips: 1.5
+
+gates:
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      sessionMaxAtrPercentile:
+        NY: 0.95
+      maxAtr5Pips: 500
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [OVERLAP]
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 4
+
+  - id: daily_loss
+    name: dailyLoss
+    params:
+      maxLossesPerDay: 2
+
+  - id: daily_win
+    name: dailyWin
+    params:
+      maxWinsPerDay: 2
+
+live:
+  mode: live
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 20
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 10
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 3
+  cooldownMinutes: 15

@@ -49,7 +49,26 @@ export interface PairCharacteristics {
 
   /** Commission in pips per round-trip lot (entry+exit). */
   commissionPipsPerLot: number;
+
+  /**
+   * Multiplier applied to `baseSpreadPips` to derive the setup engine's
+   * `maxAllowedSpreadPips` trading gate. This is a *trading* threshold ("is
+   * this spread acceptable to enter?"), distinct from
+   * `SPREAD_SANITY_MULTIPLIER` which is a *data-quarantine* cap ("is this
+   * sample garbage?"). Asset-class-aware: FX ~4×, metals ~6×, exotics ~8×.
+   * When omitted, `getPairCharacteristics()` fills in a class-aware default.
+   * (RC-6 / BUG-3.1)
+   */
+  gateSpreadMultiplier?: number;
 }
+
+/**
+ * Extreme spread snapshots (unit pollution, bad ticks, stale ECN feeds) are
+ * treated as implausible above this multiple of the symbol's base spread.
+ * Shared by the spread producer (sample filtering), the setup engine, and the
+ * PIT backtester so all consumers apply the same sanity ceiling.
+ */
+export const SPREAD_SANITY_MULTIPLIER = 10;
 
 function classifySymbol(symbol: string): SymbolClass {
   const s = (symbol ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -386,6 +405,25 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     preferredKillzones: ["ASIA_KILLZONE"],
     commissionPipsPerLot: 1.0,
   },
+  USDSEK: {
+    // 4-digit quoting: pip = 1 point (0.0001). SEK exotics run structurally
+    // wide; baseSpreadPips is the observed 30d median on 1x Trade (2026-07).
+    // Without this entry USDSEK fell back to baseSpreadPips 2.0 and every live
+    // setup was blocked on spread (V4 live-rejection fix).
+    tickSize: 0.0001,
+    pipSize: 0.0001,
+    baseSpreadPips: 32,
+    slippageK: 0.15,
+    slippageMinPips: 1.0,
+    slippageMaxPips: 15.0,
+    sessionSpreadMultiplier: { ASIA: 1.3, LONDON: 1.0, NY: 1.1, DEAD: 1.6, OVERLAP: 1.0 },
+    volLowAtrPct: 0.1,
+    volHighAtrPct: 0.4,
+    eqToleranceTicks: 10,
+    poiTolerancePips: 10,
+    preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    commissionPipsPerLot: 1.0,
+  },
   USDSGD: {
     tickSize: 0.00001,
     pipSize: 0.0001,
@@ -434,14 +472,47 @@ const DEFAULT_CHARACTERISTICS: Omit<PairCharacteristics, "symbol" | "symbolClass
   commissionPipsPerLot: 0.7,
 };
 
+/**
+ * Class-aware default for `gateSpreadMultiplier`. This is a *trading* threshold
+ * ("is this spread acceptable to enter?"), not a data-quarantine cap. FX pairs
+ * get 4× (tight, liquid), metals get 6× (wider but still tradable), exotics get
+ * 8× (structurally wide). (RC-6 / BUG-3.1)
+ */
+const CLASS_GATE_SPREAD_MULTIPLIER: Record<SymbolClass, number> = {
+  FX_MAJOR: 4,
+  FX_CROSS: 4,
+  FX_EXOTIC: 8,
+  GOLD: 6,
+  OIL: 6,
+  INDICES_US: 5,
+  INDICES_EU: 5,
+  CRYPTO: 8,
+  UNKNOWN: 4,
+};
+
 export function getPairCharacteristics(symbol: string): PairCharacteristics {
   const s = (symbol ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   const entry = PAIR_REGISTRY[s] ?? DEFAULT_CHARACTERISTICS;
+  const symbolClass = classifySymbol(s);
   return {
     symbol: s,
-    symbolClass: classifySymbol(s),
+    symbolClass,
+    // Fill in the class-aware default when the pair entry doesn't specify one.
+    gateSpreadMultiplier: entry.gateSpreadMultiplier ?? CLASS_GATE_SPREAD_MULTIPLIER[symbolClass] ?? 4,
     ...entry,
   };
+}
+
+/**
+ * Resolve the setup engine's `maxAllowedSpreadPips` trading gate from the
+ * symbol's `gateSpreadMultiplier` × `baseSpreadPips`. This replaces the
+ * previous universal `Math.max(base * 4, 3)` formula with an asset-class-aware
+ * value that doesn't conflate the trading gate with the data-quarantine cap.
+ * (RC-6 / BUG-3.1)
+ */
+export function getGateMaxSpreadPips(symbol: string): number {
+  const pc = getPairCharacteristics(symbol);
+  return pc.baseSpreadPips * (pc.gateSpreadMultiplier ?? 4);
 }
 
 /**

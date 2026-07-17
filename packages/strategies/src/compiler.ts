@@ -10,10 +10,28 @@ import {
   buildSlSql,
   buildTpSql,
 } from "./riskCompiler";
+import {
+  buildFreshnessPredicate,
+  buildLookbackInterval,
+  buildLookbackIntervalForTf,
+  buildPitLateral,
+  buildOrbSessionScopedJoin,
+  getDefaultFreshnessMinutes,
+  getDefaultLookbackBars,
+  isFvgZoneCondition,
+} from "./sqlBuilder";
 
 export interface CompileOptions {
-  /** How far back to scan the bias anchor table (default 24h for live performance). */
+  /** Compilation mode. */
+  mode?: "live" | "pit";
+  /** How far back to scan the bias anchor table in live mode (default 24h). */
   lookbackHours?: number;
+  /** Backtest window start (PIT mode only). */
+  from?: Date;
+  /** Backtest window end (PIT mode only). */
+  to?: Date;
+  /** Restrict to a single symbol (PIT mode only). */
+  symbol?: string;
   /**
    * When true, lifecycle freshness is checked against the stored
    * mitigated_at/invalidated_at columns instead of the expensive point-in-time
@@ -21,12 +39,55 @@ export interface CompileOptions {
    * refreshed; leave false for backtests.
    */
   trustStoredLifecycle?: boolean;
+  /**
+   * When true, return a query that reports stage counts (bias/setup/entry)
+   * instead of the final signal SELECT. Used by the PIT backtest runner for
+   * diagnostics and preflight.
+   */
+  debug?: boolean;
 }
 
 export interface CompiledStrategy {
   spec: StrategySpec;
   sql: string;
-  latestSignalSQL: (symbol?: string) => string;
+  /** Parameters for the compiled SQL. Populated in PIT mode when symbol/from/to are supplied. */
+  params?: unknown[];
+  /**
+   * Generate the live-signal SQL with parameterized placeholders.
+   *   $1 = symbol
+   *   $2 = signalTtlMinutes (interval)
+   * Caller MUST pass [symbol, signalTtlMinutes] as query params.
+   */
+  latestSignalSQL: () => string;
+}
+
+function validateTimeWindow(w: { utcStart: string; utcEnd: string }): { startMin: number; endMin: number } {
+  const TIME_WINDOW_RE = /^\d{2}:\d{2}$/;
+  if (!w || typeof w.utcStart !== "string" || typeof w.utcEnd !== "string") {
+    throw new Error("Time window must have utcStart and utcEnd strings");
+  }
+  if (!TIME_WINDOW_RE.test(w.utcStart) || !TIME_WINDOW_RE.test(w.utcEnd)) {
+    throw new Error(`Time window must match HH:MM, got ${w.utcStart}-${w.utcEnd}`);
+  }
+  const [sh, sm] = w.utcStart.split(":").map(Number);
+  const [eh, em] = w.utcEnd.split(":").map(Number);
+  if (sh < 0 || sh > 23 || eh < 0 || eh > 23) {
+    throw new Error("Time window hours out of range");
+  }
+  if (sm < 0 || sm > 59 || em < 0 || em > 59) {
+    throw new Error("Time window minutes out of range");
+  }
+  return { startMin: sh * 60 + sm, endMin: eh * 60 + em };
+}
+
+function timeWindowsToSql(spec: StrategySpec): string {
+  const windows = spec.filters?.timeWindows ?? (spec.filters?.timeWindow ? [spec.filters.timeWindow] : []);
+  if (!windows || windows.length === 0) return "";
+  const clauses = windows.map((w) => {
+    const { startMin, endMin } = validateTimeWindow(w);
+    return `EXTRACT(HOUR FROM ts) * 60 + EXTRACT(MINUTE FROM ts) BETWEEN ${startMin} AND ${endMin}`;
+  });
+  return "  AND (" + clauses.join("\n    OR ") + ")";
 }
 
 /**
@@ -69,15 +130,23 @@ function extractEqualityPushdowns(predicate: string): Array<{ column: string; li
 export function compileStrategy(spec: StrategySpec, opts: CompileOptions = {}): CompiledStrategy {
   const sql = compileFullSQL(spec, opts);
 
-  const latestSignalSQL = (symbol?: string) => {
-    const whereClause = symbol ? `WHERE symbol = '${symbol}'` : "";
+  /**
+   * Generate the live-signal SQL with parameterized placeholders.
+   *   $1 = symbol
+   *   $2 = signalTtlMinutes (interval)
+   * Caller MUST pass [symbol, signalTtlMinutes] as query params.
+   * This eliminates the SQL injection vector from string interpolation.
+   */
+  const latestSignalSQL = () => {
+    const maxAgeMin = spec.live?.signalTtlMinutes ?? 15;
     return `
 WITH signals AS (
 ${indent(sql, 2)}
 )
 SELECT *, '${spec.id}' as strategy_id
 FROM signals
-${whereClause}
+WHERE symbol = $1
+  AND ts >= NOW() - $2::interval
 ORDER BY ts DESC
 LIMIT 1
 `;
@@ -86,16 +155,17 @@ LIMIT 1
   return { spec, sql, latestSignalSQL };
 }
 
-function buildLatestSignalSQL(sql: string, strategyId: string): (symbol?: string) => string {
-  return (symbol?: string) => {
-    const whereClause = symbol ? `WHERE symbol = '${symbol}'` : "";
+function buildLatestSignalSQL(sql: string, strategyId: string, signalTtlMinutes?: number): () => string {
+  return () => {
+    const maxAgeMin = signalTtlMinutes ?? 15;
     return `
 WITH signals AS (
 ${indent(sql, 2)}
 )
 SELECT *, '${strategyId}' as strategy_id
 FROM signals
-${whereClause}
+WHERE symbol = $1
+  AND ts >= NOW() - $2::interval
 ORDER BY ts DESC
 LIMIT 1
 `;
@@ -107,126 +177,73 @@ LIMIT 1
  * This avoids re-running the compiler when loading a strategy from Redis.
  */
 export function restoreCompiledStrategy(spec: StrategySpec, sql: string): CompiledStrategy {
-  return { spec, sql, latestSignalSQL: buildLatestSignalSQL(sql, spec.id) };
+  return { spec, sql, latestSignalSQL: buildLatestSignalSQL(sql, spec.id, spec.live?.signalTtlMinutes) };
+}
+
+/**
+ * Remove a raw `is_fresh = true|false` conjunct from a translated predicate.
+ *
+ * `is_fresh` is a mutable current-state flag: correct for live evaluation but a
+ * look-ahead / survivorship leak in point-in-time backtests. In PIT mode the
+ * compiler relies on the as-of lifecycle window emitted by buildFreshnessPredicate
+ * instead, so the raw flag must be stripped. Handles an optional qualified alias
+ * (`pit_x.is_fresh`, `b.is_fresh`) in leading, trailing, or standalone position.
+ */
+function stripIsFresh(pred: string): string {
+  return pred
+    .replace(/\s+AND\s+(?:[A-Za-z_]\w*\.)?is_fresh\s*=\s*(?:true|false)\b/gi, "")
+    .replace(/\b(?:[A-Za-z_]\w*\.)?is_fresh\s*=\s*(?:true|false)\s+AND\s+/gi, "")
+    .replace(/\b(?:[A-Za-z_]\w*\.)?is_fresh\s*=\s*(?:true|false)\b/gi, "1=1")
+    .replace(/\(\s*\)/g, "(1=1)")
+    .trim();
 }
 
 function compileFullSQL(spec: StrategySpec, opts: CompileOptions = {}): string {
+  const mode = opts.mode ?? "live";
   const lookbackHours = opts.lookbackHours ?? 24;
   const setupConds = spec.setup.filter((c) => c.required);
   const entryConds = spec.entry.filter((c) => c.required);
 
-  const LIFECYCLE_FEATURES = new Set([
-    "features_zone",
-    "features_ifvg",
-    "features_order_block",
-    "features_sweep",
-    "features_structure",
-  ]);
-
-  function needsLifecycleCheck(feature: string): boolean {
-    return LIFECYCLE_FEATURES.has(feature);
-  }
-
-  function orderByTieBreaker(feature: string): string {
-    if (
-      feature === "features_zone" ||
-      feature === "features_ifvg" ||
-      feature === "features_order_block"
-    ) {
-      return ", strength_score DESC NULLS LAST";
-    }
-    return "";
-  }
-
-  function buildFreshnessPredicate(
-    cond: StrategyCondition,
-    tableRef: string,
-    asOfRef: string,
-    trustStored: boolean
-  ): string {
-    // Use the stored lifecycle columns for both live (trustStored=true) and PIT
-    // backtests. The lifecycle refresh functions keep these columns up to date,
-    // so the expensive is_band_fresh / is_structure_fresh helpers are no longer
-    // needed on the hot path.
-    switch (cond.feature) {
-      case "features_zone":
-      case "features_ifvg":
-      case "features_order_block":
-        return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
-      case "features_sweep":
-        return `AND (${tableRef}.mitigated_at IS NULL OR ${tableRef}.mitigated_at > ${asOfRef})`;
-      case "features_structure":
-        return `AND (${tableRef}.invalidated_at IS NULL OR ${tableRef}.invalidated_at > ${asOfRef})`;
-      default:
-        return "";
-    }
-  }
-
-  // Build a point-in-time LATERAL lookup. The subquery returns the latest row of
-  // the feature as of the anchor row's timestamp, with equality pushdowns and a
-  // deterministic tie-breaker for lifecycle features.
-  function buildPitLateral(
-    cond: StrategyCondition,
-    alias: string,
-    asOfRef: "b" | "s"
-  ): string {
-    const groupCols = cond.groupBy ?? [];
-    const distinctOn = ["symbol", ...groupCols].join(", ");
-    const pushdowns = cond.predicate ? extractEqualityPushdowns(cond.predicate) : [];
-    const pushdownSql = pushdowns.length
-      ? "\n      " + pushdowns.map((f) => `AND ${f.column} = ${f.literal}`).join("\n      ")
-      : "";
-    const tieBreaker = orderByTieBreaker(cond.feature);
-    return `LATERAL (
-      SELECT DISTINCT ON (${distinctOn}) *
-      FROM ${cond.feature}
-      WHERE symbol = ${asOfRef}.symbol
-        AND tf = '${cond.tf}'
-        AND ts <= ${asOfRef}.ts${pushdownSql}
-      ORDER BY ${distinctOn}, ts DESC${tieBreaker}
-    ) AS pit_${alias}`;
-  }
-
-  // Bias is the anchor — use its latest row per symbol
-  const biasCond =
-    spec.setup.find(
-      (c) => c.feature === "features_bias" || c.feature === "features_htf_bias"
-    );
+  // Bias anchor: the first bias/htf_bias condition drives the setup_candidates ts.
+  // Additional bias/htf_bias conditions are joined as point-in-time LATERALs so
+  // strategies can require multi-timeframe confluence (e.g. local 15m bias agrees
+  // with 1h HTF bias).
+  const BIAS_FEATURES = ["features_bias", "features_htf_bias", "features_direction_state"];
+  const biasCond = spec.setup.find((c) => BIAS_FEATURES.includes(c.feature));
   const biasTf = biasCond?.tf ?? "15m";
+  const biasTable = biasCond?.feature ?? "features_bias";
 
-  // Point-in-time setup feature lookups (bias is the anchor, skip self-lookup)
+  const biasAliasMap: Record<string, string> = {};
+  for (const cond of setupConds) {
+    if (BIAS_FEATURES.includes(cond.feature)) {
+      biasAliasMap[cond.feature] = cond === biasCond ? "b" : `pit_${cond.id}`;
+    }
+  }
+
+  // Point-in-time setup feature lookups (anchor bias is the FROM table, all others
+  // including extra bias/htf_bias timeframes get their own LATERAL).
   const setupLaterals = setupConds
-    .filter(
-      (c) =>
-        c.feature !== "features_bias" && c.feature !== "features_htf_bias"
-    )
-    .map((cond) => buildPitLateral(cond, cond.id, "b"));
+    .filter((c) => c !== biasCond)
+    .map((cond) => buildPitLateral(cond, cond.id, "b", spec));
 
-  const trustLifecycle = opts.trustStoredLifecycle ?? false;
-
-  // Build setup WHERE: bias conditions use 'b', others use 'pit_*'
+  // Build setup WHERE: anchor bias uses 'b', all others use 'pit_*'
   const setupWheres = setupConds.map((cond) => {
-    const tableRef =
-      cond.feature === "features_bias" || cond.feature === "features_htf_bias"
-        ? "b"
-        : `pit_${cond.id}`;
-    const pred = translatePredicate(cond.predicate, tableRef, "setup");
-    const freshness = needsLifecycleCheck(cond.feature)
-      ? buildFreshnessPredicate(cond, tableRef, "b.ts", trustLifecycle)
-      : "";
+    const tableRef = cond === biasCond ? "b" : `pit_${cond.id}`;
+    const predRaw = translatePredicate(cond.predicate, tableRef, "setup", biasAliasMap);
+    const pred = mode === "pit" ? stripIsFresh(predRaw) : predRaw;
+    const freshness = buildFreshnessPredicate(cond, tableRef, "b.ts");
     return `(${pred} ${freshness})`;
   });
 
   // Point-in-time entry feature lookups
-  const entryLaterals = entryConds.map((cond) => buildPitLateral(cond, cond.id, "s"));
+  const entryLaterals = entryConds.map((cond) => buildPitLateral(cond, cond.id, "s", spec));
 
   // Build entry WHERE
   const entryWheres = entryConds.map((cond) => {
     const tableRef = `pit_${cond.id}`;
-    const pred = translatePredicate(cond.predicate, tableRef, "entry");
-    const freshness = needsLifecycleCheck(cond.feature)
-      ? buildFreshnessPredicate(cond, tableRef, "s.ts", trustLifecycle)
-      : "";
+    const predRaw = translatePredicate(cond.predicate, tableRef, "entry");
+    const pred = mode === "pit" ? stripIsFresh(predRaw) : predRaw;
+    const freshness = buildFreshnessPredicate(cond, tableRef, "s.ts");
     return `(${pred} ${freshness})`;
   });
 
@@ -244,18 +261,39 @@ function compileFullSQL(spec: StrategySpec, opts: CompileOptions = {}): string {
   const setupLateralSection = setupLaterals.length ? ",\n" + setupLaterals.join(",\n") : "";
   const entryLateralSection = entryLaterals.length ? ",\n" + entryLaterals.join(",\n") : "";
 
-  const biasTable = biasCond?.feature ?? "features_bias";
+  const symbolFilter = opts.symbol ? `AND symbol = '${opts.symbol}'` : "";
+  const timeFilter =
+    mode === "pit" && opts.from && opts.to
+      ? `AND ts >= '${opts.from.toISOString()}'::timestamptz AND ts <= '${opts.to.toISOString()}'::timestamptz`
+      : `AND ts >= NOW() - INTERVAL '${lookbackHours} hours'`;
+
+  const timeWindowFilter = timeWindowsToSql(spec);
+
+  // Project the columns the anchor table actually has, so `regime`/`state`
+  // predicates on the anchor resolve (and the bare-`state` latent bug, SK-30,
+  // is closed). features_direction_state has both; features_bias has regime;
+  // features_htf_bias has state.
+  const biasExtraCols: string[] = [];
+  if (biasTable === "features_direction_state" || biasTable === "features_bias") biasExtraCols.push("regime");
+  if (biasTable === "features_direction_state" || biasTable === "features_htf_bias") biasExtraCols.push("state");
+  const biasExtraSelect = biasExtraCols.length ? `, ${biasExtraCols.join(", ")}` : "";
+  const biasSection = `
+SELECT symbol, ts, direction${biasExtraSelect}
+FROM ${biasTable}
+WHERE tf = '${biasTf}'
+  ${timeFilter}
+  ${symbolFilter}
+  ${timeWindowFilter}`;
+
   const setupSection = `
 SELECT b.symbol, b.ts, b.direction as bias_direction
-FROM ${biasTable} b${setupLateralSection}
-WHERE b.tf = '${biasTf}'
-  AND b.ts >= NOW() - INTERVAL '${lookbackHours} hours'
-  AND ${setupWheres.join("\n  AND ")}`;
+FROM bias_candidates b${setupLateralSection}
+WHERE ${setupWheres.join("\n  AND ")}`;
 
   const entrySection = `
-SELECT s.symbol, s.ts, s.bias_direction
-FROM setup_candidates s${entryLateralSection}
-WHERE ${entryWheres.join("\n  AND ")}`;
+SELECT DISTINCT ON (s.symbol, s.ts) s.symbol, s.ts, s.bias_direction
+FROM setup_candidates s${entryLateralSection}${entryWheres.length > 0 ? `
+WHERE ${entryWheres.join("\n  AND ")}` : ""}`;
 
   // Resolve timeframes for pricing, zone, atr in final SELECT
   const tfMap = resolveTimeframes(spec);
@@ -268,14 +306,96 @@ WHERE ${entryWheres.join("\n  AND ")}`;
   const bollingerTf = tfMap.bollinger ?? "15m";
   const keltnerTf = tfMap.keltner ?? "15m";
   const ifvgTf = tfMap.ifvg ?? "15m";
+  const fvgTf = tfMap.fvg ?? "5m";
 
   const signalSource = spec.signalSource ?? "zone";
 
-  const rawSignalSql = buildSignalSelect(spec, signalSource, { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf, bollingerTf, keltnerTf, ifvgTf });
+  const rawSignalSql = buildSignalSelect(spec, signalSource, { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf, bollingerTf, keltnerTf, ifvgTf, fvgTf });
   const signalSql = bindAtrReferences(rawSignalSql, atrTfs);
 
+  if (opts.debug) {
+    // Explain mode (P1-C): cumulative per-condition counts.
+    // Embed _sm_* / _em_* boolean columns, chain CTEs adding
+    // one filter at a time, so SELECT shows count drops.
+
+    // ── Setup: embed _sm_* booleans (predicate + freshness) ──
+    const setupMatchExprs = setupConds.map((cond) => {
+      const tableRef = cond === biasCond ? "b" : `pit_${cond.id}`;
+      const predRaw = translatePredicate(cond.predicate, tableRef, "setup", biasAliasMap);
+      const pred = mode === "pit" ? stripIsFresh(predRaw) : predRaw;
+      const freshness = buildFreshnessPredicate(cond, tableRef, "b.ts");
+      return `(${pred} ${freshness}) AS _sm_${cond.id}`;
+    });
+    const setupSectionDebug = `
+SELECT b.symbol, b.ts, b.direction as bias_direction${biasExtraCols.length ? "," : ""}${biasExtraCols.length ? "\n  " + biasExtraCols.join(", ") : ""},
+  ${setupMatchExprs.join(",\n  ")}
+FROM bias_candidates b${setupLateralSection}`;
+
+    // ── Entry: embed _em_* booleans (predicate + freshness) ──
+    const entryMatchExprs = entryConds.map((cond) => {
+      const tableRef = `pit_${cond.id}`;
+      const predRaw = translatePredicate(cond.predicate, tableRef, "entry");
+      const pred = mode === "pit" ? stripIsFresh(predRaw) : predRaw;
+      const freshness = buildFreshnessPredicate(cond, tableRef, "s.ts");
+      return `(${pred} ${freshness}) AS _em_${cond.id}`;
+    });
+    const entrySectionDebug = `
+SELECT DISTINCT ON (s.symbol, s.ts) s.symbol, s.ts, s.bias_direction,
+  ${entryMatchExprs.join(",\n  ")}
+FROM s_filtered s${entryLateralSection}`;
+
+    // ── Build CTEs in dependency order ──
+    const ctes: string[] = [];
+    const selects: string[] = [
+      `  (SELECT COUNT(*) FROM bias_candidates) AS bias_rows`,
+    ];
+
+    // 1. setup_candidates_raw alias
+    ctes.push("setup_candidates_raw AS (SELECT * FROM setup_candidates_raw_tmp)");
+
+    // 2. Cumulative setup filters
+    let cumSetup: string[] = [];
+    for (const cond of setupConds) {
+      cumSetup.push(`_sm_${cond.id}`);
+      const prev = ctes[ctes.length - 1].split(" AS ")[0];
+      const alias = `sc_${cond.id}`;
+      ctes.push(`${alias} AS (SELECT * FROM ${prev} WHERE ${cumSetup.join(" AND ")})`);
+      selects.push(`  (SELECT COUNT(*) FROM ${alias}) AS setup_${cond.id}_rows`);
+    }
+
+    // 3. s_filtered + entry raw (LATERALs need s_filtered rows)
+    const lastSetupCte = ctes[ctes.length - 1].split(" AS ")[0];
+    ctes.push(`s_filtered AS (SELECT * FROM ${lastSetupCte})`);
+    ctes.push(`entry_candidates_raw AS (${indent(entrySectionDebug, 2).trimStart()})`);
+
+    // 4. Cumulative entry filters
+    let cumEntry: string[] = [];
+    for (const cond of entryConds) {
+      cumEntry.push(`_em_${cond.id}`);
+      const prev = ctes[ctes.length - 1].split(" AS ")[0];
+      const alias = `ec_${cond.id}`;
+      ctes.push(`${alias} AS (SELECT * FROM ${prev} WHERE ${cumEntry.join(" AND ")})`);
+      selects.push(`  (SELECT COUNT(*) FROM ${alias}) AS entry_${cond.id}_rows`);
+    }
+
+    return `
+WITH bias_candidates AS (
+${indent(biasSection, 2)}
+),
+setup_candidates_raw_tmp AS (
+${indent(setupSectionDebug, 2)}
+),
+${ctes.join(",\n")}
+SELECT
+${selects.join(",\n")}
+`;
+  }
+
   return `
-WITH setup_candidates AS (
+WITH bias_candidates AS (
+${indent(biasSection, 2)}
+),
+setup_candidates AS (
 ${indent(setupSection, 2)}
 ),
 entry_signals AS (
@@ -295,6 +415,7 @@ interface ResolvedTimeframes {
   bollinger: TimeFrame;
   keltner: TimeFrame;
   ifvg: TimeFrame;
+  fvg: TimeFrame;
 }
 
 function resolveTimeframes(spec: StrategySpec): ResolvedTimeframes {
@@ -308,6 +429,12 @@ function resolveTimeframes(spec: StrategySpec): ResolvedTimeframes {
     if (cond.feature === "features_bollinger") map.bollinger = cond.tf;
     if (cond.feature === "features_keltner") map.keltner = cond.tf;
     if (cond.feature === "features_ifvg") map.ifvg = cond.tf;
+    if (
+      cond.feature === "features_zone" &&
+      isFvgZoneCondition(cond)
+    ) {
+      map.fvg = cond.tf;
+    }
   }
 
   // ATR can appear in risk expressions with explicit timeframes (e.g. atr(1m)).
@@ -342,12 +469,13 @@ function resolveTimeframes(spec: StrategySpec): ResolvedTimeframes {
     bollinger: map.bollinger ?? "15m",
     keltner: map.keltner ?? "15m",
     ifvg: map.ifvg ?? "15m",
+    fvg: map.fvg ?? "5m",
   };
 }
 
 const ATR_TF_RE = /\batr\s*\(\s*(1m|5m|15m|1h|4h|1d)\s*\)/gi;
 
-function extractAtrTimeframes(expr: string): TimeFrame[] {
+export function extractAtrTimeframes(expr: string): TimeFrame[] {
   const tfs: TimeFrame[] = [];
   const validTfs = new Set<TimeFrame>(["1m", "5m", "15m", "1h", "4h", "1d"]);
   let m: RegExpExecArray | null;
@@ -362,6 +490,41 @@ function extractAtrTimeframes(expr: string): TimeFrame[] {
   return tfs;
 }
 
+/**
+ * Extract every unique (feature@tf) key a strategy spec requires for live
+ * execution — features from setup/entry conditions, gate core inputs, and ATR
+ * timeframes referenced in risk expressions.
+ *
+ * Used by both the pipeline trigger (feature engine scheduling) and the live
+ * runner (feature freshness checks) so they stay in sync.
+ */
+export function extractRequiredFeatures(spec: StrategySpec): Set<string> {
+  const required = new Set<string>();
+  for (const item of spec.setup ?? []) {
+    if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
+  }
+  for (const item of spec.entry ?? []) {
+    if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
+  }
+  // Core features consumed by gates.
+  required.add("features_atr@15m");
+  required.add("features_session@1m");
+  required.add("features_spread@1m");
+  // ATR timeframes referenced by risk expressions.
+  const riskExprs = [
+    spec.risk?.sl,
+    spec.risk?.tp,
+    spec.entryConfig?.zonePips != null ? String(spec.entryConfig.zonePips) : null,
+    spec.risk?.tpOffsetPips != null ? String(spec.risk.tpOffsetPips) : null,
+  ].filter(Boolean) as string[];
+  for (const expr of riskExprs) {
+    for (const tf of extractAtrTimeframes(expr)) {
+      required.add(`features_atr@${tf}`);
+    }
+  }
+  return required;
+}
+
 function atrAlias(tf: TimeFrame): string {
   return `a_${tf.replace(/[^a-z0-9]/gi, "_")}`;
 }
@@ -370,7 +533,7 @@ function bindAtrReferences(sql: string, atrTfs: TimeFrame[]): string {
   let out = sql;
   for (const tf of atrTfs) {
     const re = new RegExp(`\\batr\\s*\\(\\s*${tf}\\s*\\)`, "gi");
-    out = out.replace(re, `${atrAlias(tf)}.value`);
+    out = out.replace(re, `COALESCE(${atrAlias(tf)}.effective_value, ${atrAlias(tf)}.value)`);
   }
   return out;
 }
@@ -385,19 +548,28 @@ interface SignalTfs {
   bollingerTf: TimeFrame;
   keltnerTf: TimeFrame;
   ifvgTf: TimeFrame;
+  fvgTf: TimeFrame;
 }
 
 function buildAtrJoins(atrTfs: TimeFrame[]): string {
   return atrTfs
     .map(
-      (tf) => `JOIN features_atr ${atrAlias(tf)} ON s.symbol = ${atrAlias(tf)}.symbol AND ${atrAlias(tf)}.tf = '${tf}' AND ${atrAlias(tf)}.period = 5
-  AND ${atrAlias(tf)}.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = s.symbol AND tf = '${tf}' AND period = 5 AND ts <= s.ts)`
+      (tf) => `JOIN features_atr ${atrAlias(tf)} ON e.symbol = ${atrAlias(tf)}.symbol AND ${atrAlias(tf)}.tf = '${tf}' AND ${atrAlias(tf)}.period = 5
+  AND ${atrAlias(tf)}.ts = (SELECT MAX(ts) FROM features_atr WHERE symbol = e.symbol AND tf = '${tf}' AND period = 5 AND ts <= e.ts)`
     )
     .join("\n");
 }
 
 function buildAtrSelectColumns(atrTfs: TimeFrame[]): string {
-  return atrTfs.map((tf) => `  ${atrAlias(tf)}.value as atr_${tf.replace(/[^a-z0-9]/gi, "_")},`).join("\n");
+  const primaryTf = atrTfs[0];
+  return atrTfs
+    .map((tf) => {
+      const alias = atrAlias(tf);
+      const eff = `COALESCE(${alias}.effective_value, ${alias}.value)`;
+      const col = `  ${eff} as atr_${tf.replace(/[^a-z0-9]/gi, "_")}`;
+      return tf === primaryTf ? `${col},\n  ${eff} as atr_5,` : `${col},`;
+    })
+    .join("\n");
 }
 
 function buildSignalSelect(
@@ -405,12 +577,11 @@ function buildSignalSelect(
   signalSource: StrategySpec["signalSource"],
   tfs: SignalTfs
 ): string {
-  const { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf } = tfs;
+  const { pricingTf, zoneTf, atrTfs, orbTf, indicatorTf, movingAverageTf, ifvgTf, fvgTf } = tfs;
   // New feature TFs are available for future signalSource branches; currently
   // used only as setup/entry filters via the point-in-time LATERAL lookups.
   void tfs.bollingerTf;
   void tfs.keltnerTf;
-  void tfs.ifvgTf;
 
   switch (signalSource) {
     case "orb":
@@ -419,6 +590,8 @@ function buildSignalSelect(
       return buildIndicatorSignalSelect(spec, { pricingTf, atrTfs, indicatorTf });
     case "moving_average":
       return buildMovingAverageSignalSelect(spec, { pricingTf, atrTfs, movingAverageTf });
+    case "fvg":
+      return buildFvgSignalSelect(spec, { pricingTf, atrTfs, fvgTf });
     case "zone":
     default:
       return buildZoneSignalSelect(spec, { pricingTf, zoneTf, atrTfs });
@@ -432,14 +605,105 @@ function buildEntryTypeColumn(spec: StrategySpec): string {
   return `'${type}' as entry_type`;
 }
 
+function buildFvgSignalSelect(
+  spec: StrategySpec,
+  tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "fvgTf">
+): string {
+  const { pricingTf, atrTfs, fvgTf } = tfs;
+  const entrySql = buildEntryPriceSql(spec, "fvg", { signalAlias: "e" });
+  const slSql = buildSlSql(spec, "fvg", { signalAlias: "e" });
+  const tpSql = buildTpSql(spec, "fvg", { signalAlias: "e" });
+  const entryTypeColumn = buildEntryTypeColumn(spec);
+  const candleTable = fvgTf === "15m"
+    ? "market.candles_15m_canonical"
+    : "market.candles_5m_canonical";
+  // Registry-bounded lookback (96 bars default, or the spec's lookbackBars)
+  // instead of the raw tf-tier default: zones are dense and the entry
+  // LATERALs already use the same bound.
+  const fvgCond = [...spec.setup, ...spec.entry].find(
+    (c) => c.feature === "features_zone" && isFvgZoneCondition(c)
+  );
+  const fvgLookback = fvgCond
+    ? buildLookbackInterval(fvgCond, spec)
+    : buildLookbackIntervalForTf(fvgTf);
+  return `
+SELECT DISTINCT ON (symbol, date_trunc('day', ts AT TIME ZONE 'UTC'))
+  *
+FROM (
+  SELECT DISTINCT ON (e.symbol, f.ts)
+    e.symbol,
+    f.ts,
+    f.direction as bias_direction,
+    f.top as fvg_top,
+    f.bottom as fvg_bottom,
+    ((f.top + f.bottom) / 2.0) as fvg_midpoint,
+    o.high as orb_high,
+    o.low as orb_low,
+    p.position as pricing_position,
+${buildAtrSelectColumns(atrTfs)}
+    CASE
+      WHEN f.direction = 'bullish' THEN 'buy'
+      WHEN f.direction = 'bearish' THEN 'sell'
+      ELSE NULL
+    END as side,
+    ${entrySql} as entry_price,
+    ${slSql} as stop_loss,
+    ${tpSql} as take_profit${entryTypeColumn ? `,
+    ${entryTypeColumn}` : ""}
+  FROM setup_candidates e
+  JOIN LATERAL (
+    SELECT *
+    FROM features_zone f
+    WHERE f.symbol = e.symbol
+      AND f.tf = '${fvgTf}'
+      AND f.zone_kind = 'fvg'
+      AND f.ts <= e.ts
+      AND f.ts >= e.ts - INTERVAL '${fvgLookback}'
+      AND (f.invalidated_at IS NULL OR f.invalidated_at > e.ts)
+      AND f.direction = CASE WHEN e.bias_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+    ORDER BY
+      (f.top - f.bottom) DESC,
+      f.ts DESC
+    LIMIT 1
+  ) f ON TRUE
+  JOIN LATERAL (
+    SELECT ctf.*
+    FROM ${candleTable} ctf
+    WHERE ctf.symbol = f.symbol AND ctf.ts = f.ts - interval '${fvgTf === "15m" ? "30 minutes" : "10 minutes"}'
+    LIMIT 1
+  ) fvg_c1 ON TRUE
+  JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
+    AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
+  JOIN LATERAL (
+    SELECT c15.h as high, c15.l as low
+    FROM market.candles_15m_canonical c15
+    WHERE c15.symbol = e.symbol
+      AND c15.ts = date_trunc('day', f.ts AT TIME ZONE 'UTC') AT TIME ZONE 'UTC' + interval '13 hours 30 minutes'
+    LIMIT 1
+  ) o ON true
+${buildAtrJoins(atrTfs)}
+  WHERE f.direction IN ('bullish', 'bearish')
+    AND (
+      (f.direction = 'bullish' AND f.bottom > o.high)
+      OR
+      (f.direction = 'bearish' AND f.top < o.low)
+    )
+    AND f.ts::time >= time '13:45'
+    AND f.ts::time <= time '16:00'
+  ORDER BY e.symbol, f.ts, e.ts
+) fvg_candidates
+ORDER BY symbol, date_trunc('day', ts AT TIME ZONE 'UTC'), ts ASC
+`;
+}
+
 function buildZoneSignalSelect(
   spec: StrategySpec,
   tfs: Pick<SignalTfs, "pricingTf" | "zoneTf" | "atrTfs">
 ): string {
   const { pricingTf, zoneTf, atrTfs } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "zone");
-  const slSql = buildSlSql(spec, "zone");
-  const tpSql = buildTpSql(spec, "zone");
+  const entrySql = buildEntryPriceSql(spec, "zone", { signalAlias: "e" });
+  const slSql = buildSlSql(spec, "zone", { signalAlias: "e" });
+  const tpSql = buildTpSql(spec, "zone", { signalAlias: "e" });
   const entryTypeColumn = buildEntryTypeColumn(spec);
   // Use the strategy's pricing predicate if it exists, otherwise fall back to
   // strict discount/premium filtering.
@@ -447,47 +711,80 @@ function buildZoneSignalSelect(
   let pricingFilter: string;
   if (pricingCond?.predicate) {
     pricingFilter = translatePredicate(pricingCond.predicate, "p", "setup")
-      .replace(/b\.direction/g, "s.bias_direction");
+      .replace(/b\.direction/g, "e.bias_direction");
   } else {
     pricingFilter = `CASE
-      WHEN s.bias_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
-      WHEN s.bias_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium')
+      WHEN e.bias_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
+      WHEN e.bias_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium')
     END`;
   }
 
+  // Push the pricing predicate inside the LATERAL so the joined row actually
+  // satisfies the discount/premium filter. The previous MAX(ts) join picked the
+  // latest row regardless of whether it matched the pricing filter, then the
+  // outer WHERE discarded it — losing signals when the latest pricing row was
+  // 'premium' but the strategy needed 'discount'. (RC-2 / Bug #2)
+  const pricingFilterInner = pricingFilter
+    .replace(/\bp\.fib_position\b/g, "p2.fib_position")
+    .replace(/\bp\.in_ote\b/g, "p2.in_ote")
+    .replace(/\bp\.ote_low\b/g, "p2.ote_low")
+    .replace(/\bp\.ote_high\b/g, "p2.ote_high")
+    .replace(/\bp\.position\b/g, "p2.position");
+  const pricingLookback = buildLookbackIntervalForTf(pricingTf);
+
   return `
 SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
+  e.symbol,
+  e.ts,
+  e.bias_direction,
   z.top as zone_top,
   z.bottom as zone_bottom,
   z.zone_kind,
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.bias_direction = 'bullish' THEN 'buy'
+    WHEN e.bias_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
   ${slSql} as stop_loss,
   ${tpSql} as take_profit${entryTypeColumn ? `,
   ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_zone z ON s.symbol = z.symbol AND z.tf = '${zoneTf}'
-  AND z.ts = (
-    SELECT MAX(ts) FROM features_zone
-    WHERE symbol = s.symbol AND tf = '${zoneTf}' AND ts <= s.ts
-      AND (invalidated_at IS NULL OR invalidated_at > s.ts)
-  )
+FROM entry_signals e
+JOIN LATERAL (
+  SELECT position, pip_size, fib_position, in_ote, ote_low, ote_high
+  FROM features_pricing p2
+  WHERE p2.symbol = e.symbol AND p2.tf = '${pricingTf}'
+    AND p2.ts <= e.ts
+    AND p2.ts >= e.ts - INTERVAL '${pricingLookback}'
+    AND (${pricingFilterInner})
+  ORDER BY p2.ts DESC
+  LIMIT 1
+) p ON TRUE
+JOIN LATERAL (
+  SELECT *
+  FROM features_zone z
+  WHERE z.symbol = e.symbol
+    AND z.tf = '${zoneTf}'
+    AND z.ts <= e.ts
+    AND z.ts >= e.ts - INTERVAL '${buildLookbackIntervalForTf(zoneTf)}'
+    AND (z.mitigated_at IS NULL OR z.mitigated_at > e.ts)
+    AND (z.invalidated_at IS NULL OR z.invalidated_at > e.ts)
+    AND z.direction = CASE WHEN e.bias_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+  ORDER BY
+    CASE WHEN e.bias_direction = 'bullish' THEN z.bottom END DESC NULLS LAST,
+    CASE WHEN e.bias_direction = 'bearish' THEN z.top END ASC NULLS LAST,
+    z.rank_score DESC NULLS LAST,
+    z.strength_score DESC NULLS LAST,
+    z.quality_score DESC NULLS LAST,
+    z.ts DESC
+  LIMIT 1
+) z ON TRUE
 ${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
+WHERE e.bias_direction IN ('bullish', 'bearish')
   AND (${pricingFilter})
-ORDER BY s.ts DESC
+ORDER BY e.ts DESC
 `;
 }
 
@@ -496,38 +793,51 @@ function buildOrbSignalSelect(
   tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "orbTf">
 ): string {
   const { pricingTf, atrTfs, orbTf } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "orb");
-  const slSql = buildSlSql(spec, "orb");
-  const tpSql = buildTpSql(spec, "orb");
+  const entrySql = buildEntryPriceSql(spec, "orb", { signalAlias: "e" });
+  const slSql = buildSlSql(spec, "orb", { signalAlias: "e" });
+  const tpSql = buildTpSql(spec, "orb", { signalAlias: "e" });
   const entryTypeColumn = buildEntryTypeColumn(spec);
+  // The ORB condition declares which session's opening range this strategy
+  // trades. The join pins the range to the signal's UTC date + session +
+  // tf-derived range length and requires completion (o.ts <= e.ts) — stale
+  // ranges from prior sessions/days can never match (V4 BUG-11).
+  const orbCond = [...spec.setup, ...spec.entry].find(
+    (c) => c.feature === "features_opening_range"
+  );
+  if (!orbCond) {
+    throw new Error("signalSource 'orb' requires a features_opening_range condition");
+  }
+  const orbJoin = buildOrbSessionScopedJoin(orbCond, "o", "e");
   return `
-SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
+SELECT DISTINCT ON (symbol, date_trunc('day', ts AT TIME ZONE 'UTC'))
+  *
+FROM (
+  SELECT
+  e.symbol,
+  e.ts,
+  e.bias_direction,
   o.high as orb_high,
   o.low as orb_low,
   o.midpoint as orb_midpoint,
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.bias_direction = 'bullish' THEN 'buy'
+    WHEN e.bias_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
   ${slSql} as stop_loss,
   ${tpSql} as take_profit${entryTypeColumn ? `,
   ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_opening_range o ON s.symbol = o.symbol AND o.tf = '${orbTf}'
-  AND o.ts = (SELECT MAX(ts) FROM features_opening_range WHERE symbol = s.symbol AND tf = '${orbTf}' AND ts <= s.ts)
+FROM entry_signals e
+JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
+  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
+JOIN features_opening_range o ON e.symbol = o.symbol AND o.tf = '${orbTf}'${orbJoin}
 ${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
-ORDER BY s.ts DESC
+WHERE e.bias_direction IN ('bullish', 'bearish')
+) orb_candidates
+ORDER BY symbol, date_trunc('day', ts AT TIME ZONE 'UTC'), ts ASC
 `;
 }
 
@@ -536,37 +846,36 @@ function buildIndicatorSignalSelect(
   tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "indicatorTf">
 ): string {
   const { pricingTf, atrTfs, indicatorTf } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "indicator");
-  const slSql = buildSlSql(spec, "indicator");
-  const tpSql = buildTpSql(spec, "indicator");
+  const entrySql = buildEntryPriceSql(spec, "indicator", { signalAlias: "e" });
+  const slSql = buildSlSql(spec, "indicator", { signalAlias: "e" });
+  const tpSql = buildTpSql(spec, "indicator", { signalAlias: "e" });
   const entryTypeColumn = buildEntryTypeColumn(spec);
   return `
 SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
+  e.symbol,
+  e.ts,
+  e.bias_direction,
   i.indicator_name,
   i.value as indicator_value,
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.bias_direction = 'bullish' THEN 'buy'
+    WHEN e.bias_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
   ${slSql} as stop_loss,
   ${tpSql} as take_profit${entryTypeColumn ? `,
   ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_indicator i ON s.symbol = i.symbol AND i.tf = '${indicatorTf}'
-  AND i.ts = (SELECT MAX(ts) FROM features_indicator WHERE symbol = s.symbol AND tf = '${indicatorTf}' AND ts <= s.ts)
+FROM entry_signals e
+JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
+  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
+JOIN features_indicator i ON e.symbol = i.symbol AND i.tf = '${indicatorTf}'
+  AND i.ts = (SELECT MAX(ts) FROM features_indicator WHERE symbol = e.symbol AND tf = '${indicatorTf}' AND ts <= e.ts)
 ${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
-ORDER BY s.ts DESC
+WHERE e.bias_direction IN ('bullish', 'bearish')
+ORDER BY e.ts DESC
 `;
 }
 
@@ -575,9 +884,9 @@ function buildMovingAverageSignalSelect(
   tfs: Pick<SignalTfs, "pricingTf" | "atrTfs" | "movingAverageTf">
 ): string {
   const { pricingTf, atrTfs, movingAverageTf } = tfs;
-  const entrySql = buildEntryPriceSql(spec, "moving_average");
-  const slSql = buildSlSql(spec, "moving_average");
-  const tpSql = buildTpSql(spec, "moving_average");
+  const entrySql = buildEntryPriceSql(spec, "moving_average", { signalAlias: "e" });
+  const slSql = buildSlSql(spec, "moving_average", { signalAlias: "e" });
+  const tpSql = buildTpSql(spec, "moving_average", { signalAlias: "e" });
   const entryTypeColumn = buildEntryTypeColumn(spec);
   const cfg = spec.signalSourceConfig ?? {};
   const maType = cfg.maType ?? "sma";
@@ -586,58 +895,82 @@ function buildMovingAverageSignalSelect(
 
   return `
 SELECT
-  s.symbol,
-  s.ts,
-  s.bias_direction,
+  e.symbol,
+  e.ts,
+  e.bias_direction,
   fast_ma.value as ma_fast,
   slow_ma.value as ma_slow,
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN s.bias_direction = 'bullish' THEN 'buy'
-    WHEN s.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.bias_direction = 'bullish' THEN 'buy'
+    WHEN e.bias_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
   ${slSql} as stop_loss,
   ${tpSql} as take_profit${entryTypeColumn ? `,
   ${entryTypeColumn}` : ""}
-FROM setup_candidates s
-LEFT JOIN entry_signals e ON e.symbol = s.symbol
-JOIN features_pricing p ON s.symbol = p.symbol AND p.tf = '${pricingTf}'
-  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = s.symbol AND tf = '${pricingTf}' AND ts <= s.ts)
-JOIN features_moving_average fast_ma ON s.symbol = fast_ma.symbol AND fast_ma.tf = '${movingAverageTf}'
+FROM entry_signals e
+JOIN features_pricing p ON e.symbol = p.symbol AND p.tf = '${pricingTf}'
+  AND p.ts = (SELECT MAX(ts) FROM features_pricing WHERE symbol = e.symbol AND tf = '${pricingTf}' AND ts <= e.ts)
+JOIN features_moving_average fast_ma ON e.symbol = fast_ma.symbol AND fast_ma.tf = '${movingAverageTf}'
   AND fast_ma.ma_type = '${maType}' AND fast_ma.period = ${fastPeriod}
-  AND fast_ma.ts = (SELECT MAX(ts) FROM features_moving_average WHERE symbol = s.symbol AND tf = '${movingAverageTf}' AND ma_type = '${maType}' AND period = ${fastPeriod} AND ts <= s.ts)
-JOIN features_moving_average slow_ma ON s.symbol = slow_ma.symbol AND slow_ma.tf = '${movingAverageTf}'
+  AND fast_ma.ts = (SELECT MAX(ts) FROM features_moving_average WHERE symbol = e.symbol AND tf = '${movingAverageTf}' AND ma_type = '${maType}' AND period = ${fastPeriod} AND ts <= e.ts)
+JOIN features_moving_average slow_ma ON e.symbol = slow_ma.symbol AND slow_ma.tf = '${movingAverageTf}'
   AND slow_ma.ma_type = '${maType}' AND slow_ma.period = ${slowPeriod}
-  AND slow_ma.ts = (SELECT MAX(ts) FROM features_moving_average WHERE symbol = s.symbol AND tf = '${movingAverageTf}' AND ma_type = '${maType}' AND period = ${slowPeriod} AND ts <= s.ts)
+  AND slow_ma.ts = (SELECT MAX(ts) FROM features_moving_average WHERE symbol = e.symbol AND tf = '${movingAverageTf}' AND ma_type = '${maType}' AND period = ${slowPeriod} AND ts <= e.ts)
 ${buildAtrJoins(atrTfs)}
-WHERE s.bias_direction IN ('bullish', 'bearish')
+WHERE e.bias_direction IN ('bullish', 'bearish')
   AND (
-    (s.bias_direction = 'bullish' AND fast_ma.value > slow_ma.value)
-    OR (s.bias_direction = 'bearish' AND fast_ma.value < slow_ma.value)
+    (e.bias_direction = 'bullish' AND fast_ma.value > slow_ma.value)
+    OR (e.bias_direction = 'bearish' AND fast_ma.value < slow_ma.value)
   )
-ORDER BY s.ts DESC
+ORDER BY e.ts DESC
 `;
 }
 
 /** Translate simplified predicate syntax to SQL */
-function translatePredicate(predicate: string, tableRef: string, context: "setup" | "entry"): string {
-  const biasRef = context === "setup" ? "b.direction" : "s.bias_direction";
+function translatePredicate(
+  predicate: string,
+  tableRef: string,
+  context: "setup" | "entry",
+  biasAliases: Record<string, string> = {}
+): string {
+  // Map qualified feature references to the correct alias.  The anchor bias
+  // condition uses the FROM table ('b' in setup, 's' in entry); additional
+  // bias/htf_bias conditions each have their own LATERAL alias so specs can
+  // express multi-timeframe confluence.
+  const biasAlias = biasAliases["features_bias"] ?? (context === "setup" ? "b" : "s");
+  const htfBiasAlias = biasAliases["features_htf_bias"] ?? (context === "setup" ? "b" : "s");
+  // The entry CTE (setup_candidates) exposes the bias as "bias_direction",
+  // while raw feature tables and LATERAL aliases expose it as "direction".
+  const biasDirectionCol = biasAlias === "s" ? "bias_direction" : "direction";
+  const htfBiasDirectionCol = htfBiasAlias === "s" ? "bias_direction" : "direction";
 
   let sql = predicate
-    .replace(/features_bias\.direction/g, "__BIAS_DIRECTION__")
+    .replace(/features_bias\.direction/g, "__BIAS_DIR__")
     .replace(/features_bias\b/g, "__BIAS_TABLE__")
-    .replace(/features_htf_bias\.direction/g, "__BIAS_DIRECTION__")
-    .replace(/features_htf_bias\.state/g, "__BIAS_STATE__")
-    .replace(/features_htf_bias\b/g, "__BIAS_TABLE__");
+    .replace(/features_htf_bias\.direction/g, "__HTF_BIAS_DIR__")
+    .replace(/features_htf_bias\.state/g, "__HTF_BIAS_STATE__")
+    .replace(/features_htf_bias\b/g, "__HTF_BIAS_TABLE__");
 
   // Use word boundaries so period/fast_period/etc don't overlap.
+  // Bare-column map. `score` MUST run before strength_score/quality_score (its
+  // word boundary would otherwise match the `score` segment after the `.` of an
+  // already-replaced tableRef.strength_score). regime/state/agreement are safe.
   sql = sql
+    .replace(/\bregime\b/g, `${tableRef}.regime`)
+    .replace(/\bstate\b/g, `${tableRef}.state`)
+    .replace(/\bagreement\b/g, `${tableRef}.agreement`)
+    .replace(/\bscore\b/g, `${tableRef}.score`)
     .replace(/\bzone_kind\b/g, `${tableRef}.zone_kind`)
     .replace(/\bevent_type\b/g, `${tableRef}.event_type`)
     .replace(/\bdirection\b/g, `${tableRef}.direction`)
+    .replace(/\bfib_position\b/g, `${tableRef}.fib_position`)
+    .replace(/\bin_ote\b/g, `${tableRef}.in_ote`)
+    .replace(/\bote_low\b/g, `${tableRef}.ote_low`)
+    .replace(/\bote_high\b/g, `${tableRef}.ote_high`)
     .replace(/\bposition\b/g, `${tableRef}.position`)
     .replace(/\bfill_pct\b/g, `${tableRef}.fill_pct`)
     .replace(/\btapped\b/g, `${tableRef}.tapped`)
@@ -697,9 +1030,11 @@ function translatePredicate(predicate: string, tableRef: string, context: "setup
     .replace(/\bdate\b/g, `${tableRef}.date`);
 
   sql = sql
-    .replace(/__BIAS_DIRECTION__/g, biasRef)
-    .replace(/__BIAS_STATE__/g, `${tableRef}.state`)
-    .replace(/__BIAS_TABLE__/g, context === "setup" ? "b" : "s");
+    .replace(/__BIAS_DIR__/g, `${biasAlias}.${biasDirectionCol}`)
+    .replace(/__HTF_BIAS_DIR__/g, `${htfBiasAlias}.${htfBiasDirectionCol}`)
+    .replace(/__HTF_BIAS_STATE__/g, `${htfBiasAlias}.state`)
+    .replace(/__BIAS_TABLE__/g, biasAlias)
+    .replace(/__HTF_BIAS_TABLE__/g, htfBiasAlias);
 
   return sql;
 }

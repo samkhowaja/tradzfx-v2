@@ -34,11 +34,15 @@ export function getPointSize(digits: number): number {
 }
 
 /**
- * Pip size is always 10 points for standard FX/commodity/CFD quoting.
- * This matches the industry convention used by MT5.
+ * Pip size from broker digits.
+ *
+ * 4-digit quoting (e.g. USDSEK): 1 pip = 1 point (0.0001). All other standard
+ * conventions (5/3-digit FX, 2/3-digit metals) quote 1 pip = 10 points.
+ * This mirrors the ingestion server's pointsToPips so every spread writer
+ * agrees on units (V4 spread-contract fix).
  */
 export function getPipSize(digits: number): number {
-  return getPointSize(digits) * 10;
+  return getPointSize(digits) * (digits === 4 ? 1 : 10);
 }
 
 /**

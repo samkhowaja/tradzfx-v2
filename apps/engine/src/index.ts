@@ -27,13 +27,13 @@ import { movingAverageFeature } from "./features/movingAverage";
 import { bollingerFeature } from "./features/bollinger";
 import { keltnerFeature } from "./features/keltner";
 import { ifvgFeature } from "./features/ifvg";
-import { fvgFeature } from "./features/fvg";
 import { correlationFeature } from "./features/correlation";
 import { timeOfDayEdgeFeature } from "./features/timeOfDayEdge";
 import { liquidityPoolsFeature } from "./features/liquidityPools";
 import { orderBlockFeature } from "./features/orderBlock";
 import { eqLiquidityFeature } from "./features/eqLiquidity";
 import { htfBiasFeature } from "./features/htfBias";
+import { directionStateFeature } from "./features/directionState";
 import { spreadFeature } from "./features/spread";
 
 globalDAG.register(atrFeature);
@@ -54,18 +54,19 @@ globalDAG.register(movingAverageFeature);
 globalDAG.register(bollingerFeature);
 globalDAG.register(keltnerFeature);
 globalDAG.register(ifvgFeature);
-globalDAG.register(fvgFeature);
 globalDAG.register(correlationFeature);
 globalDAG.register(timeOfDayEdgeFeature);
 globalDAG.register(liquidityPoolsFeature);
 globalDAG.register(orderBlockFeature);
 globalDAG.register(eqLiquidityFeature);
 globalDAG.register(htfBiasFeature);
+globalDAG.register(directionStateFeature);
 globalDAG.register(spreadFeature);
 
 export { globalDAG, DAGRunner };
 export { updateLifecycleForSymbol, updateLifecycleForAllSymbols } from "./lifecycleUpdater";
 export { runFeatureWorker, type FeatureWorkerOptions } from "./worker/featureWorker";
+export * from "./featureProfiles";
 export * from "./features/atr";
 export * from "./features/pivot";
 export * from "./features/structure";
@@ -84,13 +85,13 @@ export * from "./features/movingAverage";
 export * from "./features/bollinger";
 export * from "./features/keltner";
 export * from "./features/ifvg";
-export * from "./features/fvg";
 export * from "./features/correlation";
 export * from "./features/timeOfDayEdge";
 export * from "./features/liquidityPools";
 export * from "./features/orderBlock";
 export * from "./features/eqLiquidity";
 export * from "./features/htfBias";
+export * from "./features/directionState";
 export * from "./features/spread";
 
 // CLI entry point
@@ -108,10 +109,12 @@ async function main() {
     "features_pivot",
     "features_structure",
     "features_sweep",
+    "features_liquidity_pools",
     "features_zone",
     "features_pricing",
     "features_bias",
     "features_session",
+    "features_time_of_day_edge",
     "features_displacement",
     "features_indicator",
     "features_session_hl",
@@ -124,6 +127,7 @@ async function main() {
     "features_order_block",
     "features_eq_liquidity",
     "features_htf_bias",
+    "features_direction_state",
     "features_spread",
   ];
 

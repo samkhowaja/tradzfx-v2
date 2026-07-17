@@ -27,7 +27,7 @@ const SCRIPTS = [
 
 async function main() {
   const { rows } = await pool.query(
-    `SELECT DISTINCT symbol FROM candles_1m ORDER BY symbol`
+    `SELECT DISTINCT symbol FROM market.candles_1m_canonical ORDER BY symbol`
   );
   const symbols = rows
     .map((r) => r.symbol)

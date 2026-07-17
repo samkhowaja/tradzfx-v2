@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const days = parseInt(searchParams.get("days") ?? "30", 10);
 
   const pool = getPool();
+  const daysInterval = `${days} days`;
 
   const { rows: summary } = await pool.query(`
     SELECT 
@@ -25,8 +26,8 @@ export async function GET(request: Request) {
         NULLIF(SUM(CASE WHEN realized_pnl < 0 THEN ABS(realized_pnl) ELSE 0 END), 0)::numeric,
       3) as profit_factor
     FROM orders
-    WHERE status = 'closed' AND closed_at >= NOW() - INTERVAL '${days} days'
-  `);
+    WHERE status = 'closed' AND closed_at >= NOW() - $1::interval
+  `, [daysInterval]);
 
   const { rows: byPair } = await pool.query(`
     SELECT 
@@ -41,10 +42,10 @@ export async function GET(request: Request) {
         NULLIF(COUNT(*) FILTER (WHERE outcome IN ('TP_HIT', 'SL_HIT')), 0)::numeric, 
       3) as win_rate
     FROM orders
-    WHERE status = 'closed' AND closed_at >= NOW() - INTERVAL '${days} days'
+    WHERE status = 'closed' AND closed_at >= NOW() - $1::interval
     GROUP BY symbol
     ORDER BY net_r DESC
-  `);
+  `, [daysInterval]);
 
   const { rows: bySession } = await pool.query(`
     SELECT 
@@ -59,10 +60,10 @@ export async function GET(request: Request) {
       ROUND(SUM(outcome_r)::numeric, 3) as net_r,
       ROUND(AVG(outcome_r)::numeric, 3) as avg_r
     FROM orders
-    WHERE status = 'closed' AND closed_at >= NOW() - INTERVAL '${days} days'
+    WHERE status = 'closed' AND closed_at >= NOW() - $1::interval
     GROUP BY session
     ORDER BY net_r DESC
-  `);
+  `, [daysInterval]);
 
   const { rows: byDay } = await pool.query(`
     SELECT 
@@ -72,10 +73,10 @@ export async function GET(request: Request) {
       ROUND(SUM(outcome_r)::numeric, 3) as net_r,
       ROUND(AVG(outcome_r)::numeric, 3) as avg_r
     FROM orders
-    WHERE status = 'closed' AND closed_at >= NOW() - INTERVAL '${days} days'
+    WHERE status = 'closed' AND closed_at >= NOW() - $1::interval
     GROUP BY TO_CHAR(closed_at, 'Dy'), EXTRACT(dow FROM closed_at)
     ORDER BY EXTRACT(dow FROM closed_at)
-  `);
+  `, [daysInterval]);
 
   const { rows: equity } = await pool.query(`
     SELECT 
@@ -83,10 +84,10 @@ export async function GET(request: Request) {
       ROUND(SUM(realized_pnl)::numeric, 2) as pnl,
       ROUND(SUM(outcome_r)::numeric, 3) as r
     FROM orders
-    WHERE status = 'closed' AND closed_at >= NOW() - INTERVAL '${days} days'
+    WHERE status = 'closed' AND closed_at >= NOW() - $1::interval
     GROUP BY DATE(closed_at)
     ORDER BY date ASC
-  `);
+  `, [daysInterval]);
 
   return NextResponse.json({
     summary: summary[0] ?? null,

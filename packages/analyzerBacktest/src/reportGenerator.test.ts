@@ -56,6 +56,8 @@ describe("generateReport", () => {
     expect(rr.equityCurve.length).toBe(4);
     expect(rr.streaks.maxWinStreak).toBe(1);
     expect(rr.winRateConfidence.winRate).toBe(0.5);
+    // Sortino is reported as a per-trade ratio, not annualized by sqrt(n).
+    expect(rr.sortinoRatio).toBeCloseTo(0.25 / Math.sqrt(0.5));
   });
 
   it("groups by direction", () => {

@@ -6,11 +6,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
+import { randomBytes } from "node:crypto";
+import { getFallbackMt5ApiKey } from "@/lib/mt5Auth";
 
-const API_KEY =
-  process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
+function createApiKey(): string {
+  const fallbackKey = getFallbackMt5ApiKey();
+  return fallbackKey || `tm_mt5_${randomBytes(24).toString("hex")}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     }
 
     const pool = getPool();
-    await pool.query(
+    const { rows } = await pool.query<{ api_key: string }>(
       `INSERT INTO mt5_terminals (
          platform, account_number, broker, broker_server, account_type,
          currency, leverage, label, balance, api_key, last_seen_at
@@ -46,8 +48,9 @@ export async function POST(req: NextRequest) {
          leverage = EXCLUDED.leverage,
          label = EXCLUDED.label,
          balance = EXCLUDED.balance,
-         api_key = EXCLUDED.api_key,
-         last_seen_at = NOW()`,
+         api_key = COALESCE(NULLIF(mt5_terminals.api_key, ''), EXCLUDED.api_key),
+         last_seen_at = NOW()
+       RETURNING api_key`,
       [
         platform,
         accountNumber,
@@ -58,11 +61,11 @@ export async function POST(req: NextRequest) {
         leverage,
         label,
         balance,
-        API_KEY,
+        createApiKey(),
       ]
     );
 
-    return NextResponse.json({ ok: true, apiKey: API_KEY });
+    return NextResponse.json({ ok: true, apiKey: rows[0]?.api_key ?? "" });
   } catch (err: any) {
     console.error("[mt5-register] Error:", err.message);
     return NextResponse.json(

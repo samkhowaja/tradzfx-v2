@@ -9,7 +9,7 @@ const { spawn } = require("child_process");
 const { Pool } = require("pg");
 const path = require("path");
 
-const LIVE_VARIANTS = ["doyle_sd", "orb_classic", "watukushay_no1"];
+const LIVE_VARIANTS = ["doyle_sd", "orb_classic", "watukushay_no1"]; // Jul 14 2026: doyle_sd new champ (82.9% WR EURUSD, 2.5R avg)
 
 const pool = new Pool({
   host: "localhost",

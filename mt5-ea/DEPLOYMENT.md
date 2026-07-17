@@ -54,7 +54,7 @@ A single **tradzfx Manager EA** runs on each MetaTrader terminal. It handles:
 4. Open MetaEditor, load `tradzfxManager_v5_0_1.mq5`, press **F7** to compile. Confirm **0 errors**.
 5. Attach to any chart (the chart symbol does not matter; the manager trades all server-assigned symbols).
 6. Set inputs:
-   - `InpServerUrl`: `http://127.0.0.1:3000` (recommended, goes through nginx) or `http://127.0.0.1:3003` (direct)
+   - `InpServerUrl`: `http://127.0.0.1:3000` (recommended, goes through nginx) or `http://127.0.0.1:80` (direct)
    - `InpApiKey`: leave blank for auto-registration (recommended)
    - `InpAutoRegister`: `true` (default)
    - `InpApiKeyFile`: `tz_api_key.txt` (default; rewritten per account so multiple terminals do not clobber each other)
@@ -71,7 +71,7 @@ A single **tradzfx Manager EA** runs on each MetaTrader terminal. It handles:
 4. Open MetaEditor, load `tradzfxManager_MT4_v5_0_1.mq4`, press **F7** to compile. Confirm **0 errors**.
 5. Attach to any chart.
 6. Set inputs:
-   - `InpServerUrl`: `http://127.0.0.1:3000` (recommended) or `http://127.0.0.1:3003`
+   - `InpServerUrl`: `http://127.0.0.1:3000` (recommended) or `http://127.0.0.1:80`
    - `InpApiKey`: leave blank for auto-registration
    - `InpAutoRegister`: `true`
    - `InpApiKeyFile`: `tz_api_key.txt`

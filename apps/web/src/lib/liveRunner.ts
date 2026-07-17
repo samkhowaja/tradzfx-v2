@@ -14,6 +14,8 @@ export interface RunLiveOptions {
   latestSignalSQL: string;
   deploymentId?: string;
   liveOverrides?: Partial<LiveExecutionConfig>;
+  /** Wall-clock timestamp of pipeline evaluation, passed through to freshness gates. */
+  evaluationTs?: Date;
 }
 
 export async function runLiveExecution(opts: RunLiveOptions) {
@@ -26,6 +28,7 @@ export async function runLiveExecution(opts: RunLiveOptions) {
     deploymentId: opts.deploymentId,
     pool,
     liveOverrides: opts.liveOverrides,
-    createOrder: createOrder,
+    evaluationTs: opts.evaluationTs,
+    createOrder: (input, client) => createOrder(input, client),
   });
 }

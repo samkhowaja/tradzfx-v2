@@ -4,19 +4,12 @@
 // V2 implementation — uses the orders table in tradzfx_v2.
 
 import { NextRequest, NextResponse } from "next/server";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 import { getPool } from "@tm/shared";
-import { getPendingOrders, markOrderSent, expireStaleOrders } from "@/lib/orderService";
+import { expireStaleOrders } from "@/lib/orderService";
 import { resolveTerminalKeyId, expireStaleCommands } from "@/lib/positionCommandService";
 
 // Simple API key validation (reuse same key as bar ingest for now)
-const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function validateApiKey(req: NextRequest): boolean {
-  const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
-  return key === EXPECTED_API_KEY;
-}
 
 // EA-facing signal shape (must match MQL5 parser exactly)
 interface EaSignal {
@@ -44,7 +37,7 @@ interface EaSignal {
 
 export async function GET(req: NextRequest) {
   // 1. Auth
-  if (!validateApiKey(req)) {
+  if (!(await validateMt5ApiKey(req))) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
 
@@ -78,60 +71,96 @@ export async function GET(req: NextRequest) {
   const pool = getPool();
   const terminalKeyId = await resolveTerminalKeyId(pool, req);
 
-  // 5. Fetch pending orders
-  const orders = await getPendingOrders(symbols);
+  // 5. Fetch and lock pending orders in a single transaction so concurrent
+  //    EA polls never pick the same order (FOR UPDATE SKIP LOCKED).
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  // 6. Mark as sent and build EA response
-  const signals: EaSignal[] = [];
-  let hasLive = false;
-  let hasPaper = false;
-  // Commands have their own poll endpoint; last_ack_sequence is ignored here.
-  for (const order of orders) {
-    try {
-      const sent = await markOrderSent(order.id, terminalKeyId ?? undefined);
-      if (!sent) continue;
+    const { rows: orders } = await client.query(
+      symbols?.length
+        ? `SELECT * FROM orders
+           WHERE status = 'pending'
+             AND symbol = ANY($1)
+             AND (expires_at IS NULL OR expires_at > NOW())
+           ORDER BY created_at ASC
+           FOR UPDATE SKIP LOCKED`
+        : `SELECT * FROM orders
+           WHERE status = 'pending'
+             AND (expires_at IS NULL OR expires_at > NOW())
+           ORDER BY created_at ASC
+           FOR UPDATE SKIP LOCKED`,
+      symbols?.length ? [symbols] : []
+    );
 
-      const expiresInSeconds = order.expires_at
-        ? Math.max(0, Math.round((new Date(order.expires_at).getTime() - Date.now()) / 1000))
-        : 0;
+    // 6. Mark as sent and build EA response (within same transaction)
+    const signals: EaSignal[] = [];
+    let hasLive = false;
+    let hasPaper = false;
 
-      if (order.trade_mode === "live") hasLive = true;
-      else hasPaper = true;
+    for (const order of orders) {
+      try {
+        // Atomic status transition inside the tx — uses client not pool
+        const { rows: updated } = await client.query(
+          `UPDATE orders
+           SET status = 'sent',
+               terminal_key_id = COALESCE($2, terminal_key_id),
+               sent_at = NOW()
+           WHERE id = $1 AND status = 'pending'
+           RETURNING *`,
+          [order.id, terminalKeyId ?? null]
+        );
+        if (updated.length === 0) continue;
 
-      signals.push({
-        signalId: order.id,
-        symbol: order.symbol,
-        side: order.side,
-        entryPrice: Number(order.entry_price),
-        stopLoss: Number(order.stop_loss),
-        takeProfit: Number(order.take_profit),
-        lotSize: Number(order.lot_size),
-        entryType: order.entry_type,
-        executionStrategy: (order.execution_strategy as EaSignal["executionStrategy"]) ?? order.entry_type,
-        limitPrice: order.limit_price != null ? Number(order.limit_price) : null,
-        maxEntryDriftPips: Number(order.max_entry_drift_pips ?? 2.0),
-        minEffectiveRR: Number(order.min_effective_rr ?? 1.0),
-        timeInForce: (order.time_in_force as EaSignal["timeInForce"]) ?? "GTC",
-        riskReward: Number(order.risk_reward),
-        expiresAt: order.expires_at ? new Date(order.expires_at).toISOString() : "",
-        expiresInSeconds,
-        entryZonePips: order.entry_zone_pips != null ? Number(order.entry_zone_pips) : null,
-        trailingStop: null,
-        maxHoldMinutes: null,
-        portfolioId: null,
-      });
-    } catch (err) {
-      console.error(`[mt5-signals] Error processing order ${order.id}:`, err);
+        const expiresInSeconds = order.expires_at
+          ? Math.max(0, Math.round((new Date(order.expires_at).getTime() - Date.now()) / 1000))
+          : 0;
+
+        if (order.trade_mode === "live") hasLive = true;
+        else hasPaper = true;
+
+        signals.push({
+          signalId: order.id,
+          symbol: order.symbol,
+          side: order.side,
+          entryPrice: Number(order.entry_price),
+          stopLoss: Number(order.stop_loss),
+          takeProfit: Number(order.take_profit),
+          lotSize: Number(order.lot_size),
+          entryType: order.entry_type,
+          executionStrategy: (order.execution_strategy as EaSignal["executionStrategy"]) ?? order.entry_type,
+          limitPrice: order.limit_price != null ? Number(order.limit_price) : null,
+          maxEntryDriftPips: Number(order.max_entry_drift_pips ?? 2.0),
+          minEffectiveRR: Number(order.min_effective_rr ?? 1.0),
+          timeInForce: (order.time_in_force as EaSignal["timeInForce"]) ?? "GTC",
+          riskReward: Number(order.risk_reward),
+          expiresAt: order.expires_at ? new Date(order.expires_at).toISOString() : "",
+          expiresInSeconds,
+          entryZonePips: order.entry_zone_pips != null ? Number(order.entry_zone_pips) : null,
+          trailingStop: null,
+          maxHoldMinutes: null,
+          portfolioId: null,
+        });
+      } catch (err) {
+        console.error(`[mt5-signals] Error processing order ${order.id}:`, err);
+      }
     }
+
+    await client.query("COMMIT");
+
+    // If any order is live, report live so the EA does not paper-fill it.
+    const responseMode = hasLive ? "live" : hasPaper ? "paper" : "paper";
+
+    return NextResponse.json({
+      ok: true,
+      signals,
+      count: signals.length,
+      mode: responseMode,
+    });
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
   }
-
-  // If any order is live, report live so the EA does not paper-fill it.
-  const responseMode = hasLive ? "live" : hasPaper ? "paper" : "paper";
-
-  return NextResponse.json({
-    ok: true,
-    signals,
-    count: signals.length,
-    mode: responseMode,
-  });
 }

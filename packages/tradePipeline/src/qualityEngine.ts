@@ -6,7 +6,7 @@
  * effective risk/reward and entry drift.
  */
 
-import type { Pool, Signal, StrategySpec, ExecutionProfile } from "@tm/shared";
+import type { Pool, Queryable, Signal, StrategySpec, ExecutionProfile } from "@tm/shared";
 import { getRegistryPipSize } from "@tm/shared";
 
 export interface QualityDecision {
@@ -60,15 +60,15 @@ function computeEffectiveRR(
 }
 
 async function fetchMarketSnapshot(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   referenceTs: Date
 ): Promise<MarketSnapshot | null> {
   // Latest 1m close as the best server-side proxy for current market price.
-  // We use the newest candle available, not the signal's bar timestamp, because
+  // We use the newest canonical candle, not the signal's bar timestamp, because
   // the decision is being made live after the signal has been generated.
   const { rows: candleRows } = await pool.query(
-    `SELECT c FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
+    `SELECT c FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
     [symbol]
   );
   if (candleRows.length === 0) return null;
@@ -95,7 +95,7 @@ async function fetchMarketSnapshot(
  * Decide how to execute a signal.
  */
 export async function evaluateExecutionQuality(
-  pool: Pool,
+  pool: Queryable,
   signal: Signal,
   spec: StrategySpec
 ): Promise<QualityDecision> {

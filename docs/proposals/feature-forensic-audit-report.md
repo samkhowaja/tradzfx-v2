@@ -1,0 +1,2619 @@
+# Forensic Feature Audit Report
+
+> **Deprecation note (post 099_features_fvg_consolidation):** The standalone
+> `features_fvg` table shown in this audit has been retired. FVG data now lives
+> in `features_zone` with `zone_kind = 'fvg'`. The rest of this report is a
+> historical snapshot and still refers to `features_fvg`.
+
+Generated: 2026-07-08T13:37:39.610Z
+Database: tradzfx_v2
+Window: last 90 days
+
+## Executive Summary
+
+Audited 26 feature tables against 70 candle symbol/timeframe baselines. Found 0 HIGH, 356 MED, and 392 LOW anomalies.
+
+- **MED** features_atr DXY/1d: Feature is too rare in 90d. Evidence: 3 rows
+- **MED** features_atr USDSEK/1m: Feature is too rare in 90d. Evidence: 3 rows
+- **MED** features_bias DXY/1d: Feature is too rare in 90d. Evidence: 1 rows
+- **MED** features_bias DXY/4h: Feature is too rare in 90d. Evidence: 4 rows
+- **MED** features_correlation XAUUSD/15m: Critical column correlation_1h is >20% NULL. Evidence: 60/63 NULL (95.2%)
+
+## Feature Inventory
+
+| Feature table | Trader meaning | Time col | TF col | Freshness | Critical columns |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | Volatility via average true range; used to normalize stops, displacement, and noise by symbol/timeframe. | ts | yes | no | period, value, engine_ver, input_hash |
+| features_bias | Directional market structure bias from swing context; trader shorthand for whether order flow favors longs, shorts, or chop. | ts | yes | no | direction, confidence, reason, engine_ver, input_hash, regime, score_htf_alignment, score_ema_slope, score_structure, score_volume, score_session, score_volatility, factors, score_hhhl |
+| features_bollinger | Bollinger band envelope around price; detects stretched/mean-reversion context. | ts | yes | no | period, multiplier, upper_band, middle_band, lower_band, bandwidth, percent_b, engine_ver, input_hash |
+| features_candle_pattern | Single/multi-candle pattern labels such as engulfing, pin bar, or rejection shapes. | ts | yes | no | pattern_name, direction, confidence, body_pct_of_atr, shadow_pct_of_atr, engine_ver, input_hash, is_wick_close |
+| features_correlation | Cross-market correlation, mainly DXY versus traded FX symbols. | ts | yes | no | reference_symbol, correlation_1h, correlation_4h, correlation_1d, divergence_detected, divergence_type, engine_ver, input_hash |
+| features_displacement | Impulse candle/body expansion; tries to separate real initiative flow from ordinary candles. | ts | yes | no | grade, direction, body_pct, engine_ver, input_hash, consecutive_count, sequence_grade |
+| features_eq_liquidity | Equal highs/lows liquidity resting near repeated swing prices. | ts | yes | no | kind, price, strength, touched, engine_ver, input_hash |
+| features_fvg | **RETIRED** — FVG rows consolidated into `features_zone` (`zone_kind = 'fvg'`). Historical only. | ts | yes | yes | direction, top, bottom, age_bars, engine_ver, input_hash |
+| features_htf_bias | Multi-timeframe bias tree projected to execution timeframes. | ts | yes | no | direction, confidence, state, score, reason, engine_ver, input_hash, trading_tf, local_agreement |
+| features_ifvg | Inversion fair value gaps: failed/reclaimed FVG zones used as continuation/reversal context. | ts | yes | yes | direction, top, bottom, fill_pct, tapped, age_bars, strength_score, engine_ver, input_hash, originating_zone_ts, first_touch_at, confirmation_count |
+| features_indicator | Generic named indicators such as RSI/MACD-style values. | ts | yes | no | indicator_name, period, value, engine_ver, input_hash |
+| features_keltner | Keltner channel volatility envelope. | ts | yes | no | ema_period, atr_period, multiplier, upper_channel, middle_channel, lower_channel, engine_ver, input_hash |
+| features_liquidity_pools | Clustered resting liquidity above highs or below lows. | ts | yes | no | kind, label, price, distance, strength, interval, recent_sweep_matched, engine_ver, input_hash, side |
+| features_moving_average | Consolidated moving average values and slopes. | ts | yes | no | ma_type, period, value, engine_ver, input_hash, fast_period, slow_period |
+| features_opening_range | Session opening range high/low and breakout state. | ts | yes | no | session, range_minutes, high, low, midpoint, engine_ver, input_hash |
+| features_order_block | Institutional candle/zone proxy around displacement origin. | ts | yes | yes | ob_kind, degree, top, bottom, formation_ts, age_bars, strength_score, engine_ver, input_hash, first_touch_at, fill_pct, body_top, body_bottom |
+| features_pivot | Confirmed swing highs/lows. | ts | yes | no | kind, price, confidence, engine_ver, input_hash |
+| features_pricing | Premium/discount/OTE position inside a dealing range. | ts | yes | no | position, fib_position, in_ote, ote_low, ote_high, engine_ver, input_hash, llt_target, balanced, pip_size, dynamic_ote_low, dynamic_ote_high, dynamic_ote_mid, dynamic_ote_source |
+| features_session | Market session label and timing context. | ts | yes | no | session, utc_hour, engine_ver, input_hash |
+| features_session_hl | Session high/low levels. | ts | yes | no | session, high, low, open, close, engine_ver, input_hash |
+| features_spread | Bid/ask spread and spread quality gate. | ts | yes | no | spread, samples, engine_ver, input_hash |
+| features_structure | Break of structure, market structure shift, and change of character events. | ts | yes | no | event_type, direction, level, engine_ver, input_hash, is_cisd, strength, confirmed, confirmation_ts, opposing_sweep_ts, htf_aligned |
+| features_sweep | Liquidity sweep events through prior highs/lows. | ts | yes | no | direction, level, extreme, close, engine_ver, input_hash, sweep_type |
+| features_time_of_day_edge | Hour/session historical expectancy profile. | ts | yes | no | edge, score, session, reasons, low_sample, engine_ver, input_hash |
+| features_zone | Supply/demand/FVG zones with lifecycle freshness. | ts | yes | yes | zone_kind, top, bottom, fill_pct, tapped, engine_ver, input_hash, age_bars, departure_candles, quality_score, formation, strength_score, direction, first_touch_at |
+| features_zone_retest | Retest/touch events against previously detected zones. | ts | yes | no | zone_kind, top, bottom, wick_into_zone, close_inside_zone, engulfing_at_zone, direction, engine_ver, input_hash |
+
+## Candle Baseline
+
+| Candle table | Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- | --- |
+| candles_15m | AUDUSD | 15m | 421 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | DXY | 15m | 64 | 2026-07-07T21:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | EURUSD | 15m | 421 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | GBPUSD | 15m | 391 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | NZDUSD | 15m | 524 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | USDCAD | 15m | 421 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | USDCHF | 15m | 575 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | USDJPY | 15m | 391 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | USDSEK | 15m | 421 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_15m | XAUUSD | 15m | 360 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| candles_1d_ny | AUDUSD | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | DXY | 1d | 1 | 2026-07-07T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | EURUSD | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | GBPUSD | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | NZDUSD | 1d | 67 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | USDCAD | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | USDCHF | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | USDJPY | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | USDSEK | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_ny | XAUUSD | 1d | 65 | 2026-04-09T21:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| candles_1d_utc | AUDUSD | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | DXY | 1d | 2 | 2026-07-07T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | EURUSD | 1d | 78 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | GBPUSD | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | NZDUSD | 1d | 78 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | USDCAD | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | USDCHF | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | USDJPY | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | USDSEK | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1d_utc | XAUUSD | 1d | 77 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| candles_1h | AUDUSD | 1h | 508 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | DXY | 1h | 17 | 2026-07-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | EURUSD | 1h | 508 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | GBPUSD | 1h | 501 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | NZDUSD | 1h | 677 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | USDCAD | 1h | 508 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | USDCHF | 1h | 546 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | USDJPY | 1h | 501 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | USDSEK | 1h | 508 | 2026-06-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1h | XAUUSD | 1h | 474 | 2026-06-07T22:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| candles_1m | AUDUSD | 1m | 89198 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | DXY | 1m | 945 | 2026-07-07T21:47:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_1m | EURUSD | 1m | 88912 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | GBPUSD | 1m | 88953 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | NZDUSD | 1m | 98778 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | USDCAD | 1m | 89310 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | USDCHF | 1m | 91520 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:36:00.000Z |
+| candles_1m | USDJPY | 1m | 88259 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_1m | USDSEK | 1m | 89233 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_1m | XAUUSD | 1m | 84696 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_4h | AUDUSD | 4h | 390 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | DXY | 4h | 5 | 2026-07-07T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | EURUSD | 4h | 390 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | GBPUSD | 4h | 388 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | NZDUSD | 4h | 434 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | USDCAD | 4h | 390 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | USDCHF | 4h | 398 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | USDJPY | 4h | 388 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | USDSEK | 4h | 390 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_4h | XAUUSD | 4h | 386 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| candles_5m | AUDUSD | 5m | 313 | 2026-07-05T21:00:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | DXY | 5m | 191 | 2026-07-07T21:45:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | EURUSD | 5m | 313 | 2026-07-05T21:00:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | GBPUSD | 5m | 222 | 2026-07-06T04:35:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | NZDUSD | 5m | 311 | 2026-07-05T21:05:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | USDCAD | 5m | 313 | 2026-07-05T21:00:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | USDCHF | 5m | 777 | 2026-07-05T21:00:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | USDJPY | 5m | 220 | 2026-07-06T04:40:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | USDSEK | 5m | 312 | 2026-07-05T21:05:00.000Z | 2026-07-08T13:35:00.000Z |
+| candles_5m | XAUUSD | 5m | 207 | 2026-07-06T04:40:00.000Z | 2026-07-08T13:35:00.000Z |
+
+## Per-Feature Scorecard
+
+| Feature | Symbols/TFs populated | Rows 90d | Fresh | Stale | Max null rate | Score |
+| --- | --- | --- | --- | --- | --- | --- |
+| features_atr | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 1039926 | n/a | n/a | 0.0% | WATCH |
+| features_bias | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 188994 | n/a | n/a | 0.0% | WATCH |
+| features_bollinger | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 15716 | n/a | n/a | 0.0% | PASS |
+| features_candle_pattern | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 12404 | n/a | n/a | 0.0% | PASS |
+| features_correlation | EURUSD/15m, XAUUSD/15m | 64 | n/a | n/a | 100.0% | WATCH |
+| features_displacement | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 182832 | n/a | n/a | 0.0% | WATCH |
+| features_eq_liquidity | AUDUSD/15m, AUDUSD/1h, AUDUSD/5m, DXY/5m, EURUSD/15m, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 249 | n/a | n/a | 0.0% | WATCH |
+| features_fvg | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 3364 | 1376 | 1988 | 0.0% | WATCH |
+| features_htf_bias | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 326468 | n/a | n/a | 100.0% | WATCH |
+| features_ifvg | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 199033 | n/a | 199033 | 9.2% | WATCH |
+| features_indicator | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 174271 | n/a | n/a | 0.0% | WATCH |
+| features_keltner | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 15670 | n/a | n/a | 0.0% | PASS |
+| features_liquidity_pools | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 109169 | n/a | n/a | 87.7% | WATCH |
+| features_moving_average | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 1074013 | n/a | n/a | 0.0% | PASS |
+| features_opening_range | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 6240 | n/a | n/a | 0.0% | WATCH |
+| features_order_block | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 8863 | 1306 | 7557 | 1.7% | WATCH |
+| features_pivot | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 43941 | n/a | n/a | 0.0% | WATCH |
+| features_pricing | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 212594 | n/a | n/a | 84.9% | WATCH |
+| features_session | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/1d, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 164059 | n/a | n/a | 0.0% | WATCH |
+| features_session_hl | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/1d, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 2630 | n/a | n/a | 0.0% | WATCH |
+| features_spread | AUDUSD/15m, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, EURUSD/15m, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 7962 | n/a | n/a | 0.0% | WATCH |
+| features_structure | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1h, USDSEK/1m, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 29323 | n/a | n/a | 100.0% | WATCH |
+| features_sweep | DXY/15m, DXY/5m, EURUSD/5m, USDCHF/5m, USDJPY/5m, XAUUSD/5m | 16 | n/a | n/a | 0.0% | WATCH |
+| features_time_of_day_edge | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1d, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 176598 | n/a | n/a | 0.0% | WATCH |
+| features_zone | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/1m, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/4h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/1m, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/1m, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/1m, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/1m, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/1m, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/1m, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/1m, XAUUSD/4h, XAUUSD/5m | 19393364 | 2605155 | 16788209 | 4.5% | WATCH |
+| features_zone_retest | AUDUSD/15m, AUDUSD/1d, AUDUSD/1h, AUDUSD/4h, AUDUSD/5m, DXY/15m, DXY/1h, DXY/5m, EURUSD/15m, EURUSD/1d, EURUSD/1h, EURUSD/4h, EURUSD/5m, GBPUSD/15m, GBPUSD/1d, GBPUSD/1h, GBPUSD/4h, GBPUSD/5m, NZDUSD/15m, NZDUSD/1d, NZDUSD/1h, NZDUSD/4h, NZDUSD/5m, USDCAD/15m, USDCAD/1d, USDCAD/1h, USDCAD/4h, USDCAD/5m, USDCHF/15m, USDCHF/1d, USDCHF/1h, USDCHF/4h, USDCHF/5m, USDJPY/15m, USDJPY/1d, USDJPY/1h, USDJPY/4h, USDJPY/5m, USDSEK/15m, USDSEK/1d, USDSEK/1h, USDSEK/4h, USDSEK/5m, XAUUSD/15m, XAUUSD/1d, XAUUSD/1h, XAUUSD/4h, XAUUSD/5m | 4048032 | n/a | n/a | 0.0% | WATCH |
+
+## Row Presence by Feature
+
+### features_atr
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 5667 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 4557 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1m | 42462 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 1128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 50757 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 180 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 3 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 45 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 12 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 540 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 21177 | 2026-04-09T13:44:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 8754 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1m | 44601 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 1128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 88335 | 2026-04-09T13:39:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 19308 | 2026-04-09T13:43:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 4545 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1m | 44610 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 1125 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 84792 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 1269 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 4557 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1m | 42471 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 1128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 50670 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 1272 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 4557 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1m | 43167 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 1128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 50847 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 1755 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 4710 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1m | 42471 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 1152 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 52557 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 1206 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 4545 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1m | 42426 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 1125 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 50604 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 1218 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 4377 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1m | 3 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDSEK | 4h | 1128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 50772 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 17745 | 2026-04-09T13:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 192 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 4362 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1m | 42237 | 2026-04-09T13:38:00.000Z | 2026-07-03T14:52:00.000Z |
+| XAUUSD | 4h | 1317 | 2026-04-09T16:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 5m | 87696 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_bias
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 1889 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 16919 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 60 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 15 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 4 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 180 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 6938 | 2026-04-09T13:44:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 18136 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 6436 | 2026-04-09T13:43:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 16887 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 423 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 16890 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 424 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 16949 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 585 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 1570 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 384 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 17519 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 402 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 16868 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 16924 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 374 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1454 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 4h | 373 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 16213 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_bollinger
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 385 | 2026-06-30T19:00:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 472 | 2026-06-08T19:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 368 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 245 | 2026-07-06T01:35:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 42 | 2026-07-08T02:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 5m | 162 | 2026-07-07T23:20:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 386 | 2026-06-30T19:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 472 | 2026-06-08T19:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 368 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 1583 | 2026-05-11T06:10:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 369 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 469 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 367 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 194 | 2026-07-07T20:55:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 473 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 368 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 249 | 2026-07-06T01:35:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 473 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 368 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 249 | 2026-07-06T01:35:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 541 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 511 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 376 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 713 | 2026-07-06T01:35:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 369 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 469 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 367 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 193 | 2026-07-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 58 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 473 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 368 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 250 | 2026-07-06T01:35:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 339 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 61 | 2026-04-15T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 447 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 365 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 182 | 2026-07-07T21:05:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_candle_pattern
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 192 | 2026-06-30T14:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 27 | 2026-04-13T00:00:00.000Z | 2026-07-06T00:00:00.000Z |
+| AUDUSD | 1h | 272 | 2026-06-08T02:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| AUDUSD | 1m | 93 | 2026-07-06T04:43:00.000Z | 2026-07-08T13:29:00.000Z |
+| AUDUSD | 4h | 196 | 2026-04-09T16:00:00.000Z | 2026-07-08T08:00:00.000Z |
+| AUDUSD | 5m | 122 | 2026-07-06T00:45:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 27 | 2026-07-07T22:15:00.000Z | 2026-07-08T12:30:00.000Z |
+| DXY | 1h | 13 | 2026-07-07T23:00:00.000Z | 2026-07-08T11:00:00.000Z |
+| DXY | 5m | 103 | 2026-07-07T21:55:00.000Z | 2026-07-08T12:40:00.000Z |
+| EURUSD | 15m | 203 | 2026-06-30T14:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 35 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 271 | 2026-06-08T03:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 1m | 2818 | 2026-06-25T21:30:00.000Z | 2026-07-08T13:14:00.000Z |
+| EURUSD | 4h | 232 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 1262 | 2026-05-07T12:35:00.000Z | 2026-07-08T12:40:00.000Z |
+| GBPUSD | 15m | 180 | 2026-06-30T15:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 1d | 35 | 2026-04-15T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 232 | 2026-06-08T02:00:00.000Z | 2026-07-08T11:00:00.000Z |
+| GBPUSD | 1m | 112 | 2026-07-07T19:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 4h | 211 | 2026-04-09T16:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| GBPUSD | 5m | 120 | 2026-07-07T19:40:00.000Z | 2026-07-08T12:25:00.000Z |
+| NZDUSD | 15m | 192 | 2026-06-30T14:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| NZDUSD | 1d | 30 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 304 | 2026-06-08T02:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1m | 90 | 2026-07-06T04:43:00.000Z | 2026-07-08T13:29:00.000Z |
+| NZDUSD | 4h | 190 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 5m | 128 | 2026-07-06T00:10:00.000Z | 2026-07-08T12:55:00.000Z |
+| USDCAD | 15m | 191 | 2026-06-30T15:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| USDCAD | 1d | 34 | 2026-04-13T00:00:00.000Z | 2026-07-07T00:00:00.000Z |
+| USDCAD | 1h | 257 | 2026-06-08T02:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 1m | 90 | 2026-07-07T19:43:00.000Z | 2026-07-08T13:16:00.000Z |
+| USDCAD | 4h | 223 | 2026-04-09T16:00:00.000Z | 2026-07-03T20:00:00.000Z |
+| USDCAD | 5m | 109 | 2026-07-06T00:20:00.000Z | 2026-07-08T12:45:00.000Z |
+| USDCHF | 15m | 286 | 2026-06-30T15:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 24 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 241 | 2026-06-08T02:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1m | 97 | 2026-07-06T05:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 234 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 353 | 2026-07-06T00:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 199 | 2026-06-30T14:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| USDJPY | 1d | 33 | 2026-04-15T00:00:00.000Z | 2026-07-03T00:00:00.000Z |
+| USDJPY | 1h | 284 | 2026-06-08T02:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 1m | 103 | 2026-07-06T04:44:00.000Z | 2026-07-08T13:15:00.000Z |
+| USDJPY | 4h | 214 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 117 | 2026-07-07T19:50:00.000Z | 2026-07-08T12:50:00.000Z |
+| USDSEK | 15m | 188 | 2026-06-30T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 1d | 35 | 2026-04-14T00:00:00.000Z | 2026-07-06T00:00:00.000Z |
+| USDSEK | 1h | 250 | 2026-06-08T02:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 4h | 198 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 119 | 2026-07-06T00:25:00.000Z | 2026-07-08T12:50:00.000Z |
+| XAUUSD | 15m | 218 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 26 | 2026-04-16T00:00:00.000Z | 2026-07-02T00:00:00.000Z |
+| XAUUSD | 1h | 260 | 2026-06-08T05:00:00.000Z | 2026-07-08T07:00:00.000Z |
+| XAUUSD | 4h | 213 | 2026-04-10T00:00:00.000Z | 2026-07-08T08:00:00.000Z |
+| XAUUSD | 5m | 118 | 2026-07-06T04:50:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_correlation
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| EURUSD | 15m | 1 | 2026-07-07T22:00:00.000Z | 2026-07-07T22:00:00.000Z |
+| XAUUSD | 15m | 63 | 2026-07-07T22:00:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_displacement
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 1889 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 1458 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 1m | 73 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 16919 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 60 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 15 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 4 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 180 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 1046 | 2026-06-25T13:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 1458 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 1m | 73 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 18136 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 683 | 2026-06-25T13:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1455 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1m | 73 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 16887 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 423 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1m | 73 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 16890 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 424 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1m | 73 | 2026-07-06T04:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 16949 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 585 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 1497 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1m | 84 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 384 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 17519 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 402 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1455 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1m | 73 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 16868 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 16924 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 5826 | 2026-04-09T13:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1398 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 373 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 16213 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_eq_liquidity
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 14 | 2026-07-01T13:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 11 | 2026-06-22T08:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| AUDUSD | 5m | 8 | 2026-07-06T04:45:00.000Z | 2026-07-08T07:45:00.000Z |
+| DXY | 5m | 2 | 2026-07-08T08:45:00.000Z | 2026-07-08T10:40:00.000Z |
+| EURUSD | 15m | 6 | 2026-07-01T13:45:00.000Z | 2026-07-06T02:00:00.000Z |
+| EURUSD | 1h | 5 | 2026-06-09T16:00:00.000Z | 2026-07-03T06:00:00.000Z |
+| EURUSD | 4h | 2 | 2026-05-11T20:00:00.000Z | 2026-06-11T16:00:00.000Z |
+| EURUSD | 5m | 35 | 2026-05-11T11:25:00.000Z | 2026-07-08T10:05:00.000Z |
+| GBPUSD | 15m | 8 | 2026-07-02T21:15:00.000Z | 2026-07-08T10:30:00.000Z |
+| GBPUSD | 1h | 5 | 2026-06-17T06:00:00.000Z | 2026-07-03T06:00:00.000Z |
+| GBPUSD | 4h | 3 | 2026-05-11T12:00:00.000Z | 2026-06-24T12:00:00.000Z |
+| GBPUSD | 5m | 4 | 2026-07-07T21:25:00.000Z | 2026-07-08T05:20:00.000Z |
+| NZDUSD | 15m | 5 | 2026-07-02T12:15:00.000Z | 2026-07-08T07:45:00.000Z |
+| NZDUSD | 1h | 4 | 2026-06-09T16:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| NZDUSD | 4h | 1 | 2026-04-27T12:00:00.000Z | 2026-04-27T12:00:00.000Z |
+| NZDUSD | 5m | 4 | 2026-07-06T03:30:00.000Z | 2026-07-08T07:45:00.000Z |
+| USDCAD | 15m | 8 | 2026-07-01T20:45:00.000Z | 2026-07-07T22:00:00.000Z |
+| USDCAD | 1h | 7 | 2026-06-15T05:00:00.000Z | 2026-07-06T03:00:00.000Z |
+| USDCAD | 4h | 1 | 2026-06-30T08:00:00.000Z | 2026-06-30T08:00:00.000Z |
+| USDCAD | 5m | 9 | 2026-07-06T02:40:00.000Z | 2026-07-08T10:35:00.000Z |
+| USDCHF | 15m | 7 | 2026-07-02T00:30:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCHF | 1h | 7 | 2026-06-09T13:00:00.000Z | 2026-07-06T21:00:00.000Z |
+| USDCHF | 4h | 2 | 2026-05-05T04:00:00.000Z | 2026-07-01T12:00:00.000Z |
+| USDCHF | 5m | 25 | 2026-07-06T03:30:00.000Z | 2026-07-08T11:00:00.000Z |
+| USDJPY | 15m | 9 | 2026-07-01T07:00:00.000Z | 2026-07-03T20:45:00.000Z |
+| USDJPY | 1h | 5 | 2026-06-15T20:00:00.000Z | 2026-07-03T06:00:00.000Z |
+| USDJPY | 4h | 2 | 2026-04-23T16:00:00.000Z | 2026-07-01T00:00:00.000Z |
+| USDJPY | 5m | 3 | 2026-07-07T22:00:00.000Z | 2026-07-08T11:55:00.000Z |
+| USDSEK | 15m | 10 | 2026-07-01T16:00:00.000Z | 2026-07-07T20:30:00.000Z |
+| USDSEK | 1h | 8 | 2026-06-09T13:00:00.000Z | 2026-07-03T12:00:00.000Z |
+| USDSEK | 4h | 2 | 2026-05-06T08:00:00.000Z | 2026-07-01T12:00:00.000Z |
+| USDSEK | 5m | 8 | 2026-07-06T04:50:00.000Z | 2026-07-08T05:20:00.000Z |
+| XAUUSD | 15m | 7 | 2026-07-02T00:00:00.000Z | 2026-07-08T00:30:00.000Z |
+| XAUUSD | 1h | 2 | 2026-07-01T07:00:00.000Z | 2026-07-01T14:00:00.000Z |
+| XAUUSD | 4h | 1 | 2026-06-30T00:00:00.000Z | 2026-06-30T00:00:00.000Z |
+| XAUUSD | 5m | 9 | 2026-07-07T23:40:00.000Z | 2026-07-08T07:40:00.000Z |
+
+### features_fvg
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 90 | 2026-06-30T14:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 12 | 2026-04-15T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 85 | 2026-06-08T11:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| AUDUSD | 4h | 84 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 63 | 2026-07-06T00:20:00.000Z | 2026-07-08T12:20:00.000Z |
+| DXY | 15m | 11 | 2026-07-08T01:30:00.000Z | 2026-07-08T11:45:00.000Z |
+| DXY | 1h | 3 | 2026-07-08T03:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| DXY | 4h | 1 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 39 | 2026-07-07T22:30:00.000Z | 2026-07-08T12:05:00.000Z |
+| EURUSD | 15m | 99 | 2026-06-30T14:45:00.000Z | 2026-07-08T11:45:00.000Z |
+| EURUSD | 1d | 11 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 110 | 2026-06-08T06:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| EURUSD | 4h | 94 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 67 | 2026-07-06T00:15:00.000Z | 2026-07-08T12:05:00.000Z |
+| GBPUSD | 15m | 88 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 11 | 2026-04-14T00:00:00.000Z | 2026-07-03T00:00:00.000Z |
+| GBPUSD | 1h | 87 | 2026-06-08T06:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| GBPUSD | 4h | 86 | 2026-04-10T12:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| GBPUSD | 5m | 45 | 2026-07-07T19:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 86 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 16 | 2026-04-15T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 86 | 2026-06-08T11:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| NZDUSD | 4h | 91 | 2026-04-09T16:00:00.000Z | 2026-07-08T04:00:00.000Z |
+| NZDUSD | 5m | 74 | 2026-07-06T00:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 92 | 2026-06-30T14:45:00.000Z | 2026-07-08T11:45:00.000Z |
+| USDCAD | 1d | 14 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 99 | 2026-06-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 4h | 71 | 2026-04-09T16:00:00.000Z | 2026-07-08T08:00:00.000Z |
+| USDCAD | 5m | 73 | 2026-07-06T00:20:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 120 | 2026-06-30T14:45:00.000Z | 2026-07-08T11:45:00.000Z |
+| USDCHF | 1d | 15 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 107 | 2026-06-08T02:00:00.000Z | 2026-07-08T06:00:00.000Z |
+| USDCHF | 4h | 76 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 5m | 188 | 2026-07-06T00:20:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 92 | 2026-06-30T15:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 15 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 78 | 2026-06-08T09:00:00.000Z | 2026-07-08T06:00:00.000Z |
+| USDJPY | 4h | 74 | 2026-04-10T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 53 | 2026-07-07T19:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 117 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 13 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 119 | 2026-06-08T06:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| USDSEK | 4h | 74 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 5m | 77 | 2026-07-06T00:20:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 15m | 86 | 2026-06-30T15:00:00.000Z | 2026-07-08T11:45:00.000Z |
+| XAUUSD | 1d | 17 | 2026-04-15T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 113 | 2026-06-08T02:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 4h | 90 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 52 | 2026-07-07T19:40:00.000Z | 2026-07-08T13:00:00.000Z |
+
+| Symbol | TF | Fresh | Stale | Null freshness | Stale % |
+| --- | --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 32 | 58 | 0 | 64.4% |
+| AUDUSD | 1d | 10 | 2 | 0 | 16.7% |
+| AUDUSD | 1h | 32 | 53 | 0 | 62.4% |
+| AUDUSD | 4h | 38 | 46 | 0 | 54.8% |
+| AUDUSD | 5m | 17 | 46 | 0 | 73.0% |
+| DXY | 15m | 5 | 6 | 0 | 54.5% |
+| DXY | 1h | 3 | 0 | 0 | 0.0% |
+| DXY | 4h | 1 | 0 | 0 | 0.0% |
+| DXY | 5m | 17 | 22 | 0 | 56.4% |
+| EURUSD | 15m | 48 | 51 | 0 | 51.5% |
+| EURUSD | 1d | 7 | 4 | 0 | 36.4% |
+| EURUSD | 1h | 44 | 66 | 0 | 60.0% |
+| EURUSD | 4h | 38 | 56 | 0 | 59.6% |
+| EURUSD | 5m | 20 | 47 | 0 | 70.1% |
+| GBPUSD | 15m | 29 | 59 | 0 | 67.0% |
+| GBPUSD | 1d | 2 | 9 | 0 | 81.8% |
+| GBPUSD | 1h | 34 | 53 | 0 | 60.9% |
+| GBPUSD | 4h | 40 | 46 | 0 | 53.5% |
+| GBPUSD | 5m | 10 | 35 | 0 | 77.8% |
+| NZDUSD | 15m | 31 | 55 | 0 | 64.0% |
+| NZDUSD | 1d | 10 | 6 | 0 | 37.5% |
+| NZDUSD | 1h | 39 | 47 | 0 | 54.7% |
+| NZDUSD | 4h | 41 | 50 | 0 | 54.9% |
+| NZDUSD | 5m | 17 | 57 | 0 | 77.0% |
+| USDCAD | 15m | 36 | 56 | 0 | 60.9% |
+| USDCAD | 1d | 12 | 2 | 0 | 14.3% |
+| USDCAD | 1h | 37 | 62 | 0 | 62.6% |
+| USDCAD | 4h | 31 | 40 | 0 | 56.3% |
+| USDCAD | 5m | 26 | 47 | 0 | 64.4% |
+| USDCHF | 15m | 47 | 73 | 0 | 60.8% |
+| USDCHF | 1d | 6 | 9 | 0 | 60.0% |
+| USDCHF | 1h | 39 | 68 | 0 | 63.6% |
+| USDCHF | 4h | 43 | 33 | 0 | 43.4% |
+| USDCHF | 5m | 50 | 138 | 0 | 73.4% |
+| USDJPY | 15m | 48 | 44 | 0 | 47.8% |
+| USDJPY | 1d | 12 | 3 | 0 | 20.0% |
+| USDJPY | 1h | 37 | 41 | 0 | 52.6% |
+| USDJPY | 4h | 41 | 33 | 0 | 44.6% |
+| USDJPY | 5m | 23 | 30 | 0 | 56.6% |
+| USDSEK | 15m | 43 | 74 | 0 | 63.2% |
+| USDSEK | 1d | 9 | 4 | 0 | 30.8% |
+| USDSEK | 1h | 59 | 60 | 0 | 50.4% |
+| USDSEK | 4h | 33 | 41 | 0 | 55.4% |
+| USDSEK | 5m | 20 | 57 | 0 | 74.0% |
+| XAUUSD | 15m | 44 | 42 | 0 | 48.8% |
+| XAUUSD | 1d | 9 | 8 | 0 | 47.1% |
+| XAUUSD | 1h | 48 | 65 | 0 | 57.5% |
+| XAUUSD | 4h | 40 | 50 | 0 | 55.6% |
+| XAUUSD | 5m | 18 | 34 | 0 | 65.4% |
+
+### features_htf_bias
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 2237 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1m | 14191 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 16919 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 60 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 15 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 4 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 180 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 7362 | 2026-04-09T13:44:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1m | 14889 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 435 | 2026-04-09T16:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 5m | 18245 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 6879 | 2026-04-09T13:43:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1m | 14925 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 434 | 2026-04-09T16:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 5m | 16887 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 893 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1m | 14205 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 16890 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 896 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1m | 14389 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 16949 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 1054 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 1570 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1m | 14215 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 384 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 17519 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 871 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1m | 14179 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 16868 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDSEK | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 16924 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 6386 | 2026-04-09T13:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1454 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1m | 14127 | 2026-04-09T13:38:00.000Z | 2026-07-03T14:52:00.000Z |
+| XAUUSD | 4h | 373 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 29232 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_ifvg
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 2672 | 2026-06-30T16:00:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 20 | 2026-04-10T00:00:00.000Z | 2026-07-07T00:00:00.000Z |
+| AUDUSD | 1h | 1586 | 2026-06-08T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 952 | 2026-04-10T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 3096 | 2026-07-06T00:40:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 120 | 2026-07-08T05:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1h | 10 | 2026-07-08T05:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 1994 | 2026-07-07T23:10:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 2821 | 2026-06-30T15:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 37 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 1875 | 2026-06-08T10:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 934 | 2026-04-10T08:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 13265 | 2026-05-11T06:10:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 2716 | 2026-06-30T15:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 34 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1482 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 806 | 2026-04-13T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 2264 | 2026-07-07T20:30:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 2552 | 2026-06-30T15:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 53 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1439 | 2026-06-08T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 860 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 3528 | 2026-07-06T00:25:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 2448 | 2026-06-30T15:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 33 | 2026-04-10T00:00:00.000Z | 2026-06-26T00:00:00.000Z |
+| USDCAD | 1h | 1649 | 2026-06-09T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 677 | 2026-04-10T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 3461 | 2026-07-06T01:20:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 3619 | 2026-06-30T15:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 46 | 2026-04-10T00:00:00.000Z | 2026-07-06T00:00:00.000Z |
+| USDCHF | 1h | 1848 | 2026-06-08T12:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 778 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 10570 | 2026-07-06T00:25:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 2563 | 2026-06-30T17:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 47 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1410 | 2026-06-08T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 755 | 2026-04-13T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 2242 | 2026-07-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 3613 | 2026-06-30T17:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 29 | 2026-04-20T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 2073 | 2026-06-08T15:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 755 | 2026-04-10T08:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 3829 | 2026-07-06T00:50:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 2078 | 2026-06-30T16:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 75 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1723 | 2026-06-08T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 788 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 106808 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+| Symbol | TF | Fresh | Stale | Null freshness | Stale % |
+| --- | --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 0 | 2672 | 0 | 100.0% |
+| AUDUSD | 1d | 0 | 20 | 0 | 100.0% |
+| AUDUSD | 1h | 0 | 1586 | 0 | 100.0% |
+| AUDUSD | 4h | 0 | 952 | 0 | 100.0% |
+| AUDUSD | 5m | 0 | 3096 | 0 | 100.0% |
+| DXY | 15m | 0 | 120 | 0 | 100.0% |
+| DXY | 1h | 0 | 10 | 0 | 100.0% |
+| DXY | 5m | 0 | 1994 | 0 | 100.0% |
+| EURUSD | 15m | 0 | 2821 | 0 | 100.0% |
+| EURUSD | 1d | 0 | 37 | 0 | 100.0% |
+| EURUSD | 1h | 0 | 1875 | 0 | 100.0% |
+| EURUSD | 4h | 0 | 934 | 0 | 100.0% |
+| EURUSD | 5m | 0 | 13265 | 0 | 100.0% |
+| GBPUSD | 15m | 0 | 2716 | 0 | 100.0% |
+| GBPUSD | 1d | 0 | 34 | 0 | 100.0% |
+| GBPUSD | 1h | 0 | 1482 | 0 | 100.0% |
+| GBPUSD | 4h | 0 | 806 | 0 | 100.0% |
+| GBPUSD | 5m | 0 | 2264 | 0 | 100.0% |
+| NZDUSD | 15m | 0 | 2552 | 0 | 100.0% |
+| NZDUSD | 1d | 0 | 53 | 0 | 100.0% |
+| NZDUSD | 1h | 0 | 1439 | 0 | 100.0% |
+| NZDUSD | 4h | 0 | 860 | 0 | 100.0% |
+| NZDUSD | 5m | 0 | 3528 | 0 | 100.0% |
+| USDCAD | 15m | 0 | 2448 | 0 | 100.0% |
+| USDCAD | 1d | 0 | 33 | 0 | 100.0% |
+| USDCAD | 1h | 0 | 1649 | 0 | 100.0% |
+| USDCAD | 4h | 0 | 677 | 0 | 100.0% |
+| USDCAD | 5m | 0 | 3461 | 0 | 100.0% |
+| USDCHF | 15m | 0 | 3619 | 0 | 100.0% |
+| USDCHF | 1d | 0 | 46 | 0 | 100.0% |
+| USDCHF | 1h | 0 | 1848 | 0 | 100.0% |
+| USDCHF | 4h | 0 | 778 | 0 | 100.0% |
+| USDCHF | 5m | 0 | 10570 | 0 | 100.0% |
+| USDJPY | 15m | 0 | 2563 | 0 | 100.0% |
+| USDJPY | 1d | 0 | 47 | 0 | 100.0% |
+| USDJPY | 1h | 0 | 1410 | 0 | 100.0% |
+| USDJPY | 4h | 0 | 755 | 0 | 100.0% |
+| USDJPY | 5m | 0 | 2242 | 0 | 100.0% |
+| USDSEK | 15m | 0 | 3613 | 0 | 100.0% |
+| USDSEK | 1d | 0 | 29 | 0 | 100.0% |
+| USDSEK | 1h | 0 | 2073 | 0 | 100.0% |
+| USDSEK | 4h | 0 | 755 | 0 | 100.0% |
+| USDSEK | 5m | 0 | 3829 | 0 | 100.0% |
+| XAUUSD | 15m | 0 | 2078 | 0 | 100.0% |
+| XAUUSD | 1d | 0 | 75 | 0 | 100.0% |
+| XAUUSD | 1h | 0 | 1723 | 0 | 100.0% |
+| XAUUSD | 4h | 0 | 788 | 0 | 100.0% |
+| XAUUSD | 5m | 0 | 106808 | 0 | 100.0% |
+
+### features_indicator
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 4191 | 2026-06-30T14:30:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 5148 | 2026-06-08T01:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 3994 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 2651 | 2026-07-06T00:05:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 418 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 17 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 4 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 1738 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 7744 | 2026-06-30T14:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 704 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 5148 | 2026-06-08T01:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 3994 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 17369 | 2026-05-11T06:12:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 4015 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 572 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 5115 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 3983 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 2102 | 2026-07-06T04:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 4240 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 5159 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 3994 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 2695 | 2026-07-06T00:05:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 4213 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 5159 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 3994 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 2695 | 2026-07-06T00:05:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 5907 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 5577 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 4082 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 7799 | 2026-07-06T00:05:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 4015 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 5115 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 3983 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 2085 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 4213 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 582 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 5159 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 3994 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 2706 | 2026-07-06T00:05:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 3685 | 2026-06-30T14:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 610 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 4873 | 2026-06-08T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 3961 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 1958 | 2026-07-06T04:45:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_keltner
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 384 | 2026-06-30T19:15:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 471 | 2026-06-08T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 367 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 244 | 2026-07-06T01:40:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 41 | 2026-07-08T02:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 5m | 161 | 2026-07-07T23:25:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 385 | 2026-06-30T19:15:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 471 | 2026-06-08T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 367 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 1582 | 2026-05-11T06:10:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 368 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 56 | 2026-04-22T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 468 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 366 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 193 | 2026-07-07T21:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 386 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 472 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 367 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 248 | 2026-07-06T01:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 386 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 472 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 367 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 248 | 2026-07-06T01:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 540 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 510 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 375 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 712 | 2026-07-06T01:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 368 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 468 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 366 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 192 | 2026-07-07T21:05:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 386 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 57 | 2026-04-21T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 472 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 367 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 249 | 2026-07-06T01:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 338 | 2026-06-30T19:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 60 | 2026-04-16T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 446 | 2026-06-08T20:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 364 | 2026-04-13T04:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 181 | 2026-07-07T22:05:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_liquidity_pools
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 2246 | 2026-06-30T14:15:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 3733 | 2026-06-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 3048 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 788 | 2026-07-06T00:00:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 204 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 5 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 51 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 16 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 604 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 4208 | 2026-06-30T14:15:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 3733 | 2026-06-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 3048 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 10558 | 2026-05-11T06:12:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 2208 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 3730 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 3045 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 755 | 2026-07-06T04:35:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 2262 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 3742 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 3048 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 810 | 2026-07-06T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 2262 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 3742 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 3048 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 810 | 2026-07-06T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 3648 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 4086 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 3128 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 4046 | 2026-07-06T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 2208 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 3730 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 3045 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 754 | 2026-07-06T04:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 2262 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 3742 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 3048 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 817 | 2026-07-06T00:00:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 2028 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 396 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 3548 | 2026-06-08T00:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 3027 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 784 | 2026-07-06T04:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_moving_average
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 11504 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 629 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 34605 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 6200 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 69855 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 431 | 2026-07-07T23:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1h | 20 | 2026-07-08T05:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 1915 | 2026-07-07T22:25:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 6782 | 2026-06-25T18:15:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 794 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 34608 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 6507 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 96780 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 6476 | 2026-06-25T18:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 620 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 34554 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 6187 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 69062 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 6347 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 630 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 34626 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 6208 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 69768 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 5775 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 630 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 34629 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 6208 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 70009 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 8547 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 630 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 35367 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 6356 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 78731 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 5451 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 630 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 34560 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 6192 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 68971 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 5775 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 630 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 12486 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 6208 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 69943 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 4911 | 2026-06-30T16:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 657 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 33211 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 6190 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 66208 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_opening_range
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 187 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 51 | 2026-06-08T23:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 151 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 183 | 2026-04-09T15:18:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 2 | 2026-07-08T12:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 3 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 2 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 2 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 2 | 2026-07-08T12:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 187 | 2026-04-09T15:59:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 153 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 51 | 2026-06-08T23:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 151 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 182 | 2026-04-09T15:19:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 189 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 53 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 153 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 182 | 2026-04-09T15:18:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 187 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 51 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 151 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 183 | 2026-04-09T15:19:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 187 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 51 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 151 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 184 | 2026-04-09T15:18:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 192 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 56 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 155 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 190 | 2026-04-09T15:18:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 189 | 2026-04-09T15:58:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 53 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 153 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 183 | 2026-04-09T15:19:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 10 | 2026-07-01T15:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 51 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 151 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 3 | 2026-07-06T04:50:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 189 | 2026-04-09T15:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 156 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 53 | 2026-06-08T23:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 153 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 182 | 2026-04-09T15:16:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_order_block
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 49 | 2026-04-09T14:30:00.000Z | 2026-07-01T13:00:00.000Z |
+| AUDUSD | 1d | 1 | 2026-05-04T00:00:00.000Z | 2026-05-04T00:00:00.000Z |
+| AUDUSD | 1h | 55 | 2026-04-10T18:00:00.000Z | 2026-06-29T21:00:00.000Z |
+| AUDUSD | 1m | 1 | 2026-07-01T13:39:00.000Z | 2026-07-01T13:39:00.000Z |
+| AUDUSD | 4h | 2 | 2026-04-13T08:00:00.000Z | 2026-05-05T16:00:00.000Z |
+| AUDUSD | 5m | 878 | 2026-04-09T14:40:00.000Z | 2026-07-08T08:50:00.000Z |
+| DXY | 15m | 1 | 2026-07-08T07:15:00.000Z | 2026-07-08T07:15:00.000Z |
+| DXY | 5m | 3 | 2026-07-07T22:55:00.000Z | 2026-07-08T08:45:00.000Z |
+| EURUSD | 15m | 15 | 2026-05-05T07:15:00.000Z | 2026-07-07T20:30:00.000Z |
+| EURUSD | 1h | 58 | 2026-04-10T03:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| EURUSD | 1m | 11 | 2026-05-11T22:44:00.000Z | 2026-07-01T13:39:00.000Z |
+| EURUSD | 4h | 8 | 2026-04-10T04:00:00.000Z | 2026-06-23T00:00:00.000Z |
+| EURUSD | 5m | 892 | 2026-04-09T15:05:00.000Z | 2026-07-07T20:50:00.000Z |
+| GBPUSD | 15m | 11 | 2026-06-25T20:15:00.000Z | 2026-07-07T20:45:00.000Z |
+| GBPUSD | 1d | 1 | 2026-04-29T00:00:00.000Z | 2026-04-29T00:00:00.000Z |
+| GBPUSD | 1h | 53 | 2026-04-10T10:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| GBPUSD | 1m | 1 | 2026-07-01T14:32:00.000Z | 2026-07-01T14:32:00.000Z |
+| GBPUSD | 4h | 2 | 2026-04-13T08:00:00.000Z | 2026-04-30T00:00:00.000Z |
+| GBPUSD | 5m | 885 | 2026-04-09T14:25:00.000Z | 2026-07-07T20:45:00.000Z |
+| NZDUSD | 15m | 6 | 2026-07-01T10:00:00.000Z | 2026-07-07T20:30:00.000Z |
+| NZDUSD | 1d | 1 | 2026-05-04T00:00:00.000Z | 2026-05-04T00:00:00.000Z |
+| NZDUSD | 1h | 60 | 2026-04-10T18:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| NZDUSD | 1m | 1 | 2026-07-01T13:39:00.000Z | 2026-07-01T13:39:00.000Z |
+| NZDUSD | 4h | 4 | 2026-04-14T00:00:00.000Z | 2026-06-22T08:00:00.000Z |
+| NZDUSD | 5m | 877 | 2026-04-09T14:15:00.000Z | 2026-07-06T04:40:00.000Z |
+| USDCAD | 15m | 5 | 2026-07-01T00:00:00.000Z | 2026-07-07T20:30:00.000Z |
+| USDCAD | 1d | 1 | 2026-06-10T00:00:00.000Z | 2026-06-10T00:00:00.000Z |
+| USDCAD | 1h | 56 | 2026-04-10T20:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| USDCAD | 1m | 1 | 2026-07-01T13:34:00.000Z | 2026-07-01T13:34:00.000Z |
+| USDCAD | 4h | 5 | 2026-04-24T20:00:00.000Z | 2026-06-22T20:00:00.000Z |
+| USDCAD | 5m | 881 | 2026-04-09T14:15:00.000Z | 2026-07-06T03:25:00.000Z |
+| USDCHF | 15m | 6 | 2026-06-30T23:00:00.000Z | 2026-07-02T12:00:00.000Z |
+| USDCHF | 1d | 1 | 2026-05-07T00:00:00.000Z | 2026-05-07T00:00:00.000Z |
+| USDCHF | 1h | 75 | 2026-04-10T07:00:00.000Z | 2026-07-07T20:00:00.000Z |
+| USDCHF | 1m | 4 | 2026-07-01T13:39:00.000Z | 2026-07-01T16:04:00.000Z |
+| USDCHF | 4h | 3 | 2026-05-08T00:00:00.000Z | 2026-06-23T00:00:00.000Z |
+| USDCHF | 5m | 898 | 2026-04-09T13:50:00.000Z | 2026-07-07T20:55:00.000Z |
+| USDJPY | 15m | 2 | 2026-06-30T23:15:00.000Z | 2026-07-01T11:15:00.000Z |
+| USDJPY | 1d | 1 | 2026-04-27T00:00:00.000Z | 2026-04-27T00:00:00.000Z |
+| USDJPY | 1h | 67 | 2026-04-10T20:00:00.000Z | 2026-06-30T20:00:00.000Z |
+| USDJPY | 1m | 1 | 2026-07-01T13:28:00.000Z | 2026-07-01T13:28:00.000Z |
+| USDJPY | 4h | 4 | 2026-04-28T20:00:00.000Z | 2026-06-26T04:00:00.000Z |
+| USDJPY | 5m | 823 | 2026-04-09T14:05:00.000Z | 2026-07-08T08:40:00.000Z |
+| USDSEK | 15m | 2 | 2026-07-01T00:00:00.000Z | 2026-07-01T12:00:00.000Z |
+| USDSEK | 1h | 67 | 2026-04-10T03:00:00.000Z | 2026-06-24T05:00:00.000Z |
+| USDSEK | 1m | 1 | 2026-07-01T13:39:00.000Z | 2026-07-01T13:39:00.000Z |
+| USDSEK | 4h | 6 | 2026-04-14T00:00:00.000Z | 2026-06-18T00:00:00.000Z |
+| USDSEK | 5m | 868 | 2026-04-09T14:20:00.000Z | 2026-07-08T08:25:00.000Z |
+| XAUUSD | 15m | 280 | 2026-04-09T14:30:00.000Z | 2026-07-07T19:45:00.000Z |
+| XAUUSD | 1d | 2 | 2026-05-18T00:00:00.000Z | 2026-06-04T00:00:00.000Z |
+| XAUUSD | 1h | 46 | 2026-04-10T18:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| XAUUSD | 1m | 3 | 2026-06-30T23:03:00.000Z | 2026-07-01T13:04:00.000Z |
+| XAUUSD | 4h | 5 | 2026-04-27T20:00:00.000Z | 2026-06-24T04:00:00.000Z |
+| XAUUSD | 5m | 873 | 2026-04-09T15:05:00.000Z | 2026-07-08T02:55:00.000Z |
+
+| Symbol | TF | Fresh | Stale | Null freshness | Stale % |
+| --- | --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 8 | 41 | 0 | 83.7% |
+| AUDUSD | 1d | 0 | 1 | 0 | 100.0% |
+| AUDUSD | 1h | 9 | 46 | 0 | 83.6% |
+| AUDUSD | 1m | 0 | 1 | 0 | 100.0% |
+| AUDUSD | 4h | 0 | 2 | 0 | 100.0% |
+| AUDUSD | 5m | 103 | 775 | 0 | 88.3% |
+| DXY | 15m | 0 | 1 | 0 | 100.0% |
+| DXY | 5m | 1 | 2 | 0 | 66.7% |
+| EURUSD | 15m | 5 | 10 | 0 | 66.7% |
+| EURUSD | 1h | 6 | 52 | 0 | 89.7% |
+| EURUSD | 1m | 5 | 6 | 0 | 54.5% |
+| EURUSD | 4h | 1 | 7 | 0 | 87.5% |
+| EURUSD | 5m | 99 | 793 | 0 | 88.9% |
+| GBPUSD | 15m | 1 | 10 | 0 | 90.9% |
+| GBPUSD | 1d | 0 | 1 | 0 | 100.0% |
+| GBPUSD | 1h | 8 | 45 | 0 | 84.9% |
+| GBPUSD | 1m | 0 | 1 | 0 | 100.0% |
+| GBPUSD | 4h | 0 | 2 | 0 | 100.0% |
+| GBPUSD | 5m | 117 | 768 | 0 | 86.8% |
+| NZDUSD | 15m | 2 | 4 | 0 | 66.7% |
+| NZDUSD | 1d | 0 | 1 | 0 | 100.0% |
+| NZDUSD | 1h | 6 | 54 | 0 | 90.0% |
+| NZDUSD | 1m | 0 | 1 | 0 | 100.0% |
+| NZDUSD | 4h | 1 | 3 | 0 | 75.0% |
+| NZDUSD | 5m | 113 | 764 | 0 | 87.1% |
+| USDCAD | 15m | 2 | 3 | 0 | 60.0% |
+| USDCAD | 1d | 1 | 0 | 0 | 0.0% |
+| USDCAD | 1h | 21 | 35 | 0 | 62.5% |
+| USDCAD | 1m | 0 | 1 | 0 | 100.0% |
+| USDCAD | 4h | 3 | 2 | 0 | 40.0% |
+| USDCAD | 5m | 111 | 770 | 0 | 87.4% |
+| USDCHF | 15m | 1 | 5 | 0 | 83.3% |
+| USDCHF | 1d | 0 | 1 | 0 | 100.0% |
+| USDCHF | 1h | 9 | 66 | 0 | 88.0% |
+| USDCHF | 1m | 1 | 3 | 0 | 75.0% |
+| USDCHF | 4h | 1 | 2 | 0 | 66.7% |
+| USDCHF | 5m | 101 | 797 | 0 | 88.8% |
+| USDJPY | 15m | 0 | 2 | 0 | 100.0% |
+| USDJPY | 1d | 0 | 1 | 0 | 100.0% |
+| USDJPY | 1h | 12 | 55 | 0 | 82.1% |
+| USDJPY | 1m | 0 | 1 | 0 | 100.0% |
+| USDJPY | 4h | 0 | 4 | 0 | 100.0% |
+| USDJPY | 5m | 74 | 749 | 0 | 91.0% |
+| USDSEK | 15m | 0 | 2 | 0 | 100.0% |
+| USDSEK | 1h | 7 | 60 | 0 | 89.6% |
+| USDSEK | 1m | 1 | 0 | 0 | 0.0% |
+| USDSEK | 4h | 0 | 6 | 0 | 100.0% |
+| USDSEK | 5m | 107 | 761 | 0 | 87.7% |
+| XAUUSD | 15m | 98 | 182 | 0 | 65.0% |
+| XAUUSD | 1d | 2 | 0 | 0 | 0.0% |
+| XAUUSD | 1h | 6 | 40 | 0 | 87.0% |
+| XAUUSD | 1m | 0 | 3 | 0 | 100.0% |
+| XAUUSD | 4h | 1 | 4 | 0 | 80.0% |
+| XAUUSD | 5m | 262 | 611 | 0 | 70.0% |
+
+### features_pivot
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 202 | 2026-04-09T17:30:00.000Z | 2026-07-08T11:30:00.000Z |
+| AUDUSD | 1d | 8 | 2026-04-17T00:00:00.000Z | 2026-06-11T00:00:00.000Z |
+| AUDUSD | 1h | 164 | 2026-04-09T17:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| AUDUSD | 1m | 2763 | 2026-04-09T13:47:00.000Z | 2026-07-08T13:20:00.000Z |
+| AUDUSD | 4h | 47 | 2026-04-09T16:00:00.000Z | 2026-06-30T12:00:00.000Z |
+| AUDUSD | 5m | 1911 | 2026-04-09T14:10:00.000Z | 2026-07-08T12:55:00.000Z |
+| DXY | 15m | 3 | 2026-07-08T01:30:00.000Z | 2026-07-08T09:15:00.000Z |
+| DXY | 5m | 19 | 2026-07-07T22:35:00.000Z | 2026-07-08T12:15:00.000Z |
+| EURUSD | 15m | 681 | 2026-04-09T14:30:00.000Z | 2026-07-08T11:30:00.000Z |
+| EURUSD | 1d | 9 | 2026-04-17T00:00:00.000Z | 2026-06-24T00:00:00.000Z |
+| EURUSD | 1h | 161 | 2026-04-09T17:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| EURUSD | 1m | 2884 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:12:00.000Z |
+| EURUSD | 4h | 50 | 2026-04-10T12:00:00.000Z | 2026-07-01T12:00:00.000Z |
+| EURUSD | 5m | 1884 | 2026-04-09T14:25:00.000Z | 2026-07-08T12:55:00.000Z |
+| GBPUSD | 15m | 66 | 2026-06-25T16:15:00.000Z | 2026-07-08T11:30:00.000Z |
+| GBPUSD | 1d | 11 | 2026-04-17T00:00:00.000Z | 2026-06-24T00:00:00.000Z |
+| GBPUSD | 1h | 163 | 2026-04-09T17:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| GBPUSD | 1m | 2983 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:13:00.000Z |
+| GBPUSD | 4h | 46 | 2026-04-10T12:00:00.000Z | 2026-06-30T12:00:00.000Z |
+| GBPUSD | 5m | 1977 | 2026-04-09T13:50:00.000Z | 2026-07-08T12:55:00.000Z |
+| NZDUSD | 15m | 36 | 2026-06-30T18:45:00.000Z | 2026-07-08T11:30:00.000Z |
+| NZDUSD | 1d | 6 | 2026-04-17T00:00:00.000Z | 2026-06-26T00:00:00.000Z |
+| NZDUSD | 1h | 160 | 2026-04-09T16:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| NZDUSD | 1m | 2725 | 2026-04-09T13:41:00.000Z | 2026-07-08T13:23:00.000Z |
+| NZDUSD | 4h | 51 | 2026-04-09T16:00:00.000Z | 2026-06-30T12:00:00.000Z |
+| NZDUSD | 5m | 1822 | 2026-04-09T13:40:00.000Z | 2026-07-08T12:55:00.000Z |
+| USDCAD | 15m | 38 | 2026-06-30T17:15:00.000Z | 2026-07-08T11:30:00.000Z |
+| USDCAD | 1d | 4 | 2026-04-24T00:00:00.000Z | 2026-06-25T00:00:00.000Z |
+| USDCAD | 1h | 166 | 2026-04-09T16:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCAD | 1m | 2679 | 2026-04-09T13:47:00.000Z | 2026-07-08T13:16:00.000Z |
+| USDCAD | 4h | 41 | 2026-04-10T12:00:00.000Z | 2026-06-30T20:00:00.000Z |
+| USDCAD | 5m | 1862 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:55:00.000Z |
+| USDCHF | 15m | 46 | 2026-06-30T16:45:00.000Z | 2026-07-08T11:30:00.000Z |
+| USDCHF | 1d | 6 | 2026-04-17T00:00:00.000Z | 2026-06-24T00:00:00.000Z |
+| USDCHF | 1h | 173 | 2026-04-09T17:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCHF | 1m | 2832 | 2026-04-09T13:41:00.000Z | 2026-07-08T13:24:00.000Z |
+| USDCHF | 4h | 48 | 2026-04-10T12:00:00.000Z | 2026-07-02T12:00:00.000Z |
+| USDCHF | 5m | 1882 | 2026-04-09T13:55:00.000Z | 2026-07-08T11:00:00.000Z |
+| USDJPY | 15m | 36 | 2026-06-30T16:15:00.000Z | 2026-07-08T09:15:00.000Z |
+| USDJPY | 1d | 4 | 2026-04-17T00:00:00.000Z | 2026-06-11T00:00:00.000Z |
+| USDJPY | 1h | 192 | 2026-04-09T15:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDJPY | 1m | 2870 | 2026-04-09T13:39:00.000Z | 2026-07-08T13:26:00.000Z |
+| USDJPY | 4h | 41 | 2026-04-13T12:00:00.000Z | 2026-07-01T00:00:00.000Z |
+| USDJPY | 5m | 1948 | 2026-04-09T15:10:00.000Z | 2026-07-08T12:50:00.000Z |
+| USDSEK | 15m | 34 | 2026-06-30T16:45:00.000Z | 2026-07-08T10:30:00.000Z |
+| USDSEK | 1d | 8 | 2026-04-17T00:00:00.000Z | 2026-06-24T00:00:00.000Z |
+| USDSEK | 1h | 187 | 2026-04-09T14:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDSEK | 1m | 48 | 2026-07-01T13:29:00.000Z | 2026-07-01T21:31:00.000Z |
+| USDSEK | 4h | 44 | 2026-04-10T12:00:00.000Z | 2026-07-01T12:00:00.000Z |
+| USDSEK | 5m | 1938 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| XAUUSD | 15m | 661 | 2026-04-09T14:30:00.000Z | 2026-07-08T10:00:00.000Z |
+| XAUUSD | 1d | 8 | 2026-04-17T00:00:00.000Z | 2026-06-17T00:00:00.000Z |
+| XAUUSD | 1h | 162 | 2026-04-09T17:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| XAUUSD | 1m | 3118 | 2026-04-09T13:44:00.000Z | 2026-07-03T14:31:00.000Z |
+| XAUUSD | 4h | 49 | 2026-04-09T16:00:00.000Z | 2026-07-01T04:00:00.000Z |
+| XAUUSD | 5m | 1984 | 2026-04-09T13:40:00.000Z | 2026-07-08T12:50:00.000Z |
+
+### features_pricing
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 1870 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 16881 | 2026-04-09T13:40:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 42 | 2026-07-08T02:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 5m | 162 | 2026-07-07T23:20:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 6996 | 2026-04-09T13:44:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 2918 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 29410 | 2026-04-09T13:39:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 6434 | 2026-04-09T13:43:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 28230 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 16854 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 1519 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 16912 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 541 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 1570 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 384 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 17478 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 369 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1515 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 16835 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 387 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 16905 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 353 | 2026-06-30T19:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1398 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 439 | 2026-04-09T16:00:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 5m | 16200 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+### features_session
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 3199 | 2026-04-10T04:28:00.000Z | 2026-07-07T19:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 391 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| AUDUSD | 1m | 19 | 2026-07-07T21:03:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| AUDUSD | 5m | 16691 | 2026-04-09T13:38:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 5m | 180 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 3768 | 2026-04-09T20:59:00.000Z | 2026-07-07T19:30:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 391 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| EURUSD | 1m | 16 | 2026-07-07T21:04:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| EURUSD | 5m | 17041 | 2026-04-09T13:39:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 3065 | 2026-04-09T21:28:00.000Z | 2026-07-07T19:30:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 392 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| GBPUSD | 1m | 15 | 2026-07-07T21:03:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| GBPUSD | 5m | 16753 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 2567 | 2026-04-09T13:43:00.000Z | 2026-07-07T19:30:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 391 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| NZDUSD | 1m | 17 | 2026-07-07T21:04:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| NZDUSD | 5m | 16711 | 2026-04-09T13:39:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 3379 | 2026-04-09T21:13:00.000Z | 2026-07-07T19:30:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 391 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| USDCAD | 1m | 18 | 2026-07-06T04:46:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| USDCAD | 5m | 16792 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 3280 | 2026-04-13T21:10:00.000Z | 2026-07-06T21:15:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 390 | 2026-06-08T00:00:00.000Z | 2026-06-30T14:00:00.000Z |
+| USDCHF | 1m | 22 | 2026-07-07T02:42:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 248 | 2026-04-09T16:00:00.000Z | 2026-06-05T20:00:00.000Z |
+| USDCHF | 5m | 17224 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 3419 | 2026-04-09T13:43:00.000Z | 2026-07-07T19:30:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 392 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| USDJPY | 1m | 14 | 2026-07-07T21:04:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| USDJPY | 5m | 16658 | 2026-04-09T13:39:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 316 | 2026-06-30T14:15:00.000Z | 2026-07-07T19:30:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 391 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| USDSEK | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| USDSEK | 5m | 269 | 2026-07-06T00:00:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 351 | 2026-06-30T14:15:00.000Z | 2026-07-07T22:00:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 376 | 2026-06-08T00:00:00.000Z | 2026-07-07T19:00:00.000Z |
+| XAUUSD | 1m | 15 | 2026-07-07T21:04:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 4h | 249 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| XAUUSD | 5m | 15938 | 2026-04-09T13:41:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_session_hl
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 17 | 2026-07-08T12:30:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 11 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 79 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 6 | 2026-07-08T12:40:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 4h | 1 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 4 | 2026-07-08T12:45:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 18 | 2026-07-07T22:10:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 48 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 79 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 10 | 2026-05-11T17:37:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 17 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 10 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 79 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 6 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 17 | 2026-07-08T09:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 11 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 79 | 2026-06-29T22:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 6 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 17 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 11 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 79 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 6 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 17 | 2026-07-07T20:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 10 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 79 | 2026-07-07T01:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 13 | 2026-07-08T00:25:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 17 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 11 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 79 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 6 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 17 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 11 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 79 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 6 | 2026-07-08T13:05:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 17 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 14 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 79 | 2026-07-08T13:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 173 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 6 | 2026-07-08T13:05:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_spread
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| AUDUSD | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| AUDUSD | 1m | 74 | 2026-07-01T21:41:00.000Z | 2026-07-08T13:30:00.000Z |
+| AUDUSD | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| AUDUSD | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| EURUSD | 15m | 347 | 2026-05-12T06:00:00.000Z | 2026-07-07T22:10:00.000Z |
+| EURUSD | 1h | 2 | 2026-05-12T06:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| EURUSD | 1m | 5708 | 2026-05-12T06:12:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 4h | 2 | 2026-05-12T04:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| EURUSD | 5m | 1338 | 2026-05-11T06:12:00.000Z | 2026-07-02T22:49:00.000Z |
+| GBPUSD | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| GBPUSD | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| GBPUSD | 1m | 74 | 2026-07-01T21:41:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| GBPUSD | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| NZDUSD | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| NZDUSD | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| NZDUSD | 1m | 74 | 2026-07-01T21:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| NZDUSD | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDCAD | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| USDCAD | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| USDCAD | 1m | 74 | 2026-07-01T21:41:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| USDCAD | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDCHF | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| USDCHF | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| USDCHF | 1m | 86 | 2026-07-01T21:41:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| USDCHF | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDJPY | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| USDJPY | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| USDJPY | 1m | 74 | 2026-07-01T21:41:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| USDJPY | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDSEK | 15m | 1 | 2026-07-01T21:30:00.000Z | 2026-07-01T21:30:00.000Z |
+| USDSEK | 1h | 1 | 2026-07-01T21:00:00.000Z | 2026-07-01T21:00:00.000Z |
+| USDSEK | 1m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| USDSEK | 4h | 1 | 2026-07-01T20:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| USDSEK | 5m | 1 | 2026-07-01T21:40:00.000Z | 2026-07-01T21:40:00.000Z |
+| XAUUSD | 15m | 2 | 2026-07-01T06:15:00.000Z | 2026-07-01T20:45:00.000Z |
+| XAUUSD | 1h | 2 | 2026-07-01T06:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| XAUUSD | 1m | 72 | 2026-07-01T06:24:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 4h | 2 | 2026-07-01T04:00:00.000Z | 2026-07-01T20:00:00.000Z |
+| XAUUSD | 5m | 2 | 2026-07-01T06:20:00.000Z | 2026-07-01T20:50:00.000Z |
+
+### features_structure
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 115 | 2026-04-09T15:45:00.000Z | 2026-07-07T21:00:00.000Z |
+| AUDUSD | 1d | 2 | 2026-05-06T00:00:00.000Z | 2026-05-07T00:00:00.000Z |
+| AUDUSD | 1h | 125 | 2026-04-09T15:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| AUDUSD | 1m | 1071 | 2026-04-09T14:36:00.000Z | 2026-07-08T12:51:00.000Z |
+| AUDUSD | 4h | 6 | 2026-04-09T20:00:00.000Z | 2026-06-23T04:00:00.000Z |
+| AUDUSD | 5m | 2079 | 2026-04-09T14:55:00.000Z | 2026-07-08T09:05:00.000Z |
+| DXY | 15m | 1 | 2026-07-08T09:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| DXY | 5m | 3 | 2026-07-07T23:10:00.000Z | 2026-07-08T09:10:00.000Z |
+| EURUSD | 15m | 27 | 2026-05-05T07:30:00.000Z | 2026-07-07T21:00:00.000Z |
+| EURUSD | 1d | 3 | 2026-04-13T00:00:00.000Z | 2026-06-29T00:00:00.000Z |
+| EURUSD | 1h | 120 | 2026-04-10T06:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| EURUSD | 1m | 1120 | 2026-04-10T06:05:00.000Z | 2026-07-08T12:58:00.000Z |
+| EURUSD | 4h | 13 | 2026-04-10T12:00:00.000Z | 2026-06-23T08:00:00.000Z |
+| EURUSD | 5m | 2142 | 2026-04-09T14:30:00.000Z | 2026-07-08T06:35:00.000Z |
+| GBPUSD | 15m | 14 | 2026-06-25T20:45:00.000Z | 2026-07-07T21:00:00.000Z |
+| GBPUSD | 1d | 2 | 2026-04-30T00:00:00.000Z | 2026-05-01T00:00:00.000Z |
+| GBPUSD | 1h | 118 | 2026-04-10T13:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| GBPUSD | 1m | 1132 | 2026-04-10T06:00:00.000Z | 2026-07-08T12:54:00.000Z |
+| GBPUSD | 4h | 4 | 2026-04-13T16:00:00.000Z | 2026-05-15T12:00:00.000Z |
+| GBPUSD | 5m | 2048 | 2026-04-09T14:30:00.000Z | 2026-07-08T07:25:00.000Z |
+| NZDUSD | 15m | 16 | 2026-07-01T10:45:00.000Z | 2026-07-07T21:00:00.000Z |
+| NZDUSD | 1d | 2 | 2026-05-06T00:00:00.000Z | 2026-05-14T00:00:00.000Z |
+| NZDUSD | 1h | 130 | 2026-04-09T15:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| NZDUSD | 1m | 1142 | 2026-04-09T14:17:00.000Z | 2026-07-08T12:55:00.000Z |
+| NZDUSD | 4h | 6 | 2026-04-09T20:00:00.000Z | 2026-06-30T16:00:00.000Z |
+| NZDUSD | 5m | 2082 | 2026-04-09T14:20:00.000Z | 2026-07-08T05:35:00.000Z |
+| USDCAD | 15m | 21 | 2026-07-01T00:30:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCAD | 1d | 1 | 2026-06-11T00:00:00.000Z | 2026-06-11T00:00:00.000Z |
+| USDCAD | 1h | 121 | 2026-04-09T15:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCAD | 1m | 1129 | 2026-04-09T13:39:00.000Z | 2026-07-08T12:44:00.000Z |
+| USDCAD | 4h | 7 | 2026-04-27T08:00:00.000Z | 2026-06-25T12:00:00.000Z |
+| USDCAD | 5m | 2085 | 2026-04-09T13:50:00.000Z | 2026-07-08T08:45:00.000Z |
+| USDCHF | 15m | 18 | 2026-06-30T23:45:00.000Z | 2026-07-07T18:45:00.000Z |
+| USDCHF | 1d | 1 | 2026-05-08T00:00:00.000Z | 2026-05-08T00:00:00.000Z |
+| USDCHF | 1h | 188 | 2026-04-09T22:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDCHF | 1m | 1124 | 2026-04-09T13:55:00.000Z | 2026-07-08T13:18:00.000Z |
+| USDCHF | 4h | 5 | 2026-05-08T12:00:00.000Z | 2026-06-26T04:00:00.000Z |
+| USDCHF | 5m | 2111 | 2026-04-09T13:55:00.000Z | 2026-07-08T05:35:00.000Z |
+| USDJPY | 15m | 8 | 2026-07-01T00:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDJPY | 1d | 3 | 2026-04-29T00:00:00.000Z | 2026-04-30T00:00:00.000Z |
+| USDJPY | 1h | 145 | 2026-04-10T07:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| USDJPY | 1m | 1018 | 2026-04-09T13:51:00.000Z | 2026-07-08T12:53:00.000Z |
+| USDJPY | 4h | 5 | 2026-04-29T12:00:00.000Z | 2026-06-29T12:00:00.000Z |
+| USDJPY | 5m | 1932 | 2026-04-09T14:30:00.000Z | 2026-07-08T08:50:00.000Z |
+| USDSEK | 15m | 3 | 2026-07-01T00:30:00.000Z | 2026-07-01T13:15:00.000Z |
+| USDSEK | 1h | 146 | 2026-04-10T06:00:00.000Z | 2026-06-24T20:00:00.000Z |
+| USDSEK | 1m | 2 | 2026-07-01T13:42:00.000Z | 2026-07-01T13:58:00.000Z |
+| USDSEK | 4h | 8 | 2026-04-14T04:00:00.000Z | 2026-06-18T08:00:00.000Z |
+| USDSEK | 5m | 2001 | 2026-04-09T13:50:00.000Z | 2026-07-08T08:35:00.000Z |
+| XAUUSD | 15m | 565 | 2026-04-09T13:45:00.000Z | 2026-07-07T21:00:00.000Z |
+| XAUUSD | 1d | 5 | 2026-05-19T00:00:00.000Z | 2026-06-05T00:00:00.000Z |
+| XAUUSD | 1h | 103 | 2026-04-13T01:00:00.000Z | 2026-07-07T21:00:00.000Z |
+| XAUUSD | 1m | 1067 | 2026-04-09T14:36:00.000Z | 2026-07-03T14:01:00.000Z |
+| XAUUSD | 4h | 5 | 2026-04-28T04:00:00.000Z | 2026-06-24T12:00:00.000Z |
+| XAUUSD | 5m | 1973 | 2026-04-09T13:50:00.000Z | 2026-07-08T09:40:00.000Z |
+
+### features_sweep
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| DXY | 15m | 1 | 2026-07-08T11:30:00.000Z | 2026-07-08T11:30:00.000Z |
+| DXY | 5m | 1 | 2026-07-07T23:15:00.000Z | 2026-07-07T23:15:00.000Z |
+| EURUSD | 5m | 8 | 2026-05-07T19:10:00.000Z | 2026-07-07T20:25:00.000Z |
+| USDCHF | 5m | 4 | 2026-07-06T10:25:00.000Z | 2026-07-06T20:00:00.000Z |
+| USDJPY | 5m | 1 | 2026-07-07T21:35:00.000Z | 2026-07-07T21:35:00.000Z |
+| XAUUSD | 5m | 1 | 2026-07-03T13:45:00.000Z | 2026-07-03T13:45:00.000Z |
+
+### features_time_of_day_edge
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 1870 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 1458 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 16900 | 2026-04-09T13:40:00.000Z | 2026-07-08T12:40:00.000Z |
+| DXY | 15m | 60 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1d | 1 | 2026-07-08T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| DXY | 1h | 15 | 2026-07-07T22:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 4h | 4 | 2026-07-08T00:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 180 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 15m | 1030 | 2026-06-25T13:15:00.000Z | 2026-07-08T12:45:00.000Z |
+| EURUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 1458 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 18120 | 2026-04-09T13:40:00.000Z | 2026-07-08T12:45:00.000Z |
+| GBPUSD | 15m | 668 | 2026-06-25T13:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 1455 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 16872 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 16873 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 16931 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 15m | 560 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 1497 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 4h | 384 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 17497 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 388 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 1455 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 375 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 16854 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 406 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 1459 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 376 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 16924 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 374 | 2026-06-30T14:15:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 64 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 1398 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 373 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 5m | 16198 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+
+### features_zone
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 122590 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 578 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 128225 | 2026-04-09T14:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| AUDUSD | 1m | 247846 | 2026-04-09T13:42:00.000Z | 2026-07-08T13:29:00.000Z |
+| AUDUSD | 4h | 18806 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 5m | 1563250 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| DXY | 15m | 155 | 2026-07-08T00:30:00.000Z | 2026-07-08T11:45:00.000Z |
+| DXY | 1h | 3 | 2026-07-08T03:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| DXY | 4h | 1 | 2026-07-08T12:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| DXY | 5m | 616 | 2026-07-07T21:50:00.000Z | 2026-07-08T12:05:00.000Z |
+| EURUSD | 15m | 23280 | 2026-06-25T16:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| EURUSD | 1d | 577 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 120466 | 2026-04-09T15:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 1m | 298394 | 2026-04-09T13:42:00.000Z | 2026-07-08T13:28:00.000Z |
+| EURUSD | 4h | 17156 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 5m | 1639273 | 2026-04-09T13:50:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 23049 | 2026-06-25T15:30:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 675 | 2026-04-13T00:00:00.000Z | 2026-07-03T00:00:00.000Z |
+| GBPUSD | 1h | 138263 | 2026-04-09T15:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 1m | 318596 | 2026-04-09T13:43:00.000Z | 2026-07-08T13:28:00.000Z |
+| GBPUSD | 4h | 16090 | 2026-04-10T04:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| GBPUSD | 5m | 1762613 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 520 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 909 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 131567 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 1m | 238469 | 2026-04-09T13:42:00.000Z | 2026-07-08T13:15:00.000Z |
+| NZDUSD | 4h | 19168 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 5m | 1443166 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:20:00.000Z |
+| USDCAD | 15m | 443 | 2026-06-30T14:45:00.000Z | 2026-07-08T11:45:00.000Z |
+| USDCAD | 1d | 495 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 1h | 130488 | 2026-04-09T17:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 1m | 316620 | 2026-04-09T13:39:00.000Z | 2026-07-08T13:26:00.000Z |
+| USDCAD | 4h | 15131 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCAD | 5m | 1629010 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 822 | 2026-06-30T14:45:00.000Z | 2026-07-08T11:45:00.000Z |
+| USDCHF | 1d | 496 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 135929 | 2026-04-09T15:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 1m | 234241 | 2026-04-09T13:41:00.000Z | 2026-07-08T13:16:00.000Z |
+| USDCHF | 4h | 14726 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 5m | 1502918 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 15m | 502 | 2026-06-30T15:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 420 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 145282 | 2026-04-09T15:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 1m | 251452 | 2026-04-09T13:38:00.000Z | 2026-07-08T13:29:00.000Z |
+| USDJPY | 4h | 13857 | 2026-04-10T04:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 5m | 1593485 | 2026-04-09T13:50:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 15m | 811 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 1d | 409 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 151484 | 2026-04-09T15:00:00.000Z | 2026-07-08T09:00:00.000Z |
+| USDSEK | 4h | 15311 | 2026-04-09T16:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 5m | 1970584 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 15m | 144180 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| XAUUSD | 1d | 443 | 2026-04-14T00:00:00.000Z | 2026-07-07T00:00:00.000Z |
+| XAUUSD | 1h | 149410 | 2026-04-09T15:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| XAUUSD | 1m | 314544 | 2026-04-09T13:38:00.000Z | 2026-07-03T14:51:00.000Z |
+| XAUUSD | 4h | 17401 | 2026-04-09T16:00:00.000Z | 2026-07-07T16:00:00.000Z |
+| XAUUSD | 5m | 2368169 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:00:00.000Z |
+
+| Symbol | TF | Fresh | Stale | Null freshness | Stale % |
+| --- | --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 14512 | 108078 | 0 | 88.2% |
+| AUDUSD | 1d | 173 | 405 | 0 | 70.1% |
+| AUDUSD | 1h | 16590 | 111635 | 0 | 87.1% |
+| AUDUSD | 1m | 61336 | 186510 | 0 | 75.3% |
+| AUDUSD | 4h | 3589 | 15217 | 0 | 80.9% |
+| AUDUSD | 5m | 174272 | 1388978 | 0 | 88.9% |
+| DXY | 15m | 17 | 138 | 0 | 89.0% |
+| DXY | 1h | 1 | 2 | 0 | 66.7% |
+| DXY | 4h | 1 | 0 | 0 | 0.0% |
+| DXY | 5m | 104 | 512 | 0 | 83.1% |
+| EURUSD | 15m | 4458 | 18822 | 0 | 80.9% |
+| EURUSD | 1d | 344 | 233 | 0 | 40.4% |
+| EURUSD | 1h | 18636 | 101830 | 0 | 84.5% |
+| EURUSD | 1m | 73366 | 225028 | 0 | 75.4% |
+| EURUSD | 4h | 3196 | 13960 | 0 | 81.4% |
+| EURUSD | 5m | 187655 | 1451618 | 0 | 88.6% |
+| GBPUSD | 15m | 2194 | 20855 | 0 | 90.5% |
+| GBPUSD | 1d | 244 | 431 | 0 | 63.9% |
+| GBPUSD | 1h | 18398 | 119865 | 0 | 86.7% |
+| GBPUSD | 1m | 76607 | 241989 | 0 | 76.0% |
+| GBPUSD | 4h | 3127 | 12963 | 0 | 80.6% |
+| GBPUSD | 5m | 202601 | 1560012 | 0 | 88.5% |
+| NZDUSD | 15m | 422 | 98 | 0 | 18.8% |
+| NZDUSD | 1d | 243 | 666 | 0 | 73.3% |
+| NZDUSD | 1h | 16139 | 115428 | 0 | 87.7% |
+| NZDUSD | 1m | 55901 | 182568 | 0 | 76.6% |
+| NZDUSD | 4h | 2570 | 16598 | 0 | 86.6% |
+| NZDUSD | 5m | 163245 | 1279921 | 0 | 88.7% |
+| USDCAD | 15m | 406 | 37 | 0 | 8.4% |
+| USDCAD | 1d | 184 | 311 | 0 | 62.8% |
+| USDCAD | 1h | 28058 | 102430 | 0 | 78.5% |
+| USDCAD | 1m | 76715 | 239905 | 0 | 75.8% |
+| USDCAD | 4h | 5114 | 10017 | 0 | 66.2% |
+| USDCAD | 5m | 177992 | 1451018 | 0 | 89.1% |
+| USDCHF | 15m | 620 | 202 | 0 | 24.6% |
+| USDCHF | 1d | 133 | 363 | 0 | 73.2% |
+| USDCHF | 1h | 17587 | 118342 | 0 | 87.1% |
+| USDCHF | 1m | 53456 | 180785 | 0 | 77.2% |
+| USDCHF | 4h | 2600 | 12126 | 0 | 82.3% |
+| USDCHF | 5m | 145167 | 1357751 | 0 | 90.3% |
+| USDJPY | 15m | 443 | 59 | 0 | 11.8% |
+| USDJPY | 1d | 175 | 245 | 0 | 58.3% |
+| USDJPY | 1h | 25737 | 119545 | 0 | 82.3% |
+| USDJPY | 1m | 59436 | 192016 | 0 | 76.4% |
+| USDJPY | 4h | 3514 | 10343 | 0 | 74.6% |
+| USDJPY | 5m | 164587 | 1428898 | 0 | 89.7% |
+| USDSEK | 15m | 694 | 117 | 0 | 14.4% |
+| USDSEK | 1d | 207 | 202 | 0 | 49.4% |
+| USDSEK | 1h | 20535 | 130949 | 0 | 86.4% |
+| USDSEK | 4h | 3712 | 11599 | 0 | 75.8% |
+| USDSEK | 5m | 225568 | 1745016 | 0 | 88.6% |
+| XAUUSD | 15m | 43137 | 101043 | 0 | 70.1% |
+| XAUUSD | 1d | 198 | 245 | 0 | 55.3% |
+| XAUUSD | 1h | 22157 | 127253 | 0 | 85.2% |
+| XAUUSD | 1m | 81554 | 232990 | 0 | 74.1% |
+| XAUUSD | 4h | 4547 | 12854 | 0 | 73.9% |
+| XAUUSD | 5m | 340981 | 2027188 | 0 | 85.6% |
+
+### features_zone_retest
+| Symbol | TF | Rows 90d | First | Last |
+| --- | --- | --- | --- | --- |
+| AUDUSD | 15m | 38151 | 2026-04-09T13:45:00.000Z | 2026-07-08T12:30:00.000Z |
+| AUDUSD | 1d | 389 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| AUDUSD | 1h | 27241 | 2026-04-09T14:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 4h | 5758 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| AUDUSD | 5m | 424052 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| DXY | 15m | 60 | 2026-07-08T01:30:00.000Z | 2026-07-08T12:45:00.000Z |
+| DXY | 1h | 5 | 2026-07-08T09:00:00.000Z | 2026-07-08T10:00:00.000Z |
+| DXY | 5m | 282 | 2026-07-07T23:00:00.000Z | 2026-07-08T12:15:00.000Z |
+| EURUSD | 15m | 7315 | 2026-06-25T16:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| EURUSD | 1d | 692 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| EURUSD | 1h | 26154 | 2026-04-09T14:00:00.000Z | 2026-07-08T11:00:00.000Z |
+| EURUSD | 4h | 7067 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| EURUSD | 5m | 401656 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 15m | 5354 | 2026-06-25T16:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| GBPUSD | 1d | 472 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| GBPUSD | 1h | 29683 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| GBPUSD | 4h | 5320 | 2026-04-09T20:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| GBPUSD | 5m | 416997 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| NZDUSD | 15m | 713 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 1d | 597 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| NZDUSD | 1h | 28933 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| NZDUSD | 4h | 5830 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| NZDUSD | 5m | 398199 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCAD | 15m | 546 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCAD | 1d | 167 | 2026-04-10T00:00:00.000Z | 2026-07-03T00:00:00.000Z |
+| USDCAD | 1h | 15887 | 2026-04-09T14:00:00.000Z | 2026-07-08T11:00:00.000Z |
+| USDCAD | 4h | 2499 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCAD | 5m | 416934 | 2026-04-09T13:45:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDCHF | 15m | 604 | 2026-06-30T14:45:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDCHF | 1d | 400 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDCHF | 1h | 28601 | 2026-04-09T14:00:00.000Z | 2026-07-08T10:00:00.000Z |
+| USDCHF | 4h | 4581 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDCHF | 5m | 407194 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDJPY | 15m | 446 | 2026-06-30T17:15:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 1d | 493 | 2026-04-10T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDJPY | 1h | 27374 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDJPY | 4h | 4843 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDJPY | 5m | 418807 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+| USDSEK | 15m | 597 | 2026-06-30T15:15:00.000Z | 2026-07-08T12:45:00.000Z |
+| USDSEK | 1d | 260 | 2026-04-14T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| USDSEK | 1h | 33475 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| USDSEK | 4h | 4981 | 2026-04-09T16:00:00.000Z | 2026-07-08T12:00:00.000Z |
+| USDSEK | 5m | 433116 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:05:00.000Z |
+| XAUUSD | 15m | 340 | 2026-06-30T16:30:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 1d | 297 | 2026-04-13T00:00:00.000Z | 2026-07-08T00:00:00.000Z |
+| XAUUSD | 1h | 26638 | 2026-04-09T14:00:00.000Z | 2026-07-08T13:00:00.000Z |
+| XAUUSD | 4h | 4778 | 2026-04-09T16:00:00.000Z | 2026-07-08T04:00:00.000Z |
+| XAUUSD | 5m | 383254 | 2026-04-09T13:40:00.000Z | 2026-07-08T13:30:00.000Z |
+
+## Multi-Timeframe Consistency
+
+Using `features_zone` as the key-level analogue: a 1d zone is considered matched when a 4h/1h zone has the same symbol, direction, midpoint within 0.2%, and timestamp within +/- 1 day.
+
+| Symbol | 1d zones | Matched 4h | Matched 1h | 4h match % | 1h match % |
+| --- | --- | --- | --- | --- | --- |
+| AUDUSD | 100 | 98 | 99 | 98.0% | 99.0% |
+| EURUSD | 100 | 99 | 99 | 99.0% | 99.0% |
+| GBPUSD | 100 | 98 | 99 | 98.0% | 99.0% |
+| NZDUSD | 100 | 97 | 97 | 97.0% | 97.0% |
+| USDCAD | 100 | 99 | 100 | 99.0% | 100.0% |
+| USDCHF | 100 | 98 | 98 | 98.0% | 98.0% |
+| USDJPY | 100 | 99 | 99 | 99.0% | 99.0% |
+| USDSEK | 100 | 74 | 99 | 74.0% | 99.0% |
+| XAUUSD | 100 | 59 | 61 | 59.0% | 61.0% |
+
+## Backtest Traceability Sample
+
+### Trade USDJPY @ 2026-07-01T15:00:00.000Z
+| Feature | Exact rows | Exact fresh | Latest <= entry | Fresh | Next > entry |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | 3 | 0 | skipped: large table |  |  |
+| features_bias | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_bollinger | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_candle_pattern | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T18:00:00.000Z |
+| features_displacement | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_eq_liquidity | 0 | 0 | 2026-06-26T01:00:00.000Z |  | 2026-07-03T00:00:00.000Z |
+| features_fvg | 0 | 0 | 2026-07-01T14:00:00.000Z | false | 2026-07-01T18:00:00.000Z |
+| features_htf_bias | 1 | 0 | skipped: large table |  |  |
+| features_ifvg | 2 | 0 | 2026-07-01T15:00:00.000Z | false | 2026-07-01T16:00:00.000Z |
+| features_indicator | 11 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_keltner | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_liquidity_pools | 9 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_moving_average | 24 | 0 | skipped: large table |  |  |
+| features_opening_range | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T23:00:00.000Z |
+| features_order_block | 0 | 0 | 2026-06-30T20:00:00.000Z | false |  |
+| features_pivot | 0 | 0 | 2026-07-01T13:00:00.000Z |  | 2026-07-01T20:00:00.000Z |
+| features_pricing | 1 | 0 | skipped: large table |  |  |
+| features_session | 0 | 0 | 2026-06-30T14:00:00.000Z |  | 2026-07-06T04:00:00.000Z |
+| features_structure | 0 | 0 | 2026-07-01T08:00:00.000Z |  | 2026-07-02T06:00:00.000Z |
+| features_time_of_day_edge | 1 | 0 | 2026-07-01T15:00:00.000Z |  | 2026-07-01T16:00:00.000Z |
+| features_zone | 0 | 0 | skipped: large table |  |  |
+| features_zone_retest | 3 | 0 | skipped: large table |  |  |
+
+### Trade AUDUSD @ 2026-07-01T13:30:00.000Z
+| Feature | Exact rows | Exact fresh | Latest <= entry | Fresh | Next > entry |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | 3 | 0 | skipped: large table |  |  |
+| features_bias | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_bollinger | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_candle_pattern | 0 | 0 | 2026-07-01T12:45:00.000Z |  | 2026-07-01T14:30:00.000Z |
+| features_displacement | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_eq_liquidity | 0 | 0 | 2026-07-01T13:00:00.000Z |  | 2026-07-02T00:00:00.000Z |
+| features_fvg | 1 | 0 | 2026-07-01T13:30:00.000Z | false | 2026-07-01T13:45:00.000Z |
+| features_htf_bias | 1 | 0 | skipped: large table |  |  |
+| features_ifvg | 10 | 0 | 2026-07-01T13:30:00.000Z | false | 2026-07-01T13:45:00.000Z |
+| features_indicator | 11 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_keltner | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_liquidity_pools | 7 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_moving_average | 14 | 0 | skipped: large table |  |  |
+| features_opening_range | 0 | 0 | 2026-07-01T06:49:00.000Z |  | 2026-07-01T15:45:00.000Z |
+| features_order_block | 0 | 0 | 2026-07-01T13:00:00.000Z | true |  |
+| features_pivot | 0 | 0 | 2026-07-01T13:00:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_pricing | 1 | 0 | skipped: large table |  |  |
+| features_session | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:34:00.000Z |
+| features_structure | 0 | 0 | 2026-07-01T13:15:00.000Z |  | 2026-07-01T15:00:00.000Z |
+| features_time_of_day_edge | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_zone | 42 | 16 | skipped: large table |  |  |
+| features_zone_retest | 55 | 0 | skipped: large table |  |  |
+
+### Trade GBPUSD @ 2026-07-01T13:30:00.000Z
+| Feature | Exact rows | Exact fresh | Latest <= entry | Fresh | Next > entry |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | 3 | 0 | skipped: large table |  |  |
+| features_bias | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:33:00.000Z |
+| features_bollinger | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_candle_pattern | 0 | 0 | 2026-07-01T12:45:00.000Z |  | 2026-07-01T14:15:00.000Z |
+| features_displacement | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_fvg | 1 | 1 | 2026-07-01T13:30:00.000Z | true | 2026-07-01T13:45:00.000Z |
+| features_htf_bias | 1 | 0 | skipped: large table |  |  |
+| features_ifvg | 10 | 0 | 2026-07-01T13:30:00.000Z | false | 2026-07-01T13:45:00.000Z |
+| features_indicator | 11 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_keltner | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_liquidity_pools | 7 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_moving_average | 14 | 0 | skipped: large table |  |  |
+| features_opening_range | 0 | 0 | 2026-07-01T06:48:00.000Z |  | 2026-07-01T15:45:00.000Z |
+| features_order_block | 0 | 0 | 2026-07-01T13:00:00.000Z | true | 2026-07-02T05:30:00.000Z |
+| features_pivot | 0 | 0 | 2026-07-01T13:00:00.000Z |  | 2026-07-01T14:30:00.000Z |
+| features_pricing | 1 | 0 | skipped: large table |  |  |
+| features_session | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:33:00.000Z |
+| features_structure | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-02T06:00:00.000Z |
+| features_time_of_day_edge | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_zone | 222 | 217 | skipped: large table |  |  |
+| features_zone_retest | 55 | 0 | skipped: large table |  |  |
+
+### Trade EURUSD @ 2026-07-01T13:30:00.000Z
+| Feature | Exact rows | Exact fresh | Latest <= entry | Fresh | Next > entry |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | 3 | 0 | skipped: large table |  |  |
+| features_bias | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_bollinger | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_candle_pattern | 0 | 0 | 2026-07-01T13:15:00.000Z |  | 2026-07-01T14:30:00.000Z |
+| features_displacement | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_fvg | 1 | 0 | 2026-07-01T13:30:00.000Z | false | 2026-07-01T13:45:00.000Z |
+| features_htf_bias | 1 | 0 | skipped: large table |  |  |
+| features_ifvg | 10 | 0 | 2026-07-01T13:30:00.000Z | false | 2026-07-01T13:45:00.000Z |
+| features_indicator | 11 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_keltner | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_liquidity_pools | 7 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_moving_average | 14 | 0 | skipped: large table |  |  |
+| features_opening_range | 0 | 0 | 2026-07-01T06:47:00.000Z |  | 2026-07-01T15:45:00.000Z |
+| features_order_block | 0 | 0 | 2026-07-01T13:00:00.000Z | true | 2026-07-01T19:30:00.000Z |
+| features_pivot | 0 | 0 | 2026-07-01T10:45:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_pricing | 1 | 0 | skipped: large table |  |  |
+| features_session | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_spread | 0 | 0 | 2026-07-01T13:17:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_structure | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:45:00.000Z |
+| features_time_of_day_edge | 1 | 0 | 2026-07-01T13:30:00.000Z |  | 2026-07-01T13:32:00.000Z |
+| features_zone | 21 | 1 | skipped: large table |  |  |
+| features_zone_retest | 105 | 0 | skipped: large table |  |  |
+
+### Trade AUDUSD @ 2026-07-01T10:00:00.000Z
+| Feature | Exact rows | Exact fresh | Latest <= entry | Fresh | Next > entry |
+| --- | --- | --- | --- | --- | --- |
+| features_atr | 3 | 0 | skipped: large table |  |  |
+| features_bias | 1 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_bollinger | 1 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_candle_pattern | 0 | 0 | 2026-07-01T09:00:00.000Z |  | 2026-07-01T13:00:00.000Z |
+| features_displacement | 1 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_eq_liquidity | 0 | 0 | 2026-07-01T02:00:00.000Z |  | 2026-07-01T13:00:00.000Z |
+| features_fvg | 0 | 0 | 2026-07-01T02:00:00.000Z | false | 2026-07-01T19:00:00.000Z |
+| features_htf_bias | 1 | 0 | skipped: large table |  |  |
+| features_ifvg | 6 | 0 | 2026-07-01T10:00:00.000Z | false | 2026-07-01T11:00:00.000Z |
+| features_indicator | 11 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_keltner | 1 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_liquidity_pools | 9 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_moving_average | 24 | 0 | skipped: large table |  |  |
+| features_opening_range | 0 | 0 | 2026-07-01T06:00:00.000Z |  | 2026-07-01T15:00:00.000Z |
+| features_order_block | 0 | 0 | 2026-06-29T21:00:00.000Z | false |  |
+| features_pivot | 0 | 0 | 2026-07-01T02:00:00.000Z |  | 2026-07-01T13:00:00.000Z |
+| features_pricing | 1 | 0 | skipped: large table |  |  |
+| features_session | 0 | 0 | 2026-06-30T14:00:00.000Z |  | 2026-07-07T19:00:00.000Z |
+| features_structure | 0 | 0 | 2026-06-30T06:00:00.000Z |  | 2026-07-02T12:00:00.000Z |
+| features_time_of_day_edge | 1 | 0 | 2026-07-01T10:00:00.000Z |  | 2026-07-01T11:00:00.000Z |
+| features_zone | 13 | 13 | skipped: large table |  |  |
+| features_zone_retest | 46 | 0 | skipped: large table |  |  |
+
+## Anomaly Log
+
+| Severity | Feature | Symbol | TF | Issue | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| MED | features_atr | DXY | 1d | Feature is too rare in 90d. | 3 rows |
+| MED | features_atr | USDSEK | 1m | Feature is too rare in 90d. | 3 rows |
+| MED | features_bias | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_bias | DXY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_correlation | XAUUSD | 15m | Critical column correlation_1h is >20% NULL. | 60/63 NULL (95.2%) |
+| MED | features_correlation | XAUUSD | 15m | Critical column correlation_4h is >20% NULL. | 63/63 NULL (100.0%) |
+| MED | features_correlation | XAUUSD | 15m | Critical column correlation_1d is >20% NULL. | 63/63 NULL (100.0%) |
+| MED | features_correlation | XAUUSD | 15m | Critical column divergence_type is >20% NULL. | 61/63 NULL (96.8%) |
+| MED | features_correlation | EURUSD | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_displacement | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_displacement | DXY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_eq_liquidity | DXY | 5m | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | EURUSD | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | GBPUSD | 4h | Feature is too rare in 90d. | 3 rows |
+| MED | features_eq_liquidity | GBPUSD | 5m | Feature is too rare in 90d. | 4 rows |
+| MED | features_eq_liquidity | NZDUSD | 1h | Feature is too rare in 90d. | 4 rows |
+| MED | features_eq_liquidity | NZDUSD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_eq_liquidity | NZDUSD | 5m | Feature is too rare in 90d. | 4 rows |
+| MED | features_eq_liquidity | USDCAD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_eq_liquidity | USDCHF | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | USDJPY | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | USDJPY | 5m | Feature is too rare in 90d. | 3 rows |
+| MED | features_eq_liquidity | USDSEK | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | XAUUSD | 1h | Feature is too rare in 90d. | 2 rows |
+| MED | features_eq_liquidity | XAUUSD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_fvg | DXY | 1h | Feature is too rare in 90d. | 3 rows |
+| MED | features_fvg | DXY | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_htf_bias | AUDUSD | 15m | Critical column local_agreement is >20% NULL. | 2237/2237 NULL (100.0%) |
+| MED | features_htf_bias | AUDUSD | 1d | Critical column local_agreement is >20% NULL. | 57/64 NULL (89.1%) |
+| MED | features_htf_bias | AUDUSD | 1h | Critical column local_agreement is >20% NULL. | 1445/1519 NULL (95.1%) |
+| MED | features_htf_bias | AUDUSD | 4h | Critical column local_agreement is >20% NULL. | 318/376 NULL (84.6%) |
+| MED | features_htf_bias | DXY | 15m | Critical column local_agreement is >20% NULL. | 60/60 NULL (100.0%) |
+| MED | features_htf_bias | DXY | 1h | Critical column local_agreement is >20% NULL. | 15/15 NULL (100.0%) |
+| MED | features_htf_bias | EURUSD | 15m | Critical column local_agreement is >20% NULL. | 7362/7362 NULL (100.0%) |
+| MED | features_htf_bias | EURUSD | 1d | Critical column local_agreement is >20% NULL. | 55/64 NULL (85.9%) |
+| MED | features_htf_bias | EURUSD | 1h | Critical column local_agreement is >20% NULL. | 1430/1519 NULL (94.1%) |
+| MED | features_htf_bias | EURUSD | 4h | Critical column local_agreement is >20% NULL. | 367/435 NULL (84.4%) |
+| MED | features_htf_bias | GBPUSD | 15m | Critical column local_agreement is >20% NULL. | 6879/6879 NULL (100.0%) |
+| MED | features_htf_bias | GBPUSD | 1d | Critical column local_agreement is >20% NULL. | 57/64 NULL (89.1%) |
+| MED | features_htf_bias | GBPUSD | 1h | Critical column local_agreement is >20% NULL. | 1442/1515 NULL (95.2%) |
+| MED | features_htf_bias | GBPUSD | 4h | Critical column local_agreement is >20% NULL. | 381/434 NULL (87.8%) |
+| MED | features_htf_bias | NZDUSD | 15m | Critical column local_agreement is >20% NULL. | 893/893 NULL (100.0%) |
+| MED | features_htf_bias | NZDUSD | 1d | Critical column local_agreement is >20% NULL. | 55/64 NULL (85.9%) |
+| MED | features_htf_bias | NZDUSD | 1h | Critical column local_agreement is >20% NULL. | 1460/1519 NULL (96.1%) |
+| MED | features_htf_bias | NZDUSD | 4h | Critical column local_agreement is >20% NULL. | 322/376 NULL (85.6%) |
+| MED | features_htf_bias | USDCAD | 15m | Critical column local_agreement is >20% NULL. | 896/896 NULL (100.0%) |
+| MED | features_htf_bias | USDCAD | 1d | Critical column local_agreement is >20% NULL. | 48/64 NULL (75.0%) |
+| MED | features_htf_bias | USDCAD | 1h | Critical column local_agreement is >20% NULL. | 1436/1519 NULL (94.5%) |
+| MED | features_htf_bias | USDCAD | 4h | Critical column local_agreement is >20% NULL. | 308/376 NULL (81.9%) |
+| MED | features_htf_bias | USDCHF | 15m | Critical column local_agreement is >20% NULL. | 1054/1054 NULL (100.0%) |
+| MED | features_htf_bias | USDCHF | 1d | Critical column local_agreement is >20% NULL. | 52/64 NULL (81.3%) |
+| MED | features_htf_bias | USDCHF | 1h | Critical column local_agreement is >20% NULL. | 1485/1570 NULL (94.6%) |
+| MED | features_htf_bias | USDCHF | 4h | Critical column local_agreement is >20% NULL. | 324/384 NULL (84.4%) |
+| MED | features_htf_bias | USDJPY | 15m | Critical column local_agreement is >20% NULL. | 871/871 NULL (100.0%) |
+| MED | features_htf_bias | USDJPY | 1d | Critical column local_agreement is >20% NULL. | 53/64 NULL (82.8%) |
+| MED | features_htf_bias | USDJPY | 1h | Critical column local_agreement is >20% NULL. | 1431/1515 NULL (94.5%) |
+| MED | features_htf_bias | USDJPY | 4h | Critical column local_agreement is >20% NULL. | 316/375 NULL (84.3%) |
+| MED | features_htf_bias | USDSEK | 15m | Critical column local_agreement is >20% NULL. | 406/406 NULL (100.0%) |
+| MED | features_htf_bias | USDSEK | 1d | Critical column local_agreement is >20% NULL. | 56/64 NULL (87.5%) |
+| MED | features_htf_bias | USDSEK | 1h | Critical column local_agreement is >20% NULL. | 1384/1459 NULL (94.9%) |
+| MED | features_htf_bias | USDSEK | 4h | Critical column local_agreement is >20% NULL. | 328/376 NULL (87.2%) |
+| MED | features_htf_bias | XAUUSD | 15m | Critical column local_agreement is >20% NULL. | 6386/6386 NULL (100.0%) |
+| MED | features_htf_bias | XAUUSD | 1d | Critical column local_agreement is >20% NULL. | 57/64 NULL (89.1%) |
+| MED | features_htf_bias | XAUUSD | 1h | Critical column local_agreement is >20% NULL. | 1374/1454 NULL (94.5%) |
+| MED | features_htf_bias | XAUUSD | 4h | Critical column local_agreement is >20% NULL. | 312/373 NULL (83.6%) |
+| MED | features_htf_bias | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_htf_bias | DXY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_htf_bias | USDSEK | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_ifvg | EURUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 13265 rows |
+| MED | features_ifvg | USDCHF | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 10570 rows |
+| MED | features_ifvg | XAUUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 106808 rows |
+| MED | features_indicator | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_indicator | DXY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_liquidity_pools | AUDUSD | 15m | Critical column interval is >20% NULL. | 1842/2246 NULL (82.0%) |
+| MED | features_liquidity_pools | AUDUSD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | AUDUSD | 1h | Critical column interval is >20% NULL. | 3242/3733 NULL (86.8%) |
+| MED | features_liquidity_pools | AUDUSD | 4h | Critical column interval is >20% NULL. | 2672/3048 NULL (87.7%) |
+| MED | features_liquidity_pools | AUDUSD | 5m | Critical column interval is >20% NULL. | 524/788 NULL (66.5%) |
+| MED | features_liquidity_pools | DXY | 15m | Critical column interval is >20% NULL. | 144/204 NULL (70.6%) |
+| MED | features_liquidity_pools | DXY | 1h | Critical column interval is >20% NULL. | 36/51 NULL (70.6%) |
+| MED | features_liquidity_pools | DXY | 4h | Critical column interval is >20% NULL. | 12/16 NULL (75.0%) |
+| MED | features_liquidity_pools | DXY | 5m | Critical column interval is >20% NULL. | 424/604 NULL (70.2%) |
+| MED | features_liquidity_pools | EURUSD | 15m | Critical column interval is >20% NULL. | 3458/4208 NULL (82.2%) |
+| MED | features_liquidity_pools | EURUSD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | EURUSD | 1h | Critical column interval is >20% NULL. | 3242/3733 NULL (86.8%) |
+| MED | features_liquidity_pools | EURUSD | 4h | Critical column interval is >20% NULL. | 2672/3048 NULL (87.7%) |
+| MED | features_liquidity_pools | EURUSD | 5m | Critical column interval is >20% NULL. | 8956/10558 NULL (84.8%) |
+| MED | features_liquidity_pools | GBPUSD | 15m | Critical column interval is >20% NULL. | 1820/2208 NULL (82.4%) |
+| MED | features_liquidity_pools | GBPUSD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | GBPUSD | 1h | Critical column interval is >20% NULL. | 3242/3730 NULL (86.9%) |
+| MED | features_liquidity_pools | GBPUSD | 4h | Critical column interval is >20% NULL. | 2670/3045 NULL (87.7%) |
+| MED | features_liquidity_pools | GBPUSD | 5m | Critical column interval is >20% NULL. | 542/755 NULL (71.8%) |
+| MED | features_liquidity_pools | NZDUSD | 15m | Critical column interval is >20% NULL. | 1856/2262 NULL (82.1%) |
+| MED | features_liquidity_pools | NZDUSD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | NZDUSD | 1h | Critical column interval is >20% NULL. | 3250/3742 NULL (86.9%) |
+| MED | features_liquidity_pools | NZDUSD | 4h | Critical column interval is >20% NULL. | 2672/3048 NULL (87.7%) |
+| MED | features_liquidity_pools | NZDUSD | 5m | Critical column interval is >20% NULL. | 542/810 NULL (66.9%) |
+| MED | features_liquidity_pools | USDCAD | 15m | Critical column interval is >20% NULL. | 1856/2262 NULL (82.1%) |
+| MED | features_liquidity_pools | USDCAD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | USDCAD | 1h | Critical column interval is >20% NULL. | 3250/3742 NULL (86.9%) |
+| MED | features_liquidity_pools | USDCAD | 4h | Critical column interval is >20% NULL. | 2672/3048 NULL (87.7%) |
+| MED | features_liquidity_pools | USDCAD | 5m | Critical column interval is >20% NULL. | 542/810 NULL (66.9%) |
+| MED | features_liquidity_pools | USDCHF | 15m | Critical column interval is >20% NULL. | 3088/3648 NULL (84.6%) |
+| MED | features_liquidity_pools | USDCHF | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | USDCHF | 1h | Critical column interval is >20% NULL. | 3556/4086 NULL (87.0%) |
+| MED | features_liquidity_pools | USDCHF | 4h | Critical column interval is >20% NULL. | 2744/3128 NULL (87.7%) |
+| MED | features_liquidity_pools | USDCHF | 5m | Critical column interval is >20% NULL. | 3314/4046 NULL (81.9%) |
+| MED | features_liquidity_pools | USDJPY | 15m | Critical column interval is >20% NULL. | 1820/2208 NULL (82.4%) |
+| MED | features_liquidity_pools | USDJPY | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | USDJPY | 1h | Critical column interval is >20% NULL. | 3242/3730 NULL (86.9%) |
+| MED | features_liquidity_pools | USDJPY | 4h | Critical column interval is >20% NULL. | 2670/3045 NULL (87.7%) |
+| MED | features_liquidity_pools | USDJPY | 5m | Critical column interval is >20% NULL. | 542/754 NULL (71.9%) |
+| MED | features_liquidity_pools | USDSEK | 15m | Critical column interval is >20% NULL. | 1856/2262 NULL (82.1%) |
+| MED | features_liquidity_pools | USDSEK | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | USDSEK | 1h | Critical column interval is >20% NULL. | 3250/3742 NULL (86.9%) |
+| MED | features_liquidity_pools | USDSEK | 4h | Critical column interval is >20% NULL. | 2672/3048 NULL (87.7%) |
+| MED | features_liquidity_pools | USDSEK | 5m | Critical column interval is >20% NULL. | 548/817 NULL (67.1%) |
+| MED | features_liquidity_pools | XAUUSD | 15m | Critical column interval is >20% NULL. | 1670/2028 NULL (82.3%) |
+| MED | features_liquidity_pools | XAUUSD | 1d | Critical column interval is >20% NULL. | 332/396 NULL (83.8%) |
+| MED | features_liquidity_pools | XAUUSD | 1h | Critical column interval is >20% NULL. | 3082/3548 NULL (86.9%) |
+| MED | features_liquidity_pools | XAUUSD | 4h | Critical column interval is >20% NULL. | 2654/3027 NULL (87.7%) |
+| MED | features_liquidity_pools | XAUUSD | 5m | Critical column interval is >20% NULL. | 568/784 NULL (72.4%) |
+| MED | features_liquidity_pools | EURUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 10558 rows |
+| MED | features_opening_range | DXY | 15m | Feature is too rare in 90d. | 2 rows |
+| MED | features_opening_range | DXY | 1d | Feature is too rare in 90d. | 3 rows |
+| MED | features_opening_range | DXY | 1h | Feature is too rare in 90d. | 2 rows |
+| MED | features_opening_range | DXY | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_opening_range | DXY | 5m | Feature is too rare in 90d. | 2 rows |
+| MED | features_opening_range | USDSEK | 5m | Feature is too rare in 90d. | 3 rows |
+| MED | features_order_block | AUDUSD | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | AUDUSD | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | AUDUSD | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_order_block | DXY | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | DXY | 5m | Feature is too rare in 90d. | 3 rows |
+| MED | features_order_block | GBPUSD | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | GBPUSD | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | GBPUSD | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_order_block | NZDUSD | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | NZDUSD | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | NZDUSD | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_order_block | USDCAD | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | USDCAD | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | USDCHF | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | USDCHF | 1m | Feature is too rare in 90d. | 4 rows |
+| MED | features_order_block | USDCHF | 4h | Feature is too rare in 90d. | 3 rows |
+| MED | features_order_block | USDJPY | 15m | Feature is too rare in 90d. | 2 rows |
+| MED | features_order_block | USDJPY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | USDJPY | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | USDJPY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_order_block | USDSEK | 15m | Feature is too rare in 90d. | 2 rows |
+| MED | features_order_block | USDSEK | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_order_block | XAUUSD | 1d | Feature is too rare in 90d. | 2 rows |
+| MED | features_order_block | XAUUSD | 1m | Feature is too rare in 90d. | 3 rows |
+| MED | features_pivot | DXY | 15m | Feature is too rare in 90d. | 3 rows |
+| MED | features_pivot | USDCAD | 1d | Feature is too rare in 90d. | 4 rows |
+| MED | features_pivot | USDJPY | 1d | Feature is too rare in 90d. | 4 rows |
+| MED | features_pricing | EURUSD | 15m | Critical column position is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column fib_position is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column in_ote is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column ote_low is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column ote_high is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column llt_target is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column balanced is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column pip_size is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column dynamic_ote_low is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column dynamic_ote_high is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column dynamic_ote_mid is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | EURUSD | 15m | Critical column dynamic_ote_source is >20% NULL. | 5910/6996 NULL (84.5%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column position is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column fib_position is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column in_ote is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column ote_low is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column ote_high is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column llt_target is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column balanced is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column pip_size is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column dynamic_ote_low is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column dynamic_ote_high is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column dynamic_ote_mid is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_pricing | GBPUSD | 15m | Critical column dynamic_ote_source is >20% NULL. | 5464/6434 NULL (84.9%) |
+| MED | features_session | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_session_hl | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_session_hl | DXY | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_session_hl | DXY | 5m | Feature is too rare in 90d. | 4 rows |
+| MED | features_spread | AUDUSD | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | AUDUSD | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | AUDUSD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | AUDUSD | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | EURUSD | 1h | Feature is too rare in 90d. | 2 rows |
+| MED | features_spread | EURUSD | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_spread | GBPUSD | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | GBPUSD | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | GBPUSD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | GBPUSD | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | NZDUSD | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | NZDUSD | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | NZDUSD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | NZDUSD | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCAD | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCAD | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCAD | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCAD | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCHF | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCHF | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCHF | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDCHF | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDJPY | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDJPY | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDJPY | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDJPY | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDSEK | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDSEK | 1h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDSEK | 1m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDSEK | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | USDSEK | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_spread | XAUUSD | 15m | Feature is too rare in 90d. | 2 rows |
+| MED | features_spread | XAUUSD | 1h | Feature is too rare in 90d. | 2 rows |
+| MED | features_spread | XAUUSD | 4h | Feature is too rare in 90d. | 2 rows |
+| MED | features_spread | XAUUSD | 5m | Feature is too rare in 90d. | 2 rows |
+| MED | features_structure | AUDUSD | 15m | Critical column confirmation_ts is >20% NULL. | 61/115 NULL (53.0%) |
+| MED | features_structure | AUDUSD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 111/115 NULL (96.5%) |
+| MED | features_structure | AUDUSD | 1h | Critical column confirmation_ts is >20% NULL. | 63/125 NULL (50.4%) |
+| MED | features_structure | AUDUSD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 125/125 NULL (100.0%) |
+| MED | features_structure | AUDUSD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 940/1071 NULL (87.8%) |
+| MED | features_structure | AUDUSD | 5m | Critical column confirmation_ts is >20% NULL. | 1139/2079 NULL (54.8%) |
+| MED | features_structure | AUDUSD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1978/2079 NULL (95.1%) |
+| MED | features_structure | EURUSD | 15m | Critical column confirmation_ts is >20% NULL. | 14/27 NULL (51.9%) |
+| MED | features_structure | EURUSD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 23/27 NULL (85.2%) |
+| MED | features_structure | EURUSD | 1h | Critical column confirmation_ts is >20% NULL. | 66/120 NULL (55.0%) |
+| MED | features_structure | EURUSD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 120/120 NULL (100.0%) |
+| MED | features_structure | EURUSD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 1017/1120 NULL (90.8%) |
+| MED | features_structure | EURUSD | 4h | Critical column confirmation_ts is >20% NULL. | 7/13 NULL (53.8%) |
+| MED | features_structure | EURUSD | 4h | Critical column opposing_sweep_ts is >20% NULL. | 13/13 NULL (100.0%) |
+| MED | features_structure | EURUSD | 5m | Critical column confirmation_ts is >20% NULL. | 1156/2142 NULL (54.0%) |
+| MED | features_structure | EURUSD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1974/2142 NULL (92.2%) |
+| MED | features_structure | GBPUSD | 15m | Critical column confirmation_ts is >20% NULL. | 5/14 NULL (35.7%) |
+| MED | features_structure | GBPUSD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 13/14 NULL (92.9%) |
+| MED | features_structure | GBPUSD | 1h | Critical column confirmation_ts is >20% NULL. | 65/118 NULL (55.1%) |
+| MED | features_structure | GBPUSD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 115/118 NULL (97.5%) |
+| MED | features_structure | GBPUSD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 1002/1132 NULL (88.5%) |
+| MED | features_structure | GBPUSD | 5m | Critical column confirmation_ts is >20% NULL. | 1129/2048 NULL (55.1%) |
+| MED | features_structure | GBPUSD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1955/2048 NULL (95.5%) |
+| MED | features_structure | NZDUSD | 15m | Critical column confirmation_ts is >20% NULL. | 7/16 NULL (43.8%) |
+| MED | features_structure | NZDUSD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 14/16 NULL (87.5%) |
+| MED | features_structure | NZDUSD | 1h | Critical column confirmation_ts is >20% NULL. | 63/130 NULL (48.5%) |
+| MED | features_structure | NZDUSD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 128/130 NULL (98.5%) |
+| MED | features_structure | NZDUSD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 958/1142 NULL (83.9%) |
+| MED | features_structure | NZDUSD | 5m | Critical column confirmation_ts is >20% NULL. | 1109/2082 NULL (53.3%) |
+| MED | features_structure | NZDUSD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1898/2082 NULL (91.2%) |
+| MED | features_structure | USDCAD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 11/21 NULL (52.4%) |
+| MED | features_structure | USDCAD | 1h | Critical column confirmation_ts is >20% NULL. | 65/121 NULL (53.7%) |
+| MED | features_structure | USDCAD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 121/121 NULL (100.0%) |
+| MED | features_structure | USDCAD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 954/1129 NULL (84.5%) |
+| MED | features_structure | USDCAD | 5m | Critical column confirmation_ts is >20% NULL. | 1123/2085 NULL (53.9%) |
+| MED | features_structure | USDCAD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1931/2085 NULL (92.6%) |
+| MED | features_structure | USDCHF | 15m | Critical column opposing_sweep_ts is >20% NULL. | 16/18 NULL (88.9%) |
+| MED | features_structure | USDCHF | 1h | Critical column confirmation_ts is >20% NULL. | 99/188 NULL (52.7%) |
+| MED | features_structure | USDCHF | 1h | Critical column opposing_sweep_ts is >20% NULL. | 159/188 NULL (84.6%) |
+| MED | features_structure | USDCHF | 1m | Critical column opposing_sweep_ts is >20% NULL. | 973/1124 NULL (86.6%) |
+| MED | features_structure | USDCHF | 5m | Critical column confirmation_ts is >20% NULL. | 1136/2111 NULL (53.8%) |
+| MED | features_structure | USDCHF | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1953/2111 NULL (92.5%) |
+| MED | features_structure | USDJPY | 1h | Critical column confirmation_ts is >20% NULL. | 84/145 NULL (57.9%) |
+| MED | features_structure | USDJPY | 1h | Critical column opposing_sweep_ts is >20% NULL. | 137/145 NULL (94.5%) |
+| MED | features_structure | USDJPY | 1m | Critical column opposing_sweep_ts is >20% NULL. | 934/1018 NULL (91.7%) |
+| MED | features_structure | USDJPY | 5m | Critical column confirmation_ts is >20% NULL. | 1070/1932 NULL (55.4%) |
+| MED | features_structure | USDJPY | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1807/1932 NULL (93.5%) |
+| MED | features_structure | USDSEK | 1h | Critical column confirmation_ts is >20% NULL. | 85/146 NULL (58.2%) |
+| MED | features_structure | USDSEK | 1h | Critical column opposing_sweep_ts is >20% NULL. | 145/146 NULL (99.3%) |
+| MED | features_structure | USDSEK | 5m | Critical column confirmation_ts is >20% NULL. | 1112/2001 NULL (55.6%) |
+| MED | features_structure | USDSEK | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1945/2001 NULL (97.2%) |
+| MED | features_structure | XAUUSD | 15m | Critical column confirmation_ts is >20% NULL. | 309/565 NULL (54.7%) |
+| MED | features_structure | XAUUSD | 15m | Critical column opposing_sweep_ts is >20% NULL. | 556/565 NULL (98.4%) |
+| MED | features_structure | XAUUSD | 1h | Critical column confirmation_ts is >20% NULL. | 59/103 NULL (57.3%) |
+| MED | features_structure | XAUUSD | 1h | Critical column opposing_sweep_ts is >20% NULL. | 102/103 NULL (99.0%) |
+| MED | features_structure | XAUUSD | 1m | Critical column opposing_sweep_ts is >20% NULL. | 1052/1067 NULL (98.6%) |
+| MED | features_structure | XAUUSD | 5m | Critical column confirmation_ts is >20% NULL. | 1094/1973 NULL (55.4%) |
+| MED | features_structure | XAUUSD | 5m | Critical column opposing_sweep_ts is >20% NULL. | 1950/1973 NULL (98.8%) |
+| MED | features_structure | AUDUSD | 1d | Feature is too rare in 90d. | 2 rows |
+| MED | features_structure | DXY | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_structure | DXY | 5m | Feature is too rare in 90d. | 3 rows |
+| MED | features_structure | EURUSD | 1d | Feature is too rare in 90d. | 3 rows |
+| MED | features_structure | GBPUSD | 1d | Feature is too rare in 90d. | 2 rows |
+| MED | features_structure | GBPUSD | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_structure | NZDUSD | 1d | Feature is too rare in 90d. | 2 rows |
+| MED | features_structure | USDCAD | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_structure | USDCHF | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_structure | USDJPY | 1d | Feature is too rare in 90d. | 3 rows |
+| MED | features_structure | USDSEK | 15m | Feature is too rare in 90d. | 3 rows |
+| MED | features_structure | USDSEK | 1m | Feature is too rare in 90d. | 2 rows |
+| MED | features_sweep | DXY | 15m | Feature is too rare in 90d. | 1 rows |
+| MED | features_sweep | DXY | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_sweep | USDCHF | 5m | Feature is too rare in 90d. | 4 rows |
+| MED | features_sweep | USDJPY | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_sweep | XAUUSD | 5m | Feature is too rare in 90d. | 1 rows |
+| MED | features_time_of_day_edge | DXY | 1d | Feature is too rare in 90d. | 1 rows |
+| MED | features_time_of_day_edge | DXY | 4h | Feature is too rare in 90d. | 4 rows |
+| MED | features_zone | AUDUSD | 15m | Event feature fires >10,000 times in 90d; likely noisy. | 122590 rows |
+| MED | features_zone | AUDUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 128225 rows |
+| MED | features_zone | AUDUSD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 247846 rows |
+| MED | features_zone | AUDUSD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 18806 rows |
+| MED | features_zone | AUDUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1563250 rows |
+| MED | features_zone | DXY | 1h | Feature is too rare in 90d. | 3 rows |
+| MED | features_zone | DXY | 4h | Feature is too rare in 90d. | 1 rows |
+| MED | features_zone | EURUSD | 15m | Event feature fires >10,000 times in 90d; likely noisy. | 23280 rows |
+| MED | features_zone | EURUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 120466 rows |
+| MED | features_zone | EURUSD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 298394 rows |
+| MED | features_zone | EURUSD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 17156 rows |
+| MED | features_zone | EURUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1639273 rows |
+| MED | features_zone | GBPUSD | 15m | Event feature fires >10,000 times in 90d; likely noisy. | 23049 rows |
+| MED | features_zone | GBPUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 138263 rows |
+| MED | features_zone | GBPUSD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 318596 rows |
+| MED | features_zone | GBPUSD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 16090 rows |
+| MED | features_zone | GBPUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1762613 rows |
+| MED | features_zone | NZDUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 131567 rows |
+| MED | features_zone | NZDUSD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 238469 rows |
+| MED | features_zone | NZDUSD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 19168 rows |
+| MED | features_zone | NZDUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1443166 rows |
+| MED | features_zone | USDCAD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 130488 rows |
+| MED | features_zone | USDCAD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 316620 rows |
+| MED | features_zone | USDCAD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 15131 rows |
+| MED | features_zone | USDCAD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1629010 rows |
+| MED | features_zone | USDCHF | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 135929 rows |
+| MED | features_zone | USDCHF | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 234241 rows |
+| MED | features_zone | USDCHF | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 14726 rows |
+| MED | features_zone | USDCHF | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1502918 rows |
+| MED | features_zone | USDJPY | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 145282 rows |
+| MED | features_zone | USDJPY | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 251452 rows |
+| MED | features_zone | USDJPY | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 13857 rows |
+| MED | features_zone | USDJPY | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1593485 rows |
+| MED | features_zone | USDSEK | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 151484 rows |
+| MED | features_zone | USDSEK | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 15311 rows |
+| MED | features_zone | USDSEK | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 1970584 rows |
+| MED | features_zone | XAUUSD | 15m | Event feature fires >10,000 times in 90d; likely noisy. | 144180 rows |
+| MED | features_zone | XAUUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 149410 rows |
+| MED | features_zone | XAUUSD | 1m | Event feature fires >10,000 times in 90d; likely noisy. | 314544 rows |
+| MED | features_zone | XAUUSD | 4h | Event feature fires >10,000 times in 90d; likely noisy. | 17401 rows |
+| MED | features_zone | XAUUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 2368169 rows |
+| MED | features_zone_retest | AUDUSD | 15m | Event feature fires >10,000 times in 90d; likely noisy. | 38151 rows |
+| MED | features_zone_retest | AUDUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 27241 rows |
+| MED | features_zone_retest | AUDUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 424052 rows |
+| MED | features_zone_retest | EURUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 26154 rows |
+| MED | features_zone_retest | EURUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 401656 rows |
+| MED | features_zone_retest | GBPUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 29683 rows |
+| MED | features_zone_retest | GBPUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 416997 rows |
+| MED | features_zone_retest | NZDUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 28933 rows |
+| MED | features_zone_retest | NZDUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 398199 rows |
+| MED | features_zone_retest | USDCAD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 15887 rows |
+| MED | features_zone_retest | USDCAD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 416934 rows |
+| MED | features_zone_retest | USDCHF | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 28601 rows |
+| MED | features_zone_retest | USDCHF | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 407194 rows |
+| MED | features_zone_retest | USDJPY | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 27374 rows |
+| MED | features_zone_retest | USDJPY | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 418807 rows |
+| MED | features_zone_retest | USDSEK | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 33475 rows |
+| MED | features_zone_retest | USDSEK | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 433116 rows |
+| MED | features_zone_retest | XAUUSD | 1h | Event feature fires >10,000 times in 90d; likely noisy. | 26638 rows |
+| MED | features_zone_retest | XAUUSD | 5m | Event feature fires >10,000 times in 90d; likely noisy. | 383254 rows |
+| LOW | features_bollinger | AUDUSD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 385 rows |
+| LOW | features_bollinger | AUDUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 385 rows |
+| LOW | features_bollinger | AUDUSD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_bollinger | AUDUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_bollinger | AUDUSD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | AUDUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | AUDUSD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 245 rows |
+| LOW | features_bollinger | AUDUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 245 rows |
+| LOW | features_bollinger | DXY | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 162 rows |
+| LOW | features_bollinger | DXY | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 162 rows |
+| LOW | features_bollinger | EURUSD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_bollinger | EURUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_bollinger | EURUSD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_bollinger | EURUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_bollinger | EURUSD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | EURUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | EURUSD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 1583 rows |
+| LOW | features_bollinger | EURUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 1583 rows |
+| LOW | features_bollinger | GBPUSD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 369 rows |
+| LOW | features_bollinger | GBPUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 369 rows |
+| LOW | features_bollinger | GBPUSD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 469 rows |
+| LOW | features_bollinger | GBPUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 469 rows |
+| LOW | features_bollinger | GBPUSD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_bollinger | GBPUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_bollinger | GBPUSD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 194 rows |
+| LOW | features_bollinger | GBPUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 194 rows |
+| LOW | features_bollinger | NZDUSD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | NZDUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | NZDUSD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | NZDUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | NZDUSD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | NZDUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | NZDUSD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_bollinger | NZDUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_bollinger | USDCAD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | USDCAD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | USDCAD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | USDCAD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | USDCAD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | USDCAD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | USDCAD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_bollinger | USDCAD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_bollinger | USDCHF | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 541 rows |
+| LOW | features_bollinger | USDCHF | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 541 rows |
+| LOW | features_bollinger | USDCHF | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 511 rows |
+| LOW | features_bollinger | USDCHF | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 511 rows |
+| LOW | features_bollinger | USDCHF | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 376 rows |
+| LOW | features_bollinger | USDCHF | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 376 rows |
+| LOW | features_bollinger | USDCHF | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 713 rows |
+| LOW | features_bollinger | USDCHF | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 713 rows |
+| LOW | features_bollinger | USDJPY | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 369 rows |
+| LOW | features_bollinger | USDJPY | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 369 rows |
+| LOW | features_bollinger | USDJPY | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 469 rows |
+| LOW | features_bollinger | USDJPY | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 469 rows |
+| LOW | features_bollinger | USDJPY | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_bollinger | USDJPY | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_bollinger | USDJPY | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 193 rows |
+| LOW | features_bollinger | USDJPY | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 193 rows |
+| LOW | features_bollinger | USDSEK | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | USDSEK | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 387 rows |
+| LOW | features_bollinger | USDSEK | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | USDSEK | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 473 rows |
+| LOW | features_bollinger | USDSEK | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | USDSEK | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_bollinger | USDSEK | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 250 rows |
+| LOW | features_bollinger | USDSEK | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 250 rows |
+| LOW | features_bollinger | XAUUSD | 15m | Column period is degenerate in 90d. | 1 distinct value(s) across 339 rows |
+| LOW | features_bollinger | XAUUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 339 rows |
+| LOW | features_bollinger | XAUUSD | 1h | Column period is degenerate in 90d. | 1 distinct value(s) across 447 rows |
+| LOW | features_bollinger | XAUUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 447 rows |
+| LOW | features_bollinger | XAUUSD | 4h | Column period is degenerate in 90d. | 1 distinct value(s) across 365 rows |
+| LOW | features_bollinger | XAUUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 365 rows |
+| LOW | features_bollinger | XAUUSD | 5m | Column period is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_bollinger | XAUUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_eq_liquidity | AUDUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | GBPUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | NZDUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 67 rows |
+| LOW | features_eq_liquidity | USDCAD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | USDCHF | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | USDJPY | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | XAUUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_eq_liquidity | AUDUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 78 rows |
+| LOW | features_eq_liquidity | GBPUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | NZDUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 78 rows |
+| LOW | features_eq_liquidity | USDCAD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | USDCHF | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | USDJPY | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | XAUUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_eq_liquidity | AUDUSD | 4h | No feature rows despite candle coverage. | candles_4h has 390 rows |
+| LOW | features_keltner | AUDUSD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 384 rows |
+| LOW | features_keltner | AUDUSD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 384 rows |
+| LOW | features_keltner | AUDUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 384 rows |
+| LOW | features_keltner | AUDUSD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | AUDUSD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | AUDUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | AUDUSD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | AUDUSD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | AUDUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | AUDUSD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 244 rows |
+| LOW | features_keltner | AUDUSD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 244 rows |
+| LOW | features_keltner | AUDUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 244 rows |
+| LOW | features_keltner | DXY | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 161 rows |
+| LOW | features_keltner | DXY | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 161 rows |
+| LOW | features_keltner | DXY | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 161 rows |
+| LOW | features_keltner | EURUSD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 385 rows |
+| LOW | features_keltner | EURUSD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 385 rows |
+| LOW | features_keltner | EURUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 385 rows |
+| LOW | features_keltner | EURUSD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | EURUSD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | EURUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 471 rows |
+| LOW | features_keltner | EURUSD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | EURUSD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | EURUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | EURUSD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 1582 rows |
+| LOW | features_keltner | EURUSD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 1582 rows |
+| LOW | features_keltner | EURUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 1582 rows |
+| LOW | features_keltner | GBPUSD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | GBPUSD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | GBPUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | GBPUSD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | GBPUSD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | GBPUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | GBPUSD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | GBPUSD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | GBPUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | GBPUSD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 193 rows |
+| LOW | features_keltner | GBPUSD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 193 rows |
+| LOW | features_keltner | GBPUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 193 rows |
+| LOW | features_keltner | NZDUSD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | NZDUSD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | NZDUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | NZDUSD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | NZDUSD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | NZDUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | NZDUSD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | NZDUSD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | NZDUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | NZDUSD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | NZDUSD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | NZDUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | USDCAD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDCAD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDCAD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDCAD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDCAD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDCAD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDCAD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDCAD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDCAD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDCAD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | USDCAD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | USDCAD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 248 rows |
+| LOW | features_keltner | USDCHF | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 540 rows |
+| LOW | features_keltner | USDCHF | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 540 rows |
+| LOW | features_keltner | USDCHF | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 540 rows |
+| LOW | features_keltner | USDCHF | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 510 rows |
+| LOW | features_keltner | USDCHF | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 510 rows |
+| LOW | features_keltner | USDCHF | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 510 rows |
+| LOW | features_keltner | USDCHF | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 375 rows |
+| LOW | features_keltner | USDCHF | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 375 rows |
+| LOW | features_keltner | USDCHF | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 375 rows |
+| LOW | features_keltner | USDCHF | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 712 rows |
+| LOW | features_keltner | USDCHF | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 712 rows |
+| LOW | features_keltner | USDCHF | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 712 rows |
+| LOW | features_keltner | USDJPY | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | USDJPY | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | USDJPY | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 368 rows |
+| LOW | features_keltner | USDJPY | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | USDJPY | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | USDJPY | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 468 rows |
+| LOW | features_keltner | USDJPY | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | USDJPY | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | USDJPY | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 366 rows |
+| LOW | features_keltner | USDJPY | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_keltner | USDJPY | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_keltner | USDJPY | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_keltner | USDSEK | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDSEK | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDSEK | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 386 rows |
+| LOW | features_keltner | USDSEK | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDSEK | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDSEK | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 472 rows |
+| LOW | features_keltner | USDSEK | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDSEK | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDSEK | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 367 rows |
+| LOW | features_keltner | USDSEK | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_keltner | USDSEK | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_keltner | USDSEK | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 249 rows |
+| LOW | features_keltner | XAUUSD | 15m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 338 rows |
+| LOW | features_keltner | XAUUSD | 15m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 338 rows |
+| LOW | features_keltner | XAUUSD | 15m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 338 rows |
+| LOW | features_keltner | XAUUSD | 1h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 446 rows |
+| LOW | features_keltner | XAUUSD | 1h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 446 rows |
+| LOW | features_keltner | XAUUSD | 1h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 446 rows |
+| LOW | features_keltner | XAUUSD | 4h | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 364 rows |
+| LOW | features_keltner | XAUUSD | 4h | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 364 rows |
+| LOW | features_keltner | XAUUSD | 4h | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 364 rows |
+| LOW | features_keltner | XAUUSD | 5m | Column ema_period is degenerate in 90d. | 1 distinct value(s) across 181 rows |
+| LOW | features_keltner | XAUUSD | 5m | Column atr_period is degenerate in 90d. | 1 distinct value(s) across 181 rows |
+| LOW | features_keltner | XAUUSD | 5m | Column multiplier is degenerate in 90d. | 1 distinct value(s) across 181 rows |
+| LOW | features_opening_range | AUDUSD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | AUDUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | AUDUSD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | AUDUSD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | AUDUSD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | AUDUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | AUDUSD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | AUDUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | EURUSD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | EURUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | EURUSD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | EURUSD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | EURUSD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | EURUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | EURUSD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_opening_range | EURUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_opening_range | GBPUSD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | GBPUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | GBPUSD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | GBPUSD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | GBPUSD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | GBPUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | GBPUSD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_opening_range | GBPUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_opening_range | NZDUSD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | NZDUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | NZDUSD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | NZDUSD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | NZDUSD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | NZDUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | NZDUSD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | NZDUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | USDCAD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | USDCAD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_opening_range | USDCAD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDCAD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDCAD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | USDCAD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | USDCAD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 184 rows |
+| LOW | features_opening_range | USDCAD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 184 rows |
+| LOW | features_opening_range | USDCHF | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_opening_range | USDCHF | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_opening_range | USDCHF | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDCHF | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDCHF | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 155 rows |
+| LOW | features_opening_range | USDCHF | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 155 rows |
+| LOW | features_opening_range | USDCHF | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 190 rows |
+| LOW | features_opening_range | USDCHF | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 190 rows |
+| LOW | features_opening_range | USDJPY | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | USDJPY | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | USDJPY | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDJPY | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDJPY | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | USDJPY | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | USDJPY | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | USDJPY | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 183 rows |
+| LOW | features_opening_range | USDSEK | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDSEK | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | USDSEK | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | USDSEK | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 151 rows |
+| LOW | features_opening_range | XAUUSD | 15m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | XAUUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 189 rows |
+| LOW | features_opening_range | XAUUSD | 1d | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | XAUUSD | 1d | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 156 rows |
+| LOW | features_opening_range | XAUUSD | 4h | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | XAUUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 153 rows |
+| LOW | features_opening_range | XAUUSD | 5m | Column range_minutes is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_opening_range | XAUUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 182 rows |
+| LOW | features_order_block | USDSEK | 5m | Column degree is degenerate in 90d. | 1 distinct value(s) across 868 rows |
+| LOW | features_order_block | XAUUSD | 15m | Column degree is degenerate in 90d. | 1 distinct value(s) across 280 rows |
+| LOW | features_order_block | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_order_block | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_order_block | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 78 rows |
+| LOW | features_order_block | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_pivot | AUDUSD | 15m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 202 rows |
+| LOW | features_pivot | AUDUSD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 164 rows |
+| LOW | features_pivot | AUDUSD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2763 rows |
+| LOW | features_pivot | AUDUSD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1911 rows |
+| LOW | features_pivot | EURUSD | 15m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 681 rows |
+| LOW | features_pivot | EURUSD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 161 rows |
+| LOW | features_pivot | EURUSD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2884 rows |
+| LOW | features_pivot | EURUSD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1884 rows |
+| LOW | features_pivot | GBPUSD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 163 rows |
+| LOW | features_pivot | GBPUSD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2983 rows |
+| LOW | features_pivot | GBPUSD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1977 rows |
+| LOW | features_pivot | NZDUSD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 160 rows |
+| LOW | features_pivot | NZDUSD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2725 rows |
+| LOW | features_pivot | NZDUSD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1822 rows |
+| LOW | features_pivot | USDCAD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 166 rows |
+| LOW | features_pivot | USDCAD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2679 rows |
+| LOW | features_pivot | USDCAD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1862 rows |
+| LOW | features_pivot | USDCHF | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_pivot | USDCHF | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2832 rows |
+| LOW | features_pivot | USDCHF | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1882 rows |
+| LOW | features_pivot | USDJPY | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 192 rows |
+| LOW | features_pivot | USDJPY | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 2870 rows |
+| LOW | features_pivot | USDJPY | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1948 rows |
+| LOW | features_pivot | USDSEK | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 187 rows |
+| LOW | features_pivot | USDSEK | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1938 rows |
+| LOW | features_pivot | XAUUSD | 15m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 661 rows |
+| LOW | features_pivot | XAUUSD | 1h | Column confidence is degenerate in 90d. | 1 distinct value(s) across 162 rows |
+| LOW | features_pivot | XAUUSD | 1m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 3118 rows |
+| LOW | features_pivot | XAUUSD | 1m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 3118 rows |
+| LOW | features_pivot | XAUUSD | 5m | Column confidence is degenerate in 90d. | 1 distinct value(s) across 1984 rows |
+| LOW | features_pivot | AUDUSD | 15m | Rows exist on weekend timestamps. | 2 weekend rows in 90d |
+| LOW | features_pivot | NZDUSD | 15m | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_pivot | USDCAD | 15m | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_session_hl | AUDUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | AUDUSD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | EURUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | EURUSD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | GBPUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | GBPUSD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | NZDUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | NZDUSD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDCAD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDCAD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDCHF | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDCHF | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDJPY | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDJPY | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDSEK | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | USDSEK | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | XAUUSD | 4h | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_session_hl | XAUUSD | 4h | Column input_hash is degenerate in 90d. | 1 distinct value(s) across 173 rows |
+| LOW | features_spread | EURUSD | 15m | Column samples is degenerate in 90d. | 1 distinct value(s) across 347 rows |
+| LOW | features_spread | EURUSD | 15m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 347 rows |
+| LOW | features_spread | EURUSD | 1m | Column samples is degenerate in 90d. | 1 distinct value(s) across 5708 rows |
+| LOW | features_spread | EURUSD | 1m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 5708 rows |
+| LOW | features_spread | EURUSD | 5m | Column samples is degenerate in 90d. | 1 distinct value(s) across 1338 rows |
+| LOW | features_spread | EURUSD | 5m | Column engine_ver is degenerate in 90d. | 1 distinct value(s) across 1338 rows |
+| LOW | features_structure | USDCAD | 15m | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_structure | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_structure | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | AUDUSD | 15m | No feature rows despite candle coverage. | candles_15m has 421 rows |
+| LOW | features_sweep | EURUSD | 15m | No feature rows despite candle coverage. | candles_15m has 421 rows |
+| LOW | features_sweep | GBPUSD | 15m | No feature rows despite candle coverage. | candles_15m has 391 rows |
+| LOW | features_sweep | NZDUSD | 15m | No feature rows despite candle coverage. | candles_15m has 524 rows |
+| LOW | features_sweep | USDCAD | 15m | No feature rows despite candle coverage. | candles_15m has 421 rows |
+| LOW | features_sweep | USDCHF | 15m | No feature rows despite candle coverage. | candles_15m has 575 rows |
+| LOW | features_sweep | USDJPY | 15m | No feature rows despite candle coverage. | candles_15m has 391 rows |
+| LOW | features_sweep | USDSEK | 15m | No feature rows despite candle coverage. | candles_15m has 421 rows |
+| LOW | features_sweep | XAUUSD | 15m | No feature rows despite candle coverage. | candles_15m has 360 rows |
+| LOW | features_sweep | AUDUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | GBPUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | NZDUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 67 rows |
+| LOW | features_sweep | USDCAD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | USDCHF | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | USDJPY | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | XAUUSD | 1d | No feature rows despite candle coverage. | candles_1d_ny has 65 rows |
+| LOW | features_sweep | AUDUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | EURUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 78 rows |
+| LOW | features_sweep | GBPUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | NZDUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 78 rows |
+| LOW | features_sweep | USDCAD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | USDCHF | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | USDJPY | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | USDSEK | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | XAUUSD | 1d | No feature rows despite candle coverage. | candles_1d_utc has 77 rows |
+| LOW | features_sweep | AUDUSD | 1h | No feature rows despite candle coverage. | candles_1h has 508 rows |
+| LOW | features_sweep | EURUSD | 1h | No feature rows despite candle coverage. | candles_1h has 508 rows |
+| LOW | features_sweep | GBPUSD | 1h | No feature rows despite candle coverage. | candles_1h has 501 rows |
+| LOW | features_sweep | NZDUSD | 1h | No feature rows despite candle coverage. | candles_1h has 677 rows |
+| LOW | features_sweep | USDCAD | 1h | No feature rows despite candle coverage. | candles_1h has 508 rows |
+| LOW | features_sweep | USDCHF | 1h | No feature rows despite candle coverage. | candles_1h has 546 rows |
+| LOW | features_sweep | USDJPY | 1h | No feature rows despite candle coverage. | candles_1h has 501 rows |
+| LOW | features_sweep | USDSEK | 1h | No feature rows despite candle coverage. | candles_1h has 508 rows |
+| LOW | features_sweep | XAUUSD | 1h | No feature rows despite candle coverage. | candles_1h has 474 rows |
+| LOW | features_sweep | AUDUSD | 4h | No feature rows despite candle coverage. | candles_4h has 390 rows |
+| LOW | features_sweep | EURUSD | 4h | No feature rows despite candle coverage. | candles_4h has 390 rows |
+| LOW | features_sweep | GBPUSD | 4h | No feature rows despite candle coverage. | candles_4h has 388 rows |
+| LOW | features_sweep | NZDUSD | 4h | No feature rows despite candle coverage. | candles_4h has 434 rows |
+| LOW | features_sweep | USDCAD | 4h | No feature rows despite candle coverage. | candles_4h has 390 rows |
+| LOW | features_sweep | USDCHF | 4h | No feature rows despite candle coverage. | candles_4h has 398 rows |
+| LOW | features_sweep | USDJPY | 4h | No feature rows despite candle coverage. | candles_4h has 388 rows |
+| LOW | features_sweep | USDSEK | 4h | No feature rows despite candle coverage. | candles_4h has 390 rows |
+| LOW | features_sweep | XAUUSD | 4h | No feature rows despite candle coverage. | candles_4h has 386 rows |
+| LOW | features_sweep | AUDUSD | 5m | No feature rows despite candle coverage. | candles_5m has 313 rows |
+| LOW | features_sweep | GBPUSD | 5m | No feature rows despite candle coverage. | candles_5m has 222 rows |
+| LOW | features_sweep | NZDUSD | 5m | No feature rows despite candle coverage. | candles_5m has 311 rows |
+| LOW | features_sweep | USDCAD | 5m | No feature rows despite candle coverage. | candles_5m has 313 rows |
+| LOW | features_sweep | USDSEK | 5m | No feature rows despite candle coverage. | candles_5m has 312 rows |
+| LOW | features_zone | EURUSD | 15m | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_zone | EURUSD | 1h | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_zone | USDCAD | 1h | Rows exist on weekend timestamps. | 1 weekend rows in 90d |
+| LOW | features_zone | USDCHF | 1h | Rows exist on weekend timestamps. | 2 weekend rows in 90d |
+
+## Remediation Recommendations
+
+1. Rebuild or backfill HIGH-failing dense features before trusting PIT results; these are expected to exist near candle density and missing rows create silent filter bias.
+2. For stale lifecycle features, refresh lifecycle state and verify `is_fresh`, `mitigated_at`, `invalidated_at`, and touch counters with PIT-time lookups.
+3. For >20% NULL critical columns, fix the feature writer first, then delete/recompute affected symbol/timeframe windows.
+4. For event features firing >10,000 times, tighten detection thresholds by symbol volatility/pip size rather than using one global price threshold.
+5. Treat exact-timestamp backtest traces as suspicious unless the strategy compiler intentionally performs lateral `<= entry_ts` lookups; exact equality is too strict for sparse HTF/event features.

@@ -1,5 +1,5 @@
 /**
- * Higher-TimeFrame Bias feature v3.1.0 — pure HTF Bias Tree with local-agreement signal.
+ * Higher-TimeFrame Bias feature v3.2.0 — pure HTF Bias Tree with local-agreement signal.
  *
  * Computes a top-down bias tree from higher-timeframe candles only.  No DB
  * queries, no dependency on other feature rows.  The aggregate fields
@@ -11,6 +11,17 @@
  *     is no longer the weakest voice.
  *   - Exposes a localAgreement score so specs can block when HTF and local
  *     structure disagree.
+ *
+ * v3.2.0 changes (Track B — HTF bias reweighting):
+ *   - Rebalanced BASE_TF_WEIGHTS so the daily no longer dominates the
+ *     aggregate score.  Old weights (1d=3.0, 4h=2.0, 1h=1.0, 15m=0.5) made
+ *     a single daily BOS overwhelm three agreeing lower-TFs.  New weights
+ *     (1d=1.5, 4h=1.5, 1h=1.5, 15m=1.0) require multi-TF agreement before
+ *     the aggregate flips, which the COMPREHENSIVE_AUDIT_REPORT flagged as
+ *     the root cause of over-confident A+ grades on counter-trend setups.
+ *   - 15m weight is now 1.0 by default (was 0.5) and only boosted to 1.5
+ *     when the trading TF is 15m, so the entry TF always has a meaningful
+ *     voice without inflating the 15m contribution on higher-TF specs.
  */
 
 import type {
@@ -33,10 +44,10 @@ export interface HtfBiasInput {
 const TF_ORDER: TimeFrame[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
 
 const BASE_TF_WEIGHTS: Record<TimeFrame, number> = {
-  "1d": 3.0,
-  "4h": 2.0,
-  "1h": 1.0,
-  "15m": 0.5,
+  "1d": 1.5,
+  "4h": 1.5,
+  "1h": 1.5,
+  "15m": 1.0,
   "5m": 0.0,
   "1m": 0.0,
 };
@@ -241,7 +252,7 @@ function computeAggregate(
   if (Math.abs(score) >= 3.0) {
     state = "READY";
     confidence = 90;
-  } else if (Math.abs(score) >= 1.0) {
+  } else if (Math.abs(score) >= 1.5) {
     state = "SOFT_WARN";
     confidence = 70;
   } else {
@@ -305,7 +316,7 @@ function computeHtfBias(
 
 export const htfBiasFeature: FeatureDefinition<HtfBiasInput, HtfBiasOutput> = {
   name: "features_htf_bias",
-  version: "3.1.0",
+  version: "3.2.0",
   dependencies: [],
   referenceTimeFrames: ["1h", "4h", "1d"],
 
@@ -338,7 +349,7 @@ export const htfBiasFeature: FeatureDefinition<HtfBiasInput, HtfBiasOutput> = {
           "||";
       }
     }
-    return sha256(`htfBias:v3.1.0|${htfHash}`);
+    return sha256(`htfBias:v3.2.0|${htfHash}`);
   },
 
   hashOutput(output): string {

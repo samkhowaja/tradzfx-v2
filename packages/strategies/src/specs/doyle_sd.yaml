@@ -1,5 +1,6 @@
 id: doyle_sd
 familyId: doyle_sd
+setupFamily: zone_reversal
 active: true
 name: "Doyle Supply/Demand"
 version: "1.1.0"
@@ -97,12 +98,12 @@ gates:
       maxSignalsPerDay: 5
 
 live:
-  mode: paper
+  mode: live
   lotSize: 0.01
   riskPerTradePct: 1.0
   accountBalance: 10000
   accountCurrency: USD
-  signalTtlMinutes: 15
+  signalTtlMinutes: 30
   maxSpreadPips: 3.0
   maxSlippagePoints: 20
   entryZonePips: null

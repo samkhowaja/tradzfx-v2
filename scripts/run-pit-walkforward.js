@@ -113,7 +113,7 @@ async function main() {
   const outputDir = args[2] || path.join(__dirname, "..", "reports", `walkforward-${windowDays}d-${stepDays}d-step-${new Date().toISOString().slice(0, 10)}`);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const { rows } = await pool.query(`SELECT MAX(ts) AS max_ts FROM candles_1m`);
+  const { rows } = await pool.query(`SELECT MAX(ts) AS max_ts FROM market.candles_1m_canonical`);
   const latestTs = rows[0].max_ts ? new Date(rows[0].max_ts) : new Date();
 
   // Build end dates stepping back from latest, while a full window fits.

@@ -35,12 +35,12 @@ export async function GET() {
       [MAJOR_PAIRS]
     ),
 
-    // Last candle per symbol
+    // Last canonical candle per symbol
     pool.query(
       `
       SELECT DISTINCT ON (symbol)
         symbol, ts as last_bar_at
-      FROM candles_1m
+      FROM market.candles_1m_canonical
       WHERE symbol = ANY($1)
       ORDER BY symbol, ts DESC
     `,

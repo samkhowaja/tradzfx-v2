@@ -28,6 +28,8 @@ export interface TrackOutcomeOptions {
   spreadPips?: number;
   /** Slippage in pips applied pessimistically to entry and exit. */
   slippagePips?: number;
+  /** Commission in pips per round-trip lot. Half is applied to entry and half to exit. */
+  commissionPips?: number;
   /** How to resolve when both SL and TP are touched inside the same 1m bar. */
   intrabarMode?: "optimistic" | "pessimistic" | "midpoint" | "proportion";
   /** Optional pip size for the symbol. Defaults to 0.0001 (FX) or 0.01 if entry > 50. */
@@ -93,6 +95,7 @@ export function trackOutcome(
   const {
     spreadPips = 0,
     slippagePips = 0,
+    commissionPips = 0,
     intrabarMode = "pessimistic",
   } = options;
 
@@ -115,15 +118,17 @@ export function trackOutcome(
   const spreadPrice = pipsToPrice(spreadPips, pipSize);
   const slippagePrice = pipsToPrice(slippagePips, pipSize);
 
-  // For a market entry, the effective entry is worse by half spread + slippage.
-  const entryAdjustment = spreadPrice / 2 + slippagePrice;
+  // For a market entry, the effective entry is worse by half spread + slippage + half commission.
+  const commissionPrice = pipsToPrice(commissionPips, pipSize);
+  const halfCommission = commissionPrice / 2;
+  const entryAdjustment = spreadPrice / 2 + slippagePrice + halfCommission;
   const effectiveEntry = direction === "long"
     ? rawEntryPrice + entryAdjustment
     : rawEntryPrice - entryAdjustment;
 
   const risk = Math.abs(effectiveEntry - stopLoss);
 
-  if (risk === 0) {
+  if (risk <= 0 || !Number.isFinite(risk)) {
     return {
       outcome: "missed",
       outcomeR: 0,
@@ -137,6 +142,18 @@ export function trackOutcome(
   }
 
   const reward = Math.abs(takeProfit - effectiveEntry);
+  if (reward <= 0 || !Number.isFinite(reward)) {
+    return {
+      outcome: "missed",
+      outcomeR: 0,
+      exitPrice: null,
+      exitTs: null,
+      barsHeld: 0,
+      effectiveEntry,
+      maxAdverseR: 0,
+      maxFavorableR: 0,
+    };
+  }
   const targetR = reward / risk;
 
   let maxAdverseR = 0;
@@ -158,34 +175,26 @@ export function trackOutcome(
       if (favorable > maxFavorableR) maxFavorableR = favorable;
     }
 
+    const exitAdjustment = spreadPrice / 2 + slippagePrice + halfCommission;
+
     const slHit = direction === "long" ? candle.l <= stopLoss : candle.h >= stopLoss;
     const tpHit = direction === "long" ? candle.h >= takeProfit : candle.l <= takeProfit;
 
+    function outcomeRFromExit(effectiveExit: number): number {
+      const delta = direction === "long" ? effectiveExit - effectiveEntry : effectiveEntry - effectiveExit;
+      return delta / risk;
+    }
+
     if (slHit && tpHit) {
       const first = resolveIntrabar(direction, stopLoss, takeProfit, candle, intrabarMode);
-      if (first === "sl") {
-        const exitAdjustment = spreadPrice / 2 + slippagePrice;
-        const effectiveExit = direction === "long"
-          ? stopLoss - exitAdjustment
-          : stopLoss + exitAdjustment;
-        return {
-          outcome: "loss",
-          outcomeR: -1,
-          exitPrice: effectiveExit,
-          exitTs: candle.ts,
-          barsHeld: i + 1,
-          effectiveEntry,
-          maxAdverseR,
-          maxFavorableR,
-        };
-      }
-      const exitAdjustment = spreadPrice / 2 + slippagePrice;
-      const effectiveExit = direction === "long"
-        ? takeProfit - exitAdjustment
-        : takeProfit + exitAdjustment;
+      const effectiveExit =
+        first === "sl"
+          ? direction === "long" ? stopLoss - exitAdjustment : stopLoss + exitAdjustment
+          : direction === "long" ? takeProfit - exitAdjustment : takeProfit + exitAdjustment;
+      const r = outcomeRFromExit(effectiveExit);
       return {
-        outcome: "win",
-        outcomeR: Math.abs(effectiveExit - effectiveEntry) / risk,
+        outcome: r >= 0 ? "win" : "loss",
+        outcomeR: r,
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,
@@ -196,13 +205,10 @@ export function trackOutcome(
     }
 
     if (slHit) {
-      const exitAdjustment = spreadPrice / 2 + slippagePrice;
-      const effectiveExit = direction === "long"
-        ? stopLoss - exitAdjustment
-        : stopLoss + exitAdjustment;
+      const effectiveExit = direction === "long" ? stopLoss - exitAdjustment : stopLoss + exitAdjustment;
       return {
         outcome: "loss",
-        outcomeR: -1,
+        outcomeR: outcomeRFromExit(effectiveExit),
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,
@@ -213,13 +219,10 @@ export function trackOutcome(
     }
 
     if (tpHit) {
-      const exitAdjustment = spreadPrice / 2 + slippagePrice;
-      const effectiveExit = direction === "long"
-        ? takeProfit - exitAdjustment
-        : takeProfit + slippagePrice;
+      const effectiveExit = direction === "long" ? takeProfit - exitAdjustment : takeProfit + exitAdjustment;
       return {
         outcome: "win",
-        outcomeR: Math.abs(effectiveExit - effectiveEntry) / risk,
+        outcomeR: outcomeRFromExit(effectiveExit),
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,

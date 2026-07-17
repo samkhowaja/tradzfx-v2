@@ -1,0 +1,94 @@
+id: gold_anti_bias_sniper_v1
+familyId: gold_anti_bias_sniper
+active: true
+name: "Gold Anti-Bias Sniper V1"
+version: "1.0.0"
+signalSource: "zone"
+description: >
+  Anti-bias sweep continuation for XAUUSD. 5m sweep opposite 15m bias = 57-68%
+  continuation, 200-300 pip avg post-sweep move. BOS/MSS confirms continuation
+  direction. Fixed 40 pip SL (5m ATR p25), 5R TP (200 pips). London/Asia best.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ ASIA, LONDON, OVERLAP, NY ]
+
+setup:
+  - id: htf_bias
+    feature: features_bias
+    tf: 15m
+    lookbackBars: 16
+    predicate: "direction != 'neutral'"
+    required: true
+    weight: 8
+
+entry:
+  - id: anti_bias_sweep
+    feature: features_sweep
+    tf: 5m
+    lookbackBars: 48
+    predicate: "direction != features_bias.direction"
+    required: true
+    weight: 10
+
+  - id: structure_confirm
+    feature: features_structure
+    tf: 5m
+    lookbackBars: 48
+    predicate: "event_type IN ('bos', 'mss') AND direction != features_bias.direction"
+    required: true
+    weight: 10
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  sl: "40 pips"
+  tp: "sl * 5.0"
+  minRR: 4.0
+  timeoutBars: 480
+  maxFillBars: 45
+
+gates:
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      maxAtr5Pips: 60.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 1
+      maxSignalsPerDay: 4
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 30
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 60
+
+notes:
+  - "Anti-bias sweeps: sweep direction opposite 15m HTF bias shows strong continuation. 68% bullish sweeps continue up (+206 avg), 57% bearish sweeps continue down (-121 avg)."
+  - "London bullish anti-bias: 77% continuation rate (22.6% reversal — lowest of any session)."
+  - "Fixed 40 pip SL (5m ATR p25 ≈ 37 pips). 5R TP = 200 pips, achievable in 1-2h based on avg post-sweep range."
+  - "V1: market entry on BOS/MSS confirmation. Future: limit entry at sweep level retest."

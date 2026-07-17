@@ -1,0 +1,95 @@
+id: lewis_kelly_smc_ny_shorts
+familyId: lewis_kelly_smc
+active: true
+name: Lewis Kelly SMC NY Shorts
+version: 1.0.0
+description: >
+  SMC liquidity-sweep strategy decoded from the Lewis Kelly Trades course.
+  Bearish-only, London–NY execution.
+  15m structure sets bearish bias, price rotates back into a 15m supply zone,
+  then a 1m bearish CHoCH/MSS confirms entry.
+  Stop above the recent swing high; target at the next demand level.
+
+category: smc
+
+filters:
+  symbols:
+    - EURUSD
+    - GBPUSD
+  sessions:
+    - LONDON
+    - OVERLAP
+    - NY
+
+setup:
+  - id: mtf_bias
+    feature: features_bias
+    tf: 15m
+    predicate: direction = 'bearish'
+    required: true
+
+  - id: htf_bias
+    feature: features_htf_bias
+    tf: 4h
+    predicate: direction = 'bearish'
+    required: true
+
+  - id: premium_pricing
+    feature: features_pricing
+    tf: 15m
+    predicate: position IN ('premium', 'deep_premium')
+    required: true
+
+  - id: supply_retest
+    feature: features_zone_retest
+    tf: 15m
+    groupBy: [zone_kind]
+    predicate: zone_kind = 'supply' AND wick_into_zone = true
+    required: true
+
+entry:
+  - id: ltf_choch
+    feature: features_structure
+    tf: 1m
+    predicate: event_type IN ('choch', 'mss', 'bos') AND direction = 'bearish'
+    required: true
+
+
+risk:
+  sl: nearest_swing_high_1m
+  tp: nearest_demand_bottom_15m
+  minRR: 3
+  timeoutBars: 480
+  maxFillBars: 60
+  minSlDistancePips: 1.5
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed:
+        - LONDON
+        - OVERLAP
+        - NY
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 2.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPips: 25.0
+
+  - id: family_position_gate
+    name: familyPosition
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+  - id: portfolio_heat_gate
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2

@@ -5,15 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-
-const EXPECTED_API_KEY =
-  process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 
 export async function POST(request: NextRequest) {
-  const apiKey = request.headers.get("X-API-Key");
-  if (apiKey !== EXPECTED_API_KEY) {
+  if (!(await validateMt5ApiKey(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return NextResponse.json({ ok: true, accepted: 0 });

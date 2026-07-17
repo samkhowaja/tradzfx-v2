@@ -13,8 +13,13 @@ function zoneOverlapsOte(
   return zone.bottom <= high && zone.top >= low;
 }
 
+function isZoneAware(ctx: EvaluationContext): boolean {
+  return ctx.setupFamily === "zone_reversal" || ctx.signalSource === "zone";
+}
+
 export function runSoftRules(ctx: EvaluationContext): string[] {
   const warnings: string[] = [];
+  const zoneAware = isZoneAware(ctx);
 
   if (ctx.spreadPips > ctx.maxAllowedSpreadPips * 0.7) {
     warnings.push(`Spread ${ctx.spreadPips.toFixed(1)}p approaching limit`);
@@ -24,14 +29,14 @@ export function runSoftRules(ctx: EvaluationContext): string[] {
     warnings.push(`LTF bias (${ctx.bias.direction}) differs from setup direction (${ctx.direction})`);
   }
 
-  if (!ctx.pricing?.inOte) {
-    warnings.push("Price not in OTE zone — entry may be extended");
-  } else if (!zoneOverlapsOte(ctx.entryZone, ctx.pricing)) {
+  if (zoneAware && !ctx.pricing?.inOte) {
+    warnings.push("Price not in OTE zone - entry may be extended");
+  } else if (zoneAware && !zoneOverlapsOte(ctx.entryZone, ctx.pricing)) {
     warnings.push("OTE band does not overlap the selected entry zone");
   }
 
   const freshZones = ctx.zones.filter((z) => !z.tapped);
-  if (freshZones.length === 0) {
+  if (zoneAware && freshZones.length === 0) {
     warnings.push("No fresh untapped zones on this timeframe");
   }
 

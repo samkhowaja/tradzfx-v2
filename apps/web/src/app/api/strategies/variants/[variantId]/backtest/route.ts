@@ -13,6 +13,7 @@ export async function GET(
   const symbol = searchParams.get("symbol")?.toUpperCase();
   const tf = searchParams.get("tf");
   const days = parseInt(searchParams.get("days") ?? "90", 10);
+  const source = searchParams.get("source") ?? "analyzer";
   const withMonteCarlo = searchParams.get("monteCarlo") === "true";
   const mcIterations = parseInt(searchParams.get("mcIterations") ?? "5000", 10);
 
@@ -37,6 +38,10 @@ export async function GET(
     if (tf) {
       sql += ` AND tf = $${idx++}`;
       paramsArr.push(tf);
+    }
+    if (source && source !== "all") {
+      sql += ` AND source = $${idx++}`;
+      paramsArr.push(source);
     }
     sql += ` ORDER BY ts`;
 

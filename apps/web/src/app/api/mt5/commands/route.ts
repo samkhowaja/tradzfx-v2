@@ -3,6 +3,7 @@
 // (modify SL/TP, emergency close, cancel pending order).
 
 import { NextRequest, NextResponse } from "next/server";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 import { getPool } from "@tm/shared";
 import {
   getPendingCommands,
@@ -11,20 +12,13 @@ import {
   resolveTerminalKeyId,
 } from "@/lib/positionCommandService";
 
-const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function validateApiKey(req: NextRequest): boolean {
-  const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
-  return key === EXPECTED_API_KEY;
-}
 
 interface EaCommand {
   commandId: string;
   orderId: string;
   commandType: "MODIFY_SL" | "CLOSE_POSITION" | "PARTIAL_CLOSE" | "CANCEL_PENDING_ORDER";
   mt5Ticket: number;
+  symbol: string;
   newSl: number | null;
   newTp: number | null;
   closeLots: number | null;
@@ -33,7 +27,7 @@ interface EaCommand {
 }
 
 export async function GET(req: NextRequest) {
-  if (!validateApiKey(req)) {
+  if (!(await validateMt5ApiKey(req))) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
 
@@ -69,6 +63,7 @@ export async function GET(req: NextRequest) {
         orderId: cmd.order_id,
         commandType: cmd.command_type,
         mt5Ticket: Number(cmd.mt5_ticket),
+        symbol: cmd.symbol ?? "",
         newSl: cmd.new_sl != null ? Number(cmd.new_sl) : null,
         newTp: cmd.new_tp != null ? Number(cmd.new_tp) : null,
         closeLots: cmd.close_lots != null ? Number(cmd.close_lots) : null,

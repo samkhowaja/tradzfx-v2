@@ -8,6 +8,9 @@ interface Row {
   level_type: string;
   kind: string;
   strength: number | null;
+  invalidated_at: Date | null;
+  tapped_at: Date | null;
+  touch_count: number;
   ts: Date;
   source_id: string | null;
   source_json: Record<string, unknown> | null;
@@ -23,9 +26,9 @@ function rowToMarketLevel(row: Row, symbol: string, tf: string): MarketLevel {
     top: Number(row.top),
     bottom: Number(row.bottom),
     strength: row.strength == null ? null : Number(row.strength),
-    invalidated_at: null,
-    tapped_at: null,
-    touch_count: 0,
+    invalidated_at: row.invalidated_at ?? null,
+    tapped_at: row.tapped_at ?? null,
+    touch_count: row.touch_count ?? 0,
     source_id: row.source_id,
     source_json: row.source_json,
     ts: row.ts,
@@ -62,7 +65,9 @@ export async function computeTarget(
   const kinds = direction === "long" ? longKinds : shortKinds;
 
   const { rows } = await pool.query<Row>(
-    `SELECT id, top, bottom, level_type, kind, strength, ts, source_id, source_json,
+    `SELECT id, top, bottom, level_type, kind, strength,
+            invalidated_at, tapped_at, touch_count,
+            ts, source_id, source_json,
             ${direction === "long" ? "top" : "bottom"} AS target_price
      FROM market_levels_view
      WHERE symbol = $1

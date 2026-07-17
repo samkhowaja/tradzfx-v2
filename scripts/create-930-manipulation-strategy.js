@@ -183,7 +183,7 @@ async function runBacktest(symbols, startTs, endTs) {
     // Load 15m candles for the opening range / manipulation logic.
     const { rows: m15Rows } = await pool.query(
       `SELECT ts, o as open, h as high, l as low, c as close
-       FROM candles_15m
+       FROM market.candles_15m_canonical
        WHERE symbol = $1 AND ts >= $2 AND ts <= $3
        ORDER BY ts`,
       [symbol, startTs, endTs]
@@ -199,7 +199,7 @@ async function runBacktest(symbols, startTs, endTs) {
     // Load 1m candles for entry/exit execution.
     const { rows: m1Rows } = await pool.query(
       `SELECT ts, o as open, h as high, l as low, c as close
-       FROM candles_1m
+       FROM market.candles_1m_canonical
        WHERE symbol = $1 AND ts >= $2 AND ts <= $3
        ORDER BY ts`,
       [symbol, startTs, endTs]

@@ -17,8 +17,8 @@ export async function GET() {
       filled_at
     FROM orders o
     LEFT JOIN LATERAL (
-      SELECT c as close FROM candles_1m 
-      WHERE symbol = o.symbol 
+      SELECT c as close FROM market.candles_1m_canonical
+      WHERE symbol = o.symbol
       ORDER BY ts DESC LIMIT 1
     ) c ON true
     WHERE status = 'filled' AND closed_at IS NULL

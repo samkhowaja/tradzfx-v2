@@ -7,9 +7,12 @@
  */
 
 import type { MarketContext } from "@tm/shared";
+import { getPairCharacteristics } from "@tm/shared";
 
 export interface SpreadGateConfig {
   maxSpreadPips: number;
+  /** Multiplier applied to the symbol's base spread when computing the effective maximum. Defaults to 1.2. */
+  spreadBufferMultiple?: number;
 }
 
 export function createSpreadGate(config: SpreadGateConfig) {
@@ -24,10 +27,14 @@ export function createSpreadGate(config: SpreadGateConfig) {
       };
     }
 
-    if (spreadPips > config.maxSpreadPips) {
+    const { baseSpreadPips } = getPairCharacteristics(ctx.symbol);
+    const buffer = config.spreadBufferMultiple ?? 1.2;
+    const effectiveMax = Math.max(config.maxSpreadPips, baseSpreadPips * buffer);
+
+    if (spreadPips > effectiveMax) {
       return {
         passed: false,
-        reason: `Spread=${spreadPips.toFixed(2)}pips exceeds max=${config.maxSpreadPips}`,
+        reason: `Spread=${spreadPips.toFixed(2)}pips exceeds max=${effectiveMax.toFixed(2)} (base=${baseSpreadPips} * ${buffer})`,
       };
     }
 

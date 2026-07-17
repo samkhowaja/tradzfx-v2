@@ -26,7 +26,7 @@ async function main() {
   }
 
   const compiled = compileStrategy(spec, { trustStoredLifecycle: true });
-  const sql = compiled.latestSignalSQL(symbol);
+  const sql = compiled.latestSignalSQL();
 
   console.log(`[dry-run-live] ${symbol} ${strategyId}`);
   const result = await runLivePipeline({

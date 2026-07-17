@@ -1,5 +1,5 @@
-import type { Pool } from "./db";
 import type { TimeFrame } from "../types/feature";
+import type { Pool, Queryable } from "./db";
 
 export interface SetupEvaluationSnapshot {
   symbol: string;
@@ -20,6 +20,10 @@ export interface SetupEvaluationSnapshot {
   }>;
   warnings?: string[];
   blockReasons?: string[];
+  /** Lifecycle status: candidate | triggered | filled | completed | invalidated | blocked | ready | waiting */
+  setupStatus?: string;
+  /** Deterministic hash of the evaluation context for skip-dedup */
+  contextHash?: string;
 }
 
 export interface GradeCalibrationRow {
@@ -37,7 +41,7 @@ export interface GradeCalibrationRow {
  * live order so the outcome can be correlated with the predicted grade.
  */
 export async function recordSetupEvaluation(
-  pool: Pool,
+  pool: Queryable,
   snapshot: SetupEvaluationSnapshot,
   orderId?: string
 ): Promise<void> {
@@ -45,8 +49,9 @@ export async function recordSetupEvaluation(
     `INSERT INTO setup_evaluations (
       symbol, tf, ts, grade, direction, confidence,
       entry_zone, stop_loss, take_profit, risk_reward,
-      evidence, warnings, block_reasons, order_id
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      evidence, warnings, block_reasons, order_id,
+      setup_status, context_hash
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
     ON CONFLICT (symbol, tf, ts, direction, order_id)
     WHERE order_id IS NOT NULL
     DO NOTHING`,
@@ -65,6 +70,8 @@ export async function recordSetupEvaluation(
       snapshot.warnings ?? [],
       snapshot.blockReasons ?? [],
       orderId ?? null,
+      snapshot.setupStatus ?? null,
+      snapshot.contextHash ?? null,
     ]
   );
 }

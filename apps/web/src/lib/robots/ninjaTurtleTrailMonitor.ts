@@ -36,7 +36,7 @@ async function getOpenNinjaOrders(pool: ReturnType<typeof getPool>) {
 
 async function getLatestBar(pool: ReturnType<typeof getPool>, symbol: string) {
   const { rows } = await pool.query(
-    `SELECT h, l, ts FROM candles_1m
+    `SELECT h, l, ts FROM market.candles_1m_canonical
      WHERE symbol = $1
      ORDER BY ts DESC
      LIMIT 1`,

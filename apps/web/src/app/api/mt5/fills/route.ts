@@ -4,6 +4,7 @@
 // V2 implementation — updates the orders table in tradzfx_v2.
 
 import { NextRequest, NextResponse } from "next/server";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 import { getPool } from "@tm/shared";
 import {
   markOrderFilled,
@@ -19,18 +20,10 @@ import {
   markEventProcessed,
 } from "@/lib/eaEventIdempotency";
 
-const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function validateApiKey(req: NextRequest): boolean {
-  const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
-  return key === EXPECTED_API_KEY;
-}
 
 export async function POST(req: NextRequest) {
   // 1. Auth
-  if (!validateApiKey(req)) {
+  if (!(await validateMt5ApiKey(req))) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
 

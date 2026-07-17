@@ -2,6 +2,7 @@
 // Bridges the Ninja Turtle Scalper robot into V2's orders table.
 
 import { getPool, checkSmallAccountGate } from "@tm/shared";
+import type { Queryable } from "@tm/shared";
 import { createOrder } from "@/lib/orderService";
 import { createNinjaTurtleScalperStrategy } from "./ninjaTurtleScalper";
 import type { Bar } from "./indicators";
@@ -37,7 +38,7 @@ async function loadRecentBars(
   const fromMs = Date.now() - lookbackMs;
   const { rows }: { rows: any[] } = await pool.query(
     `SELECT ts, o, h, l, c, v
-     FROM candles_1m
+     FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts >= to_timestamp($2 / 1000.0)
      ORDER BY ts ASC`,
     [symbol, fromMs]
@@ -52,12 +53,13 @@ async function loadRecentBars(
   }));
 }
 
+
 async function canOpenNewPosition(
-  pool: ReturnType<typeof getPool>,
+  db: Queryable,
   symbol: string
 ): Promise<{ ok: boolean; reason?: string }> {
   // Ninja-specific: no duplicate open/pending order for this strategy + symbol.
-  const { rows } = await pool.query(
+  const { rows } = await db.query(
     `SELECT 1 FROM orders
      WHERE symbol = $1 AND strategy_id = $2
        AND status IN ('pending', 'sent', 'filled')
@@ -69,7 +71,7 @@ async function canOpenNewPosition(
   }
 
   // Account-level small-account guard (max total, daily loss, cooldown, etc.).
-  return checkSmallAccountGate(pool, symbol);
+  return checkSmallAccountGate(db, symbol);
 }
 
 /**
@@ -105,17 +107,25 @@ export async function emitNinjaTurtleSignals(
 
   if (!signal) return;
 
-  // Enforce small-account position limits before creating a new order.
-  const gate = await canOpenNewPosition(pool, cleanSymbol);
-  if (!gate.ok) {
-    console.log(`[ninja-turtle] blocked: ${gate.reason}`);
-    return;
-  }
+  // Serialize per-strategy+symbol with pg_advisory_xact_lock to prevent
+  // TOCTOU race between gate check and order creation.
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [`${STRATEGY_ID}:${cleanSymbol}`]);
 
-  const cfg = strategy.cfg;
-  const rr = cfg.tpPct / cfg.slPct;
+    // Re-check gate inside the lock
+    const gate = await canOpenNewPosition(client, cleanSymbol);
+    if (!gate.ok) {
+      await client.query("COMMIT");
+      console.log(`[ninja-turtle] blocked: ${gate.reason}`);
+      return;
+    }
 
-  await createOrder({
+    const cfg = strategy.cfg;
+    const rr = cfg.tpPct / cfg.slPct;
+
+    await createOrder({
     symbol: cleanSymbol,
     strategy_id: STRATEGY_ID,
     side: signal.side,
@@ -128,7 +138,15 @@ export async function emitNinjaTurtleSignals(
     trade_mode: envMode(),
     expires_at: new Date(Date.now() + 5 * 60 * 1000), // 5m signal TTL
     entry_zone_pips: null,
-  });
+    }, client);
+
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
 
   console.log(
     `[ninja-turtle] ${envMode().toUpperCase()} ${signal.side} ${cleanSymbol} @ ${signal.entryPrice.toFixed(2)} ` +

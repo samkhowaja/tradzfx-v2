@@ -1,0 +1,90 @@
+id: gold_mssnr_scalper_1m
+familyId: gold_mssnr_scalper
+active: true
+experimental: true
+name: "Gold MSSNR Scalper 1m"
+version: "1.0.0"
+description: >
+  MSSNR (Market Structure Support & Resistance) scalper for XAUUSD.
+  5m BOS/MSS defines trend direction (market structure). 1m engulfing/hammer/
+  pin_bar at S/R level (pricing discount/premium) confirms entry. 2-3R target,
+  ATR-based SL. Works all sessions — gold volatile every session per video.
+
+filters:
+  symbols: [XAUUSD]
+  sessions: [ASIA, LONDON, OVERLAP, NY]
+
+setup:
+  - id: structure_trend
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos', 'mss') AND direction IN ('bullish', 'bearish')"
+    required: true
+    weight: 8
+    lookbackBars: 48
+
+  - id: trend_bias
+    feature: features_bias
+    tf: 5m
+    predicate: "direction = 'bearish'"
+    required: true
+    weight: 5
+    lookbackBars: 8
+
+entry:
+  - id: candle_confirmation
+    feature: features_candle_pattern
+    tf: 1m
+    predicate: "direction = 'bearish' AND pattern_name IN ('engulfing_bear', 'evening_star', 'hanging_man', 'pin_bar', 'three_black_crows', 'wick_close_bear') AND confidence >= 0.5"
+    required: true
+    weight: 10
+    lookbackBars: 12
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  sl: "atr(1m) * 1.2"
+  tp: "sl * 3.0"
+  minRR: 2.0
+  timeoutBars: 120
+  maxFillBars: 30
+  minSlDistancePips: 2.0
+
+gates:
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      maxAtr5Pips: 60.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 5
+      maxSignalsPerDay: 20
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 30
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 10

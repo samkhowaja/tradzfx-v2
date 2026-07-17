@@ -52,7 +52,11 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5Pips: 3
+      # P0-B2 (V3 BUG-3.1): asset-class-safe percentile policy (see orb_classic).
+      maxAtrPercentile: 0.95
+      sessionMaxAtrPercentile:
+        NY: 0.95
+      maxAtr5Pips: 500
   - id: spread_gate
     name: spread
     params:

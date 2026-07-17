@@ -1,3 +1,6 @@
+-- NOTE: This migration is historical. The standalone `features_fvg` table was
+-- retired in migration 099_features_fvg_consolidation.sql; FVG rows now live in
+-- `features_zone` with `zone_kind = 'fvg'`.
 CREATE TABLE IF NOT EXISTS features_fvg (
   symbol TEXT NOT NULL,
   tf TEXT NOT NULL,

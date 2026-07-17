@@ -172,7 +172,7 @@ function passesBias(direction, bias) {
 async function runBacktest(symbol, startTs, endTs) {
   const { rows: candles } = await pool.query(
     `SELECT ts, o as open, h as high, l as low, c as close
-     FROM candles_1m
+     FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts >= $2 AND ts <= $3
      ORDER BY ts`,
     [symbol, startTs, endTs]

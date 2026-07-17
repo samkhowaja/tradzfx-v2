@@ -18,7 +18,7 @@ interface Task {
 async function fetchSymbols(pool: any): Promise<string[]> {
   try {
     const { rows } = await pool.query(
-      `SELECT DISTINCT symbol FROM candles_1m WHERE ts > NOW() - INTERVAL '7 days' ORDER BY symbol`
+      `SELECT DISTINCT symbol FROM market.candles_1m_canonical WHERE ts > NOW() - INTERVAL '7 days' ORDER BY symbol`
     );
     return rows.map((r: any) => r.symbol);
   } catch (err: any) {

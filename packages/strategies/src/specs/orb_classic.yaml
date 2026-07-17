@@ -1,5 +1,6 @@
 id: orb_classic
 familyId: orb_classic
+setupFamily: orb_breakout
 active: true
 name: "ORB Classic"
 version: "1.1.0"
@@ -31,6 +32,11 @@ setup:
   - id: orb
     feature: features_opening_range
     tf: 15m
+    # Session-scoped join (V4 BUG-11 fix): this strategy trades the 13:30-15:00
+    # UTC window (OVERLAP session), so the only same-day completed opening range
+    # is London's (complete 07:15 UTC). Pinning the session prevents stale
+    # ranges from prior sessions/days from satisfying the ORB join.
+    session: london
     predicate: "1 = 1"
     required: true
 
@@ -54,7 +60,14 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5Pips: 2.5
+      # P0-B2 (V3 BUG-3.1): asset-class-safe percentile policy. The cap resolves
+      # from market_volatility_profile (per symbol/session) so a EURUSD-calibrated
+      # spec no longer hard-blocks XAUUSD. maxAtr5Pips is an emergency fallback
+      # only (binds when no profile row exists).
+      maxAtrPercentile: 0.95
+      sessionMaxAtrPercentile:
+        NY: 0.95
+      maxAtr5Pips: 5000
 
   - id: spread_gate
     name: spread
@@ -94,7 +107,7 @@ live:
   riskPerTradePct: 1.0
   accountBalance: 10000
   accountCurrency: USD
-  signalTtlMinutes: 15
+  signalTtlMinutes: 30
   maxSpreadPips: 3.0
   maxSlippagePoints: 20
   entryZonePips: null

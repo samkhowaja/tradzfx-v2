@@ -112,7 +112,7 @@ async function computeAndInsert() {
 
   const sql = `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, broker)
                VALUES ${values.join(", ")}
-               ON CONFLICT (symbol, ts) DO UPDATE
+               ON CONFLICT (symbol, broker, ts) DO UPDATE
                SET o = EXCLUDED.o, h = EXCLUDED.h, l = EXCLUDED.l, c = EXCLUDED.c, v = EXCLUDED.v, broker = EXCLUDED.broker`;
   await pool.query(sql, params);
 

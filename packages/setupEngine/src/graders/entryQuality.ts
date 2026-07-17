@@ -28,24 +28,37 @@ export function gradeEntryQuality(ctx: EvaluationContext): GraderResult {
     return { score: 0, reasons: ["No active zones for entry"], entryZone: null };
   }
 
-  // Pick nearest active zone aligned with direction
+  // Pick nearest active zone aligned with direction.
+  //
+  // Retest zones (already tapped once but not invalidated) are valid ICT/SMC
+  // entry candidates — they often produce the highest-quality setups because
+  // the market has already confirmed the level by reacting to it. We rank
+  // them below fresh zones but above invalidated ones.
   const relevantZones = zones
-    .filter((z) => !z.tapped)
+    .filter((z) => !z.invalidatedAt)
     .filter((z) => {
       if (ctx.direction === "long") return price >= z.bottom;
       if (ctx.direction === "short") return price <= z.top;
       return false;
     })
-    .sort((a, b) => {
-      const distA = ctx.direction === "long" ? price - a.bottom : a.top - price;
-      const distB = ctx.direction === "long" ? price - b.bottom : b.top - price;
-      return distA - distB;
-    });
+    .map((z) => {
+      // Distance to nearest edge in price units.
+      const dist =
+        ctx.direction === "long" ? price - z.bottom : z.top - price;
+      // Retest zones get a small distance penalty so fresh zones still win
+      // when both are equally close.
+      const isRetest = !!z.tapped;
+      const adjustedDist = isRetest ? dist * 1.15 : dist;
+      return { zone: z, dist: adjustedDist, isRetest };
+    })
+    .sort((a, b) => a.dist - b.dist);
 
-  const zone = relevantZones[0];
-  if (!zone) {
+  const picked = relevantZones[0];
+  if (!picked) {
     return { score: 0, reasons: ["No zone aligned with current price/direction"], entryZone: null };
   }
+  const zone = picked.zone;
+  const isRetestZone = picked.isRetest;
 
   const entryZone: EntryZone = {
     top: zone.top,
@@ -92,10 +105,14 @@ export function gradeEntryQuality(ctx: EvaluationContext): GraderResult {
     reasons.push("Price outside OTE — consider waiting");
   }
 
-  const fresh = !zone.tapped;
-  if (fresh) {
+  // Freshness scoring: fresh zones get full credit, retest zones get partial
+  // credit (still a valid setup, but lower priority than first-touch).
+  if (!zone.tapped) {
     score += 15;
-    reasons.push("Zone is untapped");
+    reasons.push("Zone is fresh (untapped)");
+  } else {
+    score += 8;
+    reasons.push("Zone is a retest candidate (already tapped once)");
   }
 
   score = Math.min(100, Math.max(0, score));

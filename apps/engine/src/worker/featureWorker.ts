@@ -1,5 +1,5 @@
 import type { Pool, TimeFrame } from "@tm/shared";
-import { DAGRunner } from "../dag/runner";
+import { DAGRunner } from "../index";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
 
 export interface FeatureWorkerOptions {
@@ -28,10 +28,12 @@ const DEFAULT_REQUESTED_FEATURES: string[] = [
   "features_pivot",
   "features_structure",
   "features_sweep",
+  "features_liquidity_pools",
   "features_zone",
   "features_pricing",
   "features_bias",
   "features_session",
+  "features_time_of_day_edge",
   "features_displacement",
   "features_indicator",
   "features_session_hl",
@@ -44,25 +46,38 @@ const DEFAULT_REQUESTED_FEATURES: string[] = [
   "features_order_block",
   "features_eq_liquidity",
   "features_htf_bias",
+  "features_direction_state",
   "features_spread",
+  "features_zone_retest",
 ];
 
 /**
  * Claim one pending feature job from the queue in an atomic UPDATE ... RETURNING.
+ * Only claims jobs whose feature_name is in requestedFeatures.
  */
-async function claimJob(pool: Pool): Promise<FeatureJob | null> {
+async function claimJob(pool: Pool, requestedFeatures: string[]): Promise<FeatureJob | null> {
+  const placeholders = requestedFeatures.map((_, i) => `$${i + 1}`).join(",");
   const { rows } = await pool.query<FeatureJob>(
     `UPDATE feature_jobs
      SET status = 'processing', processed_at = NOW()
      WHERE id = (
-       SELECT id FROM feature_jobs
-       WHERE status = 'pending'
-       ORDER BY created_at ASC, id ASC
-       FOR UPDATE SKIP LOCKED
+       SELECT fj.id
+       FROM feature_jobs fj
+       JOIN ops.feature_pipeline_symbols u
+         ON u.symbol = fj.symbol
+        AND u.enabled = true
+        AND fj.tf = ANY(u.required_timeframes)
+        AND u.required_feature_profile = 'live-complete'
+        AND u.profile_version = 1
+       WHERE fj.status = 'pending'
+         AND fj.feature_name IN (${placeholders})
+         AND (fj.feature_name <> 'features_spread' OR fj.tf = '1m')
+       ORDER BY fj.created_at ASC, fj.id ASC
+       FOR UPDATE OF fj SKIP LOCKED
        LIMIT 1
      )
      RETURNING id, symbol, tf, ts, feature_name`,
-    []
+    requestedFeatures
   );
   return rows[0] ?? null;
 }
@@ -104,7 +119,7 @@ export async function runFeatureWorker(
   while (true) {
     if (maxJobs != null && processed >= maxJobs) break;
 
-    const job = await claimJob(pool);
+    const job = await claimJob(pool, requestedFeatures);
     if (!job) {
       if (once) break;
       idleStreak++;
@@ -119,7 +134,7 @@ export async function runFeatureWorker(
         symbol: job.symbol,
         tf: job.tf,
         endTs: job.ts,
-        requestedFeatures,
+        requestedFeatures: [job.feature_name],
         lookbackBars,
         batchInserts: true,
         skipLifecycle: true,

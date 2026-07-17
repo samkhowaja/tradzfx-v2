@@ -1,4 +1,4 @@
-import type { Pool, TimeFrame } from "@tm/shared";
+import type { Queryable, TimeFrame } from "@tm/shared";
 import type { SetupGrade } from "./types";
 
 export interface TuningRow {
@@ -28,7 +28,7 @@ function cacheKey(symbol: string, tf: TimeFrame): string {
 }
 
 export async function getCalibrationTuning(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame
 ): Promise<TuningRow[]> {

@@ -20,10 +20,26 @@ export const TF_MS: Record<TimeFrame, number> = {
 };
 
 /**
- * Map a display timeframe to the TimescaleDB aggregate table that stores it.
- * The engine and analyzer must agree on these names.
+ * Map a display timeframe to its effective-dated canonical candle relation.
+ * The engine, analyzer, live pipeline, and PIT sampler must agree on these names.
+ * Raw broker-qualified tables/caggs are audit and source-quality surfaces only.
+ *
+ * Daily contract (SK-11): `1d` uses UTC midnight. The fixed-21:00-UTC NY-close
+ * projection is a separate auxiliary used only by explicit export consumers.
  */
 export const CANDLE_TABLE_BY_TF: Record<TimeFrame, string> = {
+  "1m": "market.candles_1m_canonical",
+  "5m": "market.candles_5m_canonical",
+  "15m": "market.candles_15m_canonical",
+  "1h": "market.candles_1h_canonical",
+  "4h": "market.candles_4h_canonical",
+  "1d": "market.candles_1d_utc_canonical",
+};
+
+/**
+ * Broker-qualified raw relations retained for explicit audit/source snapshots.
+ */
+export const RAW_CANDLE_TABLE_BY_TF: Record<TimeFrame, string> = {
   "1m": "candles_1m",
   "5m": "candles_5m",
   "15m": "candles_15m",

@@ -4,7 +4,7 @@
  */
 
 import type { Candle, FeatureDefinition, OpeningRangeOutput, TimeFrame } from "@tm/shared";
-import { sha256, getTfMs } from "@tm/shared";
+import { sha256, getTfMs, ORB_SESSION_START_HOUR_UTC } from "@tm/shared";
 
 export interface OpeningRangeInput {
   candles: Candle[];
@@ -12,11 +12,8 @@ export interface OpeningRangeInput {
 
 type SessionKey = "ny" | "london" | "asia";
 
-const SESSION_START_HOUR: Record<SessionKey, number> = {
-  asia: 0,
-  london: 7,
-  ny: 16,
-};
+// Session start hours come from @tm/shared (ORB_SESSION_START_HOUR_UTC, derived
+// from DEFAULT_SESSION_WINDOWS) so the producer and every SQL join agree.
 
 const TF_TO_RANGE_MINUTES: Record<TimeFrame, number> = {
   "1m": 1,
@@ -34,7 +31,7 @@ function computeOpeningRange(
 ): OpeningRangeOutput["ranges"][number] | null {
   if (candles.length === 0) return null;
 
-  const startHour = SESSION_START_HOUR[session];
+  const startHour = ORB_SESSION_START_HOUR_UTC[session];
   const last = candles[candles.length - 1];
   const date = last.ts.toISOString().split("T")[0];
 
@@ -69,6 +66,7 @@ function computeOpeningRange(
     low,
     midpoint: (high + low) / 2,
     date: new Date(startMs).toISOString().split("T")[0],
+    completedAt: new Date(endMs),
   };
 }
 
@@ -96,6 +94,7 @@ export const openingRangeFeature: FeatureDefinition<OpeningRangeInput, OpeningRa
   name: "features_opening_range",
   version: "1.2.0",
   dependencies: [],
+  computePolicy: "onEvent",
 
   compute(input, opts?: { tf?: TimeFrame }): OpeningRangeOutput {
     return { ranges: computeAllOpeningRanges(input.candles, opts?.tf ?? "15m") };
@@ -115,6 +114,11 @@ export const openingRangeFeature: FeatureDefinition<OpeningRangeInput, OpeningRa
 
   serialize(output): Record<string, unknown>[] {
     return output.ranges.map((r) => ({
+      // ts = range completion time (session start + rangeMinutes). The DAG runner
+      // honors an explicit Date ts (runner.ts) and ON CONFLICT upserts are
+      // idempotent on the completion ts, eliminating the stale-join churn where
+      // recomputes overwrote ts with whatever bar triggered the recompute.
+      ts: r.completedAt,
       date: r.date,
       session: r.session,
       range_minutes: r.rangeMinutes,
@@ -133,6 +137,7 @@ export const openingRangeFeature: FeatureDefinition<OpeningRangeInput, OpeningRa
         low: r.low as number,
         midpoint: r.midpoint as number,
         date: r.date as string,
+        completedAt: new Date(r.ts as string),
       })),
     };
   },

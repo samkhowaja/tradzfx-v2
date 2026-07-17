@@ -2,12 +2,13 @@ id: xauusd_v1
 familyId: xauusd_v1
 active: true
 name: "XAUUSD Engine-First Scalp V1"
-version: "1.0.0"
+version: "1.2.0"
 description: >
   Gold-specific scalp strategy that leverages the engine-level improvements from
   the XAUUSD analysis review: time-of-day edge, structural liquidity pools, and
   higher minimum execution timeframe. DXY alignment is optional; overlap session
-  is excluded.
+  is excluded. The 4h pricing position is used as a momentum-continuation filter
+  (long premium / short discount), mirroring waqar_v2 (commit 1d51e02).
 
 filters:
   symbols: [ XAUUSD ]
@@ -36,9 +37,9 @@ setup:
     feature: features_pricing
     tf: 4h
     predicate: |
-      (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
+      (features_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))
       OR
-      (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
+      (features_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))
     required: true
     weight: 10
 
@@ -68,7 +69,7 @@ entry:
     feature: features_liquidity_pools
     tf: 5m
     predicate: "recent_sweep_matched = true"
-    required: true
+    required: false
     weight: 9
 
   - id: displacement_confirm
@@ -96,7 +97,10 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5Pips: 3.0
+      # Gate reads PIPS. XAUUSD pipSize=0.1, so the legacy 3.0 (authored in price
+      # units) == 30 pips. 3 pips was below the 90d ATR5 p05 (~24 pips) and blocked
+      # >=95% of bars (audit: scripts/audit-volatility-gates.js).
+      maxAtr5Pips: 30.0
 
   - id: spread_gate
     name: spread
@@ -135,3 +139,8 @@ notes:
     features_liquidity_pools."
   - "Overlap session excluded due to 22% WR in backtests."
   - "Minimum execution TF raised to 5m to reduce 1m noise on Gold."
+  - "v1.1.0: directional_zone flipped to momentum-continuation (long premium / short
+    discount) per waqar_v2 commit 1d51e02; unblocks the P3a sweep feed."
+  - "v1.2.0: liquidity_pool_sweep demoted required→optional (weighted). The required
+    triple-coincidence structure_break∩zone_retest∩recent_sweep_matched collapsed
+    to ~1 bar/90d; pool now scores rather than hard-gates."

@@ -16,44 +16,60 @@ export interface PipelineState {
 /**
  * Attempt to claim a bucket for a symbol. Returns true only if this call was
  * the first to advance the stored bucket (or create the row).
+ *
+ * On DB error, retries once with backoff, then fail-open (return true) so a
+ * temporary DB blip does NOT stall the pipeline for hours.
  */
 export async function acquirePipelineBucket(
   pool: Pool,
   symbol: string,
   bucket: number
 ): Promise<boolean> {
-  try {
-    // Insert-only acquisition keyed by (symbol, bucket). The unique index
-    // idx_pipeline_trigger_state_symbol_bucket guarantees that only the first
-    // transaction to claim this exact bucket returns a row; all concurrent or
-    // duplicate attempts are silently ignored.
-    const { rows } = await pool.query<{ bucket: number; updated_at: Date }>(
-      `INSERT INTO pipeline_trigger_state (symbol, bucket, updated_at)
-       VALUES ($1, $2, NOW())
-       ON CONFLICT (symbol, bucket) DO NOTHING
-       RETURNING bucket, updated_at`,
-      [symbol, bucket]
-    );
-    const acquired = rows.length > 0;
-    if (acquired) {
-      // Keep the lock table small: retain the current bucket and any buckets
-      // from the last 24 hours, but remove older history for this symbol.
-      pool.query(
-        `DELETE FROM pipeline_trigger_state
-         WHERE symbol = $1 AND bucket < $2::bigint - 86400000`,
+  const maxAttempts = 2;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // Insert-only acquisition keyed by (symbol, bucket). The unique index
+      // idx_pipeline_trigger_state_symbol_bucket guarantees that only the first
+      // transaction to claim this exact bucket returns a row; all concurrent or
+      // duplicate attempts are silently ignored.
+      const { rows } = await pool.query<{ bucket: number; updated_at: Date }>(
+        `INSERT INTO pipeline_trigger_state (symbol, bucket, updated_at)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (symbol, bucket) DO NOTHING
+         RETURNING bucket, updated_at`,
         [symbol, bucket]
-      ).catch((err) => {
-        console.warn(`[pipelineState] Cleanup failed for ${symbol}:`, err.message);
-      });
+      );
+      const acquired = rows.length > 0;
+      if (acquired) {
+        // Keep the lock table small: retain the current bucket and any buckets
+        // from the last 24 hours, but remove older history for this symbol.
+        pool.query(
+          `DELETE FROM pipeline_trigger_state
+           WHERE symbol = $1 AND bucket < $2::bigint - 86400000`,
+          [symbol, bucket]
+        ).catch((err) => {
+          console.warn(`[pipelineState] Cleanup failed for ${symbol}:`, err.message);
+        });
+      }
+      return acquired;
+    } catch (err: any) {
+      if (attempt < maxAttempts) {
+        console.warn(
+          `[pipelineState] Failed to acquire bucket for ${symbol} (attempt ${attempt}/${maxAttempts}), retrying in 1s: ${err.message}`
+        );
+        await new Promise((r) => setTimeout(r, 1000));
+        continue;
+      }
+      console.error(
+        `[pipelineState] FAILED to acquire bucket for ${symbol} after ${maxAttempts} attempts: ${err.message} — returning true (fail-open) to avoid pipeline stall`
+      );
+      // Fail-open: if we cannot verify the bucket was claimed, permit the run
+      // anyway. Downstream gates (stale_data, feature freshness) and the
+      // ON CONFLICT on live_signal prevent duplicate signals.
+      return true;
     }
-    return acquired;
-  } catch (err: any) {
-    console.error(`[pipelineState] Failed to acquire bucket for ${symbol}:`, err.message);
-    // Fail-closed: if we cannot verify the bucket was claimed, do not trigger
-    // the pipeline. This prevents duplicate runs when the checkpoint table is
-    // missing or the DB is unreachable.
-    return false;
   }
+  return false; // unreachable
 }
 
 /**

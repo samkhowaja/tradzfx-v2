@@ -33,7 +33,7 @@ async function getBarTimestamps(symbol, tf, startTs, endTs) {
   if (!tfMinutes) throw new Error(`Unknown tf: ${tf}`);
 
   const { rows } = await pool.query(
-    `SELECT ts FROM candles_1m
+    `SELECT ts FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts >= $2 AND ts <= $3
      ORDER BY ts`,
     [symbol, startTs, endTs]
@@ -76,7 +76,7 @@ async function main() {
     endTs = new Date(endArg.slice("--end=".length));
   } else {
     const { rows: latestRows } = await pool.query(
-      `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
+      `SELECT ts FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
       [symbol]
     );
     endTs = latestRows.length > 0 ? new Date(latestRows[0].ts) : new Date();

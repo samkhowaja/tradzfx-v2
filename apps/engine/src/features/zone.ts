@@ -23,7 +23,7 @@ import type {
   ZoneOutcomeStats,
   CanonicalMarketLevel,
 } from "@tm/shared";
-import { sha256, computeZoneLifecycle } from "@tm/shared";
+import { sha256, computeZoneLifecycle, countZoneTouches } from "@tm/shared";
 import { recordZoneOutcome } from "@tm/shared";
 
 export interface ZoneInput {
@@ -40,6 +40,9 @@ const MIN_BODY_PCT = 0.6;
 const MIN_VOLUME_RATIO = 1.2;
 const MAX_AGE_BARS = 10; // pivot must be within this many bars
 const USE_LEARNED_QUALITY = process.env.ZONE_USE_LEARNED_QUALITY === "true";
+const MIN_ZONE_SIZE_ATR_PCT = Number(process.env.ZONE_MIN_SIZE_ATR_PCT ?? "0.05");
+const ZONE_MIN_QUALITY_SCORE = Number(process.env.ZONE_MIN_QUALITY_SCORE ?? "0.15");
+const ZONE_MAX_PER_BAR = Number(process.env.ZONE_MAX_PER_BAR ?? "5");
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
@@ -60,6 +63,15 @@ function zoneBuffer(atr14: number): number {
 function averageVolume(candles: Candle[]): number {
   if (candles.length === 0) return 0;
   return candles.reduce((s, c) => s + (c.v ?? 0), 0) / candles.length;
+}
+
+function isZoneSizeMeaningful(
+  zone: ZoneOutput["zones"][number],
+  atr14: number
+): boolean {
+  if (MIN_ZONE_SIZE_ATR_PCT <= 0 || atr14 <= 0) return true;
+  const height = zone.top - zone.bottom;
+  return height >= atr14 * MIN_ZONE_SIZE_ATR_PCT;
 }
 
 function barMs(candles: Candle[]): number {
@@ -253,11 +265,14 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         candles,
         i
       );
+      const touches = countZoneTouches(candles, i, zone.top, zone.bottom);
       zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
+      zone.touchCount = touches.touchCount;
+      zone.retestCount = touches.retestCount;
       zone.formation = "fvg";
       zones.push(zone);
     }
@@ -281,11 +296,14 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         candles,
         i
       );
+      const touches = countZoneTouches(candles, i, zone.top, zone.bottom);
       zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
+      zone.touchCount = touches.touchCount;
+      zone.retestCount = touches.retestCount;
       zone.formation = "fvg";
       zones.push(zone);
     }
@@ -329,11 +347,14 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         candles,
         i
       );
+      const touches = countZoneTouches(candles, i, zone.top, zone.bottom);
       zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
+      zone.touchCount = touches.touchCount;
+      zone.retestCount = touches.retestCount;
       zone.formation = classifyFormation("demand", candle, prev);
       zones.push(zone);
     }
@@ -359,11 +380,14 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         candles,
         i
       );
+      const touches = countZoneTouches(candles, i, zone.top, zone.bottom);
       zone.firstTouchAt = lifecycle.firstTouchAt;
       zone.mitigatedAt = lifecycle.mitigatedAt;
       zone.invalidatedAt = lifecycle.invalidatedAt;
       zone.fillPct = lifecycle.fillPct ?? 0;
       zone.tapped = !!lifecycle.firstTouchAt;
+      zone.touchCount = touches.touchCount;
+      zone.retestCount = touches.retestCount;
       zone.formation = classifyFormation("supply", candle, prev);
       zones.push(zone);
     }
@@ -391,6 +415,8 @@ export async function recordZoneOutcomes(
       symbol,
       tf,
       zoneKind: zone.zoneKind,
+      direction:
+        zone.direction === "bullish" ? "bullish" : zone.direction === "bearish" ? "bearish" : undefined,
       top: zone.top,
       bottom: zone.bottom,
       formationTs: zone.ts,
@@ -403,7 +429,7 @@ export async function recordZoneOutcomes(
 
 export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   name: "features_zone",
-  version: "2.1.0",
+  version: "2.2.0",
   dependencies: ["features_pivot", "features_atr", "features_htf_bias", "features_structure"],
 
   compute(input): ZoneOutput {
@@ -428,8 +454,15 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       );
     }
 
-    zones.sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0));
-    return { zones };
+    let meaningful = zones.filter(
+      (z) =>
+        isZoneSizeMeaningful(z, atr14) && (z.qualityScore ?? 0) >= ZONE_MIN_QUALITY_SCORE
+    );
+    meaningful.sort((a, b) => (b.rankScore ?? 0) - (a.rankScore ?? 0));
+    if (ZONE_MAX_PER_BAR > 0 && meaningful.length > ZONE_MAX_PER_BAR) {
+      meaningful = meaningful.slice(0, ZONE_MAX_PER_BAR);
+    }
+    return { zones: meaningful };
   },
 
   hashInput(input): string {
@@ -469,15 +502,19 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       output.zones
         .map(
           (z) =>
-            `${z.ts.toISOString()}:${z.zoneKind}:${z.top}:${z.bottom}:` +
+            `${z.ts.toISOString()}:${z.zoneKind}:${z.direction ?? ""}:${z.top}:${z.bottom}:` +
             `${z.rankScore ?? 0}:${z.qualityScore ?? 0}:${z.outcome ?? ""}:` +
-            `${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+            `${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}:` +
+            `${z.touchCount ?? 0}:${z.retestCount ?? 0}`
         )
         .join("|")
     );
   },
 
   serialize(output): Record<string, unknown>[] {
+    // NOTE: Geometry (top/bottom) is rounded to pip precision by the DAGRunner's
+    // buildRows() method — centralized so every geometry table agrees on units
+    // and PK drift from ATR-buffer shifts is eliminated. See runner.ts buildRows().
     return output.zones.map((z) => ({
       zone_kind: z.zoneKind,
       direction: z.direction ?? null,
@@ -497,6 +534,8 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       first_touch_at: z.firstTouchAt ?? null,
       mitigated_at: z.mitigatedAt ?? null,
       invalidated_at: z.invalidatedAt ?? null,
+      touch_count: z.touchCount ?? 0,
+      retest_count: z.retestCount ?? 0,
     }));
   },
 
@@ -521,6 +560,8 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         firstTouchAt: r.first_touch_at ? new Date(r.first_touch_at as string) : undefined,
         mitigatedAt: r.mitigated_at ? new Date(r.mitigated_at as string) : undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
+        touchCount: (r.touch_count as number | undefined) ?? 0,
+        retestCount: (r.retest_count as number | undefined) ?? 0,
       })),
     };
   },
@@ -546,7 +587,7 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         strength: z.rankScore ?? z.qualityScore ?? null,
         invalidated_at: z.invalidatedAt ?? null,
         tapped_at: z.firstTouchAt ?? null,
-        touch_count: z.tapped ? 1 : 0,
+        touch_count: z.touchCount ?? 0,
         source_json: {
           zoneKind: z.zoneKind,
           formation: z.formation,

@@ -33,9 +33,15 @@ export interface StrategyNode {
 
 export type GraphNode = GateNode | StrategyNode;
 
+type Queryable = {
+  query: (text: string, params?: unknown[]) => Promise<{ rows: unknown[] }>;
+};
+
 export class DecisionGraph {
   private nodes: Map<string, GraphNode> = new Map();
   private roots: string[] = [];
+
+  constructor(private queryClient?: Queryable) {}
 
   addNode(node: GraphNode): void {
     this.nodes.set(node.id, node);
@@ -101,19 +107,26 @@ export class DecisionGraph {
   }
 
   private async persistTrace(trace: DecisionTrace): Promise<void> {
-    const pool = getPool();
-    const values = trace.nodes
-      .map(
-        (n) =>
-          `('${trace.runId}', '${trace.symbol}', '${trace.strategyId}', '${trace.ts.toISOString()}', '${n.nodeId}', '${n.nodeType}', ${n.passed}, ${n.reason ? `'${n.reason.replace(/'/g, "''")}'` : "NULL"}, ${n.latencyMs}, NULL)`
-      )
-      .join(",");
+    const db = this.queryClient ?? getPool();
+    const n = trace.nodes.length;
+    if (n === 0) return;
+
+    const runId = trace.runId;
+    const symbol = trace.symbol;
+    const strategyId = trace.strategyId;
+    const ts = trace.ts.toISOString();
+    const nodeIds = trace.nodes.map((n) => n.nodeId);
+    const nodeTypes = trace.nodes.map((n) => n.nodeType);
+    const passed = trace.nodes.map((n) => n.passed);
+    const reasons = trace.nodes.map((n) => n.reason ?? null);
+    const latencies = trace.nodes.map((n) => n.latencyMs);
 
     try {
-      await pool.query(
+      await db.query(
         `INSERT INTO decision_trace (run_id, symbol, strategy_id, ts, node_id, node_type, passed, reason, latency_ms, input_hash)
-         VALUES ${values}
-         ON CONFLICT DO NOTHING`
+         SELECT $1, $2, $3, $4, * FROM UNNEST($5::text[], $6::text[], $7::bool[], $8::text[], $9::float8[])
+         ON CONFLICT DO NOTHING`,
+        [runId, symbol, strategyId, ts, nodeIds, nodeTypes, passed, reasons, latencies]
       );
     } catch (err: any) {
       console.error("[decisionGraph] Failed to persist trace:", err.message);

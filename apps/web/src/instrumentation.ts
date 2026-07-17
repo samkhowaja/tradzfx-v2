@@ -19,11 +19,15 @@ async function runSchedulerTick() {
     const { checkAndTriggerAllActive } = await import("@/lib/pipelineTrigger");
     const pool = getPool();
 
-    // Touch only symbols that have received a candle recently.
+    // Touch every symbol with an active live variant, regardless of candle
+    // freshness. This decouples pipeline scheduling from ingestion liveness
+    // so a temporary DB blip does not stall the pipeline for hours.
     const { rows } = await pool.query(
-      `SELECT DISTINCT symbol
-       FROM candles_1m
-       WHERE ts >= NOW() - INTERVAL '10 minutes'
+      `SELECT DISTINCT UNNEST(v.symbols) AS symbol
+       FROM strategy_variants v
+       JOIN strategy_families f ON f.id = v.family_id
+       WHERE v.is_active = true
+         AND f.is_archived = false
        ORDER BY symbol`
     );
 

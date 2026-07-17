@@ -158,16 +158,34 @@ interface SetupEvaluation {
   timestamp: string;
 }
 
+interface TradeReviewOverlay {
+  entryZone?: { top: number; bottom: number } | null;
+  stopLoss?: number;
+  takeProfit?: number;
+  keyLevels?: Array<{ price: number; type: "support" | "resistance" | "key"; strength: number }>;
+  orderBlocks?: Array<{ top: number; bottom: number; mitigated: boolean }>;
+  fvgs?: Array<{ top: number; bottom: number; mitigated: boolean }>;
+  liquidity?: Array<{ price: number; type: "buy" | "sell"; swept: boolean }>;
+  htfBias?: string;
+}
+
 interface KlineChartProps {
   symbol: string;
-  candles: Candle[];
-  signals: Signal[];
-  structure: StructureEvent[];
+  timeframe?: string;
+  candles?: Candle[];
+  signals?: Signal[];
+  structure?: StructureEvent[];
   features?: FeatureShape;
   layers?: ChartLayers;
   activeSignalId?: string | null;
   height?: number;
   setup?: SetupEvaluation | null;
+  // New overlay format for Trade Review
+  overlays?: TradeReviewOverlay;
+  // For trade review: anchor time and lookback/forward bars
+  anchorTime?: string;
+  lookbackBars?: number;
+  lookforwardBars?: number;
 }
 
 function getPricePrecision(symbol: string): number {
@@ -181,6 +199,11 @@ function normalizeSide(raw: string): "long" | "short" | "neutral" {
   if (s === "buy" || s === "long" || s === "bullish") return "long";
   if (s === "sell" || s === "short" || s === "bearish") return "short";
   return "neutral";
+}
+
+function formatPrice(price: number, symbol: string): string {
+  const precision = getPricePrecision(symbol);
+  return price.toFixed(precision);
 }
 
 function sideColor(side: "long" | "short" | "neutral", alpha = 1): string {
@@ -281,6 +304,7 @@ function buildKLineData(candles: Candle[]) {
 
 export function KlineChart({
   symbol,
+  timeframe,
   candles,
   signals,
   structure,
@@ -302,6 +326,10 @@ export function KlineChart({
   activeSignalId,
   height = 560,
   setup,
+  overlays,
+  anchorTime,
+  lookbackBars = 100,
+  lookforwardBars = 50,
 }: KlineChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -310,19 +338,34 @@ export function KlineChart({
   const reducedMotion = useReducedMotion();
 
   const activeSignal = useMemo(
-    () => signals.find((s) => s.id === activeSignalId) ?? signals[0] ?? null,
+    () => (signals ? signals.find((s) => s.id === activeSignalId) ?? signals[0] ?? null : null),
     [activeSignalId, signals]
   );
 
   const data = useMemo(() => {
-    const lastClose = candles.length ? candles[candles.length - 1].c : 0;
+    let workingCandles = candles ?? [];
+    
+    // Trade review mode: slice candles around anchorTime
+    if (anchorTime && candles) {
+      const anchorTs = new Date(anchorTime).getTime();
+      const sortedCandles = [...candles].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+      const anchorIndex = sortedCandles.findIndex(c => new Date(c.ts).getTime() >= anchorTs);
+      
+      if (anchorIndex >= 0) {
+        const startIndex = Math.max(0, anchorIndex - lookbackBars);
+        const endIndex = Math.min(sortedCandles.length, anchorIndex + lookforwardBars + 1);
+        workingCandles = sortedCandles.slice(startIndex, endIndex);
+      }
+    }
+    
+    const lastClose = workingCandles.length ? workingCandles[workingCandles.length - 1].c : 0;
     return {
-      rows: buildKLineData(candles),
-      firstTs: candles.length ? new Date(candles[0].ts).getTime() : 0,
-      lastTs: candles.length ? new Date(candles[candles.length - 1].ts).getTime() : 0,
+      rows: buildKLineData(workingCandles),
+      firstTs: workingCandles.length ? new Date(workingCandles[0].ts).getTime() : 0,
+      lastTs: workingCandles.length ? new Date(workingCandles[workingCandles.length - 1].ts).getTime() : 0,
       lastClose,
     };
-  }, [candles]);
+  }, [candles, anchorTime, lookbackBars, lookforwardBars]);
 
   const clearOverlays = useCallback(() => {
     const chart = chartRef.current;
@@ -636,15 +679,18 @@ export function KlineChart({
 
     // ── Structure: BOS/MSS as rays from the break candle ──
     if (layers.structure) {
-      const events = (features?.structure ?? structure).filter((s) => !s.invalidated_at).slice(0, 5);
-      for (const s of events) {
-        const startTs = clampTs(new Date(s.ts).getTime());
-        const endTs = s.invalidated_at
-          ? clampTs(new Date(s.invalidated_at).getTime())
-          : lastTs;
-        const color = directionColor(s.direction, 0.85);
-        createSegment(chart, startTs, endTs, s.level, s.level, color, true, s.event_type.toLowerCase() === "mss" ? 1.5 : 1);
-        createTag(chart, startTs, s.level, s.event_type.toUpperCase(), color);
+      const structData = features?.structure ?? structure;
+      if (structData) {
+        const events = structData.filter((s) => !s.invalidated_at).slice(0, 5);
+        for (const s of events) {
+          const startTs = clampTs(new Date(s.ts).getTime());
+          const endTs = s.invalidated_at
+            ? clampTs(new Date(s.invalidated_at).getTime())
+            : lastTs;
+          const color = directionColor(s.direction, 0.85);
+          createSegment(chart, startTs, endTs, s.level, s.level, color, true, s.event_type.toLowerCase() === "mss" ? 1.5 : 1);
+          createTag(chart, startTs, s.level, s.event_type.toUpperCase(), color);
+        }
       }
     }
 
@@ -749,8 +795,9 @@ export function KlineChart({
           : lastTs;
         const endTs = clampTs(endTsRaw);
         if (endTs <= startTs) continue;
-        // Extend fresh blocks a couple bars so the label is readable
-        const rightPadTs = isInvalidated || isMitigated ? endTs : Math.min(lastTs, endTs + 2 * barInterval);
+        // OBs should not extend to current price unless they are mitigated/invalidated
+        // Only show the block from formation to mitigation/invalidation
+        const rightPadTs = isInvalidated || isMitigated ? endTs : endTs;
         const { fill, border } = obColor(
           ob.ob_kind,
           isInvalidated ? 0.12 : isMitigated ? 0.22 : 0.38,
@@ -897,6 +944,104 @@ export function KlineChart({
         );
       }
     }
+
+    // ── Trade Review Overlays (from overlays prop) ──
+    if (overlays) {
+      // Key Levels: horizontal lines with labels
+      if (overlays.keyLevels && overlays.keyLevels.length > 0) {
+        for (const level of overlays.keyLevels.slice(0, 8)) {
+          const isKey = level.type === "key";
+          const isResistance = level.type === "resistance";
+          const isSupport = level.type === "support";
+          
+          let color: string;
+          let label: string;
+          let lineWidth = isKey ? 1.5 : 1;
+          let alpha = isKey ? 0.9 : 0.7;
+          
+          if (isResistance) {
+            color = `rgba(251, 113, 133, ${alpha})`;
+            label = `R ${formatPrice(level.price, symbol)}`;
+          } else if (isSupport) {
+            color = `rgba(52, 211, 153, ${alpha})`;
+            label = `S ${formatPrice(level.price, symbol)}`;
+          } else {
+            color = `rgba(251, 191, 36, ${alpha})`;
+            label = `KL ${formatPrice(level.price, symbol)}`;
+          }
+
+          // Draw horizontal line across chart
+          createSegment(chart, firstTs, lastTs, level.price, level.price, color, true, lineWidth);
+          
+          // Add label on the right side
+          const labelTs = lastTs - (lastTs - firstTs) * 0.02;
+          createTag(chart, labelTs, level.price, label, color);
+
+          // Bounce prediction zone for key levels (shaded area around level)
+          if (isKey && level.strength && level.strength > 0.6) {
+            const zoneSize = (lastTs - firstTs) * 0.001; // Small price zone
+            const bounceTop = level.price + zoneSize;
+            const bounceBottom = level.price - zoneSize;
+            createRect(
+              chart,
+              lastTs - (lastTs - firstTs) * 0.15,
+              lastTs,
+              bounceTop,
+              bounceBottom,
+              `rgba(251, 191, 36, ${0.08 * level.strength})`,
+              `rgba(251, 191, 36, ${0.3 * level.strength})`,
+              `Bounce Zone (${Math.round(level.strength * 100)}%)`
+            );
+          }
+        }
+      }
+
+      // Order Blocks: rectangles from formation to mitigation/invalidation
+      if (overlays.orderBlocks && overlays.orderBlocks.length > 0) {
+        for (const ob of overlays.orderBlocks.slice(0, 6)) {
+          const startTs = firstTs;
+          const endTs = ob.mitigated ? lastTs : lastTs; // Show full width for review
+          const { fill, border } = obColor(
+            ob.mitigated ? "bearish" : "bullish", // Use direction based on mitigation
+            ob.mitigated ? 0.15 : 0.25,
+            ob.mitigated ? 0.5 : 0.8
+          );
+          createRect(chart, startTs, endTs, ob.top, ob.bottom, fill, border, ob.mitigated ? "OB (mitigated)" : "OB");
+        }
+      }
+
+      // FVGs: rectangles
+      if (overlays.fvgs && overlays.fvgs.length > 0) {
+        for (const fvg of overlays.fvgs.slice(0, 6)) {
+          const startTs = firstTs;
+          const endTs = fvg.mitigated ? lastTs : lastTs;
+          const { fill, border } = zoneColor("fvg", undefined, 0.12, 0.6);
+          createRect(chart, startTs, endTs, fvg.top, fvg.bottom, fill, border, fvg.mitigated ? "FVG (filled)" : "FVG");
+        }
+      }
+
+      // Liquidity: horizontal rays
+      if (overlays.liquidity && overlays.liquidity.length > 0) {
+        for (const liq of overlays.liquidity.slice(0, 6)) {
+          const color = liq.type === "sell" 
+            ? "rgba(251, 113, 133, 0.75)" 
+            : "rgba(52, 211, 153, 0.75)";
+          createSegment(chart, firstTs, lastTs, liq.price, liq.price, color, true, 1);
+          const labelTs = lastTs - (lastTs - firstTs) * 0.02;
+          createTag(chart, labelTs, liq.price, `${liq.type === "sell" ? "BSL" : "SSL"} ${formatPrice(liq.price, symbol)}`, color);
+        }
+      }
+
+      // HTF Bias: label in top corner
+      if (overlays.htfBias) {
+        const biasColor = overlays.htfBias.toLowerCase().includes("bull") 
+          ? "rgba(52, 211, 153, 0.9)" 
+          : overlays.htfBias.toLowerCase().includes("bear")
+          ? "rgba(251, 113, 133, 0.9)"
+          : "rgba(251, 191, 36, 0.9)";
+        createTag(chart, firstTs + (lastTs - firstTs) * 0.02, lastClose, `HTF: ${overlays.htfBias}`, biasColor);
+      }
+    }
   }, [
     data,
     structure,
@@ -904,6 +1049,7 @@ export function KlineChart({
     layers,
     activeSignal,
     setup,
+    overlays,
     clearOverlays,
     createPriceLine,
     createTag,

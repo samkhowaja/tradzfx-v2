@@ -1,0 +1,11 @@
+-- Migration 123: Per-symbol risk_state rows (scope={symbol} instead of 'global')
+--
+-- The original migration (097) seeded a single 'global' row, which meant every
+-- pipeline execution on every symbol serialised behind one row lock.
+-- Now runLivePipeline uses scope = symbol so different symbols can execute the
+-- critical section in parallel. The 'global' row becomes an orphan (harmless).
+-- No destructive action needed — per-symbol rows are created on first INSERT.
+--
+-- The existing columns (daily_pnl, consecutive_losses, total_active) are
+-- vestigial — the code only uses risk_state as a named mutex via FOR UPDATE
+-- on the scope row. They are retained for forward compatibility.

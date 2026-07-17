@@ -11,7 +11,7 @@
  *   node backfill-orchestrator.js --features features_moving_average,features_bollinger --days 30
  *
  * Defaults:
- *   symbols  -> all symbols present in candles_1m
+ *   symbols  -> all symbols present in market.candles_1m_canonical
  *   tfs      -> 15m,1h,4h,5m,1m
  *   days     -> 90
  *   features -> all registered features
@@ -64,7 +64,7 @@ function ensureLogDir() {
 async function getSymbols(pool, requested) {
   if (requested && requested.length > 0) return requested;
   const { rows } = await pool.query(
-    "SELECT DISTINCT symbol FROM candles_1m ORDER BY symbol"
+    "SELECT DISTINCT symbol FROM market.candles_1m_canonical ORDER BY symbol"
   );
   return rows.map((r) => r.symbol);
 }
@@ -72,7 +72,7 @@ async function getSymbols(pool, requested) {
 async function getBarTimestamps(pool, symbol, tf, startTs, endTs) {
   const tfMinutes = tfToMinutes(tf);
   const { rows } = await pool.query(
-    `SELECT ts FROM candles_1m
+    `SELECT ts FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts >= $2 AND ts <= $3
      ORDER BY ts`,
     [symbol, startTs, endTs]
@@ -93,7 +93,7 @@ async function getBarTimestamps(pool, symbol, tf, startTs, endTs) {
 
 async function backfillJob(pool, runner, symbol, tf, days, features, logger) {
   const { rows: latestRows } = await pool.query(
-    "SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1",
+    "SELECT ts FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1",
     [symbol]
   );
   if (latestRows.length === 0) {

@@ -14,6 +14,8 @@ const { Pool } = require("pg");
 const fs = require("fs");
 const YAML = require("yaml");
 const path = require("path");
+const { validateSpec, validateTemporalCoverage, FEATURE_REGISTRY } = require("../packages/strategies/dist/index.js");
+const { collectCapabilityMatrix } = require("./feature-capability.js");
 
 // Load credentials from .env.local if present.
 const envFile = path.join(__dirname, "..", ".env.local");
@@ -169,8 +171,15 @@ async function seedVariant(spec) {
     overrides = computeOverrides(baseSpec, cleanSpec) ?? {};
   }
 
-  const symbols = arrayUnique(spec.filters?.symbols ?? []);
-  const timeframes = arrayUnique(extractTimeframes(spec));
+  // Thin override specs (e.g. watukushay_no1) may not declare filters/symbols.
+  // Fall back to the base spec's filters so the pipeline can evaluate them.
+  const baseSymbols = baseSpec?.filters?.symbols ?? [];
+  const symbols = arrayUnique(
+    (spec.filters?.symbols?.length ? spec.filters.symbols : baseSymbols) ?? []
+  );
+  const baseTfs = extractTimeframes(baseSpec ?? {});
+  const specTfs = extractTimeframes(spec);
+  const timeframes = arrayUnique(specTfs.length ? specTfs : baseTfs);
 
   await pool.query(
     `INSERT INTO strategy_variants (id, family_id, name, description, overrides, symbols, timeframes, is_active, updated_at)
@@ -199,7 +208,69 @@ async function seedVariant(spec) {
   console.log(`[seed]   variant '${variantId}' (active=${isActive})`);
 }
 
+/**
+ * Validate that every active spec's required feature/tf surfaces exist and are
+ * not EMPTY_DENSE or MISSING_TABLE in the capability matrix. Specs marked
+ * `experimental: true` bypass this check but are still seeded as inactive.
+ * (RC-4 / Bugs #1, #9)
+ */
+const CAPABILITY_BLOCKING_VERDICTS = new Set([
+  "MISSING_TABLE",
+  "CONTRACT_MISMATCH",
+  "EMPTY_DENSE",
+  "BLOCKED_LIFECYCLE",
+  "STALE_STATE",
+  "PRODUCER_STALE",
+]);
+
+async function validateCapabilities(specs) {
+  // Collect all unique symbols and timeframes across active specs.
+  const allSymbols = new Set();
+  const allTfs = new Set();
+  for (const spec of specs) {
+    if (spec.active !== true) continue;
+    for (const s of spec.filters?.symbols ?? []) allSymbols.add(s.toUpperCase());
+    for (const item of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
+      if (item.tf) allTfs.add(item.tf);
+    }
+  }
+  if (allSymbols.size === 0 || allTfs.size === 0) return [];
+
+  const symbols = Array.from(allSymbols);
+  const tfs = Array.from(allTfs);
+  const matrix = await collectCapabilityMatrix(pool, { symbols, tfs });
+
+  const errors = [];
+  for (const spec of specs) {
+    if (spec.active !== true) continue;
+    if (spec.experimental === true) continue; // bypass for experimental specs
+
+    const specSymbols = (spec.filters?.symbols ?? []).map((s) => s.toUpperCase());
+    const specConds = [...(spec.setup ?? []), ...(spec.entry ?? [])];
+
+    for (const symbol of specSymbols) {
+      for (const cond of specConds) {
+        if (!cond.feature || !cond.tf) continue;
+        const row = matrix.rows.find(
+          (r) =>
+            r.symbol === symbol &&
+            r.table === cond.feature &&
+            r.tf === cond.tf
+        );
+        if (row && CAPABILITY_BLOCKING_VERDICTS.has(row.verdict)) {
+          errors.push(
+            `${spec.id}: ${cond.feature}@${cond.tf} for ${symbol} is ${row.verdict}` +
+              ` (rows90d=${row.rows90d}, latest=${row.latestTs ?? "null"})`
+          );
+        }
+      }
+    }
+  }
+  return errors;
+}
+
 async function main() {
+  const runTemporalCheck = process.argv.includes("--check");
   console.log("[seed] Seeding strategy families + variants...\n");
 
   // Clean up legacy default variants created by earlier seeders. Old default
@@ -225,6 +296,39 @@ async function main() {
     ...YAML.parse(fs.readFileSync(filePath, "utf8")),
   }));
 
+  // Validate structure (session-scoped features, warmup floor, etc.)
+  const validationErrors = specs.flatMap((spec) =>
+    validateSpec(spec).map((e) => `${path.basename(spec.filePath)}: ${e}`)
+  );
+  if (validationErrors.length > 0) {
+    console.error("[seed] Spec validation failed:\n");
+    validationErrors.forEach((e) => console.error(`  - ${e}`));
+    await pool.end();
+    process.exit(1);
+  }
+
+  // Temporal-coverage warnings (P1-B) — soft, doesn't block seeding
+  for (const spec of specs) {
+    const coverageWarnings = validateTemporalCoverage(spec);
+    for (const w of coverageWarnings) {
+      console.warn(`[seed] Temporal gap: ${w}`);
+    }
+  }
+
+  // Capability matrix check: fail fast if any active spec requires a feature/tf
+  // surface that is EMPTY_DENSE, MISSING_TABLE, or STALE_STATE. Experimental
+  // specs (experimental: true) bypass this check. (RC-4 / Bugs #1, #9)
+  console.log("[seed] Checking feature/tf capability matrix for active specs...");
+  const capabilityErrors = await validateCapabilities(specs);
+  if (capabilityErrors.length > 0) {
+    console.error("[seed] Capability check failed — active specs require unavailable feature surfaces:\n");
+    capabilityErrors.forEach((e) => console.error(`  - ${e}`));
+    console.error("\n[seed] Fix the feature producer/backfill before seeding, or mark the spec as experimental: true.");
+    await pool.end();
+    process.exit(1);
+  }
+  console.log("[seed] Capability check passed.\n");
+
   // Seed families first so metadata comes from the canonical variant.
   await seedFamilies(specs);
 
@@ -242,6 +346,27 @@ async function main() {
   );
   console.log(`\n[seed] Active variants in DB: ${rows.length}`);
   rows.forEach((r) => console.log(`  ${r.family_name} / ${r.variant_name}`));
+
+  // P2-D: Temporal alignment gate (optional, --check flag).
+  // Runs check-temporal-alignment.js on all specs so developer sees
+  // per-condition gap/lookback alignment before variants go live.
+  // Exits 1 on FAIL (median gap > lookback window).
+  if (runTemporalCheck) {
+    console.log("\n[seed] Running temporal alignment gate...");
+    const { execSync } = require("child_process");
+    const checkScript = path.join(__dirname, "check-temporal-alignment.js");
+    try {
+      execSync(`node "${checkScript}" --all-specs --symbol=XAUUSD --days=90`, {
+        stdio: "inherit",
+        timeout: 300_000,
+      });
+      console.log("[seed] ✓ Temporal alignment gate passed.");
+    } catch (e) {
+      console.error("[seed] ❌ Temporal alignment FAILED — run `node scripts/check-temporal-alignment.js --all-specs` for full report.");
+      await pool.end();
+      process.exit(1);
+    }
+  }
 
   await pool.end();
   console.log("\n[seed] ✅ Complete");

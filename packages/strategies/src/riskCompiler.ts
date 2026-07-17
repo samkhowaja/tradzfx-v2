@@ -61,6 +61,7 @@ const PRICE_TOKENS = new RegExp(
   "\\b(" +
     [
       "orb_midpoint", "orb_high", "orb_low",
+      "fvg_midpoint", "fvg_top", "fvg_bottom", "fvg_c1_high", "fvg_c1_low", "fvg_c1_stop",
       "zone_top", "zone_bottom",
       "ema_fast", "ema_slow", "ma_fast", "ma_slow",
       "ote_low", "ote_high",
@@ -95,6 +96,8 @@ export function buildBaseEntryPriceSql(
     END`;
     case "moving_average":
       return "fast_ma.value";
+    case "fvg":
+      return `((f.top + f.bottom) / 2.0)`;
     case "zone":
     default:
       return `CASE
@@ -278,6 +281,7 @@ export function tokenizeRiskExpr(
   ctx?: LevelTokenCtx
 ): string {
   const entrySql = buildBaseEntryPriceSql(signalSource, ctx);
+  const a = getSignalAlias(ctx);
   let out = expr
     .replace(/\b(\d+(?:\.\d+)?)\s*pips?\b/gi, (_, n) => `(${n} * (${buildPipSizeSql(entrySql, ctx)}))`)
     // ATR timeframe references (e.g. atr(15m)) are left intact here so the
@@ -285,6 +289,15 @@ export function tokenizeRiskExpr(
     .replace(/\borb_midpoint\b/gi, "o.midpoint")
     .replace(/\borb_high\b/gi, "o.high")
     .replace(/\borb_low\b/gi, "o.low")
+    .replace(/\bfvg_midpoint\b/gi, "((f.top + f.bottom) / 2.0)")
+    .replace(/\bfvg_top\b/gi, "f.top")
+    .replace(/\bfvg_bottom\b/gi, "f.bottom")
+    .replace(/\bfvg_c1_stop\b/gi, `CASE
+      WHEN ${a}.bias_direction = 'bullish' THEN fvg_c1.l
+      WHEN ${a}.bias_direction = 'bearish' THEN fvg_c1.h
+    END`)
+    .replace(/\bfvg_c1_high\b/gi, "fvg_c1.h")
+    .replace(/\bfvg_c1_low\b/gi, "fvg_c1.l")
     .replace(/\bzone_top\b/gi, "z.top")
     .replace(/\bzone_bottom\b/gi, "z.bottom")
     .replace(/\bema_fast\b/gi, "ema.fast_value")
@@ -336,6 +349,31 @@ function fallbackTpSql(
   END`;
 }
 
+function guardSlByMinDistance(
+  rawSl: string,
+  spec: StrategySpec,
+  signalSource: StrategySpec["signalSource"],
+  ctx?: RiskCompileContext
+): string {
+  const minSlPips = spec.risk.minSlDistancePips;
+  if (minSlPips == null || minSlPips <= 0 || !Number.isFinite(minSlPips)) {
+    return rawSl;
+  }
+
+  const a = getSignalAlias(ctx);
+  const entrySql = buildEntryPriceSql(spec, signalSource, ctx);
+  const pipSql = buildPipSizeSql(entrySql, ctx);
+  const minSl = `(${minSlPips.toFixed(4)} * (${pipSql}))`;
+
+  // For bullish trades the SL must be at least minSl below entry.
+  // For bearish trades the SL must be at least minSl above entry.
+  // COALESCE handles price-level subqueries that return NULL.
+  return `CASE
+    WHEN ${a}.bias_direction = 'bullish' THEN LEAST(COALESCE((${rawSl}), (${entrySql}) - (${minSl})), (${entrySql}) - (${minSl}))
+    WHEN ${a}.bias_direction = 'bearish' THEN GREATEST(COALESCE((${rawSl}), (${entrySql}) + (${minSl})), (${entrySql}) + (${minSl}))
+  END`;
+}
+
 export function buildSlSql(
   spec: StrategySpec,
   signalSource: StrategySpec["signalSource"],
@@ -347,15 +385,15 @@ export function buildSlSql(
   const entrySql = buildEntryPriceSql(spec, signalSource, ctx);
   const raw = tokenizeRiskExpr(slExpr, spec, signalSource, ctx);
 
-  if (isPriceExpression(slExpr)) {
-    return raw;
-  }
-
   const a = getSignalAlias(ctx);
-  return `CASE
+  const rawSl = isPriceExpression(slExpr)
+    ? raw
+    : `CASE
     WHEN ${a}.bias_direction = 'bullish' THEN (${entrySql}) - (${raw})
     WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) + (${raw})
   END`;
+
+  return guardSlByMinDistance(rawSl, spec, signalSource, ctx);
 }
 
 function buildSlDistanceSql(
@@ -441,5 +479,3 @@ export function buildTpSql(
     WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) - (${raw})
   END`;
 }
-
-

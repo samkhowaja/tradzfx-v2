@@ -1,17 +1,41 @@
 /**
- * Inverse Fair Value Gap (iFVG) feature.
+ * Inverse Fair Value Gap (iFVG) feature v1.4.1.
  *
  * Detects standard FVGs that have been mitigated (filled) and then reversed,
  * leaving the original zone as a likely support/resistance level.
+ *
+ * v1.4.1 (P0-C / SK-61): row `ts` is the FVG **formation** time
+ * (`originating_zone_ts`), not the evaluation anchor. The feature registry
+ * contract (`features_ifvg.validityColumns.createdAt = "ts"`), the lifecycle
+ * function `refresh_ifvg_lifecycle` (which scans candles forward from `ts`)
+ * and the `ifvg_inv_after_ts` / `ifvg_mit_after_ts` CHECK invariants all require
+ * `ts` to be the formation time. Emitting `ts = last candle` (anchor) made
+ * `invalidated_at < ts` for already-invalidated FVGs, so every live-edge row
+ * was rejected by the CHECK and `features_ifvg` froze. Lifecycle timestamps
+ * (first_touch / mitigated / invalidated) are computed forward from formation
+ * and are therefore always `>= formation_ts`, satisfying the invariants. As a
+ * side effect this collapses the previous one-row-per-anchor bloat to one
+ * upserted row per unique FVG (PK keyed by formation ts), matching
+ * `features_zone` / `features_order_block`.
  *
  * Heuristic (proxy):
  * - Bullish iFVG: bullish FVG (c1.high < c3.low) is filled >= 50%
  *   and the latest close is back above the zone top.
  * - Bearish iFVG: bearish FVG (c1.low > c3.high) is filled >= 50%
  *   and the latest close is back below the zone bottom.
+ *
+ * v1.4.0 changes (Track B — FVG/iFVG lifecycle):
+ *   - TF-dependent MAX_AGE_BARS.  The previous fixed value of 50 meant
+ *     very different things on different TFs (50 minutes on a 1m chart,
+ *     50 days on a 1d chart).  The COMPREHENSIVE_AUDIT_REPORT flagged
+ *     this as the root cause of stale iFVGs polluting the entry zone
+ *     candidates on higher-TF specs.
+ *   - Lookup table: 1m=120, 5m=80, 15m=50, 1h=30, 4h=20, 1d=10.
+ *   - The IFVG_MAX_AGE_BARS env var still overrides the table when set,
+ *     so operators can tune without redeploying.
  */
 
-import type { Candle, FeatureDefinition, IfvgOutput, Direction } from "@tm/shared";
+import type { Candle, FeatureDefinition, IfvgOutput, Direction, TimeFrame } from "@tm/shared";
 import { sha256, computeIfvgLifecycle } from "@tm/shared";
 
 export interface IfvgInput {
@@ -28,6 +52,29 @@ interface RawFvg {
 const MIN_FILL_PCT = Number(process.env.IFVG_MIN_FILL_PCT ?? "0.5");
 const MAX_AGE_BARS = Number(process.env.IFVG_MAX_AGE_BARS ?? "50");
 const MIN_CONFIRMATIONS = Number(process.env.IFVG_MIN_CONFIRMATIONS ?? "1");
+
+/**
+ * Per-TF iFVG max age in bars.  Lower TFs need a wider window because each
+ * bar represents less time; higher TFs need a tighter window because each
+ * bar already covers a long period and an old iFVG is no longer relevant.
+ */
+const TF_MAX_AGE_BARS: Record<TimeFrame, number> = {
+  "1m": 120,
+  "5m": 80,
+  "15m": 50,
+  "1h": 30,
+  "4h": 20,
+  "1d": 10,
+};
+
+const DEFAULT_MAX_AGE_BARS = 50;
+
+function maxAgeFor(tf: TimeFrame | undefined): number {
+  // Env override always wins so operators can tune without redeploying.
+  if (process.env.IFVG_MAX_AGE_BARS) return MAX_AGE_BARS;
+  if (!tf) return DEFAULT_MAX_AGE_BARS;
+  return TF_MAX_AGE_BARS[tf] ?? DEFAULT_MAX_AGE_BARS;
+}
 
 function detectFVGs(candles: Candle[]): RawFvg[] {
   const fvgs: RawFvg[] = [];
@@ -87,20 +134,22 @@ function countConfirmations(fvg: RawFvg, candles: Candle[], fromIndex: number): 
 
 export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
   name: "features_ifvg",
-  version: "1.3.0",
+  version: "1.4.1",
   dependencies: [],
+  computePolicy: "onEvent",
 
-  compute(input): IfvgOutput {
+  compute(input, ctx): IfvgOutput {
     const { candles } = input;
     const ifvgs: IfvgOutput["ifvgs"] = [];
     if (candles.length < 5) return { ifvgs };
 
     const last = candles[candles.length - 1];
     const fvgs = detectFVGs(candles);
+    const maxAge = maxAgeFor(ctx?.tf);
 
     for (const fvg of fvgs) {
       const ageBars = candles.length - 1 - fvg.formationIndex;
-      if (ageBars < 0 || ageBars > MAX_AGE_BARS) continue;
+      if (ageBars < 0 || ageBars > maxAge) continue;
 
       const fillPct = computeFillPct(fvg, candles, fvg.formationIndex + 1);
       if (fillPct < MIN_FILL_PCT) continue;
@@ -117,14 +166,15 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
         candles,
         fvg.formationIndex
       );
+      const formationTs = candles[fvg.formationIndex].ts;
       ifvgs.push({
         direction: fvg.direction,
         top: fvg.top,
         bottom: fvg.bottom,
         fillPct: lifecycle.fillPct ?? fillPct,
         tapped: !!lifecycle.firstTouchAt,
-        originatingZoneTs: candles[fvg.formationIndex].ts,
-        ts: last.ts,
+        originatingZoneTs: formationTs,
+        ts: formationTs,
         ageBars,
         isFresh: !lifecycle.invalidatedAt,
         strengthScore,
@@ -140,7 +190,8 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
 
   hashInput(input): string {
     return sha256(
-      input.candles.map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}`).join("|")
+      `ifvg:v1.4.1:` +
+        input.candles.map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}`).join("|")
     );
   },
 

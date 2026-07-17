@@ -6,28 +6,36 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "test": "node --test scripts/backtest-pit-v2.test.js && pnpm -r test",
+    "test": "node --test scripts/audit-db-contract.test.js scripts/backtest-pit-v2.test.js scripts/backfill-candles-from-mt5-csv.test.js scripts/ingestion-server.test.js scripts/observe-broker-session-quality.test.js scripts/policy-transition-governance.test.js scripts/session-failover-governance.test.js scripts/golden-fixture-parity.js && pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:repair": "tsx scripts/migrate.ts --repair",
     "db:migrate:reconcile": "tsx scripts/migrate.ts --reconcile",
     "db:lint-migrations": "tsx scripts/lint-migrations.ts",
+    "db:contract:check": "node scripts/audit-db-contract.js",
+    "db:contract:report": "node scripts/audit-db-contract.js --report",
+    "db:universe:check": "tsx scripts/check-feature-universe.ts",
     "db:seed": "node scripts/seed-strategy-specs.js",
+    "db:seed:check": "node scripts/seed-strategy-specs.js --check",
+    "db:alignment": "node scripts/check-temporal-alignment.js --all-specs",
     "promote-live": "node scripts/promote-top3-live.js",
     "engine": "pnpm --filter @tm/engine dev",
     "web": "pnpm --filter @tm/web dev",
     "graphify": "powershell -ExecutionPolicy Bypass -File ops/graphify.ps1"
   },
   "devDependencies": {
-    "tsx": "^4.0.0",
-    "typescript": "^5.4.0",
     "@types/node": "^20.0.0",
     "js-yaml": "^4.1.0",
     "pg": "^8.11.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0",
     "yaml": "^2.4.0"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

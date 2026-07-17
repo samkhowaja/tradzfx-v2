@@ -1,4 +1,4 @@
-import type { Pool, TimeFrame } from "@tm/shared";
+import type { Queryable, TimeFrame } from "@tm/shared";
 
 export type LevelType =
   | "zone"
@@ -38,7 +38,7 @@ export interface MarketLevel {
 }
 
 export interface LevelContext {
-  pool: Pool;
+  pool: Queryable;
   symbol: string;
   tf: TimeFrame;
   direction: "long" | "short";

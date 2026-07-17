@@ -11,6 +11,18 @@ export interface StrategySpec {
   id: string;
   /** Explicit strategy family id (replaces suffix-based family inference). */
   familyId?: string;
+  /**
+   * Setup-evaluation family. Controls which setup-engine hard rules apply.
+   * This is intentionally separate from familyId: familyId groups variants,
+   * while setupFamily defines the market-structure model.
+   */
+  setupFamily?:
+    | "zone_reversal"
+    | "orb_breakout"
+    | "fvg_continuation"
+    | "trend_pullback"
+    | "liquidity_sweep"
+    | "indicator";
   name: string;
   version: string;
   description?: string;
@@ -18,21 +30,36 @@ export interface StrategySpec {
   active?: boolean;
   /** Optional category tag used by the UI/command center. */
   category?: string;
+  /**
+   * Bars of signal-tf history discarded at the start of a backtest so features
+   * (zones, ATR, session state) have stabilized before trades are simulated.
+   * Defaults to MIN_WARMUP_CANDLES (200) in the PIT backtester. Values below
+   * 50 are rejected at seed time (early-window signals would be distorted).
+   */
+  warmupBars?: number;
 
   filters: {
     symbols?: string[];
+    /** @deprecated Use `sessions` (plural) instead. Kept for the gate script. */
     session?: string;
+    /** Restrict the spec to a subset of trading sessions (ASIA/LONDON/OVERLAP/NY). */
+    sessions?: string[];
+    /** @deprecated Use timeWindows (plural) instead. */
     timeWindow?: {
       utcStart: string;
       utcEnd: string;
     };
+    timeWindows?: Array<{
+      utcStart: string;
+      utcEnd: string;
+    }>;
   };
 
   setup: StrategyCondition[];
   entry: StrategyCondition[];
 
   /** How the final signal price levels are derived. Defaults to zone-based S/D logic. */
-  signalSource?: "zone" | "orb" | "indicator" | "moving_average";
+  signalSource?: "zone" | "orb" | "indicator" | "moving_average" | "fvg";
 
   /** Optional entry configuration. Defaults to market orders with no offset. */
   entryConfig?: EntryConfig;
@@ -60,6 +87,19 @@ export interface StrategyCondition {
   /** Columns that distinguish multiple active rows for this feature (e.g. range_minutes, indicator_name).
    *  Used for "latest as of" CTE grouping. */
   groupBy?: string[];
+  /** For discrete-event features, how many bars back to consider when selecting active events.
+   *  If omitted, a timeframe-appropriate default is used. */
+  lookbackBars?: number;
+  /** When true, skip the lifecycle validity window (invalidated_at / mitigated_at) for
+   *  this condition in both live and PIT compilation. Used by specs that manage a
+   *  level's validity through their own predicate logic. */
+  ignoreLifecycle?: boolean;
+  /** Required for session-scoped features (features_opening_range): which
+   *  session's object this condition binds to. One of 'asia' | 'london' | 'ny'
+   *  (lowercase, matching the producer). The join pins the row to the same UTC
+   *  date + session and requires the signal time to be after range completion,
+   *  so stale ranges from prior sessions/days can never match. */
+  session?: string;
 }
 
 export interface RiskRules {
@@ -70,6 +110,10 @@ export interface RiskRules {
   maxFillBars?: number;
   /** Optional TP offset in pips (positive = beyond level, negative = inside level). */
   tpOffsetPips?: number;
+  /** Optional minimum distance between entry and stop-loss, in pips.
+   *  Prevents structural levels (e.g. nearest_swing_high_1m) from producing
+   *  a zero or sub-spread stop. */
+  minSlDistancePips?: number;
 }
 
 export interface GateConfig {
@@ -137,6 +181,31 @@ export interface LiveExecutionConfig {
   maxLot?: number;
   /** If true, force grade-based lot sizing (0.01–0.05) instead of %-risk sizing. */
   useGradeLotSizing?: boolean;
+  /**
+   * If true, size lots by account balance using a step ladder:
+   *   lot = balanceLotBaseSize + floor(accountBalance / balanceLotStepUsd) * balanceLotBaseSize
+   * Designed for small accounts where %-risk sizing produces sub-micro lots.
+   * Takes precedence over both grade-based and %-risk sizing when enabled.
+   */
+  useBalanceLotSizing?: boolean;
+  /** Base lot size for balance-based sizing. Default 0.01. */
+  balanceLotBaseSize?: number;
+  /** Balance increment (USD) that adds one more base lot. Default 100. */
+  balanceLotStepUsd?: number;
+  /**
+   * If true, size lots by realized profit using a step ladder:
+   *   lot = profitLotBaseSize + floor(realizedProfit / profitLotStepUsd) * profitLotBaseSize
+   * This protects starting capital: no profit means max 0.01 lots; each $100 of
+   * profit adds one more base lot. Requires `realizedProfit` to be supplied by
+   * the caller (e.g. liveRunner). Takes precedence over balance-based sizing.
+   */
+  useProfitLotSizing?: boolean;
+  /** Base lot size for profit-based sizing. Default 0.01. */
+  profitLotBaseSize?: number;
+  /** Profit increment (USD) that adds one more base lot. Default 100. */
+  profitLotStepUsd?: number;
+  /** Realized profit (USD) used when `useProfitLotSizing` is true. Set by the runner. */
+  realizedProfit?: number;
   /** Max age of structure events (minutes) for live SQL freshness. 0 = disabled. */
   structureFreshnessMinutes?: number;
   /** Per-strategy execution quality profile. */

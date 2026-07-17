@@ -10,10 +10,11 @@ import type {
   Candle,
   TimeFrame,
 } from "@tm/shared";
-import { getCandleTableForTf } from "@tm/shared";
+import { getCandleTableForTf, filterWeekdayCandles, isWeekendTimestamp, recordProducerRun, getRecentCandles, getRegistryPipSize } from "@tm/shared";
 
 import { FeatureDAG, globalDAG } from "./graph";
 import { FeatureCache } from "./cache";
+import { evaluateProducerInvariant, getProducerOutputMode } from "./producerInvariant";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
 import { recordZoneOutcomes } from "../features/zone";
 
@@ -27,9 +28,100 @@ export interface RunOptions {
   batchInserts?: boolean;
   batchSize?: number;
   skipLifecycle?: boolean;
+  /** Bypass forward-only onEvent optimization for exact historical hole repair. */
+  skipEventGate?: boolean;
   /** Live runs should use a short window; backfills can widen it. */
   lifecycleLookbackDays?: number;
   lifecycleLimit?: number;
+}
+
+/**
+ * Build the content-addressed cache input hash for a feature computation.
+ *
+ * SK-57: the feature's engine_ver (`feature.version`) is part of the key so that
+ * an engine bump automatically busts stale `feature_cache` entries. Previously the
+ * key was `(feature_name, hashInput, symbol, tf, ts)` — identical inputs across a
+ * version bump collided, so the cache returned the PRE-bump output and the runner
+ * short-circuited compute+persist of the corrected row (this is why ATR v1.1.0 →
+ * v1.2.0 needed a manual `skipCache:true` recompute). With the version in the key, a
+ * bump yields a cache miss → recompute → persist of the new engine_ver row.
+ */
+export function buildCacheInputHash(
+  engineVer: string,
+  contentHash: string,
+  symbol: string,
+  tf: string,
+  endTs: Date
+): string {
+  return `${engineVer}:${contentHash}:${symbol}:${tf}:${endTs.toISOString()}`;
+}
+/**
+ * Dense feature rows serialize without their own timestamp. Anchor those rows
+ * to the newest candle actually read, not the caller's wall-clock endTs.
+ */
+export function resolveFeatureRowTs(rawTs: unknown, sourceMaxTs: Date): Date {
+  return rawTs instanceof Date ? rawTs : sourceMaxTs;
+}
+
+/** Keep forward-only event optimization enabled unless exact repair opts out. */
+export function shouldApplyEventGate(
+  computePolicy: FeatureDefinition<unknown, unknown>["computePolicy"],
+  skipEventGate = false
+): boolean {
+  return computePolicy === "onEvent" && !skipEventGate;
+}
+
+export interface PersistOutcome {
+  rows_seen: number;
+  rows_attempted: number;
+  rows_deduped: number;
+  rows_inserted: number;
+  rows_rejected: number;
+  status: "done" | "error";
+  error_message: string | null;
+}
+
+/**
+ * SK-62: derive the truthful producer-run ledger fields for one batch persist.
+ *
+ * A batch INSERT is atomic: if it throws, ZERO rows persisted (the whole statement
+ * rolls back). The old code logged the error and STILL recorded `status='done'` with
+ * `rows_inserted = rowsAttempted` — so a fully-rejected batch looked perfectly healthy
+ * ("done masks per-row rejections"). This helper makes the outcome explicit:
+ *   - insertError != null  -> rows_inserted=0, rows_rejected=rowsAttempted, status='error'
+ *   - success            -> rows_inserted=rowCount (default rowsAttempted),
+ *                           rows_rejected = rowsAttempted - rows_inserted (>= 0)
+ * Intra-batch PK duplicates dropped before the INSERT are reported as rows_deduped
+ * (not rejections): rows_seen - rows_attempted.
+ */
+export function computePersistOutcome(
+  rowsSeen: number,
+  rowsAttempted: number,
+  rowCount: number | null,
+  insertError: string | null
+): PersistOutcome {
+  const rowsDeduped = Math.max(0, rowsSeen - rowsAttempted);
+  if (insertError) {
+    return {
+      rows_seen: rowsSeen,
+      rows_attempted: rowsAttempted,
+      rows_deduped: rowsDeduped,
+      rows_inserted: 0,
+      rows_rejected: rowsAttempted,
+      status: "error",
+      error_message: insertError,
+    };
+  }
+  const rowsInserted = Math.max(0, rowCount ?? rowsAttempted);
+  return {
+    rows_seen: rowsSeen,
+    rows_attempted: rowsAttempted,
+    rows_deduped: rowsDeduped,
+    rows_inserted: rowsInserted,
+    rows_rejected: Math.max(0, rowsAttempted - rowsInserted),
+    status: "done",
+    error_message: null,
+  };
 }
 
 export class DAGRunner {
@@ -37,7 +129,18 @@ export class DAGRunner {
   private tableColumnsCache = new Map<string, string[]>();
   private candlesCache = new Map<string, Candle[]>();
   private pendingInserts = new Map<string, Record<string, unknown>[]>();
+  private pendingRunAnchors = new Map<string, { symbol: string; tf: string; sourceMinTs: Date; sourceMaxTs: Date; version: string }>();
   private defaultBatchSize = 1000;
+  /**
+   * Tracks last-computed candle MAX(ts) per feature per (symbol, tf).
+   * Used by onEvent features to skip execution when input candles unchanged
+   * since last run. (Audit item #5)
+   */
+  private featureLastCandleTs = new Map<string, number>();
+
+  private getFeatureKey(feature: string, symbol: string, tf: string): string {
+    return `${feature}:${symbol}:${tf}`;
+  }
 
   constructor(
     private pool: Pool,
@@ -48,10 +151,16 @@ export class DAGRunner {
 
   async flush(): Promise<void> {
     for (const [tableName, rows] of this.pendingInserts) {
-      if (rows.length === 0) continue;
-      await this.insertRows(tableName, rows);
+      const anchor = this.pendingRunAnchors.get(tableName);
+      const outcome = rows.length > 0
+        ? await this.insertRows(tableName, rows)
+        : computePersistOutcome(0, 0, 0, null);
+      if (anchor) {
+        await this.recordFeatureExecution(tableName, anchor.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome);
+      }
       rows.length = 0;
     }
+    this.pendingRunAnchors.clear();
   }
 
   private tablePKCache = new Map<string, string[]>();
@@ -109,17 +218,87 @@ export class DAGRunner {
 
     for (const feature of sorted) {
       const input = await this.buildInput(feature, opts, results);
+      const candles = (input.candles ?? []) as Candle[];
+      if (candles.length === 0) {
+        console.warn(
+          `[engine] No weekday candles for ${opts.symbol} ${opts.tf} at ${opts.endTs.toISOString()}, skipping`
+        );
+        return results;
+      }
+
+      // onEvent skips: if feature only recomputes when input candles change
+      // (computePolicy === "onEvent"), check if new candle data exists since
+      // last-computed row. Exact historical hole repair must bypass this
+      // forward-only optimization because a newer row does not fill an older gap.
+      if (shouldApplyEventGate(feature.computePolicy, opts.skipEventGate)) {
+        const maxCandleTs = candles.reduce(
+          (max, c) => (c.ts.getTime() > max ? c.ts.getTime() : max),
+          0
+        );
+        const fk = this.getFeatureKey(feature.name, opts.symbol, opts.tf);
+        let lastTs = this.featureLastCandleTs.get(fk);
+        if (lastTs === undefined) {
+          try {
+            const { rows } = await this.pool.query(
+              `SELECT MAX(ts) as max_ts FROM ${feature.name}
+               WHERE symbol = $1 AND tf = $2`,
+              [opts.symbol, opts.tf]
+            );
+            lastTs = rows[0]?.max_ts
+              ? new Date(rows[0].max_ts as string).getTime()
+              : 0;
+          } catch {
+            lastTs = 0; // table may not exist yet
+          }
+          this.featureLastCandleTs.set(fk, lastTs);
+        }
+        if (maxCandleTs <= lastTs) {
+          // Candles haven't advanced since last compute; skip
+          if (lastTs > 0) {
+            // Load cached output from DB so downstream deps get data
+            const { rows } = await this.pool.query(
+              `SELECT * FROM ${feature.name}
+               WHERE symbol = $1 AND tf = $2 AND ts = (SELECT MAX(ts) FROM ${feature.name} WHERE symbol = $1 AND tf = $2)`,
+              [opts.symbol, opts.tf]
+            );
+            if (rows.length > 0) {
+              results[feature.name] = rows[0] as Record<string, unknown>;
+              continue;
+            }
+          }
+          // No prior row exists; fall through to compute
+        }
+      }
+
       // Include symbol/tf/endTs in the input hash so context-sensitive features
-      // (e.g. HTF bias) do not collide across symbols or timestamps.
+      // (e.g. HTF bias) do not collide across symbols or timestamps. engine_ver
+      // (feature.version) is included so an engine bump busts stale cache entries
+      // (SK-57) — see buildCacheInputHash.
       const inputHash = opts.skipCache
         ? `bulk:${opts.symbol}:${opts.tf}:${opts.endTs.toISOString()}`
-        : `${feature.hashInput(input)}:${opts.symbol}:${opts.tf}:${opts.endTs.toISOString()}`;
+        : buildCacheInputHash(
+            feature.version,
+            feature.hashInput(input),
+            opts.symbol,
+            opts.tf,
+            opts.endTs
+          );
 
       // Try cache unless disabled
       if (!opts.skipCache) {
         const cached = await this.cache.get(feature.name, inputHash);
         if (cached !== null) {
           results[feature.name] = cached;
+          // Update lastCandleTs for onEvent features on cache hit
+          if (feature.computePolicy === "onEvent" && candles.length > 0) {
+            const maxTs = candles.reduce(
+              (max, c) => (c.ts.getTime() > max ? c.ts.getTime() : max), 0
+            );
+            this.featureLastCandleTs.set(
+              this.getFeatureKey(feature.name, opts.symbol, opts.tf),
+              maxTs
+            );
+          }
           continue;
         }
       }
@@ -140,21 +319,43 @@ export class DAGRunner {
 
       // Persist
       if (opts.batchInserts) {
-        this.stage(feature, opts, output, inputHash);
+        const sourceMaxTs = candles[candles.length - 1].ts;
+        this.stage(feature, opts, output, inputHash, sourceMaxTs);
+        this.pendingRunAnchors.set(feature.name, {
+          symbol: opts.symbol,
+          tf: opts.tf,
+          sourceMinTs: candles[0].ts,
+          sourceMaxTs,
+          version: feature.version,
+        });
         const rows = this.pendingInserts.get(feature.name);
         const batchSize = opts.batchSize ?? this.defaultBatchSize;
         if (rows && rows.length >= batchSize) {
-          await this.insertRows(feature.name, rows);
+          const outcome = await this.insertRows(feature.name, rows);
+          const anchor = this.pendingRunAnchors.get(feature.name)!;
+          await this.recordFeatureExecution(feature.name, feature.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome);
           rows.length = 0;
+          this.pendingRunAnchors.delete(feature.name);
         }
       } else {
-        await this.persist(feature, opts, output, inputHash, outputHash);
+        await this.persist(feature, opts, output, inputHash, outputHash, candles);
       }
       if (!opts.skipCache) {
         await this.cache.set(feature.name, inputHash, output, outputHash);
       }
 
       results[feature.name] = output;
+
+      // Update lastCandleTs for onEvent tracking after successful persist
+      if (feature.computePolicy === "onEvent" && candles.length > 0) {
+        const maxTs = candles.reduce(
+          (max, c) => (c.ts.getTime() > max ? c.ts.getTime() : max), 0
+        );
+        this.featureLastCandleTs.set(
+          this.getFeatureKey(feature.name, opts.symbol, opts.tf),
+          maxTs
+        );
+      }
 
       // Record completed zone outcomes for continuous learning. Kept outside
       // the feature compute so the feature remains pure and testable.
@@ -267,9 +468,28 @@ export class DAGRunner {
     const cached = this.candlesCache.get(key);
     if (cached) return cached;
 
+    if (process.env.TM_ENGINE_CANDLE_SOURCE !== "0") {
+      // SK-08 (post-SK-10): DEFAULT. Count-based, gap-tolerant read via candleSource.
+      // Cagg fast path, deterministic 1m-rollup fallback only when a tradable bar is
+      // genuinely missing or the cagg lags endTs. Preserves tick_count (ATR
+      // sparse_bucket). Parity-verified byte-identical to the legacy query on a
+      // complete window. Set TM_ENGINE_CANDLE_SOURCE=0 to use the legacy direct path
+      // (kill switch).
+      const series = await getRecentCandles(this.pool, symbol, tf, endTs, count, {
+        allowRealtimeFallback: true,
+      });
+      const candles = filterWeekdayCandles(series);
+      this.candlesCache.set(key, candles);
+      return candles;
+    }
+
     const table = getCandleTableForTf(tf);
+    // tick_count exists on the 5m/15m/1h/4h caggs but not on candles_1m or
+    // candles_1d_utc; select it only where present so 1m/1d fetches don't error.
+    // NOTE (SK-08): legacy direct path, reached only when TM_ENGINE_CANDLE_SOURCE=0.
+    const tickCol = tf === "1m" || tf === "1d" ? "" : ", tick_count";
     const { rows } = await this.pool.query(
-      `SELECT symbol, ts, o, h, l, c, v
+      `SELECT symbol, ts, o, h, l, c, v${tickCol}
        FROM ${table}
        WHERE symbol = $1 AND ts <= $2
        ORDER BY ts DESC
@@ -277,31 +497,56 @@ export class DAGRunner {
       [symbol, endTs, count]
     );
 
-    const candles = rows
-      .map(
-        (r): Candle => ({
-          symbol: r.symbol,
-          ts: new Date(r.ts),
-          o: parseFloat(r.o),
-          h: parseFloat(r.h),
-          l: parseFloat(r.l),
-          c: parseFloat(r.c),
-          v: r.v ? parseInt(r.v, 10) : undefined,
-          spread: r.spread ? parseFloat(r.spread) : undefined,
-          digits: r.digits ? parseInt(r.digits, 10) : undefined,
-        })
-      )
-      .reverse();
+    const candles = filterWeekdayCandles(
+      rows
+        .map(
+          (r): Candle => ({
+            symbol: r.symbol,
+            ts: new Date(r.ts),
+            o: parseFloat(r.o),
+            h: parseFloat(r.h),
+            l: parseFloat(r.l),
+            c: parseFloat(r.c),
+            v: r.v ? parseInt(r.v, 10) : undefined,
+            spread: r.spread ? parseFloat(r.spread) : undefined,
+            digits: r.digits ? parseInt(r.digits, 10) : undefined,
+            tickCount: r.tick_count != null ? parseInt(r.tick_count, 10) : undefined,
+          })
+        )
+        .reverse()
+    );
 
     this.candlesCache.set(key, candles);
     return candles;
+  }
+
+  /**
+   * Tables whose geometry columns (top / bottom) are part of the PK and must be
+   * rounded to pip precision to prevent ATR-buffer drift from creating duplicate rows.
+   */
+  private static readonly GEOMETRY_TABLES = new Set([
+    "features_zone",
+    "features_zone_retest",
+    "features_ifvg",
+    "features_order_block",
+  ]);
+
+  /**
+   * Round a price value to the nearest pip for the given symbol.
+   * Uses the shared registry so every producer agrees on units.
+   */
+  private static roundToPip(value: number, symbol: string): number {
+    const pipSize = getRegistryPipSize(symbol);
+    if (!pipSize || pipSize <= 0) return value;
+    return Math.round(value / pipSize) * pipSize;
   }
 
   private buildRows(
     feature: FeatureDefinition<any, any>,
     opts: RunOptions,
     output: unknown,
-    inputHash: string
+    inputHash: string,
+    sourceMaxTs: Date
   ): Record<string, unknown>[] {
     const rawRows = feature.serialize(output);
     if (rawRows.length === 0) return [];
@@ -310,24 +555,38 @@ export class DAGRunner {
     const tableColumns = this.tableColumnsCache.get(tableName);
     if (!tableColumns) return [];
 
+    const isGeometryTable = DAGRunner.GEOMETRY_TABLES.has(tableName);
+    const symbol = opts.symbol;
+
+    const allowWeekend = process.env.TM_FEATURE_ALLOW_WEEKEND === "1";
     const rows: Record<string, unknown>[] = [];
     for (const rawRow of rawRows) {
       const row: Record<string, unknown> = {};
       for (const col of tableColumns) {
         if (col === "symbol") {
-          row[col] = (rawRow as Record<string, unknown>).symbol ?? opts.symbol;
+          row[col] = (rawRow as Record<string, unknown>).symbol ?? symbol;
         } else if (col === "tf") {
           row[col] = (rawRow as Record<string, unknown>).tf ?? opts.tf;
         } else if (col === "ts") {
-          const v = (rawRow as Record<string, unknown>).ts;
-          row[col] = v instanceof Date ? v : opts.endTs;
+          row[col] = resolveFeatureRowTs(
+            (rawRow as Record<string, unknown>).ts,
+            sourceMaxTs
+          );
         } else if (col === "engine_ver") {
           row[col] = feature.version;
         } else if (col === "input_hash") {
           row[col] = inputHash;
+        } else if (isGeometryTable && (col === "top" || col === "bottom")) {
+          // RC-5 / 6-B: round geometry columns to pip-precision so the same
+          // logical zone always produces the same PK regardless of ATR-buffer drift.
+          const v = (rawRow as Record<string, unknown>)[col];
+          row[col] = typeof v === "number" ? DAGRunner.roundToPip(v, symbol) : v;
         } else {
           row[col] = (rawRow as Record<string, unknown>)[col];
         }
+      }
+      if (!allowWeekend && isWeekendTimestamp(row.ts as Date)) {
+        continue;
       }
       rows.push(row);
     }
@@ -337,8 +596,8 @@ export class DAGRunner {
   private async insertRows(
     tableName: string,
     rows: Record<string, unknown>[]
-  ): Promise<void> {
-    if (rows.length === 0) return;
+  ): Promise<PersistOutcome> {
+    if (rows.length === 0) return computePersistOutcome(0, 0, 0, null);
     const pk = await this.getTablePK(tableName);
     const seen = new Set<string>();
     const uniqueRows = rows.filter((row) => {
@@ -347,7 +606,7 @@ export class DAGRunner {
       seen.add(key);
       return true;
     });
-    if (uniqueRows.length === 0) return;
+    if (uniqueRows.length === 0) return computePersistOutcome(rows.length, 0, 0, null);
     const columns = Object.keys(uniqueRows[0]);
     const placeholders = uniqueRows
       .map(
@@ -375,15 +634,85 @@ export class DAGRunner {
             .join(", ")}`
         : "ON CONFLICT DO NOTHING";
 
+    // SK-62: track the REAL persist outcome so a failed batch is not ledgered as
+    // status='done' with rows_inserted=attempted. A batch INSERT is atomic, so on
+    // throw zero rows persisted (the old code logged the error and still reported
+    // success — "done masks per-row rejections").
+    const rowsSeen = rows.length;
+    const rowsAttempted = uniqueRows.length;
+    let rowCount: number | null = null;
+    let insertError: string | null = null;
     try {
-      await this.pool.query(
+      const res = await this.pool.query(
         `INSERT INTO ${tableName} (${columns.join(", ")})
          VALUES ${placeholders}
          ${conflictClause}`,
         values
       );
+      rowCount = typeof res.rowCount === "number" ? res.rowCount : null;
     } catch (err: any) {
-      console.error(`[engine] Failed to persist ${tableName}:`, err.message);
+      insertError = err?.message ?? String(err);
+      console.error(`[engine] Failed to persist ${tableName}:`, insertError);
+    }
+    const outcome = computePersistOutcome(rowsSeen, rowsAttempted, rowCount, insertError);
+    if (outcome.rows_rejected > 0) {
+      console.warn(
+        `[engine] ${tableName} persist rejected ${outcome.rows_rejected}/${rowsAttempted} rows` +
+          (insertError ? ` (${insertError})` : "")
+      );
+    }
+
+    return outcome;
+  }
+
+  private async recordFeatureExecution(
+    tableName: string,
+    version: string,
+    symbol: string,
+    tf: string,
+    sourceMinTs: Date,
+    sourceMaxTs: Date,
+    rows: Record<string, unknown>[],
+    outcome: PersistOutcome
+  ): Promise<void> {
+    let outputMaxTs: Date | null = null;
+    for (const row of rows) {
+      const value = row.ts;
+      const ts = value instanceof Date ? value : value ? new Date(String(value)) : null;
+      if (ts && (!outputMaxTs || ts > outputMaxTs)) outputMaxTs = ts;
+    }
+    const mode = getProducerOutputMode(tableName);
+    const invariant = evaluateProducerInvariant({
+      mode,
+      sourceMaxTs,
+      outputMaxTs,
+      executionSucceeded: outcome.status === "done",
+    });
+    const status = invariant.passed ? "done" : "error";
+    await recordProducerRun(this.pool, {
+      producer: "engine",
+      feature_table: tableName,
+      symbol,
+      tf,
+      source_min_ts: sourceMinTs,
+      source_max_ts: sourceMaxTs,
+      rows_seen: outcome.rows_seen,
+      rows_inserted: outcome.rows_inserted,
+      watermark_ts: outputMaxTs,
+      producer_version: version,
+      status,
+      error_message: outcome.error_message ?? (invariant.passed ? null : `producer invariant failed: ${invariant.reason}`),
+      quality_json: {
+        ...outcome,
+        output_mode: mode,
+        expected_anchor_ts: sourceMaxTs.toISOString(),
+        output_anchor_ts: outputMaxTs?.toISOString() ?? null,
+        invariant_passed: invariant.passed,
+        invariant_reason: invariant.reason,
+      },
+    });
+    if (!invariant.passed) {
+      throw new Error(`${tableName} producer invariant failed: ${invariant.reason}`);
     }
   }
 
@@ -391,11 +720,11 @@ export class DAGRunner {
     feature: FeatureDefinition<any, any>,
     opts: RunOptions,
     output: unknown,
-    inputHash: string
+    inputHash: string,
+    sourceMaxTs: Date
   ): void {
     if (!this.tableColumnsCache.has(feature.name)) return;
-    const rows = this.buildRows(feature, opts, output, inputHash);
-    if (rows.length === 0) return;
+    const rows = this.buildRows(feature, opts, output, inputHash, sourceMaxTs);
     const existing = this.pendingInserts.get(feature.name);
     if (existing) {
       existing.push(...rows);
@@ -409,12 +738,24 @@ export class DAGRunner {
     opts: RunOptions,
     output: unknown,
     inputHash: string,
-    _outputHash: string
+    _outputHash: string,
+    candles: Candle[]
   ): Promise<void> {
     const tableName = feature.name;
-    const tableColumns = await this.getTableColumns(tableName);
-    const rows = this.buildRows(feature, opts, output, inputHash);
-    await this.insertRows(tableName, rows);
+    await this.getTableColumns(tableName);
+    const sourceMaxTs = candles[candles.length - 1].ts;
+    const rows = this.buildRows(feature, opts, output, inputHash, sourceMaxTs);
+    const outcome = await this.insertRows(tableName, rows);
+    await this.recordFeatureExecution(
+      tableName,
+      feature.version,
+      opts.symbol,
+      opts.tf,
+      candles[0].ts,
+      candles[candles.length - 1].ts,
+      rows,
+      outcome
+    );
   }
 
 }

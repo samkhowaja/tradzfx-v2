@@ -66,8 +66,12 @@ BEGIN
     ORDER BY z.ts DESC
     LIMIT p_limit
   ),
-  mitigations AS (
-    SELECT cnd.symbol, cnd.tf, cnd.ts, MIN(c.ts) AS mit_ts
+  -- Compute fill ratio for 50% threshold check
+  zone_fill AS (
+    SELECT cnd.symbol, cnd.tf, cnd.ts,
+           (LEAST(c.h, cnd.top) - GREATEST(c.l, cnd.bottom)) /
+           GREATEST(cnd.top - cnd.bottom, 0.0001) AS fill_ratio,
+           c.ts AS candle_ts
     FROM candidates cnd
     JOIN candles_1m c ON c.symbol = cnd.symbol
       AND c.ts > cnd.ts
@@ -75,7 +79,12 @@ BEGIN
       AND c.ts <= p_as_of_ts
       AND c.h >= cnd.bottom
       AND c.l <= cnd.top
-    GROUP BY cnd.symbol, cnd.tf, cnd.ts
+  ),
+  mitigations AS (
+    SELECT symbol, tf, ts, MIN(candle_ts) AS mit_ts
+    FROM zone_fill
+    WHERE fill_ratio > 0.5
+    GROUP BY symbol, tf, ts
   ),
   invalidations AS (
     SELECT cnd.symbol, cnd.tf, cnd.ts, MIN(c.ts) AS inv_ts

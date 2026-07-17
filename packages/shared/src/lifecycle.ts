@@ -13,8 +13,8 @@ function isDirection(d: Direction): d is "bullish" | "bearish" {
 
 /**
  * Find the first candle after `fromIndex` whose range intersects a price band.
- * Returns both the timestamp and the deepest fill percentage reached up to that
- * point. Fill percentage is normalized to [0, 1] relative to the band height.
+ * Returns both the timestamp and the fill percentage at that specific candle.
+ * Fill percentage is normalized to [0, 1] relative to the band height.
  */
 export function findBandFirstTouch(
   candles: Candle[],
@@ -23,24 +23,51 @@ export function findBandFirstTouch(
   bottom: number,
   direction: "bullish" | "bearish"
 ): { ts?: Date; fillPct: number } {
-  let firstTouchAt: Date | undefined;
-  let deepest = 0;
   const height = top - bottom;
   for (let i = fromIndex + 1; i < candles.length; i++) {
     const c = candles[i];
     if (c.h >= bottom && c.l <= top) {
-      if (!firstTouchAt) firstTouchAt = c.ts;
       if (height > 0) {
         const penetration =
           direction === "bullish"
             ? Math.max(0, top - Math.max(bottom, c.l)) // price entering from top down
             : Math.max(0, Math.min(top, c.h) - bottom); // price entering from bottom up
-        deepest = Math.max(deepest, penetration);
+        const fillPct = Math.min(1, penetration / height);
+        return { ts: c.ts, fillPct };
       }
+      return { ts: c.ts, fillPct: 0 };
     }
   }
-  const fillPct = height > 0 ? Math.min(1, deepest / height) : 0;
-  return { ts: firstTouchAt, fillPct };
+  return { ts: undefined, fillPct: 0 };
+}
+
+/**
+ * Find the first candle after `fromIndex` that achieves at least `minFillPct`
+ * penetration of the price band. Returns the timestamp when that threshold
+ * is first reached.
+ */
+export function findBandFillThreshold(
+  candles: Candle[],
+  fromIndex: number,
+  top: number,
+  bottom: number,
+  direction: "bullish" | "bearish",
+  minFillPct: number
+): Date | undefined {
+  const height = top - bottom;
+  if (height <= 0) return undefined;
+  for (let i = fromIndex + 1; i < candles.length; i++) {
+    const c = candles[i];
+    if (c.h >= bottom && c.l <= top) {
+      const penetration =
+        direction === "bullish"
+          ? Math.max(0, top - Math.max(bottom, c.l))
+          : Math.max(0, Math.min(top, c.h) - bottom);
+      const fillPct = penetration / height;
+      if (fillPct >= minFillPct) return c.ts;
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -84,12 +111,62 @@ export function findCloseCross(
 }
 
 /**
+ * Count how many candles after `fromIndex` intersect the zone band
+ * [bottom, top]. Returns:
+ *   - touchCount:  total intersecting candles (wick or body)
+ *   - retestCount: intersecting candles that occurred AFTER the first touch
+ *                  (i.e. the zone has been re-tested at least once)
+ *
+ * Used by Track B (D013) to score retest zones vs fresh zones. A zone with
+ * touchCount = 1 is a "first touch" candidate; touchCount >= 2 means the
+ * market has come back to test the level again — a high-quality ICT/SMC
+ * entry signal.
+ */
+export function countZoneTouches(
+  candles: Candle[],
+  fromIndex: number,
+  top: number,
+  bottom: number
+): { touchCount: number; retestCount: number } {
+  let touchCount = 0;
+  let firstTouchSeen = false;
+  let retestCount = 0;
+  for (let i = fromIndex + 1; i < candles.length; i++) {
+    const c = candles[i];
+    if (c.h >= bottom && c.l <= top) {
+      touchCount++;
+      if (firstTouchSeen) retestCount++;
+      else firstTouchSeen = true;
+    }
+  }
+  return { touchCount, retestCount };
+}
+
+/**
+ * Find the first candle after `fromIndex` whose close is inside the band
+ * [bottom, top]. Used for classic FVG invalidation: an FVG is no longer fresh
+ * as soon as price closes back inside the gap.
+ */
+function findBandCloseInside(
+  candles: Candle[],
+  fromIndex: number,
+  top: number,
+  bottom: number
+): Date | undefined {
+  for (let i = fromIndex + 1; i < candles.length; i++) {
+    const c = candles[i];
+    if (c.c >= bottom && c.c <= top) return c.ts;
+  }
+  return undefined;
+}
+
+/**
  * Compute lifecycle for a supply/demand/FVG zone.
  *
  * Semantics:
  * - firstTouchAt: first wick/body intersection (informational; used for retest logic).
  * - mitigatedAt: first wick/body intersection (kept for backward compatibility).
- * - invalidatedAt: close beyond the far side.
+ * - invalidatedAt: close beyond the far side (demand/supply) OR close inside the gap (FVG).
  * - fillPct: deepest penetration into the zone as a ratio of zone height.
  *
  * A zone is considered "fresh" for PIT/live trading as long as it has not been
@@ -117,22 +194,30 @@ export function computeZoneLifecycle(
     direction = "bullish";
   }
 
-  const { ts: firstTouchAt, fillPct } = findBandFirstTouch(
+  const { ts: firstTouchAt, fillPct: firstTouchFillPct } = findBandFirstTouch(
     candles,
     fromIndex,
     zone.top,
     zone.bottom,
     direction
   );
-  const invalidatedAt = findBandInvalidation(
-    candles,
-    fromIndex,
-    zone.top,
-    zone.bottom,
-    direction
-  );
+  const invalidatedAt =
+    zone.zoneKind === "fvg"
+      ? findBandCloseInside(candles, fromIndex, zone.top, zone.bottom)
+      : findBandInvalidation(candles, fromIndex, zone.top, zone.bottom, direction);
 
-  return { firstTouchAt, mitigatedAt: firstTouchAt, invalidatedAt, fillPct };
+  // Only mark as mitigated if price has penetrated >50% of zone depth (significant fill)
+  // or if invalidated (close beyond far side). First touch alone is NOT mitigation.
+  const mitigatedAt = findBandFillThreshold(
+    candles,
+    fromIndex,
+    zone.top,
+    zone.bottom,
+    direction,
+    0.5
+  ) ?? invalidatedAt;
+
+  return { firstTouchAt, mitigatedAt, invalidatedAt, fillPct: firstTouchFillPct };
 }
 
 /**

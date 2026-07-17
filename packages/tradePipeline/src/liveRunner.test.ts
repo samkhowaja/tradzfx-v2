@@ -41,29 +41,42 @@ interface QueryHandler {
 
 function createFakePool(handlers: QueryHandler[]): Pool {
   const query = vi.fn(async (sql: string, _params?: any[]) => {
+    if (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql)) return { rows: [] };
+    if (/INSERT INTO risk_state/i.test(sql)) return { rows: [] };
+    if (/SELECT .+ FROM risk_state/i.test(sql)) return { rows: [{ ok: 1 }] };
     const handler = handlers.find((h) => h.match.test(sql));
     if (!handler) {
       throw new Error(`Unexpected query in test: ${sql.slice(0, 120)}`);
     }
     return { rows: handler.rows };
   });
-  return { query } as unknown as Pool;
+  const client = { query, release: vi.fn() };
+  const connect = vi.fn(async () => client);
+  return { query, connect } as unknown as Pool;
 }
 
 function freshnessHandlers(): QueryHandler[] {
   const now = new Date().toISOString();
   return [
+    // Candles MAX(ts) is handled separately (uses CANDLE_TABLE_BY_TF, not features)
     { match: /SELECT MAX\(ts\).*FROM candles_1m/i, rows: [{ max_ts: now }] },
-    { match: /SELECT MAX\(ts\).*FROM features_atr/i, rows: [{ max_ts: now }] },
-    { match: /SELECT MAX\(ts\).*FROM features_session/i, rows: [{ max_ts: now }] },
-    { match: /SELECT MAX\(ts\).*FROM features_spread/i, rows: [{ max_ts: now }] },
+    // Batched feature freshness: single UNION ALL query replacing 3 separate MAX(ts).
+    // Return fresh timestamps for all 3 features in one batch.
+    { match: /UNION ALL/i, rows: [
+      { feature_name: "features_atr", tf: "15m", max_ts: now },
+      { feature_name: "features_session", tf: "1m", max_ts: now },
+      { feature_name: "features_spread", tf: "1m", max_ts: now },
+    ]},
+    // P0-C producer-SLA cross-check reads (empty ledger => treat as fresh/unknown)
+    { match: /FROM feature_producer_runs/i, rows: [] },
+    { match: /FROM lifecycle_refresh_state/i, rows: [] },
   ];
 }
 
 function featureHandlers(session = "LONDON"): QueryHandler[] {
   return [
     { match: /FROM mt5_terminals/i, rows: [{ balance: 10000 }] },
-    { match: /FROM candles_1m/i, rows: [{ c: "1.0950" }] },
+    { match: /FROM market\.candles_1m_canonical/i, rows: [{ c: "1.0950" }] },
     { match: /FROM features_atr/i, rows: [{ period: 14, value: "0.0005" }] },
     { match: /FROM features_session/i, rows: [{ session, utc_hour: 8 }] },
     { match: /FROM features_spread/i, rows: [{ spread: "0.0002", samples: 10 }] },
@@ -161,7 +174,9 @@ describe("runLivePipeline", () => {
 
     expect(result.reason).toBe("no_signal");
     expect(result.orderCreated).toBeUndefined();
-    expect(fakePool.query).toHaveBeenCalledTimes(6);
+    // 5 base queries (candle MAX, 1x batched feature freshness, 3x producer SLA)
+    // + 1 signal SELECT + 1 rejection INSERT = 7 total (no transaction on early return).
+    expect(fakePool.query).toHaveBeenCalledTimes(7);
   });
 
   it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {

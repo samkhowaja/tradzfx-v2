@@ -5,14 +5,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@tm/shared";
+import { getMt5RequestApiKey, validateMt5ApiKey } from "@/lib/mt5Auth";
 
 export async function POST(request: NextRequest) {
-  const EXPECTED_API_KEY =
-    process.env.TM_MT5_API_KEY ??
-    process.env.MT5_API_KEY ??
-    "";
-  const apiKey = request.headers.get("X-API-Key");
-  if (apiKey !== EXPECTED_API_KEY) {
+  const apiKey = getMt5RequestApiKey(request);
+  if (!(await validateMt5ApiKey(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -59,7 +56,7 @@ export async function POST(request: NextRequest) {
             label,
             balance,
             equity,
-            EXPECTED_API_KEY,
+            apiKey,
           ]
         );
       }

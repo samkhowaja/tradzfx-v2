@@ -1421,7 +1421,7 @@ void ExecuteSignal(
    {
       double spreadPoints = (double)SymbolInfoInteger(brokerSym, SYMBOL_SPREAD);
       double point = SymbolInfoDouble(brokerSym, SYMBOL_POINT);
-      int pipDigits = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 3 || (int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 5) ? 10 : 1;
+      int pipDigits = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) != 4) ? 10 : 1; // pip = 10 points except 4-digit quoting (pip = 1 point); matches server pointsToPips;
       double spreadPips = (spreadPoints * point) / (point * pipDigits);
       // Simpler: spreadPips = spreadPoints / pipDigits
       spreadPips = spreadPoints / (double)pipDigits;
@@ -1448,7 +1448,7 @@ void ExecuteSignal(
       double liveBid = SymbolInfoDouble(brokerSym, SYMBOL_BID);
       double liveCheck = (side == "buy") ? liveAsk : liveBid;
       double point = SymbolInfoDouble(brokerSym, SYMBOL_POINT);
-      int pipDigitsZone = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 3 || (int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 5) ? 10 : 1;
+      int pipDigitsZone = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) != 4) ? 10 : 1; // pip = 10 points except 4-digit quoting (pip = 1 point); matches server pointsToPips;
       double zoneDist = entryZonePips * point * pipDigitsZone;
       double drift = MathAbs(liveCheck - entry);
 

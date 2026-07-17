@@ -19,6 +19,7 @@ export interface ZoneOutcomeInput {
   symbol: string;
   tf: string;
   zoneKind: string;
+  direction?: "bullish" | "bearish";
   top: number;
   bottom: number;
   formationTs: Date;
@@ -35,8 +36,8 @@ export function determineZoneOutcome(
   maxAdverse: number;
   exitTs?: Date;
 } {
-  const { candles, mitigatedAt, invalidatedAt, top, bottom, zoneKind } = input;
-  const direction = zoneKind === "supply" || zoneKind === "bearish" ? "bearish" : "bullish";
+  const { candles, mitigatedAt, invalidatedAt, top, bottom, zoneKind, direction: inputDirection } = input;
+  const direction = inputDirection ?? (zoneKind === "supply" || zoneKind === "bearish" ? "bearish" : "bullish");
 
   if (invalidatedAt) {
     return { outcome: "invalidated", maxFavorable: 0, maxAdverse: top - bottom, exitTs: invalidatedAt };
@@ -84,10 +85,10 @@ export async function recordZoneOutcome(
   try {
     await pool.query(
       `INSERT INTO zone_outcomes (
-         symbol, tf, zone_kind, top, bottom, formation_ts,
+         symbol, tf, zone_kind, direction, top, bottom, formation_ts,
          outcome, max_favorable, max_adverse, exit_ts
-       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       ON CONFLICT (symbol, tf, zone_kind, top, bottom, formation_ts) DO UPDATE SET
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       ON CONFLICT (symbol, tf, zone_kind, direction, top, bottom, formation_ts) DO UPDATE SET
          outcome = EXCLUDED.outcome,
          max_favorable = EXCLUDED.max_favorable,
          max_adverse = EXCLUDED.max_adverse,
@@ -96,6 +97,7 @@ export async function recordZoneOutcome(
         input.symbol,
         input.tf,
         input.zoneKind,
+        input.direction ?? null,
         input.top,
         input.bottom,
         input.formationTs,

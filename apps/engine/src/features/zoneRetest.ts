@@ -9,6 +9,10 @@
 import type { Candle, FeatureDefinition, ZoneOutput, ZoneRetestOutput } from "@tm/shared";
 import { sha256 } from "@tm/shared";
 
+function requireCloseOrEngulf(): boolean {
+  return process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF !== "false";
+}
+
 export interface ZoneRetestInput {
   candles: Candle[];
   features_zone: ZoneOutput;
@@ -52,6 +56,9 @@ function detectRetests(candles: Candle[], zones: ZoneOutput["zones"]): ZoneRetes
     const closeInside = last.c >= zone.bottom && last.c <= zone.top;
     const engulfingAtZone =
       (isBullishEngulfing(last, prev) || isBearishEngulfing(last, prev)) && wickInto;
+
+    if (requireCloseOrEngulf() && !closeInside && !engulfingAtZone) continue;
+
     const direction: ZoneRetestOutput["retests"][number]["direction"] =
       last.c > last.o ? "bullish" : last.c < last.o ? "bearish" : "neutral";
 
@@ -74,6 +81,7 @@ export const zoneRetestFeature: FeatureDefinition<ZoneRetestInput, ZoneRetestOut
   name: "features_zone_retest",
   version: "1.1.0",
   dependencies: ["features_zone"],
+  computePolicy: "onEvent",
 
   compute(input): ZoneRetestOutput {
     const { candles } = input;

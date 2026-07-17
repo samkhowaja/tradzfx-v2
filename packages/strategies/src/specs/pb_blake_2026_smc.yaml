@@ -1,0 +1,199 @@
+id: pb_blake_2026_smc
+familyId: pb_blake_2026_smc
+active: true
+name: "PB Blake 2026 SMC — FVG/CISD/Rejection Block + IFG Confirmation"
+version: "1.0.0"
+description: >
+  PB Blake's 2026 updated SMC strategy with 4-step process:
+  1. Higher Time Frame Bias & Draw on Liquidity (Daily/4H/1H FVG respect/disrespect + swing high/low target)
+  2. Valid Key Level identification (FVG, CISD, Rejection Block on 3m-4H)
+  3. IFG Confirmation on LTF (1m-5m highest timeframe inversion in manipulation leg)
+  4. Execution with swing-based SL and 1:1 RR (or hold for draw on liquidity)
+
+filters:
+  symbols: [ XAUUSD, EURUSD, GBPUSD ]
+  sessions: [ LONDON, OVERLAP, NY ]
+  timeWindows:
+    - { utcStart: "08:00", utcEnd: "11:30" }
+    - { utcStart: "13:30", utcEnd: "16:30" }
+
+setup:
+  # Step 1: Higher Time Frame Bias & Draw on Liquidity
+  - id: htf_bias_bullish
+    feature: features_bias
+    tf: 1h
+    predicate: "direction = 'bullish'"
+    required: false
+    weight: 10
+
+  - id: htf_bias_bearish
+    feature: features_bias
+    tf: 1h
+    predicate: "direction = 'bearish'"
+    required: false
+    weight: 10
+
+  # FVG Respect/Disrespect Check (using zone feature for FVG detection)
+  - id: bullish_fvg_respect
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind = 'demand' AND fill_pct < 0.5 AND is_fresh = true"
+    required: false
+    weight: 8
+
+  - id: bearish_fvg_respect
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind = 'supply' AND fill_pct < 0.5 AND is_fresh = true"
+    required: false
+    weight: 8
+
+  # Draw on Liquidity - Swing High/Low targeting
+  - id: draw_on_liquidity_long
+    feature: features_structure
+    tf: 1h
+    predicate: "event_type IN ('bos', 'mss') AND direction = 'bullish'"
+    required: false
+    weight: 6
+
+  - id: draw_on_liquidity_short
+    feature: features_structure
+    tf: 1h
+    predicate: "event_type IN ('bos', 'mss') AND direction = 'bearish'"
+    required: false
+    weight: 6
+
+  # Pricing filter - ensure we're in premium/discount/equilibrium
+  - id: pricing_filter
+    feature: features_pricing
+    tf: 15m
+    predicate: "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')"
+    required: true
+    weight: 3
+
+  # Step 2: Valid Key Level Identification
+  # FVG Key Levels (unmitigated or intermediate high/low)
+  - id: fvg_key_level_long
+    feature: features_zone
+    tf: 15m
+    predicate: "zone_kind = 'demand' AND fill_pct < 0.95 AND is_fresh = true"
+    required: false
+    weight: 8
+
+  - id: fvg_key_level_short
+    feature: features_zone
+    tf: 15m
+    predicate: "zone_kind = 'supply' AND fill_pct < 0.95 AND is_fresh = true"
+    required: false
+    weight: 8
+
+  # CISD (Change in State of Delivery) - body close above/below series of candles hitting FVG
+  - id: cisd_long
+    feature: features_structure
+    tf: 15m
+    predicate: "is_cisd = true AND direction = 'bullish'"
+    required: false
+    weight: 7
+
+  - id: cisd_short
+    feature: features_structure
+    tf: 15m
+    predicate: "is_cisd = true AND direction = 'bearish'"
+    required: false
+    weight: 7
+
+  # Rejection Blocks - wicks into FVG (using order_block with swing degree)
+  - id: rejection_block_long
+    feature: features_order_block
+    tf: 15m
+    predicate: "ob_kind = 'bullish' AND degree = 'swing' AND is_fresh = true"
+    required: false
+    weight: 6
+
+  - id: rejection_block_short
+    feature: features_order_block
+    tf: 15m
+    predicate: "ob_kind = 'bearish' AND degree = 'swing' AND is_fresh = true"
+    required: false
+    weight: 6
+
+entry:
+  # Step 3: IFG Confirmation on LTF (1m-5m) - highest timeframe inversion in manipulation leg
+  - id: ifvg_confirmation_long
+    feature: features_ifvg
+    tf: 5m
+    predicate: "direction = 'bullish' AND fill_pct >= 0.3 AND is_fresh = true"
+    required: true
+    weight: 10
+
+  - id: ifvg_confirmation_short
+    feature: features_ifvg
+    tf: 5m
+    predicate: "direction = 'bearish' AND fill_pct >= 0.3 AND is_fresh = true"
+    required: true
+    weight: 10
+
+  # LTF Structure Break confirmation (BOS/MSS in direction of bias)
+  - id: ltf_structure_long
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos', 'mss') AND direction = 'bullish'"
+    required: false
+    weight: 5
+
+  - id: ltf_structure_short
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos', 'mss') AND direction = 'bearish'"
+    required: false
+    weight: 5
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  # ATR-based stop loss (1.5x ATR on 5m timeframe)
+  sl: "atr(5m) * 1.5"
+  # 1:1 Risk Reward as base, can hold for draw on liquidity
+  tp: "sl * 1.0"
+  minRR: 1.0
+  timeoutBars: 240
+  maxFillBars: 60
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      # Gate reads PIPS. Multi-symbol spec (XAUUSD/EURUSD/GBPUSD): the legacy 5.0
+      # was authored in gold price units == 50 pips. At 50 pips the cap is a sane
+      # high-vol filter for XAUUSD (median ~47) and a harmless no-op for EUR/GBP
+      # (their p95 ~6 pips). 5 pips blocked >=95% of XAUUSD bars.
+      maxAtr5Pips: 50.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+live:
+  mode: paper
+  structureFreshnessMinutes: 60
+  lotSize: 0.01
+  riskPerTradePct: 1
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 10
+  maxSpreadPips: 3
+  maxSlippagePoints: 20

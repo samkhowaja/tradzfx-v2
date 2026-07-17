@@ -57,6 +57,24 @@ describe("trackOutcome", () => {
     expect(withCosts.effectiveEntry).toBeGreaterThan(raw.effectiveEntry!);
   });
 
+  it("applies spread and slippage symmetrically to short TP exits", () => {
+    const future = [
+      { ts: "2026-01-01T00:01:00Z", o: 100, h: 100, l: 96, c: 97, v: 1 },
+    ];
+    const raw = trackOutcome("short", { top: 101, bottom: 99 }, 102, 97, future);
+    const withCosts = trackOutcome("short", { top: 101, bottom: 99 }, 102, 97, future, {
+      spreadPips: 2,
+      slippagePips: 1,
+      pipSize: 0.01,
+    });
+    expect(raw.outcome).toBe("win");
+    expect(withCosts.outcome).toBe("win");
+    expect(withCosts.outcomeR).toBeLessThan(raw.outcomeR);
+    // Short exit should be worse by half-spread + slippage on both entry and TP.
+    expect(withCosts.effectiveEntry).toBeLessThan(raw.effectiveEntry!);
+    expect(withCosts.exitPrice).toBeGreaterThan(raw.exitPrice!);
+  });
+
   it("handles same-bar SL/TP according to intrabar mode", () => {
     const future = [
       { ts: "2026-01-01T00:01:00Z", o: 100, h: 104, l: 97, c: 101, v: 1 },
@@ -79,5 +97,37 @@ describe("trackOutcome", () => {
     const result = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future);
     expect(result.maxAdverseR).toBeGreaterThan(0);
     expect(result.maxFavorableR).toBeGreaterThan(0);
+  });
+
+  it("reports actual loss R including costs", () => {
+    const future = [
+      { ts: "2026-01-01T00:01:00Z", o: 100, h: 100.5, l: 97.5, c: 98, v: 1 },
+      { ts: "2026-01-01T00:02:00Z", o: 98, h: 103, l: 97, c: 102, v: 1 },
+    ];
+    const result = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future, {
+      spreadPips: 2,
+      slippagePips: 1,
+      pipSize: 0.01,
+    });
+    expect(result.outcome).toBe("loss");
+    expect(result.outcomeR).toBeLessThan(-1);
+  });
+
+  it("applies commission to both entry and exit", () => {
+    const future = [
+      { ts: "2026-01-01T00:01:00Z", o: 100, h: 104, l: 100, c: 103, v: 1 },
+    ];
+    const withoutCommission = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future, {
+      spreadPips: 2,
+      slippagePips: 1,
+      pipSize: 0.01,
+    });
+    const withCommission = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future, {
+      spreadPips: 2,
+      slippagePips: 1,
+      commissionPips: 1,
+      pipSize: 0.01,
+    });
+    expect(withCommission.outcomeR).toBeLessThan(withoutCommission.outcomeR);
   });
 });

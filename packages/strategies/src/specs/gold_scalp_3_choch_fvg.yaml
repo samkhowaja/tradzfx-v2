@@ -1,0 +1,141 @@
+id: gold_scalp_3_choch_fvg
+familyId: gold_scalp_3_choch_fvg
+active: true
+experimental: true
+name: "Gold Scalp 3 — HTF CHoCH + FVG + iFVG"
+version: "1.0.0"
+description: >
+  Video strategy 3: HTF (4h/1h) identifies trend reversal — prior bearish
+  structure sequence (3+ bearish BOS) then a bullish CHoCH (change of
+  character). The CHoCH leg contains an FVG. LTF (15m/5m) price retraces
+  into the HTF FVG, shows rejection. Entry on iFVG formation. SL below
+  recent swing low, TP nearest HTF buyside liquidity.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, OVERLAP, NY ]
+  timeWindows:
+    - { utcStart: "07:00", utcEnd: "11:00" }
+    - { utcStart: "13:00", utcEnd: "16:30" }
+
+setup:
+  # HTF (1h) trend reversal: current bias bullish after bearish structure
+  - id: htf_bias_reversal
+    feature: features_bias
+    tf: 1h
+    predicate: "direction = 'bullish'"
+    required: true
+    weight: 10
+
+  # Price recently broke structure bullishly (CHoCH) confirming reversal
+  - id: htf_choch
+    feature: features_structure
+    tf: 1h
+    predicate: "event_type = 'bos' AND direction = 'bullish'"
+    required: true
+    weight: 9
+    lookbackBars: 24
+
+  # HTF FVG in the CHoCH leg — the zone price will retrace to
+  - id: htf_fvg_zone
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind = 'fvg' AND fill_pct < 0.8"
+    required: true
+    weight: 9
+    lookbackBars: 240
+
+  # HTF order block from the CHoCH move adds confluence
+  - id: htf_order_block
+    feature: features_order_block
+    tf: 1h
+    predicate: "ob_kind = 'bullish' AND degree IN ('major', 'swing')"
+    required: false
+    weight: 7
+
+  # Pricing in discount zone — retrace into value
+  - id: pricing_discount
+    feature: features_pricing
+    tf: 1h
+    predicate: "position IN ('discount', 'deep_discount')"
+    required: false
+    weight: 5
+
+entry:
+  # LTF iFVG on retrace into HTF FVG zone — entry trigger
+  - id: ltf_ifvg_reversal
+    feature: features_ifvg
+    tf: 15m
+    predicate: "direction = 'bullish'"
+    required: true
+    weight: 10
+
+  # LTF structure confirmation (BOS/MSS on retrace rejection)
+  - id: ltf_bos_confirmation
+    feature: features_structure
+    tf: 15m
+    predicate: "event_type IN ('bos', 'mss') AND direction = 'bullish'"
+    required: false
+    weight: 7
+
+  # LTF order block at retrace rejection point
+  - id: ltf_ob_retrace
+    feature: features_order_block
+    tf: 15m
+    predicate: "ob_kind = 'bullish'"
+    required: false
+    weight: 5
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  sl: "atr(15m) * 1.5"
+  tp: "sl * 2.0"
+  minRR: 2.0
+  timeoutBars: 120
+  maxFillBars: 30
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      maxAtr5Pips: 30.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 5
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 3
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 30

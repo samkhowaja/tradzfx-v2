@@ -56,16 +56,16 @@ describe("htfBiasFeature", () => {
     expect(output.confidence).toBe(90);
     expect(output.score).toBeGreaterThanOrEqual(3);
     expect(output.byTimeFrame).toBeDefined();
-    expect(output.byTimeFrame?.["1d"].state).toBe("strong");
-    expect(output.byTimeFrame?.["4h"].state).toBe("strong");
+    expect(output.byTimeFrame?.["1d"].state).toBe("soft");
+    expect(output.byTimeFrame?.["4h"].state).toBe("soft");
   });
 
-  it("returns bearish SOFT_WARN with 4H bearish offset by 1H bullish", async () => {
+  it("returns bearish SOFT_WARN when 4H bearish is not offset by higher TFs", async () => {
     const output = await htfBiasFeature.compute(
       input({
         "1d": makeCandles(60, 1800, 2, "range"),
         "4h": makeCandles(60, 1800, -2, "bearish"),
-        "1h": makeCandles(60, 1800, 1, "bullish"),
+        "1h": makeCandles(60, 1800, 2, "range"),
       }),
       { tf: "15m" }
     );
@@ -73,7 +73,7 @@ describe("htfBiasFeature", () => {
     expect(output.direction).toBe("bearish");
     expect(output.state).toBe("SOFT_WARN");
     expect(output.confidence).toBe(70);
-    expect(output.score).toBe(-1);
+    expect(output.score).toBe(-1.5);
   });
 
   it("returns BLOCK when no fresh HTF context exists", async () => {
@@ -119,7 +119,7 @@ describe("htfBiasFeature", () => {
       { tf: "15m" }
     );
 
-    expect(output.byTimeFrame?.["1d"].state).toBe("strong");
+    expect(output.byTimeFrame?.["1d"].state).toBe("soft");
     expect(output.byTimeFrame?.["1d"].direction).toBe("bullish");
     expect(output.byTimeFrame?.["4h"].state).toBe("opposing");
     expect(output.byTimeFrame?.["4h"].direction).toBe("bearish");

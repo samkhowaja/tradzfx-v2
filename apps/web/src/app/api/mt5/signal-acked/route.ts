@@ -5,16 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 import { markOrderAcked } from "@/lib/orderService";
 
-const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function validateApiKey(req: NextRequest): boolean {
-  const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
-  return key === EXPECTED_API_KEY;
-}
 
 interface SignalAckPayload {
   signalId: string;
@@ -24,7 +17,7 @@ interface SignalAckPayload {
 }
 
 export async function POST(request: NextRequest) {
-  if (!validateApiKey(request)) {
+  if (!(await validateMt5ApiKey(request))) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
 

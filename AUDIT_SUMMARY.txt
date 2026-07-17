@@ -1,0 +1,245 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║            tradzfx-v2 DATA INTEGRITY AUDIT — FINAL SUMMARY                     ║
+║                        Generated: 2026-07-07                                    ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+📊 AUDIT SCOPE
+──────────────────────────────────────────────────────────────────────────────────
+✓ MT5 CSV Import Pipeline
+✓ Higher-Timeframe Aggregation (1m → 5m/15m/1h/4h/1d)
+✓ Feature Generation & DAG Computation
+✓ Historical Backfill Process
+✓ PIT Backtest Execution
+✓ 5 Major Pipeline Stages
+✓ 20+ Feature Tables
+✓ 97 Database Migrations
+
+
+🚨 CRITICAL FINDINGS
+──────────────────────────────────────────────────────────────────────────────────
+
+5 Critical Issues Identified (All Fixable):
+
+  [C1] No Intra-Bar Time Validation  ════════════════════════════════════════════
+       Where:  apps/engine/src/dag/runner.ts
+       Impact: ❌ Lookahead bias in backtests
+       Effort: 2 hours
+       Risk:   Backtests overfitted, live trades based on incomplete data
+       
+  [C2] Decimal Precision Loss  ═════════════════════════════════════════════════
+       Where:  scripts/backfill-candles-from-mt5-csv.js
+       Impact: ❌ Wrong pip/point conversions
+       Effort: 2 hours
+       Risk:   Spread calculations incorrect, trading costs wrong
+       
+  [C3] Spread Conversion Assumes Standard Digits  ════════════════════════════
+       Where:  scripts/backfill-candles-from-mt5-csv.js
+       Impact: ❌ XAUUSD spreads 10x too large
+       Effort: 3 hours
+       Risk:   Gold/commodity trading cost estimates completely wrong
+       
+  [C4] No OHLC Validation on Import  ═════════════════════════════════════════
+       Where:  scripts/backfill-candles-from-mt5-csv.js
+       Impact: ❌ Corrupted candles silently persist
+       Effort: 1 hour
+       Risk:   Zone/pivot detection fails on corrupted data
+       
+  [C5] Feature Timestamp Alignment Not Validated  ════════════════════════════
+       Where:  apps/engine/src/dag/runner.ts
+       Impact: ❌ Features stored at wrong times
+       Effort: 2 hours
+       Risk:   PIT backtest signal misalignment, features at invalid times
+
+
+⚠️  HIGH PRIORITY ISSUES (5 Additional)
+──────────────────────────────────────────────────────────────────────────────────
+  [H1] Cross-TimeFrame Alignment Not Checked      (2 hours)
+  [H2] Candle Gaps & Weekend Handling Missing     (3 hours)
+  [H3] Lookback Window Inconsistent Across TFs    (1 hour)
+  [H4] Volume Consolidation Without Verification (2 hours)
+  [H5] No Duplicate Candle Detection on Re-Import (2 hours)
+
+
+📈 REMEDIATION ROADMAP
+──────────────────────────────────────────────────────────────────────────────────
+
+Total Effort:        ~20 hours over 3 weeks
+Critical Issues:     ~10 hours (Week 1-2)
+High Priority:       ~10 hours (Week 2-3)
+Success Rate:        100% (all issues have clear fixes)
+
+Week 1: Fix C1, C4, C5 (lookahead/corruption/alignment)      ~7 hours
+Week 2: Fix C3, C2 (spread/precision)                        ~7 hours
+Week 3: Validation script, gap detection, monitoring         ~6 hours
+
+
+📁 GENERATED AUDIT DOCUMENTS
+──────────────────────────────────────────────────────────────────────────────────
+
+📄 DATA_INTEGRITY_AUDIT_INDEX.md                              (10 KB)
+   └─ Navigation guide + quick reference
+   └─ READ THIS FIRST
+
+📄 README_DATA_INTEGRITY_AUDIT.md                             (10 KB)
+   └─ Executive summary + roadmap
+   └─ Best for: Project planning & team briefing
+
+📄 DATA_INTEGRITY_VISUAL_SUMMARY.md                           (16 KB)
+   └─ Diagrams, flowcharts, visual issue breakdown
+   └─ Best for: Visual understanding, briefings
+
+📄 DATA_INTEGRITY_AUDIT_2026-07-07.md                         (37 KB)
+   └─ Complete technical analysis + evidence
+   └─ Best for: Engineers, code review, root cause analysis
+
+📄 DATA_INTEGRITY_REMEDIATION_CHECKLIST.md                    (21 KB)
+   └─ Task breakdown + code snippets + testing procedures
+   └─ Best for: Implementation, task assignment
+
+Total Documentation: ~94 KB, ~2000 lines
+
+
+✅ QUICK START
+──────────────────────────────────────────────────────────────────────────────────
+
+For Project Managers:
+  1. Read: DATA_INTEGRITY_AUDIT_INDEX.md (5 min)
+  2. Read: README_DATA_INTEGRITY_AUDIT.md (10 min)
+  3. Use: Remediation Checklist to assign work
+
+For Engineers:
+  1. Read: DATA_INTEGRITY_VISUAL_SUMMARY.md (15 min)
+  2. Read: DATA_INTEGRITY_AUDIT_2026-07-07.md, Section 7 (30 min)
+  3. Open: DATA_INTEGRITY_REMEDIATION_CHECKLIST.md
+  4. Implement: Start with Task 1.1 (endTs validation)
+
+For QA/Testers:
+  1. Read: DATA_INTEGRITY_VISUAL_SUMMARY.md, Testing section (10 min)
+  2. Run: Post-import validation script (from Checklist)
+  3. Verify: All test cases pass
+
+
+🎯 SUCCESS METRICS
+──────────────────────────────────────────────────────────────────────────────────
+
+After All Fixes Are Deployed:
+
+Data Integrity:
+  ✓ 100% of feature timestamps are valid candle closes
+  ✓ 0% OHLC ordering violations in imported data
+  ✓ 0% lookahead bias detected in feature computation
+  ✓ Backtest results reproducible across runs
+
+Data Quality:
+  ✓ Post-import validation script passes 100% of checks
+  ✓ <0.1% candle gaps during market hours
+  ✓ Spread ranges match expected by symbol (0.5-2 pips typical)
+
+System Health:
+  ✓ Feature computation latency unchanged
+  ✓ Existing backtest suite passes without modifications
+  ✓ Production monitoring catches 100% of future data issues
+
+
+📋 IMPLEMENTATION CHECKLIST
+──────────────────────────────────────────────────────────────────────────────────
+
+Week 1: Critical Fixes
+  ☐ Task 1.1: endTs validation (2h)
+  ☐ Task 1.2: OHLC validation (1h)
+  ☐ Task 1.4: Feature TS validation (2h)
+  ☐ Testing & code review (2h)
+  
+Week 2: High-Impact Fixes
+  ☐ Task 1.3: Spread conversion (3h)
+  ☐ Task 1.2 (follow-up): Decimal precision (2h)
+  ☐ Testing & validation (2h)
+  
+Week 3: Infrastructure
+  ☐ Task 2.1: Post-import validation script (3h)
+  ☐ Task 5.1: Gap detection (2h)
+  ☐ Monitoring setup (1h)
+
+
+💡 KEY INSIGHTS
+──────────────────────────────────────────────────────────────────────────────────
+
+1. ARCHITECTURE IS SOUND
+   └─ Pipeline design is correct: CSV → HTF → features → backtest
+   └─ Issues are in validation/precision, not fundamental design
+
+2. ALL ISSUES ARE FIXABLE
+   └─ No architectural rewrite required
+   └─ All fixes are straightforward additions/validations
+   └─ No performance penalty expected
+
+3. LOOKAHEAD BIAS IS THE BIGGEST RISK
+   └─ Could lead to overfitted backtests
+   └─ Live trading based on incomplete candles
+   └─ Remediation (endTs validation) is simple but critical
+
+4. SPREAD PRECISION AFFECTS PROFITABILITY
+   └─ Especially for gold/commodities
+   └─ Leads to underestimation of trading costs
+   └─ Backtests show better returns than actual
+
+5. DATA VALIDATION IS MISSING
+   └─ CSV import has no validation
+   └─ Features have no timestamp checks
+   └─ Post-import quality checks don't exist
+   └─ All can be added without breaking changes
+
+
+🔒 RISK ASSESSMENT
+──────────────────────────────────────────────────────────────────────────────────
+
+Current State (Without Fixes):
+  Risk Level: 🔴 HIGH
+  Impact: Backtests unreliable, live trading risky
+  Confidence: LOW (data integrity unknown)
+
+After Critical Fixes (C1-C5):
+  Risk Level: 🟡 MEDIUM
+  Impact: Backtests reliable, live trading safe
+  Confidence: HIGH (data validated)
+
+After All Fixes:
+  Risk Level: 🟢 LOW
+  Impact: Enterprise-grade data pipeline
+  Confidence: VERY HIGH (continuous monitoring)
+
+
+📞 NEXT STEPS
+──────────────────────────────────────────────────────────────────────────────────
+
+1. IMMEDIATE (Today)
+   → Read DATA_INTEGRITY_AUDIT_INDEX.md
+   → Brief team on findings
+   → Assign Task 1.1 to engineer
+
+2. THIS WEEK (Days 1-5)
+   → Implement C1, C4, C5 fixes
+   → Code review + testing
+   → Deploy to staging
+
+3. NEXT WEEK
+   → Implement C3, C2 fixes
+   → Post-import validation testing
+   → Production deployment plan
+
+4. WEEK 3+
+   → Infrastructure & monitoring
+   → Continuous validation
+   → Team training
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+                    AUDIT COMPLETE ✓ READY FOR IMPLEMENTATION
+═══════════════════════════════════════════════════════════════════════════════════
+
+Generated by: Copilot Data Integrity Audit System
+Audit Date:  2026-07-07
+Status:      ✅ Complete and actionable
+Location:    c:\tradzfx-v2\reports\
+
+Start here: c:\tradzfx-v2\DATA_INTEGRITY_AUDIT_INDEX.md

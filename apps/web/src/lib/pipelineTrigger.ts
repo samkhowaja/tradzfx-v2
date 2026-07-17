@@ -16,6 +16,7 @@ import {
   timeBucket,
   getRedisClient,
   acquirePipelineBucket,
+  getFeaturePipelineSymbol,
   type Pool,
 } from "@tm/shared";
 import {
@@ -23,10 +24,18 @@ import {
   getOrCreateStrategySettingsSnapshot,
   getOrCreateLiveDeployment,
 } from "@tm/shared";
-import { compileStrategy, restoreCompiledStrategy } from "@tm/strategies";
+import {
+  compileStrategy, restoreCompiledStrategy,
+} from "@tm/strategies";
 import type { StrategySpec, TimeFrame } from "@tm/shared";
+import crypto from "crypto";
 import { runLiveExecution } from "./liveRunner";
-import { DAGRunner, globalDAG, updateLifecycleForSymbol } from "@tm/engine";
+import {
+  DAGRunner,
+  globalDAG,
+  resolveFeatureProfileRuns,
+  updateLifecycleForSymbol,
+} from "@tm/engine";
 import {
   loadVariantById,
   loadActiveVariants,
@@ -47,13 +56,20 @@ export interface TriggerResult {
 
 interface CompiledMemoryEntry {
   compiled: ReturnType<typeof compileStrategy>;
-  updatedAt: string;
+  specHash: string;
 }
 
 // Small in-process cache for compiled strategies. The source of truth for
-// invalidation is the strategy spec's `updated_at` timestamp.
+// invalidation is the spec content hash (JSON-stable serialization), not
+// updatedAt — spec changes without version bump still need fresh SQL.
+// (Audit item #8)
 const compiledMemory = new Map<string, CompiledMemoryEntry>();
 const COMPILED_MEMORY_MAX = 100;
+
+/** SHA-256 of stable-JSON'd spec. Detects ANY spec content change. */
+function computeSpecHash(spec: StrategySpec): string {
+  return crypto.createHash("sha256").update(JSON.stringify(spec, Object.keys(spec).sort())).digest("hex");
+}
 
 async function loadVariantWithVersion(
   pool: Pool,
@@ -70,23 +86,24 @@ async function getCompiledStrategy(variantId: string) {
   if (!loaded) {
     throw new Error(`Strategy variant not found in DB: ${variantId}`);
   }
-  const { spec, version: updatedAt } = loaded.variant;
+  const { spec } = loaded.variant;
 
-  // 1. In-process cache keyed by version
+  // 1. In-process cache keyed by specHash
+  const specHash = computeSpecHash(spec);
   const mem = compiledMemory.get(variantId);
-  if (mem && mem.updatedAt === updatedAt) {
+  if (mem && mem.specHash === specHash) {
     return mem.compiled;
   }
 
-  // 2. Try Redis
+  // 2. Try Redis (key = tm:compiled:<specHash> so spec changes = automatic miss)
   let sql: string | undefined;
   const redis = await getRedisClient();
   if (redis) {
     try {
-      const raw = await redis.get(`tm:compiled:${variantId}`);
+      const raw = await redis.get(`tm:compiled:${specHash}`);
       if (raw) {
         const cached = JSON.parse(raw);
-        if (cached.updatedAt === updatedAt && typeof cached.sql === "string" && cached.spec) {
+        if (typeof cached.sql === "string") {
           sql = cached.sql;
         }
       }
@@ -102,9 +119,9 @@ async function getCompiledStrategy(variantId: string) {
     if (redis) {
       try {
         await redis.setEx(
-          `tm:compiled:${variantId}`,
+          `tm:compiled:${specHash}`,
           3600,
-          JSON.stringify({ sql, spec, updatedAt })
+          JSON.stringify({ sql, spec })
         );
       } catch (err: any) {
         console.warn(`[pipelineTrigger] Redis compiled-strategy write failed for ${variantId}:`, err.message);
@@ -119,7 +136,7 @@ async function getCompiledStrategy(variantId: string) {
     const first = compiledMemory.keys().next().value;
     if (first !== undefined) compiledMemory.delete(first);
   }
-  compiledMemory.set(variantId, { compiled, updatedAt });
+  compiledMemory.set(variantId, { compiled, specHash });
   return compiled;
 }
 
@@ -129,67 +146,44 @@ interface FeatureRun {
 }
 
 function getLiveLookbackBars(tf: TimeFrame): number {
-  // Live only needs enough bars to compute the latest feature value.
+  // Must cover max MA period (250) plus headroom for SMA/EMA.
+  // filterWeekdayCandles removes weekend bars, so 250 raw bars may yield
+  // only ~178 usable 1h bars — making SMA 250 (period=250) silently skip.
+  // Factor ~1.4x to guarantee 250 usable candles after weekend filtering.
   switch (tf) {
     case "1m":
-      return 100;
+      return 400;
     case "5m":
-      return 120;
+      return 350;
     case "15m":
-      return 200;
+      return 400;
     case "1h":
-      return 96;
+      return 400;
     case "4h":
-      return 60;
+      return 350;
     case "1d":
-      return 30;
+      return 350;
     default:
-      return 100;
+      return 350;
   }
+}
+
+async function getUniverseFeatureRuns(
+  pool: Pool,
+  symbol: string
+): Promise<FeatureRun[] | null> {
+  const entry = await getFeaturePipelineSymbol(pool, symbol);
+  if (!entry?.enabled) return null;
+  return resolveFeatureProfileRuns(
+    entry.requiredFeatureProfile,
+    entry.profileVersion,
+    entry.requiredTimeframes
+  );
 }
 
 /**
- * Collect only the (feature, tf) pairs that a strategy actually references,
- * plus the core gate inputs. Avoids recomputing the entire DAG every 15m.
- */
-function collectRequiredFeatureRuns(spec: StrategySpec): FeatureRun[] {
-  const map = new Map<TimeFrame, Set<string>>();
-  const add = (feature: string, tf: TimeFrame) => {
-    if (!map.has(tf)) map.set(tf, new Set());
-    map.get(tf)!.add(feature);
-  };
-
-  for (const cond of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
-    if (cond.feature && cond.tf) add(cond.feature, cond.tf);
-  }
-
-  // Core gate inputs
-  add("features_atr", "15m");
-  add("features_session", "1m");
-  add("features_spread", "1m");
-
-  return Array.from(map.entries()).map(([tf, features]) => ({
-    tf,
-    features: Array.from(features),
-  }));
-}
-
-function mergeFeatureRuns(runs: FeatureRun[]): FeatureRun[] {
-  const map = new Map<TimeFrame, Set<string>>();
-  for (const { tf, features } of runs) {
-    if (!map.has(tf)) map.set(tf, new Set());
-    for (const f of features) map.get(tf)!.add(f);
-  }
-  return Array.from(map.entries()).map(([tf, features]) => ({
-    tf,
-    features: Array.from(features),
-  }));
-}
-
-/**
- * Run the V2 feature engine for a symbol across only the timeframes and
- * features required by the active strategy. Uses batched inserts and a tight
- * live lookback to keep the 15m pipeline fast.
+ * Run V2 feature engine for universe-configured timeframes and feature profile.
+ * Uses batched inserts and tight live lookback to keep 15m pipeline fast.
  */
 async function runFeatureEngine(
   symbol: string,
@@ -234,7 +228,8 @@ async function runFeatureEngine(
 async function runStrategyPipeline(
   symbol: string,
   latestTs: Date,
-  variantId: string
+  variantId: string,
+  evaluationTs?: Date
 ): Promise<TriggerResult> {
   const pool = getPool();
 
@@ -271,13 +266,14 @@ async function runStrategyPipeline(
 
   // Run the live pipeline
   try {
-    const latestSignalSQL = compiled.latestSignalSQL(symbol);
+    const latestSignalSQL = compiled.latestSignalSQL();
 
     const result = await runLiveExecution({
       symbol,
       strategySpec: compiled.spec,
       latestSignalSQL,
       deploymentId,
+      evaluationTs,
     });
 
     if (result.orderCreated) {
@@ -320,17 +316,19 @@ export async function checkAndTriggerPipeline(
     }
   }
 
-  // Load the spec early so the feature engine can compute only what this
-  // variant needs.
   const variantLoad = await loadVariantWithVersion(pool, resolvedVariantId);
   if (!variantLoad) {
     return { symbol, triggered: false, reason: "strategy_variant_not_found" };
   }
-  const featureRuns = collectRequiredFeatureRuns(variantLoad.variant.spec);
 
-  // Get the latest candle timestamp
+  const featureRuns = await getUniverseFeatureRuns(pool, symbol);
+  if (!featureRuns) {
+    return { symbol, triggered: false, reason: "feature_universe_disabled_or_missing" };
+  }
+
+  // Get canonical latest candle ts (only to confirm data exists, not as pipeline anchor).
   const { rows } = await pool.query(
-    `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
+    `SELECT ts FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
     [symbol]
   );
 
@@ -338,8 +336,9 @@ export async function checkAndTriggerPipeline(
     return { symbol, triggered: false, reason: "no_candles" };
   }
 
-  const latestTs = new Date(rows[0].ts);
-  const bucket = get15mBucket(latestTs);
+  const latestCandleTs = new Date(rows[0].ts);
+  const now = new Date();
+  const bucket = get15mBucket(now);
 
   // Distributed bucket acquisition replaces the process-local Map.
   const acquired = await acquirePipelineBucket(pool, symbol, bucket);
@@ -348,11 +347,13 @@ export async function checkAndTriggerPipeline(
   }
 
   console.log(
-    `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${latestTs.toISOString()}`
+    `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${now.toISOString()} (candle ${latestCandleTs.toISOString()})`
   );
 
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  const engineResult = await runFeatureEngine(symbol, latestTs, featureRuns);
+  // Feature engine endTs = wall clock so all existing candles are visible.
+  // Lifecycle asOf stays at candle ts to avoid marking zones invalidated in the future.
+  const engineResult = await runFeatureEngine(symbol, now, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -363,26 +364,37 @@ export async function checkAndTriggerPipeline(
     );
   }
 
-  // ── Phase 0b: Incrementally refresh lifecycle columns for zones/OBs/etc. ──
-  // Use a tight live window: we only need to invalidate rows from the current
-  // session. The 10-day/1000-row default is for backfills and times out live.
+  // ── Phase 0b (P0-C, skeleton SK-24): best-effort lifecycle nudge. The heavy
+  // scan runs on the scheduled maintenance pool (refresh-lifecycle.js,
+  // statement_timeout=0); here we cap the inline call at 25s so the 60s web
+  // pool can never freeze trading on a runaway lifecycle query.
   try {
-    const lifecycleResult = await updateLifecycleForSymbol(pool, symbol, {
-      asOf: latestTs,
-      lookbackDays: 1,
-      limit: 100,
+    const lifecycleWork = updateLifecycleForSymbol(pool, symbol, {
+      asOf: latestCandleTs,
+      lookbackDays: 2,
+      limit: 500,
     });
-    const totalUpdated = lifecycleResult.reduce((s, r) => s + r.rowsUpdated, 0);
-    console.log(
-      `[pipelineTrigger] Lifecycle refresh for ${symbol}: ${totalUpdated} rows updated`
+    const budget = new Promise<"budget">((resolve) =>
+      setTimeout(() => resolve("budget"), 25_000)
     );
+    const raced = await Promise.race([lifecycleWork, budget]);
+    if (raced === "budget") {
+      console.warn(
+        `[pipelineTrigger] Lifecycle refresh for ${symbol} exceeded 25s live budget; deferring to scheduled maintenance`
+      );
+    } else {
+      const totalUpdated = raced.reduce((s, r) => s + r.rowsUpdated, 0);
+      console.log(
+        `[pipelineTrigger] Lifecycle refresh for ${symbol}: ${totalUpdated} rows updated`
+      );
+    }
   } catch (err: any) {
     console.warn(
       `[pipelineTrigger] Lifecycle refresh failed for ${symbol}: ${err.message}`
     );
   }
 
-  return runStrategyPipeline(symbol, latestTs, resolvedVariantId);
+  return runStrategyPipeline(symbol, latestCandleTs, resolvedVariantId, now);
 }
 
 /**
@@ -392,9 +404,9 @@ export async function checkAndTriggerPipeline(
 export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerResult[]> {
   const pool = getPool();
 
-  // Get the latest candle timestamp
+  // Get canonical latest candle ts (only to confirm data exists, not as pipeline anchor).
   const { rows } = await pool.query(
-    `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
+    `SELECT ts FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
     [symbol]
   );
 
@@ -402,8 +414,9 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
     return [{ symbol, triggered: false, reason: "no_candles" }];
   }
 
-  const latestTs = new Date(rows[0].ts);
-  const bucket = get15mBucket(latestTs);
+  const latestCandleTs = new Date(rows[0].ts);
+  const now = new Date();
+  const bucket = get15mBucket(now);
 
   const acquired = await acquirePipelineBucket(pool, symbol, bucket);
   if (!acquired) {
@@ -411,31 +424,19 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
   }
 
   console.log(
-    `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${latestTs.toISOString()} (all active)`
+    `[pipelineTrigger] 15m boundary detected for ${symbol} @ ${now.toISOString()} (candle ${latestCandleTs.toISOString()}, all active)`
   );
 
-  // Determine which variants are active for this symbol and compute the union
-  // of features they require, so the engine only runs what is actually needed.
-  const active = await loadActiveVariants(pool, { symbol });
-  let featureRuns: FeatureRun[];
-
-  if (active.length === 0) {
-    const fallbackId = await getDefaultActiveVariantForSymbol(pool, symbol);
-    if (!fallbackId) {
-      return [{ symbol, triggered: false, reason: "no_active_variant_for_symbol" }];
-    }
-    const loaded = await loadVariantWithVersion(pool, fallbackId);
-    if (!loaded) {
-      return [{ symbol, triggered: false, reason: "strategy_variant_not_found" }];
-    }
-    featureRuns = collectRequiredFeatureRuns(loaded.variant.spec);
-  } else {
-    const allRuns = active.flatMap((v) => collectRequiredFeatureRuns(v.spec));
-    featureRuns = mergeFeatureRuns(allRuns);
+  // Feature production belongs to canonical universe, independent from strategy activation.
+  const featureRuns = await getUniverseFeatureRuns(pool, symbol);
+  if (!featureRuns) {
+    return [{ symbol, triggered: false, reason: "feature_universe_disabled_or_missing" }];
   }
 
+  const active = await loadActiveVariants(pool, { symbol });
+
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  const engineResult = await runFeatureEngine(symbol, latestTs, featureRuns);
+  const engineResult = await runFeatureEngine(symbol, now, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -446,19 +447,21 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
     );
   }
 
-  const results: TriggerResult[] = [];
-  for (const variant of active) {
-    // Strategy spec filters.symbols handles symbol eligibility downstream.
-    const result = await runStrategyPipeline(symbol, latestTs, variant.variantId);
-    results.push(result);
-  }
+  // Run all active variant pipelines in parallel — they are fully independent
+  // (separate compiled SQL, separate signals, separate gate evaluations).
+  // Fallback variants are handled after Promise.all.
+  const results: TriggerResult[] = await Promise.all(
+    active.map((variant) =>
+      runStrategyPipeline(symbol, latestCandleTs, variant.variantId, now)
+    )
+  );
 
   // Fallback path: if no variants existed, the single-variant path above
   // already populated featureRuns but we still need to evaluate it.
   if (active.length === 0) {
     const fallbackId = await getDefaultActiveVariantForSymbol(pool, symbol);
     if (fallbackId) {
-      const result = await runStrategyPipeline(symbol, latestTs, fallbackId);
+      const result = await runStrategyPipeline(symbol, latestCandleTs, fallbackId, now);
       results.push(result);
     }
   }

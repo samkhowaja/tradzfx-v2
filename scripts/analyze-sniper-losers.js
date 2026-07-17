@@ -42,7 +42,7 @@ async function resimulate(t, slPips, tpPips = TP_PIPS) {
   const tp = side === "buy" ? entry + tpPips * PIP : entry - tpPips * PIP;
   const ts = new Date(t.ts).toISOString();
   const { rows: candles } = await pool.query(
-    `SELECT ts, h, l, c FROM candles_1m
+    `SELECT ts, h, l, c FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts > $2
      ORDER BY ts LIMIT $3`,
     [t.symbol, ts, TIMEOUT_BARS]
@@ -237,7 +237,7 @@ async function main() {
   for (const t of trades) {
     const ts = new Date(t.ts).toISOString();
     const { rows } = await pool.query(
-      `SELECT h, l FROM candles_1m WHERE symbol = $1 AND ts <= $2 ORDER BY ts DESC LIMIT 1`,
+      `SELECT h, l FROM market.candles_1m_canonical WHERE symbol = $1 AND ts <= $2 ORDER BY ts DESC LIMIT 1`,
       [t.symbol, ts]
     );
     const range = rows.length ? (parseFloat(rows[0].h) - parseFloat(rows[0].l)) / PIP : Infinity;
@@ -277,7 +277,7 @@ async function main() {
   for (const t of trades) {
     const ts = new Date(t.ts).toISOString();
     const { rows } = await pool.query(
-      `SELECT h, l FROM candles_15m WHERE symbol = $1 AND ts <= $2 ORDER BY ts DESC LIMIT 1`,
+      `SELECT h, l FROM market.candles_15m_canonical WHERE symbol = $1 AND ts <= $2 ORDER BY ts DESC LIMIT 1`,
       [t.symbol, ts]
     );
     const range = rows.length ? (parseFloat(rows[0].h) - parseFloat(rows[0].l)) / PIP : Infinity;

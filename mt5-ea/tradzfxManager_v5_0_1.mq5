@@ -4,8 +4,33 @@
 //+------------------------------------------------------------------+
 #property copyright "tradzfx"
 #property link      "https://github.com/samkhowaja/tradzfx-v2"
-#property version   "5.02"
+#property version   "5.03"
 #property strict
+
+//+------------------------------------------------------------------+
+//| Shared constants                                                   |
+//+------------------------------------------------------------------+
+#define MAX_TRACKED_TICKETS 200
+
+//+------------------------------------------------------------------+
+//| FX Weekend Calendar Guard                                         |
+//| Returns true only during tradable FX hours: Sun 21:00 UTC → Fri 21:00 UTC |
+//+------------------------------------------------------------------+
+bool IsTradableFxTime()
+{
+   MqlDateTime dt;
+   TimeLocal(dt); // wall clock (weekend-safe)
+   int day = dt.day_of_week; // 0=Sun, 6=Sat
+   int hour = dt.hour;
+   
+   // Sunday before 21:00 UTC = not tradable
+   if (day == 0 && hour < 21) return false;
+   // Friday at or after 21:00 UTC = not tradable
+   if (day == 5 && hour >= 21) return false;
+   // Saturday = not tradable
+   if (day == 6) return false;
+   return true;
+}
 
 //+------------------------------------------------------------------+
 //| Terminal identification headers for server-side routing          |
@@ -99,7 +124,7 @@ string TMHttpGet(string url, string apiKey, int timeoutMs = 10000)
       TMLogError("GET " + url + " failed HTTP " + IntegerToString(res) + " err " + IntegerToString(GetLastError()));
       return "";
    }
-   g_lastSuccessfulServerContact = TimeCurrent();
+   g_lastSuccessfulServerContact = TimeLocal(); // wall clock (weekend-safe), compared by the watchdog
    g_serverReachable = true;
    return CharArrayToString(result);
 }
@@ -117,12 +142,13 @@ string TMHttpPost(string url, string apiKey, string jsonBody, int timeoutMs = 10
    StringToCharArray(jsonBody, data, 0, StringLen(jsonBody));
 
    int res = WebRequest("POST", url, headers, timeoutMs, data, result, resultHeaders);
+   g_lastHttpStatus = res;
    if(res != 200)
    {
       TMLogError("POST " + url + " failed HTTP " + IntegerToString(res) + " err " + IntegerToString(GetLastError()));
       return "";
    }
-   g_lastSuccessfulServerContact = TimeCurrent();
+   g_lastSuccessfulServerContact = TimeLocal(); // wall clock (weekend-safe), compared by the watchdog
    g_serverReachable = true;
    return CharArrayToString(result);
 }
@@ -656,8 +682,8 @@ long TMOpenMarket(string symbol, string side, double lots, double sl, double tp,
 
    if(TMTryOrderSend(req, res, symbol))
    {
-      long ticket = (long)res.deal;
-      if(ticket == 0) ticket = (long)res.order;
+      long ticket = (long)res.order;
+      if(ticket == 0) ticket = (long)res.deal;
       retcodeOut = 0;
       return ticket;
    }
@@ -894,26 +920,208 @@ int TMCountPositions(ulong magic, string symbol = "")
 }
 
 //+------------------------------------------------------------------+
+//| Signal ticket tracking helpers                                     |
+//+------------------------------------------------------------------+
+void TrackSignalTicket(string signalId, long ticket, string symbol, double volume)
+{
+   if(ticket <= 0 || StringLen(signalId) == 0) return;
+
+   for(int i = 0; i < g_signalTicketCount; i++)
+   {
+      if(g_signalTickets[i].ticket == ticket)
+      {
+         g_signalTickets[i].signalId = signalId;
+         g_signalTickets[i].symbol = symbol;
+         g_signalTickets[i].volume = volume;
+         g_signalTickets[i].addedAt = TimeCurrent();
+         return;
+      }
+   }
+
+   if(g_signalTicketCount >= MAX_TRACKED_TICKETS)
+   {
+      TMLogWarn("Signal ticket map full; dropping oldest entry");
+      // Shift left to make room
+      for(int i = 1; i < MAX_TRACKED_TICKETS; i++)
+         g_signalTickets[i - 1] = g_signalTickets[i];
+      g_signalTicketCount = MAX_TRACKED_TICKETS - 1;
+   }
+
+   g_signalTickets[g_signalTicketCount].signalId = signalId;
+   g_signalTickets[g_signalTicketCount].ticket = ticket;
+   g_signalTickets[g_signalTicketCount].symbol = symbol;
+   g_signalTickets[g_signalTicketCount].volume = volume;
+   g_signalTickets[g_signalTicketCount].addedAt = TimeCurrent();
+   g_signalTicketCount++;
+}
+
+void RemoveSignalTicketByIndex(int idx)
+{
+   if(idx < 0 || idx >= g_signalTicketCount) return;
+   for(int i = idx + 1; i < g_signalTicketCount; i++)
+      g_signalTickets[i - 1] = g_signalTickets[i];
+   g_signalTicketCount--;
+}
+
+int FindSignalTicketIndex(long ticket)
+{
+   for(int i = 0; i < g_signalTicketCount; i++)
+      if(g_signalTickets[i].ticket == ticket) return i;
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+//| Check whether a tracked ticket is still an open position           |
+//+------------------------------------------------------------------+
+bool IsTrackedPositionOpen(long ticket)
+{
+   #ifdef __MQL5__
+   return PositionSelectByTicket((ulong)ticket);
+   #else
+   return OrderSelect((int)ticket, SELECT_BY_TICKET, MODE_TRADES);
+   #endif
+}
+
+//+------------------------------------------------------------------+
+//| Read close details from history for a closed MT5 position          |
+//+------------------------------------------------------------------+
+#ifdef __MQL5__
+bool TMGetPositionCloseDetails(long ticket, double &closePriceOut, double &realizedPnlOut, string &reasonOut)
+{
+   if(!HistorySelectByPosition((long)ticket))
+      return false;
+
+   int total = HistoryDealsTotal();
+   if(total <= 0) return false;
+
+   double totalProfit = 0.0;
+   double totalCommission = 0.0;
+   double totalSwap = 0.0;
+   double lastClosePrice = 0.0;
+   long lastReason = DEAL_REASON_CLIENT;
+   bool found = false;
+
+   for(int i = total - 1; i >= 0; i--)
+   {
+      ulong dealTicket = HistoryDealGetTicket(i);
+      if(dealTicket == 0) continue;
+
+      long entry = HistoryDealGetInteger(dealTicket, DEAL_ENTRY);
+      if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY) continue;
+
+      found = true;
+      long reason = HistoryDealGetInteger(dealTicket, DEAL_REASON);
+      if(reason > 0) lastReason = reason;
+
+      double price = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+      if(price > 0.0) lastClosePrice = price;
+
+      totalProfit += HistoryDealGetDouble(dealTicket, DEAL_PROFIT);
+      totalCommission += HistoryDealGetDouble(dealTicket, DEAL_COMMISSION);
+      totalSwap += HistoryDealGetDouble(dealTicket, DEAL_SWAP);
+   }
+
+   if(!found) return false;
+
+   closePriceOut = lastClosePrice;
+   realizedPnlOut = totalProfit + totalCommission + totalSwap;
+
+   if(lastReason == DEAL_REASON_SL) reasonOut = "SL_HIT";
+   else if(lastReason == DEAL_REASON_TP) reasonOut = "TP_HIT";
+   else if(lastReason == DEAL_REASON_SO) reasonOut = "MARGIN_CALL";
+   else reasonOut = "MANUAL";
+
+   return true;
+}
+#endif
+
+//+------------------------------------------------------------------+
+//| Report a position close to the server                              |
+//+------------------------------------------------------------------+
+void ReportClose(string signalId, long ticket, string symbol, double closePrice, double realizedPnl, string reason)
+{
+   if(StringLen(signalId) == 0) return;
+
+   string idem = "close:" + signalId + ":" + IntegerToString(ticket) + ":" + DoubleToString(closePrice, 6) + "|" + reason;
+
+   string json = "{";
+   json += "\"signalId\":\"" + signalId + "\",";
+   json += "\"mt5Ticket\":" + IntegerToString(ticket) + ",";
+   json += "\"closePrice\":" + DoubleToString(closePrice, 5) + ",";
+   json += "\"closeReason\":\"" + reason + "\",";
+   json += "\"realizedPnl\":" + DoubleToString(realizedPnl, 2) + ",";
+   json += "\"idempotencyKey\":\"" + idem + "\"";
+   json += "}";
+
+   string url = g_serverUrl + "/api/mt5/closes";
+   string body = TMHttpPost(url, g_effectiveApiKey, json, 15000);
+   if(StringFind(body, "\"ok\":true") >= 0)
+      TMLogTrade("Close reported " + StringSubstr(signalId, 0, 8) + " ticket " + IntegerToString(ticket) +
+                 " " + reason + " @ " + DoubleToString(closePrice, 5) +
+                 " PnL " + DoubleToString(realizedPnl, 2));
+   else
+      TMLogWarn("Close report failed for " + StringSubstr(signalId, 0, 8) + ": " + body);
+}
+
+//+------------------------------------------------------------------+
+//| Scan tracked tickets and report any that have closed               |
+//+------------------------------------------------------------------+
+void ScanTrackedPositions()
+{
+   for(int i = g_signalTicketCount - 1; i >= 0; i--)
+   {
+      long ticket = g_signalTickets[i].ticket;
+      string signalId = g_signalTickets[i].signalId;
+      string symbol = g_signalTickets[i].symbol;
+
+      if(IsTrackedPositionOpen(ticket)) continue;
+
+      double closePrice = 0.0;
+      double realizedPnl = 0.0;
+      string reason = "MANUAL";
+
+      #ifdef __MQL5__
+      if(!TMGetPositionCloseDetails(ticket, closePrice, realizedPnl, reason))
+      {
+         // History not available yet; skip this tick and retry later
+         TMLogWarn("Close details unavailable for ticket " + IntegerToString(ticket) + "; retrying");
+         continue;
+      }
+      #else
+      // MT4: try to read from history
+      if(OrderSelect((int)ticket, SELECT_BY_TICKET, MODE_HISTORY))
+      {
+         closePrice = OrderClosePrice();
+         realizedPnl = OrderProfit() + OrderCommission() + OrderSwap();
+      }
+      #endif
+
+      ReportClose(signalId, ticket, symbol, closePrice, realizedPnl, reason);
+      RemoveSignalTicketByIndex(i);
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Inputs                                                             |
 //+------------------------------------------------------------------+
-input string InpServerUrl = "http://127.0.0.1:3003"; // tradzfx V2 server URL
+input string InpServerUrl = "http://127.0.0.1:80"; // tradzfx V2 server URL
 input string InpSymbols   = "";                      // Comma-separated symbols to sync (empty = use server config)
-input string InpApiKey    = ""; // API key (auto-registered if blank)
-input string InpApiKeyFile = "tz_api_key.txt";       // File used to cache the auto-registered API key
+input string InpApiKey    = ""; // Optional API key override (blank = fetch from server DB)
 input bool   InpAutoRegister = true;                 // Allow EA to self-register and receive an API key from the server
 input string InpTerminalLabel = "";                  // Friendly label for a newly registered terminal
 input ulong  InpMagic     = 202633;                  // Magic number for orders
 input string InpMode      = "primary";               // primary (write bars/exec) | verify (heartbeat/config only)
 input bool   InpOpenCharts = true;                   // Open an M1 chart per symbol to force history load (disable to avoid extra chart windows)
+input bool   InpSpoolEnabled = true;                 // Spool bar batches to disk (Common\Files\tradzfx\spool) when the server is unreachable; replay FIFO on reconnect
+input int    InpSpoolMaxMB = 50;                     // Max spool size per symbol (MB); oldest half dropped beyond this (newest batch is always the superset)
 
-string g_effectiveApiKeyFile = "";                   // Resolved key file (per-terminal when default is used)
 string g_serverUrl = "";                              // Normalized server URL used at runtime
 bool   g_primaryMode = true;                          // true when InpMode == "primary"
 
 //+------------------------------------------------------------------+
 //| Constants                                                          |
 //+------------------------------------------------------------------+
-#define EA_VERSION       "5.0.2"
+#define EA_VERSION       "5.0.3"
 #define HEARTBEAT_SEC    30
 #define CONFIG_POLL_SEC  120
 #define CONFIG_MAX_BACKOFF 600
@@ -990,6 +1198,9 @@ datetime g_lastStatusReport = 0;
 int      g_configPollFailures = 0;
 datetime g_lastSuccessfulServerContact = 0;
 bool     g_serverReachable = true;
+datetime g_lastSpoolDrainAttempt = 0;             // throttle for spool replay attempts
+int      g_lastHttpStatus = 0;                    // HTTP status of the most recent TMHttpPost (0/negative = transport error)
+const int SPOOL_DRAIN_RETRY_SEC = 20;             // min seconds between spool replay sweeps
 int      g_totalSignalsReceived = 0;
 int      g_totalOrdersSent = 0;
 int      g_totalOrdersRejected = 0;
@@ -997,6 +1208,22 @@ string   g_lastError = "";
 long     g_lastAckCommandSequence = 0;
 
 string g_effectiveApiKey = "";
+
+//+------------------------------------------------------------------+
+//| Signal-id ↔ MT5 ticket tracking for close reporting              |
+//+------------------------------------------------------------------+
+struct SignalTicketMap
+{
+   string   signalId;
+   long     ticket;
+   string   symbol;
+   double   volume;
+   datetime addedAt;
+};
+
+SignalTicketMap g_signalTickets[MAX_TRACKED_TICKETS];
+int g_signalTicketCount = 0;
+datetime g_lastPositionScan = 0;
 
 //+------------------------------------------------------------------+
 //| Read API key from a file in the terminal Common folder             |
@@ -1079,7 +1306,7 @@ string NormalizeServerUrl(string url)
    }
 
    // Preserve the port when normalizing localhost -> 127.0.0.1.
-   // The previous implementation silently dropped :3003, breaking local dev.
+   // The previous implementation silently dropped :3002, breaking local dev.
    string lower = TmStringToLower(url);
    if(StringFind(lower, "http://localhost") == 0)
       url = "http://127.0.0.1" + StringSubstr(url, 16);
@@ -1089,43 +1316,12 @@ string NormalizeServerUrl(string url)
    return url;
 }
 
-//+------------------------------------------------------------------+
-//| Read API key from a file in the terminal Common folder             |
-//+------------------------------------------------------------------+
-string ReadApiKeyFromFile(string filename)
+string ResolveServerUrl(string inputUrl)
 {
-   int handle = FileOpen(filename, FILE_READ|FILE_TXT|FILE_COMMON);
-   if(handle == INVALID_HANDLE)
-   {
-      handle = FileOpen(filename, FILE_READ|FILE_TXT);
-   }
-   if(handle == INVALID_HANDLE) return "";
-   string key = FileReadString(handle);
-   FileClose(handle);
-   // Strip UTF-8/UTF-16 BOM and leading whitespace that may have been written by older versions.
-   while(StringLen(key) > 0)
-   {
-      ushort c = StringGetCharacter(key, 0);
-      if(c == 0xFEFF || c == 0xFFFE || c == 0x200B || c == 0x200C || c == 0x200D || c <= 32)
-         key = StringSubstr(key, 1);
-      else
-         break;
-   }
-   return key;
-}
-
-//+------------------------------------------------------------------+
-//| Write API key to a file in the terminal Common folder              |
-//+------------------------------------------------------------------+
-bool WriteApiKeyToFile(string filename, string key)
-{
-   int handle = FileOpen(filename, FILE_WRITE|FILE_TXT|FILE_COMMON);
-   if(handle == INVALID_HANDLE)
-      handle = FileOpen(filename, FILE_WRITE|FILE_TXT);
-   if(handle == INVALID_HANDLE) return false;
-   FileWriteString(handle, key);
-   FileClose(handle);
-   return true;
+   string serverUrl = TmStringTrim(inputUrl);
+   if(StringLen(serverUrl) == 0)
+      serverUrl = "http://127.0.0.1:80";
+   return NormalizeServerUrl(serverUrl);
 }
 
 //+------------------------------------------------------------------+
@@ -1133,6 +1329,12 @@ bool WriteApiKeyToFile(string filename, string key)
 //+------------------------------------------------------------------+
 string AutoRegister()
 {
+   if(StringLen(g_serverUrl) == 0)
+   {
+      TMLogError("Auto-registration skipped: server URL is empty");
+      return "";
+   }
+
    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
    long leverage  = AccountInfoInteger(ACCOUNT_LEVERAGE);
    long login     = AccountInfoInteger(ACCOUNT_LOGIN);
@@ -1179,10 +1381,7 @@ string AutoRegister()
       return "";
    }
 
-   if(WriteApiKeyToFile(g_effectiveApiKeyFile, apiKey))
-      TMLogInfo("API key cached to " + g_effectiveApiKeyFile);
-   else
-      TMLogWarn("Could not cache API key to file");
+   TMLogInfo("API key received from server registry");
 
    return apiKey;
 }
@@ -1202,34 +1401,23 @@ int OnInit()
       return(INIT_FAILED);
    }
 
-   // Use a per-terminal key file so multiple platforms/accounts don't clobber each other.
-   g_effectiveApiKeyFile = InpApiKeyFile;
-   if(g_effectiveApiKeyFile == "tz_api_key.txt")
+   g_serverUrl = ResolveServerUrl(InpServerUrl);
+   if(StringLen(g_serverUrl) == 0)
    {
-      long login = AccountInfoInteger(ACCOUNT_LOGIN);
-      g_effectiveApiKeyFile = "tz_api_key_mt5_" + IntegerToString((int)login) + ".txt";
+      Alert(EA_VERSION + ": InpServerUrl required. Set it to http://127.0.0.1:80 or your tradzfx server URL.");
+      return INIT_PARAMETERS_INCORRECT;
    }
 
    g_effectiveApiKey = InpApiKey;
-   if(StringLen(g_effectiveApiKey) == 0 && StringLen(g_effectiveApiKeyFile) > 0)
-   {
-      g_effectiveApiKey = ReadApiKeyFromFile(g_effectiveApiKeyFile);
-   }
-
    if(StringLen(g_effectiveApiKey) == 0 && InpAutoRegister)
    {
-      TMLogInfo("No API key found; attempting auto-registration...");
+      TMLogInfo("No API key input provided; requesting key from server registry...");
       g_effectiveApiKey = AutoRegister();
    }
 
-   string serverUrl = InpServerUrl;
-   if(StringLen(serverUrl) == 0)
-      serverUrl = "http://127.0.0.1:3003";
-   g_serverUrl = NormalizeServerUrl(serverUrl);
-
-   if(StringLen(g_serverUrl) == 0 || StringLen(g_effectiveApiKey) == 0)
+   if(StringLen(g_effectiveApiKey) == 0)
    {
-      Alert(EA_VERSION + ": InpServerUrl required. Provide InpApiKey, cached key file, or enable InpAutoRegister.");
+      Alert(EA_VERSION + ": API key unavailable. Provide InpApiKey or enable InpAutoRegister and allow WebRequest to " + g_serverUrl + ".");
       return INIT_PARAMETERS_INCORRECT;
    }
 
@@ -1244,7 +1432,7 @@ int OnInit()
    TMLogInfo("Starting v" + EA_VERSION + " — server " + g_serverUrl + " — mode " + (g_primaryMode ? "primary" : "verify"));
 
    ApplyDefaultConfig();
-   g_lastSuccessfulServerContact = TimeCurrent();
+   g_lastSuccessfulServerContact = TimeLocal(); // wall clock (weekend-safe), compared by the watchdog
    g_serverOffsetSec = (long)TimeCurrent() - (long)TimeGMT();
    EventSetTimer(1);
 
@@ -1252,9 +1440,8 @@ int OnInit()
    SendHeartbeat();
    PollConfig();
 
-   // If API key was loaded from file, do not expose it in input logs
-   if(StringLen(InpApiKey) == 0 && StringLen(g_effectiveApiKeyFile) > 0)
-      TMLogInfo("API key loaded from file: " + g_effectiveApiKeyFile);
+   if(StringLen(InpApiKey) == 0 && InpAutoRegister)
+      TMLogInfo("API key source: server registry");
 
    return(INIT_SUCCEEDED);
 }
@@ -1305,7 +1492,7 @@ void TMCancelOwnPendingOrders()
  */
 void TMCheckServerWatchdog()
 {
-   datetime now = TimeCurrent();
+   datetime now = TimeLocal(); // wall clock: TimeCurrent() freezes when the market is closed
    if(g_lastSuccessfulServerContact == 0)
    {
       // No contact yet since startup; assume reachable until first failure window elapses.
@@ -1329,7 +1516,10 @@ void TMCheckServerWatchdog()
 
 void OnTimer()
 {
-   datetime now = TimeCurrent();
+   // IMPORTANT: schedule off the wall clock, not TimeCurrent() — the server
+   // clock freezes at the last quote when the market is closed, which made
+   // every periodic gate below go inert all weekend (the "weekend stall").
+   datetime now = TimeLocal();
 
    if(now - g_lastHeartbeat >= HEARTBEAT_SEC)
    {
@@ -1367,6 +1557,13 @@ void OnTimer()
             SyncAllSymbols();
 
          ProcessBackfillRequests();
+
+         // Replay disk-spooled bars when the server is reachable (throttled).
+         if(g_serverReachable && InpSpoolEnabled && now - g_lastSpoolDrainAttempt >= SPOOL_DRAIN_RETRY_SEC)
+         {
+            g_lastSpoolDrainAttempt = now;
+            TMSpoolDrainAll();
+         }
       }
    }
 
@@ -1374,6 +1571,14 @@ void OnTimer()
    {
       ReportStatus();
       g_lastStatusReport = now;
+   }
+
+   // Detect and report any tracked positions that closed since last tick
+   // (OnTrade handles MT5 closes in real time; this scan is the MT4 fallback).
+   if(now - g_lastPositionScan >= 5)
+   {
+      ScanTrackedPositions();
+      g_lastPositionScan = now;
    }
 
    TMCheckServerWatchdog();
@@ -1387,7 +1592,12 @@ void ApplyDefaultConfig()
 {
    g_cfg.enabled = true;
    g_cfg.mode = "paper";
-   g_cfg.symbolCount = 0;
+   g_cfg.symbolCount = 5;
+   g_cfg.symbols[0] = "EURUSD";
+   g_cfg.symbols[1] = "GBPUSD";
+   g_cfg.symbols[2] = "USDJPY";
+   g_cfg.symbols[3] = "XAUUSD";
+   g_cfg.symbols[4] = "DXY";
 
    g_cfg.syncEnabled = true;
    g_cfg.syncIntervalSec = 60;
@@ -1467,7 +1677,7 @@ void PollConfig()
       return;
    }
 
-   if(StringFind(body, "\"ok\":true") < 0)
+   if(StringFind(body, "\"ok\":false") >= 0)
    {
       g_configPollFailures++;
       return;
@@ -1488,13 +1698,6 @@ void PollConfig()
 
       int symCount = TMJsonStringArray(mgrJson, "symbols", g_cfg.symbols, 50);
       g_cfg.symbolCount = symCount;
-
-      if(StringLen(InpSymbols) > 0)
-      {
-         int overrideCount = ParseSymbolList(InpSymbols, g_cfg.symbols, 50);
-         g_cfg.symbolCount = overrideCount;
-         TMLogInfo("Symbol override: " + IntegerToString(overrideCount) + " symbol(s) from input");
-      }
 
       TMLogInfo("Config loaded: " + IntegerToString(g_cfg.symbolCount) + " symbol(s), mode=" + g_cfg.mode +
                 " sync=" + (g_cfg.syncEnabled ? "on" : "off") +
@@ -1541,13 +1744,41 @@ void PollConfig()
          if(cps >= 1 && cps <= 300) g_cfg.commandsPollSec = (int)cps;
       }
    }
+   else
+   {
+      int symCount = TMJsonStringArray(body, "symbols", g_cfg.symbols, 50);
+      if(symCount > 0) g_cfg.symbolCount = symCount;
+
+      long si = TMJsonLong(body, "syncIntervalSec");
+      if(si >= 10 && si <= 3600) g_cfg.syncIntervalSec = (int)si;
+      long bd = TMJsonLong(body, "backfillDays");
+      if(bd >= 1 && bd <= 365) g_cfg.backfillDays = (int)bd;
+      long bs = TMJsonLong(body, "batchSize");
+      if(bs >= 100 && bs <= 10000) g_cfg.batchSize = (int)bs;
+
+      g_cfg.execEnabled = TMJsonBool(body, "execEnabled");
+      long ps = TMJsonLong(body, "execPollSec");
+      if(ps >= 1 && ps <= 60) g_cfg.execPollSec = (int)ps;
+      double msp = TMJsonDouble(body, "execMaxSpreadPips");
+      if(msp >= 0) g_cfg.maxSpreadPips = msp;
+      long slip = TMJsonLong(body, "execSlippage");
+      if(slip >= 0 && slip <= 1000) g_cfg.maxSlippagePoints = (int)slip;
+   }
+
+   if(StringLen(InpSymbols) > 0)
+   {
+      int overrideCount = ParseSymbolList(InpSymbols, g_cfg.symbols, 50);
+      g_cfg.symbolCount = overrideCount;
+      TMLogInfo("Symbol override: " + IntegerToString(overrideCount) + " symbol(s) from input");
+   }
 
    ParseBackfillRequests(body);
    RebuildSyncSymbols();
    EventKillTimer();
    int timerSec = MathMin(g_cfg.execPollSec, g_cfg.commandsPollSec);
    if(timerSec < 1) timerSec = 1;
-   EventSetTimer(timerSec);
+   if(!EventSetTimer(timerSec))
+      TMLogError("EventSetTimer(" + IntegerToString(timerSec) + ") failed, err " + IntegerToString(GetLastError()));
 
    TMLogInfo("Config updated: mode=" + g_cfg.mode +
              " symbols=" + IntegerToString(g_cfg.symbolCount) +
@@ -1863,6 +2094,7 @@ void ExecuteSignalJson(string sigJson, bool paperMode)
    if(ticket > 0)
    {
       g_totalOrdersSent++;
+      TrackSignalTicket(signalId, ticket, symbol, lots);
       ReportFill(signalId, ticket, fillPrice, true, "");
    }
    else
@@ -2015,11 +2247,13 @@ void SyncAllSymbols()
 
    for(int i = 0; i < g_syncSymbolCount; i++)
    {
-      if(TimeCurrent() - g_syncState[i].lastSyncTime < g_cfg.syncIntervalSec)
+      // Gate on wall-clock time: TimeCurrent() is frozen while the market is
+      // closed, which previously paused candle sync for the whole weekend.
+      if(TimeLocal() - g_syncState[i].lastSyncTime < g_cfg.syncIntervalSec)
          continue;
 
       SyncSymbol(i);
-      g_syncState[i].lastSyncTime = TimeCurrent();
+      g_syncState[i].lastSyncTime = TimeLocal();
 
       // Small pause between symbols to avoid rate-limit storms
       if(i < g_syncSymbolCount - 1) Sleep(100);
@@ -2055,6 +2289,157 @@ void SyncSymbol(int idx)
 //+------------------------------------------------------------------+
 //| Fetch and push bars to server                                      |
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| Durable bar spool (terminal Common Files).                         |
+//| When the server is unreachable, failed bar batches are appended as |
+//| newline-delimited JSON to tradzfx\spool\<SYMBOL>.jsonl in the      |
+//| Common\Files area, so they survive terminal restarts. On reconnect |
+//| they are replayed FIFO and removed only after the server acks; the |
+//| server dedups on (symbol, broker, ts) so replays are idempotent.   |
+//| Every appended batch spans [oldest-unsent, now], so the newest     |
+//| batch is always a superset of older ones: dropping the oldest half |
+//| under the size cap cannot lose unique bars.                        |
+//+------------------------------------------------------------------+
+string TMSpoolPath(string symbol)
+{
+   return "tradzfx\\spool\\" + symbol + ".jsonl";
+}
+
+void TMSpoolEnsureFolder()
+{
+   // FolderCreate returns false when the folder already exists; ignore errors
+   // and keep the last-error state clean for callers that check GetLastError().
+   ResetLastError();
+   FolderCreate("tradzfx", FILE_COMMON);
+   ResetLastError();
+   FolderCreate("tradzfx\\spool", FILE_COMMON);
+   ResetLastError();
+}
+
+bool TMSpoolAppend(string symbol, const string jsonBatch)
+{
+   if(!InpSpoolEnabled) return false;
+   TMSpoolEnsureFolder();
+   int h = FileOpen(TMSpoolPath(symbol),
+                    FILE_READ | FILE_WRITE | FILE_TXT | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(h == INVALID_HANDLE)
+   {
+      int err = GetLastError();
+      ResetLastError();
+      TMLogError("Spool open failed for " + symbol + " err=" + IntegerToString(err));
+      return false;
+   }
+   FileSeek(h, 0, SEEK_END);
+   FileWriteString(h, jsonBatch + "\n");
+   FileClose(h);
+   TMSpoolEnforceCap(symbol);
+   TMLogWarn("Server unreachable; spooled a bar batch for " + symbol + " (replays on reconnect)");
+   return true;
+}
+
+void TMSpoolEnforceCap(string symbol)
+{
+   string path = TMSpoolPath(symbol);
+   int h = FileOpen(path, FILE_READ | FILE_TXT | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(h == INVALID_HANDLE) return;
+   long size = (long)FileGetInteger(h, FILE_SIZE);
+   if(size <= (long)InpSpoolMaxMB * 1024 * 1024) { FileClose(h); return; }
+
+   string lines[];
+   while(!FileIsEnding(h))
+   {
+      ArrayResize(lines, ArraySize(lines) + 1);
+      lines[ArraySize(lines) - 1] = FileReadString(h);
+   }
+   FileClose(h);
+
+   int drop = ArraySize(lines) / 2; // newest batches are supersets of the oldest
+   int hw = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(hw != INVALID_HANDLE)
+   {
+      for(int i = drop; i < ArraySize(lines); i++)
+         FileWriteString(hw, lines[i] + "\n");
+      FileClose(hw);
+   }
+   TMLogWarn("Spool cap hit for " + symbol + " (" + IntegerToString(size) +
+             " bytes); dropped oldest " + IntegerToString(drop) + " batches (superseded by newer ones)");
+}
+
+// Replay spooled batches for one symbol. Returns number of batches acked.
+int TMSpoolDrain(string symbol)
+{
+   if(!InpSpoolEnabled) return 0;
+   string path = TMSpoolPath(symbol);
+   if(!FileIsExist(path, FILE_COMMON)) return 0;
+
+   int h = FileOpen(path, FILE_READ | FILE_TXT | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(h == INVALID_HANDLE) return 0;
+   string lines[];
+   while(!FileIsEnding(h))
+   {
+      string line = FileReadString(h);
+      if(StringLen(line) < 5) continue; // skip blank / truncated tail
+      ArrayResize(lines, ArraySize(lines) + 1);
+      lines[ArraySize(lines) - 1] = line;
+   }
+   FileClose(h);
+   if(ArraySize(lines) == 0) { FileDelete(path, FILE_COMMON); return 0; }
+
+   string url = g_serverUrl + "/api/ingest";
+   int sent = 0, keptFrom = -1;
+   const int MAX_DRAIN_PER_CALL = 50; // bound blocking; remainder drains next pass
+   int limit = MathMin(ArraySize(lines), MAX_DRAIN_PER_CALL);
+   for(int i = 0; i < limit; i++)
+   {
+      string res = TMHttpPostWithRetry(url, g_effectiveApiKey, lines[i], 10000, 1);
+      if(StringLen(res) > 0) { sent++; continue; }
+      if(g_lastHttpStatus == 400)
+      {
+         // Permanent rejection (client bug): drop so it cannot wedge the spool.
+         TMLogError("Spool replay got HTTP 400 for " + symbol + "; dropping batch permanently");
+         continue;
+      }
+      keptFrom = i; // transient: keep this line and everything after it
+      break;
+   }
+   if(keptFrom < 0 && limit < ArraySize(lines)) keptFrom = limit; // drained capped prefix
+
+   if(keptFrom < 0)
+   {
+      FileDelete(path, FILE_COMMON);
+   }
+   else
+   {
+      int hw = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      if(hw != INVALID_HANDLE)
+      {
+         for(int j = keptFrom; j < ArraySize(lines); j++)
+            FileWriteString(hw, lines[j] + "\n");
+         FileClose(hw);
+      }
+   }
+   if(sent > 0)
+      TMLogInfo("Spool replay for " + symbol + ": " + IntegerToString(sent) + " batch(es) acked" +
+                (keptFrom >= 0 ? ", " + IntegerToString(ArraySize(lines) - keptFrom) + " remaining" : ", spool clear"));
+   return sent;
+}
+
+// Drain every symbol that has a spool file (symbol-agnostic: filename = symbol).
+void TMSpoolDrainAll()
+{
+   if(!InpSpoolEnabled) return;
+   string name;
+   long search = FileFindFirst("tradzfx\\spool\\*.jsonl", name, FILE_COMMON);
+   if(search == INVALID_HANDLE) return;
+   do
+   {
+      if(StringLen(name) > 6)
+         TMSpoolDrain(StringSubstr(name, 0, StringLen(name) - 6)); // strip ".jsonl"
+   }
+   while(FileFindNext(search, name));
+   FileFindClose(search);
+}
+
 void PushBars(string symbol, datetime fromTime, bool isBackfill)
 {
    PushBarsWithJob(symbol, fromTime, TimeCurrent(), isBackfill, "");
@@ -2070,6 +2455,21 @@ int PushBarsWithJob(string symbol, datetime fromTime, datetime toTime, bool isBa
    {
       TMLogWarn("Cannot select symbol in Market Watch: " + symbol);
       return 0;
+   }
+
+   // FX Weekend Calendar Guard: skip ingestion during non-tradable hours
+   // (Sun <21:00 UTC, Sat, Fri >=21:00 UTC). This prevents weekend bars
+   // from advancing the candle edge and poisoning freshness checks.
+   if (StringFind(symbol, "USD") >= 0 || StringFind(symbol, "EUR") >= 0 || 
+       StringFind(symbol, "GBP") >= 0 || StringFind(symbol, "JPY") >= 0 ||
+       StringFind(symbol, "CHF") >= 0 || StringFind(symbol, "AUD") >= 0 ||
+       StringFind(symbol, "CAD") >= 0 || StringFind(symbol, "NZD") >= 0)
+   {
+      if (!IsTradableFxTime())
+      {
+         TMLogInfo("FX Weekend Guard: skipping bar ingestion for " + symbol + " (non-tradable hours)");
+         return 0;
+      }
    }
 
 #ifdef __MQL5__
@@ -2117,10 +2517,22 @@ int PushBarsWithJob(string symbol, datetime fromTime, datetime toTime, bool isBa
       string json = BuildBarsJson(symbol, rates, start, end, jobId);
 
       string url = g_serverUrl + "/api/ingest";
-      string res = TMHttpPost(url, g_effectiveApiKey, json, 15000);
+      string res = TMHttpPostWithRetry(url, g_effectiveApiKey, json, 15000, 3);
       if(StringLen(res) > 0) totalSent += (end - start);
-      else break;
+      else
+      {
+         if(g_lastHttpStatus == 400)
+            TMLogError("Bars rejected (HTTP 400) for " + symbol + "; not spooling a permanently-invalid batch");
+         else
+            TMSpoolAppend(symbol, json); // transient: keep a durable copy
+         break;
+      }
    }
+
+   // The server answered at least once in this pass: replay anything durable
+   // we still owe it (no-op when the spool is empty).
+   if(totalSent > 0 && InpSpoolEnabled)
+      TMSpoolDrain(symbol);
 
    string label = isBackfill ? "Backfill" : "Sync";
    if(StringLen(jobId) > 0) label = "TargetBackfill";
@@ -2274,6 +2686,16 @@ void UpdateStatusComment()
    if(g_lastError != "") msg += "ERR: " + g_lastError + "\n";
    Comment(msg);
 }
+
+//+------------------------------------------------------------------+
+//| OnTrade — MT5 only. Report tracked positions that just closed.     |
+//+------------------------------------------------------------------+
+#ifdef __MQL5__
+void OnTrade()
+{
+   ScanTrackedPositions();
+}
+#endif
 
 //+------------------------------------------------------------------+
 //| OnTick — not used for primary work (timer-based)                   |

@@ -13,6 +13,7 @@ type RedisClient = ReturnType<typeof createClient>;
 let client: RedisClient | null = null;
 let connecting: Promise<RedisClient | null> | null = null;
 let connectFailed = false;
+let lastErrorLogAt = 0;
 
 export function getRedisUrl(): string | undefined {
   return process.env.TM_REDIS_URL;
@@ -44,12 +45,22 @@ export async function getRedisClient(): Promise<RedisClient | null> {
     try {
       const c = createClient({ url });
       c.on("error", (err) => {
+        connectFailed = true;
+        client = null;
+        const now = Date.now();
         // Suppress repeated error noise; callers will fallback to DB.
-        if (!connectFailed) {
+        if (now - lastErrorLogAt > 60_000) {
+          lastErrorLogAt = now;
           console.warn("[redis] client error:", err.message);
         }
+        c.disconnect().catch(() => {});
       });
       await c.connect();
+      if (!c.isOpen) {
+        connectFailed = true;
+        return null;
+      }
+      connectFailed = false;
       client = c;
       return c;
     } catch (err: any) {

@@ -30,6 +30,22 @@ export function getSession(
   return "OFF_HOURS";
 }
 
+/**
+ * Opening-range session start hours (UTC). Single source of truth shared by the
+ * opening-range producer (apps/engine) and every SQL generator that joins
+ * features_opening_range (strategy compiler, PIT backtester). Deliberately
+ * derived from DEFAULT_SESSION_WINDOWS so the opening range of a session always
+ * starts at that session's canonical start hour.
+ */
+export const ORB_SESSION_KEYS = ["asia", "london", "ny"] as const;
+export type OrbSessionKey = (typeof ORB_SESSION_KEYS)[number];
+
+export const ORB_SESSION_START_HOUR_UTC: Record<OrbSessionKey, number> = {
+  asia: DEFAULT_SESSION_WINDOWS.ASIA[0],
+  london: DEFAULT_SESSION_WINDOWS.LONDON[0],
+  ny: DEFAULT_SESSION_WINDOWS.NY[0],
+};
+
 // Timeframe math helpers have moved to ./timeBucket.ts so the whole platform
 // uses one canonical bucketing implementation. Re-export them here for backward
 // compatibility until callers are migrated.

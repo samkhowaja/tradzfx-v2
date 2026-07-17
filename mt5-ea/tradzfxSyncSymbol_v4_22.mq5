@@ -88,7 +88,7 @@ string TMGetTerminalHeaders()
 
 //--- Input parameters (user configures these)
 input string InpApiKey       = ""; // API Key (from tradzfx-v2 server)
-input string InpServerUrl    = "http://127.0.0.1:3002";                          // V2 Server URL (port 3002 — tradzfx V2 web app)
+input string InpServerUrl    = "http://127.0.0.1:80";                          // V2 Server URL (port 3002 — tradzfx V2 web app)
 input string InpSymbols      = "";                                    // Symbols (comma-separated, empty = use server config)
 input int    InpBackfillDays = 90;                                    // Backfill days (fallback if no cloud config)
 input int    InpBatchSize    = 2000;                                  // Bars per batch (fallback)
@@ -1437,7 +1437,7 @@ void ExecuteSignal(
    {
       double spreadPoints = (double)SymbolInfoInteger(brokerSym, SYMBOL_SPREAD);
       double point = SymbolInfoDouble(brokerSym, SYMBOL_POINT);
-      int pipDigits = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 3 || (int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 5) ? 10 : 1;
+      int pipDigits = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) != 4) ? 10 : 1; // pip = 10 points except 4-digit quoting (pip = 1 point); matches server pointsToPips;
       double spreadPips = (spreadPoints * point) / (point * pipDigits);
       // Simpler: spreadPips = spreadPoints / pipDigits
       spreadPips = spreadPoints / (double)pipDigits;
@@ -1464,7 +1464,7 @@ void ExecuteSignal(
       double liveBid = SymbolInfoDouble(brokerSym, SYMBOL_BID);
       double liveCheck = (side == "buy") ? liveAsk : liveBid;
       double point = SymbolInfoDouble(brokerSym, SYMBOL_POINT);
-      int pipDigitsZone = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 3 || (int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) == 5) ? 10 : 1;
+      int pipDigitsZone = ((int)SymbolInfoInteger(brokerSym, SYMBOL_DIGITS) != 4) ? 10 : 1; // pip = 10 points except 4-digit quoting (pip = 1 point); matches server pointsToPips;
       double zoneDist = entryZonePips * point * pipDigitsZone;
       double drift = MathAbs(liveCheck - entry);
 

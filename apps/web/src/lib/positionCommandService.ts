@@ -22,6 +22,10 @@ export interface PositionCommandRow {
   expires_at: Date | null;
   sent_at: Date | null;
   completed_at: Date | null;
+  // Joined from orders table
+  symbol: string;
+  side: "buy" | "sell";
+  lot_size: number;
 }
 
 const COMMAND_TTL_MS = 30 * 60 * 1000;

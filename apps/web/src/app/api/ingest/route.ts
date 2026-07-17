@@ -6,12 +6,20 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getPool, timeBucket, roundToMinute, pointsToPips, type TimeFrame } from "@tm/shared";
-import { globalDAG } from "@tm/engine";
+import {
+  getFeaturePipelineSymbol,
+  getPool,
+  timeBucket,
+  roundToMinute,
+  pointsToPips,
+  getRegistryPipSize,
+} from "@tm/shared";
+import { resolveFeatureProfileRuns } from "@tm/engine";
 import { checkAndTriggerAllActive } from "@/lib/pipelineTrigger";
 import { emitNinjaTurtleSignals } from "@/lib/robots/ninjaTurtleEmitter";
 import { runNinjaTurtleTrailMonitor } from "@/lib/robots/ninjaTurtleTrailMonitor";
 import { publish } from "@/lib/analyzeStreamBus";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 
 interface V2Bar {
   time: number;
@@ -51,10 +59,48 @@ interface V1Payload {
 
 type BarPayload = V2Payload | V1Payload;
 
-const JOB_TFS: TimeFrame[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
-
 function isV1Bar(bar: V1Bar | V2Bar): bar is V1Bar {
   return (bar as V1Bar).ts !== undefined;
+}
+
+function isValidCandle(bar: V2Bar): { valid: true } | { valid: false; reason: string } {
+  if (!Number.isFinite(bar.time) || bar.time <= 0) {
+    return { valid: false, reason: "Invalid candle timestamp" };
+  }
+  const fields = [bar.open, bar.high, bar.low, bar.close, bar.tick_volume];
+  if (fields.some((v) => !Number.isFinite(v))) {
+    return { valid: false, reason: "Non-finite OHLCV value" };
+  }
+  if (bar.open < 0 || bar.high < 0 || bar.low < 0 || bar.close < 0 || bar.tick_volume < 0) {
+    return { valid: false, reason: "Negative OHLCV value" };
+  }
+  if (bar.high < bar.low) {
+    return { valid: false, reason: "High < low" };
+  }
+  if (bar.high < bar.open || bar.high < bar.close) {
+    return { valid: false, reason: "High below open or close" };
+  }
+  if (bar.low > bar.open || bar.low > bar.close) {
+    return { valid: false, reason: "Low above open or close" };
+  }
+  if (typeof bar.spread === "number" && (!Number.isFinite(bar.spread) || bar.spread < 0)) {
+    return { valid: false, reason: "Invalid spread" };
+  }
+  return { valid: true };
+}
+
+// P0-A1 (V3 BUG-3.2): magnitude prefilter. A single 1m candle cannot legitimately
+// span > 1000 pips on a liquid major; such a bar is a bad tick. We QUARANTINE (flag
+// in candle_quality) rather than drop, to preserve PIT — downstream ATR winsorizes.
+const MAX_1M_RANGE_PIPS = 1000;
+function suspectRangeReason(symbol: string, bar: V2Bar): string | null {
+  const pipSize = getRegistryPipSize(symbol);
+  if (!(pipSize > 0)) return null;
+  const rangePips = (bar.high - bar.low) / pipSize;
+  if (Number.isFinite(rangePips) && rangePips > MAX_1M_RANGE_PIPS) {
+    return `1m range ${rangePips.toFixed(1)}p > ${MAX_1M_RANGE_PIPS}p cap`;
+  }
+  return null;
 }
 
 function normalizeBars(bars: BarPayload["bars"]): V2Bar[] {
@@ -74,12 +120,7 @@ function normalizeBars(bars: BarPayload["bars"]): V2Bar[] {
 }
 
 export async function POST(request: NextRequest) {
-  const EXPECTED_API_KEY =
-    process.env.TM_MT5_API_KEY ??
-    process.env.MT5_API_KEY ??
-    "";
-  const apiKey = request.headers.get("X-API-Key");
-  if (apiKey !== EXPECTED_API_KEY) {
+  if (!(await validateMt5ApiKey(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -92,11 +133,39 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedBars = normalizeBars(bars);
+
+    // Reject corrupt bars before they reach the DB or downstream pipelines.
+    for (let i = 0; i < normalizedBars.length; i++) {
+      const check = isValidCandle(normalizedBars[i]);
+      if (!check.valid) {
+        return NextResponse.json(
+          { error: "Invalid candle data", index: i, reason: check.reason },
+          { status: 400 }
+        );
+      }
+    }
+
     const pool = getPool();
+
+    // P0-A1: flag magnitude-suspect candles (best-effort; never block ingest).
+    for (const bar of normalizedBars) {
+      const reason = suspectRangeReason(symbol, bar);
+      if (reason) {
+        const ts = new Date(bar.time * 1000);
+        pool
+          .query(
+            `INSERT INTO candle_quality(symbol, ts, is_suspect, reason)
+             VALUES ($1, $2, true, $3)
+             ON CONFLICT (symbol, ts) DO UPDATE SET is_suspect = true, reason = EXCLUDED.reason`,
+            [symbol, ts, reason]
+          )
+          .catch(() => {});
+      }
+    }
 
     // Normalize symbol
     const cleanSymbol = symbol.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-    const broker = payload.source?.broker ?? null;
+    const broker = payload.source?.broker ?? "default";
     const digits =
       typeof payload.source?.digits === "number"
         ? Math.max(0, Math.min(10, Math.round(payload.source.digits)))
@@ -120,17 +189,26 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    const values = rows
-      .map(
-        (r) =>
-          `('${cleanSymbol}', '${r.ts.toISOString()}', ${r.o}, ${r.h}, ${r.l}, ${r.c}, ${r.v}, ${r.spread === undefined || r.spread === null ? "NULL" : r.spread}, ${broker === null ? "NULL" : `'${broker.replace(/'/g, "''")}'`}, ${digits === null ? "NULL" : digits})`,
-      )
-      .join(",");
+    // Parameterized batch insert via UNNEST — no string interpolation.
+    // Each array is a column: symbol, ts, o, h, l, c, v, spread, broker, digits.
+    const n = rows.length;
+    const symbols: string[] = Array.from({ length: n }, () => cleanSymbol);
+    const timestamps: string[] = rows.map((r) => r.ts.toISOString());
+    const opens: number[] = rows.map((r) => r.o);
+    const highs: number[] = rows.map((r) => r.h);
+    const lows: number[] = rows.map((r) => r.l);
+    const closes: number[] = rows.map((r) => r.c);
+    const volumes: number[] = rows.map((r) => r.v);
+    const spreads: (number | null)[] = rows.map((r) =>
+      r.spread === undefined || r.spread === null ? null : r.spread
+    );
+    const brokers: string[] = Array.from({ length: n }, () => broker);
+    const digitsArr: (number | null)[] = Array.from({ length: n }, () => digits);
 
     await pool.query(
       `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, spread, broker, digits)
-       VALUES ${values}
-       ON CONFLICT (symbol, ts) DO UPDATE SET
+       SELECT * FROM UNNEST($1::text[], $2::timestamptz[], $3::numeric[], $4::numeric[], $5::numeric[], $6::numeric[], $7::bigint[], $8::numeric[], $9::text[], $10::int[])
+       ON CONFLICT (symbol, broker, ts) DO UPDATE SET
          o = EXCLUDED.o,
          h = EXCLUDED.h,
          l = EXCLUDED.l,
@@ -139,13 +217,22 @@ export async function POST(request: NextRequest) {
          spread = EXCLUDED.spread,
          broker = EXCLUDED.broker,
          digits = EXCLUDED.digits`,
+      [symbols, timestamps, opens, highs, lows, closes, volumes, spreads, brokers, digitsArr]
     );
 
     // Run the live pipeline. Feature-job enqueue is disabled by default until a
     // worker is intentionally deployed (set TM_DISABLE_FEATURE_JOBS=false to enable).
-    await checkAndTriggerAllActive(cleanSymbol);
-    if (process.env.TM_DISABLE_FEATURE_JOBS === "false") {
-      await enqueueFeatureJobs(pool, cleanSymbol, rows);
+    // Post-commit: a failure here must NOT turn the already-persisted write into
+    // a 500 (the EA would retry and duplicate-load). Report it on the 200 instead.
+    let triggerError: string | null = null;
+    try {
+      await checkAndTriggerAllActive(cleanSymbol);
+      if (process.env.TM_DISABLE_FEATURE_JOBS === "false") {
+        await enqueueFeatureJobs(pool, cleanSymbol, rows);
+      }
+    } catch (err: any) {
+      triggerError = err?.message ?? String(err);
+      console.error("[ingest] pipeline trigger failed (bars already committed):", triggerError);
     }
 
     // Run robot strategies (e.g., Ninja Turtle Scalper) asynchronously only when
@@ -178,8 +265,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       accepted: normalizedBars.length,
+      barsAccepted: normalizedBars.length,
       symbol: cleanSymbol,
       cagg: { ok: true, errors: [] },
+      ...(triggerError ? { triggerError } : {}),
     });
   } catch (err: any) {
     console.error("[ingest] Error:", err.message);
@@ -192,12 +281,17 @@ async function enqueueFeatureJobs(
   symbol: string,
   rows: Array<{ ts: Date; o: number; h: number; l: number; c: number; v: number; spread: number | null }>
 ): Promise<void> {
-  const featureNames = globalDAG.getFeatureNames();
-  if (featureNames.length === 0) return;
+  const universe = await getFeaturePipelineSymbol(pool, symbol);
+  if (!universe?.enabled) return;
 
+  const runs = resolveFeatureProfileRuns(
+    universe.requiredFeatureProfile,
+    universe.profileVersion,
+    universe.requiredTimeframes
+  );
   const seenBuckets = new Set<string>();
   for (const row of rows) {
-    for (const tf of JOB_TFS) {
+    for (const { tf, features } of runs) {
       const bucket = timeBucket(row.ts, tf);
       const key = `${tf}:${bucket.toISOString()}`;
       if (seenBuckets.has(key)) continue;
@@ -208,7 +302,7 @@ async function enqueueFeatureJobs(
          SELECT $1, $2, $3, unnest($4::text[]), 'pending'
          ON CONFLICT (symbol, tf, ts, feature_name)
          DO UPDATE SET status = 'pending', processed_at = NULL, error_message = NULL`,
-        [symbol, tf, bucket.toISOString(), featureNames]
+        [symbol, tf, bucket.toISOString(), features]
       );
     }
   }

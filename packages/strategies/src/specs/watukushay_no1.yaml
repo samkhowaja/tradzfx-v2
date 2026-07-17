@@ -29,11 +29,52 @@ overrides:
       groupBy:
         - ma_type
         - period
+  entry: []
   signalSource: moving_average
   signalSourceConfig:
     maType: sma
     fastPeriod: 15
     slowPeriod: 250
+  gates:
+    - id: volatility_gate
+      name: volatility
+      params:
+        # P0-B2 (V3 BUG-3.1): asset-class-safe percentile policy (inherited verbatim).
+        maxAtrPercentile: 0.95
+        sessionMaxAtrPercentile:
+          NY: 0.95
+        maxAtr5Pips: 500
+        # Post-freeze tuning #1: regime-aware relaxation keyed on features_direction_state (1h).
+        # Lifts ONLY the over-vol ceiling (p95 -> p99) on agreed trends; min-block & no-ATR
+        # unchanged. Missing direction_state => no relax (base behavior). Rollback: delete this gates block.
+        regimeRelax:
+          enabled: true
+          tf: "1h"
+          agreement: true
+          regimeIn: ["trending"]
+          mode: "bypass"
+    - id: spread_gate
+      name: spread
+      params:
+        maxSpreadPips: 3
+    - id: portfolio_heat
+      name: portfolioHeat
+      params:
+        maxConcurrentPerSymbol: 1
+        maxConcurrentTotal: 3
+    - id: session_gate
+      name: session
+      params:
+        allowed:
+          - LONDON
+          - OVERLAP
+          - NY
+    - id: rate_limit
+      name: rateLimit
+      params:
+        maxSignalsPerHour: 2
+        maxSignalsPerDay: 5
   live:
     maxPositionsPerSymbol: 2
     maxPositionsTotal: 6
+    signalTtlMinutes: 60

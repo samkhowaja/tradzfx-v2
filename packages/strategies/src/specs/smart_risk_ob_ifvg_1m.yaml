@@ -93,7 +93,15 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5Pips: 3.0
+      # P0-B2 (V3 BUG-3.1): asset-class-safe percentile policy. The 30-pip flat cap
+      # blocked ~95% of XAUUSD bars (median ~50p); the percentile cap (own p95)
+      # passes normal bars and blocks only the top-5% extreme vol. maxAtr5Pips is
+      # an emergency fallback only. NOTE: expected to un-throttle smart_risk fast
+      # (research edge ~485 candidates) — fast 90d count will rise above 20.
+      maxAtrPercentile: 0.95
+      sessionMaxAtrPercentile:
+        NY: 0.95
+      maxAtr5Pips: 500
 
   - id: portfolio_heat
     name: portfolioHeat

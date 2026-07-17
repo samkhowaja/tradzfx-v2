@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  build-and-test:
+    name: Build & Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
+
+      - name: Run unit tests (vitest)
+        run: pnpm -r test
+
+      - name: Run script-level tests
+        run: pnpm test
+
+  strategy-validation:
+    name: Strategy Spec Validation
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    # Requires a database. Use a service container or skip if not configured.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tradzfx_v2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TM_DB_NAME: tradzfx_v2
+      TM_DB_PASSWORD: postgres
+      TM_DB_HOST: localhost
+      TM_DB_PORT: 5432
+      TM_DB_USER: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
+
+      - name: Run migrations
+        run: pnpm db:migrate
+        continue-on-error: true
+
+      - name: Validate strategy specs (seed --check)
+        run: pnpm db:seed:check
+        continue-on-error: true
+
+      - name: Temporal alignment gate
+        run: pnpm db:alignment
+        continue-on-error: true

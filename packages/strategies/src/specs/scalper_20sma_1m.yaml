@@ -1,0 +1,97 @@
+id: scalper_20sma_1m
+familyId: scalper_20sma
+active: true
+experimental: true
+name: "Scalper 20SMA 1m"
+version: "1.0.0"
+setupFamily: trend_pullback
+description: >
+  1-minute scalping strategy based on 20-period SMA pullback (YouTube transcript).
+  5m bias for trend direction. Entry on 1m when price reaches a fresh zone aligned
+  with bias and produces a rejection candle pattern (pin bar, hammer, engulfing).
+  Tight ATR-based SL. TP at next opposing supply/demand zone on 5m.
+  Minimum RR 1:2.
+
+filters:
+  symbols: [EURUSD, NZDUSD, USDCAD, USDCHF]
+  sessions: [ LONDON, OVERLAP, NY ]
+
+setup:
+  - id: bias
+    feature: features_bias
+    tf: 5m
+    predicate: "direction != 'neutral'"
+    required: true
+    weight: 8
+    lookbackBars: 4
+
+  - id: setup_zone
+    feature: features_zone
+    tf: 5m
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND direction = features_bias.direction AND is_fresh = true"
+    required: true
+    weight: 8
+    lookbackBars: 48
+
+entry:
+  - id: candle_rejection
+    feature: features_candle_pattern
+    tf: 1m
+    predicate: "pattern_name IN ('pin_bar', 'hammer', 'engulfing_bull', 'engulfing_bear', 'hanging_man') AND direction = features_bias.direction AND confidence >= 0.5"
+    required: true
+    weight: 10
+    lookbackBars: 6
+
+entryConfig:
+  type: market
+  zonePips: null
+
+signalSource: zone
+
+risk:
+  sl: "atr(1m) * 0.8"
+  tp: "opposing_zone_profit_5m"
+  minRR: 2.0
+  timeoutBars: 60
+  maxFillBars: 15
+  minSlDistancePips: 2.0
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      sessionMaxAtrPercentile:
+        NY: 0.95
+      maxAtr5Pips: 500
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+
+live:
+  mode: live
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 30
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 10
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 3
+  cooldownMinutes: 10
+  structureFreshnessMinutes: 5

@@ -1,8 +1,28 @@
 import { randomUUID } from "crypto";
 import type { Pool, TimeFrame } from "@tm/shared";
-import { CANDLE_TABLE_BY_TF, TF_MS } from "@tm/shared";
+import {
+  CANDLE_TABLE_BY_TF,
+  TF_MS,
+  getSessionSpread,
+  getSessionSlippage,
+  getPairCharacteristics,
+  getRegistryPipSize,
+} from "@tm/shared";
 import { evaluateSetup, type SetupEvaluation } from "@tm/setup-engine";
 import { trackOutcome, type Candle, type TrackOutcomeOptions } from "./outcomeTracker";
+
+function isValidSignalGeometry(
+  direction: "long" | "short" | "neutral",
+  entryZone: { top: number; bottom: number } | null,
+  stopLoss: number | null,
+  takeProfit: number | null
+): boolean {
+  if (direction === "neutral" || !entryZone || stopLoss == null || takeProfit == null) return false;
+  const entry = (entryZone.top + entryZone.bottom) / 2;
+  if (!Number.isFinite(entry) || !Number.isFinite(stopLoss) || !Number.isFinite(takeProfit)) return false;
+  if (direction === "long") return stopLoss < entry && takeProfit > entry;
+  return stopLoss > entry && takeProfit < entry;
+}
 
 export interface BacktestOptions {
   symbol: string;
@@ -24,8 +44,12 @@ export interface BacktestOptions {
   concurrency?: number;
   /** Forward-simulation cost model. */
   trackOutcomeOptions?: TrackOutcomeOptions;
+  /** Number of initial candles to skip so features can warm up. Defaults to 200. */
+  warmupCandles?: number;
   /** If true, include the R-based equity curve in the result trades (stored as a summary note). */
   includeEquityCurve?: boolean;
+  /** If true, allow the same setup to produce overlapping trades. Defaults to false. */
+  disableTradeDedup?: boolean;
 }
 
 export interface BacktestTrade {
@@ -82,7 +106,9 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
     strategyId,
     concurrency = 1,
     trackOutcomeOptions,
+    warmupCandles = 200,
     includeEquityCurve = false,
+    disableTradeDedup = false,
   } = options;
 
   const runId = `${symbol}-${tf}-${startTs.toISOString()}-${endTs.toISOString()}-${randomUUID().slice(0, 8)}`;
@@ -109,19 +135,26 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
     }
   }
 
+  if (sampleTimes.length > 0 && warmupCandles > 0) {
+    const skipped = Math.min(warmupCandles, sampleTimes.length);
+    sampleTimes.splice(0, skipped);
+    console.log(`[runBacktest] skipped ${skipped} warmup candles for ${symbol} ${tf}`);
+  }
+
   // Pre-fetch all 1m candles once for the entire forward window. This avoids
   // the N+1 query pattern of fetching forward candles per sample.
   const all1mCandles = await fetch1mCandles(pool, symbol, startTs, endTs, maxForwardBars);
 
-  // Pre-fetch HTF states and session names for all sample times in bulk.
-  const [htfStateByTs, sessionNameByTs] = await Promise.all([
+  // Pre-fetch HTF states, session names, and ATR5 for all sample times in bulk.
+  const [htfStateByTs, sessionNameByTs, atr5ByTs] = await Promise.all([
     fetchHtfStatesBulk(pool, symbol, tf, sampleTimes),
     backtestSessionName
       ? Promise.resolve(new Map(sampleTimes.map((ts) => [ts.toISOString(), backtestSessionName])))
       : fetchSessionNamesBulk(pool, symbol, sampleTimes),
+    fetchAtr5Bulk(pool, symbol, tf, sampleTimes),
   ]);
 
-  const trades: BacktestTrade[] = [];
+  let trades: BacktestTrade[] = [];
 
   // Evaluate setups. For concurrency > 1 we preserve chronological ordering by
   // collecting results and sorting by sample index before simulating outcomes.
@@ -139,6 +172,7 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
         all1mCandles,
         htfStateByTs,
         sessionNameByTs,
+        atr5ByTs,
         maxForwardBars,
         trackOutcomeOptions
       );
@@ -161,6 +195,7 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
             all1mCandles,
             htfStateByTs,
             sessionNameByTs,
+            atr5ByTs,
             maxForwardBars,
             trackOutcomeOptions,
             index
@@ -175,6 +210,13 @@ export async function runBacktest(pool: Pool, options: BacktestOptions): Promise
 
   // Sort chronologically to ensure report metrics and equity curve are correct.
   trades.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+  // Suppress duplicate trades produced when the same setup remains valid across
+  // consecutive candles. A new trade is only allowed once the previous identical
+  // trade has exited (or the backtest window ends).
+  if (!disableTradeDedup) {
+    trades = dedupeTrades(trades, endTs);
+  }
 
   let equityCurve: number[] | undefined;
   if (includeEquityCurve) {
@@ -213,6 +255,7 @@ async function evaluateAndTrack(
   all1mCandles: Candle[],
   htfStateByTs: Map<string, string | null>,
   sessionNameByTs: Map<string, string | null>,
+  atr5ByTs: Map<string, number | null>,
   maxForwardBars: number,
   trackOutcomeOptions: TrackOutcomeOptions | undefined,
   _index?: number
@@ -233,13 +276,41 @@ async function evaluateAndTrack(
     return null;
   }
 
+  // Reject signals whose SL/TP ordering disagrees with the trade direction.
+  // This keeps the analyzer from producing nonsensical or negative-R outcomes.
+  if (!isValidSignalGeometry(setup.direction, setup.entryZone, setup.stopLoss, setup.takeProfit)) {
+    return null;
+  }
+
   // Slice forward candles from the pre-fetched cache.
   const futureCandles = sliceFutureCandles(all1mCandles, asOf, maxForwardBars);
 
+  const tsKey = asOf.toISOString();
+  const sessionName = sessionNameByTs.get(tsKey) ?? null;
+
+  // Apply realistic per-symbol/session cost defaults when the caller does not
+  // explicitly provide spread/slippage. This prevents zero-cost fills that
+  // inflate backtest performance.
+  const effectiveSpread =
+    trackOutcomeOptions?.spreadPips ??
+    backtestSpreadPips ??
+    getSessionSpread(symbol, sessionName || "DEFAULT");
+
+  const pipSize = getRegistryPipSize(symbol);
+  const atr5Value = atr5ByTs.get(tsKey);
+  const atr5Pips = atr5Value != null && pipSize > 0 ? atr5Value / pipSize : undefined;
+  const effectiveSlippage =
+    trackOutcomeOptions?.slippagePips ??
+    backtestSlippagePips ??
+    getSessionSlippage(symbol, atr5Pips);
+
+  const commissionPips = trackOutcomeOptions?.commissionPips ?? getPairCharacteristics(symbol).commissionPipsPerLot;
+
   const outcomeOptions: TrackOutcomeOptions = {
     ...trackOutcomeOptions,
-    spreadPips: trackOutcomeOptions?.spreadPips ?? backtestSpreadPips,
-    slippagePips: trackOutcomeOptions?.slippagePips ?? backtestSlippagePips,
+    spreadPips: effectiveSpread,
+    slippagePips: effectiveSlippage,
+    commissionPips,
   };
 
   const tracked = trackOutcome(
@@ -251,9 +322,7 @@ async function evaluateAndTrack(
     outcomeOptions
   );
 
-  const tsKey = asOf.toISOString();
   const htfState = htfStateByTs.get(tsKey) ?? null;
-  const sessionName = sessionNameByTs.get(tsKey) ?? null;
 
   return {
     ts: setup.timestamp,
@@ -288,7 +357,7 @@ async function fetch1mCandles(
   // resolve by endTs are reported as timeout/no-result, not as wins/losses.
   const forwardEnd = endTs;
   const { rows } = await pool.query(
-    `SELECT ts, o, h, l, c, v FROM candles_1m
+    `SELECT ts, o, h, l, c, v FROM market.candles_1m_canonical
      WHERE symbol = $1 AND ts > $2 AND ts <= $3
      ORDER BY ts`,
     [symbol, startTs, forwardEnd]
@@ -359,6 +428,33 @@ async function fetchSessionNamesBulk(
   const map = new Map<string, string | null>();
   for (const row of rows) {
     map.set(new Date(row.sample_ts).toISOString(), row.session ?? null);
+  }
+  return map;
+}
+
+async function fetchAtr5Bulk(
+  pool: Pool,
+  symbol: string,
+  tf: TimeFrame,
+  sampleTimes: Date[]
+): Promise<Map<string, number | null>> {
+  if (sampleTimes.length === 0) return new Map();
+  const { rows } = await pool.query(
+    `WITH samples AS (
+       SELECT unnest($3::timestamptz[]) AS ts
+     )
+     SELECT s.ts AS sample_ts, (
+       SELECT value
+         FROM features_atr
+        WHERE symbol = $1 AND tf = $2 AND period = 5 AND ts <= s.ts
+        ORDER BY ts DESC LIMIT 1
+     ) AS value
+     FROM samples s`,
+    [symbol, tf, sampleTimes]
+  );
+  const map = new Map<string, number | null>();
+  for (const row of rows) {
+    map.set(new Date(row.sample_ts).toISOString(), row.value != null ? Number(row.value) : null);
   }
   return map;
 }
@@ -448,6 +544,36 @@ async function persistResults(
   } finally {
     client.release();
   }
+}
+
+function setupFingerprint(trade: BacktestTrade): string {
+  if (!trade.entryZone || trade.stopLoss == null || trade.takeProfit == null) {
+    return `${trade.ts}|${trade.direction}`;
+  }
+  return [
+    trade.direction,
+    trade.entryZone.top,
+    trade.entryZone.bottom,
+    trade.stopLoss,
+    trade.takeProfit,
+  ].join("|");
+}
+
+function dedupeTrades(trades: BacktestTrade[], windowEndTs: Date): BacktestTrade[] {
+  const activeUntil = new Map<string, Date>();
+  const out: BacktestTrade[] = [];
+  for (const trade of trades) {
+    const fp = setupFingerprint(trade);
+    const asOf = new Date(trade.ts);
+    const prevUntil = activeUntil.get(fp);
+    if (prevUntil && asOf.getTime() <= prevUntil.getTime()) {
+      continue;
+    }
+    out.push(trade);
+    const exit = trade.exitTs ? new Date(trade.exitTs) : null;
+    activeUntil.set(fp, exit ?? windowEndTs);
+  }
+  return out;
 }
 
 class Semaphore {

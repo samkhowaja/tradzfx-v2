@@ -38,7 +38,9 @@ describe("zoneRetestFeature", () => {
     const zone: ZoneOutput = {
       zones: [{ zoneKind: "demand", top: 0.995, bottom: 0.99, tapped: false, ts: candles[0].ts }],
     };
+    process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF = "false";
     const out = zoneRetestFeature.compute({ candles, features_zone: zone });
+    delete process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF;
     expect(out.retests).toHaveLength(1);
     expect(out.retests[0].wickInto).toBe(true);
     expect(out.retests[0].closeInside).toBe(false);
@@ -103,7 +105,9 @@ describe("zoneRetestFeature", () => {
         { zoneKind: "fvg", top: 1.009, bottom: 1.007, tapped: false, ts: candles[0].ts },
       ],
     };
+    process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF = "false";
     const out = zoneRetestFeature.compute({ candles, features_zone: zone });
+    delete process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF;
     expect(out.retests).toHaveLength(1);
     expect(out.retests[0].zoneKind).toBe("demand");
   });
@@ -116,7 +120,9 @@ describe("zoneRetestFeature", () => {
     const zone: ZoneOutput = {
       zones: [{ zoneKind: "demand", top: 0.995, bottom: 0.99, tapped: false, ts: candles[0].ts }],
     };
+    process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF = "false";
     const out = zoneRetestFeature.compute({ candles, features_zone: zone });
+    delete process.env.ZONE_RETEST_REQUIRE_CLOSE_OR_ENGULF;
     const rows = zoneRetestFeature.serialize(out);
     const restored = zoneRetestFeature.deserialize(rows);
 

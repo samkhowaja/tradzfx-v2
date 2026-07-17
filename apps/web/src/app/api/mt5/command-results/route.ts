@@ -2,19 +2,12 @@
 // Acknowledges processed position commands from the MT5 Manager EA.
 
 import { NextRequest, NextResponse } from "next/server";
+import { validateMt5ApiKey } from "@/lib/mt5Auth";
 import { markCommandCompleted } from "@/lib/positionCommandService";
 
-const EXPECTED_API_KEY = process.env.TM_MT5_API_KEY ??
-  process.env.MT5_API_KEY ??
-  "";
-
-function validateApiKey(req: NextRequest): boolean {
-  const key = req.headers.get("X-API-Key") || req.headers.get("x-api-key");
-  return key === EXPECTED_API_KEY;
-}
 
 export async function POST(req: NextRequest) {
-  if (!validateApiKey(req)) {
+  if (!(await validateMt5ApiKey(req))) {
     return NextResponse.json({ ok: false, error: "Invalid or missing API key" }, { status: 401 });
   }
 

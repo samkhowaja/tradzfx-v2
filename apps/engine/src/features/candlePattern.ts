@@ -255,6 +255,7 @@ export const candlePatternFeature: FeatureDefinition<CandlePatternInput, CandleP
   name: "features_candle_pattern",
   version: "1.4.0",
   dependencies: [],
+  computePolicy: "onEvent",
 
   compute(input): CandlePatternOutput {
     return { patterns: detectPatterns(input.candles) };

@@ -33,6 +33,7 @@ export const sessionFeature: FeatureDefinition<SessionInput, SessionOutput> = {
   name: "features_session",
   version: "1.2.0",
   dependencies: [],
+  computePolicy: "onEvent",
 
   compute(input): SessionOutput {
     const last = input.candles[input.candles.length - 1];

@@ -37,8 +37,7 @@ const pool = new Pool({
 function parseCsvDate(dateStr, timeStr) {
   const [y, m, d] = dateStr.split(".").map(Number);
   const [hh, mm, ss] = timeStr.split(":").map(Number);
-  const local = new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
-  return new Date(local.getTime() - OFFSET_HOURS * 60 * 60 * 1000);
+  const local = new Date(Date.UTC(y, m - 1, d, hh, mm, ss));  return new Date(local.getTime() - OFFSET_HOURS * 60 * 60 * 1000);
 }
 
 function countDecimals(value) {
@@ -89,9 +88,11 @@ async function main() {
     const l = Number(parts[4]);
     const c = Number(parts[5]);
     const tickVol = Number(parts[6]);
-    const spread = Number(parts[8]);
+    // MT5 CSV <SPREAD> is in points; convert to pips like every other writer
+    // (digits=4 -> pip = 1 point, otherwise pip = 10 points).
+    const spreadPoints = Number(parts[8]);
 
-    rows.push({ symbol: SYMBOL, ts, o, h, l, c, v: tickVol, spread });
+    rows.push({ symbol: SYMBOL, ts, o, h, l, c, v: tickVol, spreadPoints });
     maxDecimals = Math.max(maxDecimals, countDecimals(c));
     if (!minTs || ts < minTs) minTs = ts;
     if (!maxTs || ts > maxTs) maxTs = ts;
@@ -109,13 +110,18 @@ async function main() {
   try {
     await client.query("BEGIN");
 
+    const broker = "MT5";
     const delRes = await client.query(
-      "DELETE FROM candles_1m WHERE symbol = $1 AND ts >= $2 AND ts <= $3",
-      [SYMBOL, minTs, maxTs]
+      "DELETE FROM candles_1m WHERE symbol = $1 AND broker = $2 AND ts >= $3 AND ts <= $4",
+      [SYMBOL, broker, minTs, maxTs]
     );
-    console.log(`Deleted ${delRes.rowCount} existing rows in overlap range.`);
+    console.log(`Deleted ${delRes.rowCount} existing ${broker} rows in overlap range.`);
 
     const digits = maxDecimals;
+    const pointsToPips = (points) => {
+      if (!Number.isFinite(points)) return null;
+      return digits === 4 ? points : points / 10;
+    };
     const BATCH = 1000;
     let inserted = 0;
     for (let i = 0; i < rows.length; i += BATCH) {
@@ -125,10 +131,13 @@ async function main() {
       let pi = 1;
       for (const r of batch) {
         values.push(`($${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++}, $${pi++})`);
-        params.push(r.symbol, r.ts, r.o, r.h, r.l, r.c, r.v, "MT5", digits, r.spread);
+        params.push(r.symbol, r.ts, r.o, r.h, r.l, r.c, r.v, broker, digits, pointsToPips(r.spreadPoints));
       }
       const sql =
-        `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, broker, digits, spread) VALUES ${values.join(", ")}`;
+        `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, broker, digits, spread) VALUES ${values.join(", ")}
+         ON CONFLICT (symbol, broker, ts) DO UPDATE SET
+           o = EXCLUDED.o, h = EXCLUDED.h, l = EXCLUDED.l, c = EXCLUDED.c,
+           v = EXCLUDED.v, digits = EXCLUDED.digits, spread = EXCLUDED.spread`;
       await client.query(sql, params);
       inserted += batch.length;
       if (inserted % 10000 === 0) console.log(`Inserted ${inserted} rows...`);

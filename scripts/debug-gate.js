@@ -15,7 +15,7 @@ const { runLivePipeline } = require('../packages/tradePipeline/dist/index.js');
   const restored = restoreCompiledStrategy(spec, compiled.sql);
 
   const symbol = process.argv[2] || 'GBPUSD';
-  const latestSignalSQL = restored.latestSignalSQL(symbol);
+  const latestSignalSQL = restored.latestSignalSQL();
 
   const result = await runLivePipeline({
     symbol,

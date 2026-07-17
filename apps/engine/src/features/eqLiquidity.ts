@@ -92,6 +92,7 @@ export const eqLiquidityFeature: FeatureDefinition<EqLiquidityInput, EqLiquidity
   name: "features_eq_liquidity",
   version: "1.1.0",
   dependencies: ["features_pivot", "features_atr"],
+  computePolicy: "onEvent",
 
   compute(input): EqLiquidityOutput {
     const atrRows = input.features_atr.values;

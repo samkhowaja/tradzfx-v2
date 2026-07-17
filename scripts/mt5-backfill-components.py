@@ -119,9 +119,9 @@ def get_db_conn():
     return psycopg2.connect(
         host=os.environ.get("TM_DB_HOST", "localhost"),
         port=int(os.environ.get("TM_DB_PORT", "5432")),
-        database=os.environ.get("TM_DB_NAME", (process.env.TM_DB_NAME || "tradzfx_v2")),
+        database=os.environ.get("TM_DB_NAME", "tradzfx_v2"),
         user=os.environ.get("TM_DB_USER", "postgres"),
-        password=os.environ.get("TM_DB_PASSWORD", process.env.TM_DB_PASSWORD),
+        password=os.environ.get("TM_DB_PASSWORD", os.environ.get("PGPASSWORD")),
     )
 
 
@@ -294,6 +294,16 @@ def fetch_and_insert_symbol(symbol: str, cur, conn, broker: str) -> int:
     if not rows:
         return 0
 
+    newest_ts = max(r[1] for r in rows)
+    data_stale_min = (now_utc - newest_ts).total_seconds() / 60.0
+    if data_stale_min > HEALTH_STALE_MIN:
+        log.warning(
+            "%s: MT5 newest bar is stale by %.1f min (newest %s); terminal data may be disconnected",
+            symbol,
+            data_stale_min,
+            newest_ts,
+        )
+
     inserted = 0
     for i in range(0, len(rows), BATCH_SIZE):
         batch = rows[i : i + BATCH_SIZE]
@@ -302,7 +312,14 @@ def fetch_and_insert_symbol(symbol: str, cur, conn, broker: str) -> int:
             """
             INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, spread, broker, digits)
             VALUES %s
-            ON CONFLICT (symbol, ts) DO NOTHING
+            ON CONFLICT (symbol, broker, ts) DO UPDATE SET
+              o = EXCLUDED.o,
+              h = EXCLUDED.h,
+              l = EXCLUDED.l,
+              c = EXCLUDED.c,
+              v = EXCLUDED.v,
+              spread = EXCLUDED.spread,
+              digits = EXCLUDED.digits
             """,
             batch,
         )

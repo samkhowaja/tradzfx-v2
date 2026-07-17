@@ -15,10 +15,19 @@ const {
   applyGates,
   computeStats,
   evaluatePortfolioHeat,
+  dedupeTrades,
   prefetchCandles,
   validateTimeWindow,
   assertAllowedFeature,
   assertAllowedTf,
+  computeWarmupBars,
+  computeWarmupTs,
+  inferSetupFamily,
+  collectCoverageTargets,
+  requiredFeatureTargets,
+  capabilityKey,
+  CAPABILITY_BLOCKING_VERDICTS,
+  CAPABILITY_DEGRADED_VERDICTS,
 } = mod;
 
 function baseSpec(overrides = {}) {
@@ -96,26 +105,26 @@ describe("compilePITSQL sanitization", () => {
     assert.throws(() => compilePITSQL(spec, "EURUSD", date("2026-01-01"), date("2026-01-02")), /hours out of range/);
   });
 
-  it("parameterizes symbol and date bounds", () => {
+  it("embeds symbol and date bounds in canonical compiler SQL", () => {
     const spec = baseSpec();
     const from = date("2026-01-01T00:00:00Z");
     const to = date("2026-01-02T00:00:00Z");
     const { sql, params } = compilePITSQL(spec, "EURUSD", from, to);
-    assert.ok(sql.includes("symbol = $1"));
-    assert.ok(sql.includes("ts >= $2::timestamp"));
-    assert.ok(sql.includes("ts <= $3::timestamp"));
-    assert.strictEqual(params[0], "EURUSD");
-    assert.strictEqual(params[1], from);
-    assert.strictEqual(params[2], to);
+    assert.ok(sql.includes("symbol = 'EURUSD'"));
+    assert.ok(sql.includes(`ts >= '${from.toISOString()}'::timestamptz`));
+    assert.ok(sql.includes(`ts <= '${to.toISOString()}'::timestamptz`));
+    assert.deepStrictEqual(params, []);
   });
 
-  it("parameterizes structure freshness when used", () => {
-    const spec = baseSpec({
-      entry: [{ id: "struct", required: true, feature: "features_structure", tf: "15m", predicate: "1=1" }],
-    });
-    const { sql, params } = compilePITSQL(spec, "EURUSD", date("2026-01-01"), date("2026-01-02"), { structureFreshnessMinutes: 60 });
-    assert.ok(sql.includes("($4 * interval '1 minute')"));
-    assert.strictEqual(params[3], 60);
+  it("rejects the removed legacy fork option", () => {
+    // TIER 3: The legacy PIT_USE_COMPILER_SQL=0 fork was removed. The env
+    // var now just prints a deprecation warning; compilePITSQL always uses
+    // the compiler path regardless of the flag.
+    const spec = baseSpec();
+    // Verify it does NOT throw — the compiler path is always used.
+    assert.doesNotThrow(
+      () => compilePITSQL(spec, "EURUSD", date("2026-01-01"), date("2026-01-02"), {}, false, { forceCompiler: false }),
+    );
   });
 });
 
@@ -140,6 +149,76 @@ describe("assertAllowedFeature and assertAllowedTf", () => {
   it("rejects unknown values", () => {
     assert.throws(() => assertAllowedFeature("features_bad"), /Disallowed feature table/);
     assert.throws(() => assertAllowedTf("10m"), /Disallowed timeframe/);
+  });
+});
+
+describe("inferSetupFamily", () => {
+  it("maps ORB signal sources to orb_breakout", () => {
+    assert.strictEqual(inferSetupFamily({ id: "orb_classic", signalSource: "orb" }), "orb_breakout");
+  });
+
+  it("maps FVG signal sources to fvg_continuation", () => {
+    assert.strictEqual(inferSetupFamily({ id: "a_plus", signalSource: "fvg" }), "fvg_continuation");
+  });
+
+  it("preserves explicit setupFamily", () => {
+    assert.strictEqual(
+      inferSetupFamily({ id: "custom", signalSource: "zone", setupFamily: "liquidity_sweep" }),
+      "liquidity_sweep"
+    );
+  });
+});
+
+describe("computeWarmupBars", () => {
+  it("derives warmup from indicator periods on higher timeframes", () => {
+    const spec = baseSpec({
+      setup: [
+        {
+          id: "ema",
+          required: true,
+          feature: "features_moving_average",
+          tf: "1h",
+          predicate: "ma_type = 'ema_cross' AND fast_period = 50 AND slow_period = 200",
+        },
+      ],
+      entry: [
+        {
+          id: "entry",
+          required: true,
+          feature: "features_structure",
+          tf: "5m",
+          predicate: "event_type = 'bos'",
+        },
+      ],
+    });
+
+    assert.strictEqual(computeWarmupBars(spec, 50), 2400);
+  });
+
+  it("never lets explicit warmup undercut dependency warmup", () => {
+    const spec = baseSpec({
+      warmupBars: 50,
+      setup: [
+        {
+          id: "ema",
+          required: true,
+          feature: "features_moving_average",
+          tf: "15m",
+          predicate: "slow_period = 200",
+        },
+      ],
+      entry: [
+        {
+          id: "entry",
+          required: true,
+          feature: "features_structure",
+          tf: "15m",
+          predicate: "event_type = 'bos'",
+        },
+      ],
+    });
+
+    assert.strictEqual(computeWarmupBars(spec, spec.warmupBars), 200);
   });
 });
 
@@ -202,10 +281,20 @@ describe("simulateTrade cost adjustments", () => {
   it("applies slippage only on limit fill", () => {
     const signal = makeSignal({ entry_type: "limit", entry_price: "1.0995" });
     const candles = [candle(1, 1.1000, 1.1000, 1.0994, 1.0994), candle(2, 1.0994, 1.1035, 1.0994, 1.1035)];
-    const out = simulateTrade(signal, candles, { timeoutBars: 10, spreadPips: 2, slippagePips: 1, pipSize: 0.0001 });
+    const out = simulateTrade(signal, candles, { timeoutBars: 10, spreadPips: 2, slippagePips: 1, pipSize: 0.0001, commissionPips: 0 });
     assert.strictEqual(out.outcome, "win");
     // effective entry = 1.0995 + 1 pip slippage = 1.0996; spread should not be added.
     assert.strictEqual(out.effectiveEntry, 1.0996);
+  });
+
+  it("applies commission to entry and exit", () => {
+    const signal = makeSignal();
+    const candles = [candle(1, 1.1000, 1.1000, 1.1000, 1.1000), candle(2, 1.1000, 1.1035, 1.1000, 1.1035)];
+    const noCommission = simulateTrade(signal, candles, { timeoutBars: 10, spreadPips: 0, slippagePips: 0, pipSize: 0.0001, commissionPips: 0 });
+    const withCommission = simulateTrade(signal, candles, { timeoutBars: 10, spreadPips: 0, slippagePips: 0, pipSize: 0.0001, commissionPips: 1 });
+    assert.strictEqual(noCommission.outcome, "win");
+    assert.strictEqual(withCommission.outcome, "win");
+    assert.ok(withCommission.r < noCommission.r, "commission should reduce net R");
   });
 });
 
@@ -252,6 +341,14 @@ describe("applyGates with synthetic trades", () => {
     assert.strictEqual(result.reasons.spread, 1);
   });
 
+  it("quarantines insane historical spread and falls back to session spread", async () => {
+    const spec = { id: "s", live: {}, gates: [{ name: "spread", params: { maxSpreadPips: 1 } }] };
+    const trades = [makeTrade({ spread_pips: 100 })];
+    const result = await applyGates(trades, spec);
+    assert.strictEqual(result.quarantined, 1);
+    assert.strictEqual(result.skipped, 0);
+  });
+
   it("volatility gate blocks when ATR too high", async () => {
     const spec = { id: "s", live: {}, gates: [{ name: "volatility", params: { maxAtr5Pips: 10 } }] };
     // EURUSD pipSize 0.0001 -> 0.002 = 20 pips
@@ -290,7 +387,7 @@ describe("applyGates with synthetic trades", () => {
   it("smallAccount gate blocks on daily loss limit", async () => {
     const spec = {
       id: "s",
-      live: { smallAccount: { enabled: true, maxDailyLossPct: 3 } },
+      live: { smallAccount: { enabled: true, maxDailyLossR: 3 } },
       gates: [{ name: "smallAccount", params: {} }],
     };
     const trades = [
@@ -405,7 +502,8 @@ describe("prefetchCandles", () => {
     const from = date("2026-01-01T00:00:00Z");
     const to = date("2026-01-01T12:00:00Z");
     await prefetchCandles(fakePool, "EURUSD", from, to, 24);
-    assert.ok(captured.args.sql.includes("FROM candles_1m"));
+    assert.ok(captured.args.sql.includes("FROM market.candles_1m_canonical"));
+    assert.ok(!captured.args.sql.includes("FROM candles_1m c"));
     assert.strictEqual(captured.args.params[0], "EURUSD");
     assert.strictEqual(captured.args.params[1], from);
     // Forward simulation is capped at the stated backtest end date to avoid
@@ -427,7 +525,7 @@ describe("smoke test", () => {
 
     const signal = makeSignal();
     const candles = [candle(1, 1.1000, 1.1000, 1.1000, 1.1000), candle(2, 1.1000, 1.1035, 1.1000, 1.1035)];
-    const trade = simulateTrade(signal, candles, { timeoutBars: 10 });
+    const trade = simulateTrade(signal, candles, { timeoutBars: 10, commissionPips: 0 });
     assert.ok(["win", "loss", "timeout", "no_fill"].includes(trade.outcome));
 
     const rawTrades = [{
@@ -443,5 +541,283 @@ describe("smoke test", () => {
 
     const stats = computeStats(gated.executed);
     assert.strictEqual(stats.total, 1);
+  });
+});
+
+describe("collectCoverageTargets", () => {
+  it("includes zone, pricing, bias, atr and candle tables for default zone spec", () => {
+    const targets = collectCoverageTargets(baseSpec());
+    const tables = targets.map((t) => `${t.table}${t.tf ? `@${t.tf}` : ""}`);
+    assert.ok(tables.includes("features_zone@15m"));
+    assert.ok(tables.includes("features_pricing@15m"));
+    assert.ok(tables.includes("features_bias@15m"));
+    assert.ok(tables.includes("features_atr@15m"));
+    assert.ok(tables.includes("market.candles_1m_canonical@1m"));
+    assert.ok(tables.includes("market.candles_15m_canonical@15m"));
+    assert.ok(tables.some((t) => t === "features_session@1m" && targets.find((x) => `${x.table}@${x.tf}` === t).required === false));
+  });
+
+  it("includes opening range for orb signal source", () => {
+    const spec = baseSpec({ signalSource: "orb", setup: [...baseSpec().setup, { id: "orb", feature: "features_opening_range", tf: "15m", predicate: "1=1", required: true }] });
+    const targets = collectCoverageTargets(spec);
+    assert.ok(targets.some((t) => t.table === "features_opening_range" && t.tf === "15m"));
+  });
+
+  it("includes features_zone for fvg signal source", () => {
+    const spec = baseSpec({
+      signalSource: "fvg",
+      entry: [{ id: "fvg", feature: "features_zone", tf: "5m", predicate: "zone_kind = 'fvg'", required: true }],
+    });
+    const targets = collectCoverageTargets(spec);
+    assert.ok(targets.some((t) => t.table === "features_zone" && t.tf === "5m"));
+  });
+});
+
+describe("capability preflight policy", () => {
+  it("checks required feature targets only", () => {
+    const targets = requiredFeatureTargets(baseSpec());
+    assert.ok(targets.every((t) => !t.isCandle && t.required));
+    assert.ok(targets.some((t) => t.table === "features_zone" && t.tf === "15m"));
+    assert.ok(!targets.some((t) => t.table === "features_session" && t.tf === "1m"));
+  });
+
+  it("blocks unsafe dense surfaces and degrades sparse event emptiness", () => {
+    assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("MISSING_TABLE"));
+    assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("EMPTY_DENSE"));
+    assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("STALE_STATE"));
+    assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("BLOCKED_LIFECYCLE"));
+    assert.ok(CAPABILITY_DEGRADED_VERDICTS.has("SPARSE_EVENT_EMPTY"));
+    assert.ok(!CAPABILITY_BLOCKING_VERDICTS.has("SPARSE_EVENT_EMPTY"));
+  });
+
+  it("keys table and timeframe consistently", () => {
+    assert.strictEqual(capabilityKey("features_zone", "5m"), "features_zone:5m");
+    assert.strictEqual(capabilityKey("features_time_of_day", null), "features_time_of_day:");
+  });
+});
+
+describe("compilePITSQL ATR timeframe mapping", () => {
+  it("joins multiple ATR timeframes referenced in risk expressions", () => {
+    const spec = baseSpec({
+      risk: { sl: "atr(1m) * 1.0", tp: "atr(5m) * 2.0" },
+      setup: [{ id: "atr", required: true, feature: "features_atr", tf: "15m", predicate: "period = 5" }],
+    });
+    const { sql } = compilePITSQL(spec, "EURUSD", date("2026-01-01"), date("2026-01-02"));
+    assert.ok(sql.includes("a_1m.value"), "expected a_1m alias for atr(1m)");
+    assert.ok(sql.includes("a_5m.value"), "expected a_5m alias for atr(5m)");
+    assert.ok(sql.includes("a_15m.value"), "expected a_15m alias for explicit features_atr condition");
+    assert.ok(!sql.includes("atr(1m)"), "atr(1m) should be bound to alias");
+    assert.ok(!sql.includes("atr(5m)"), "atr(5m) should be bound to alias");
+  });
+
+  it("does not join features_spread in PIT signal SQL", () => {
+    const spec = baseSpec();
+    const { sql } = compilePITSQL(spec, "EURUSD", date("2026-01-01"), date("2026-01-02"));
+    assert.ok(!sql.includes("features_spread"), "expected no features_spread join/select in PIT SQL");
+    assert.ok(!sql.includes("COALESCE(spr.spread"), "expected no spread fallback in PIT SQL");
+  });
+});
+
+describe("simulateTrade geometry validation", () => {
+  it("returns invalid when SL is on the wrong side of entry", () => {
+    const signal = makeSignal({ stop_loss: "1.1010" }); // SL above entry for long
+    const candles = [candle(1, 1.1000, 1.1000, 1.1000, 1.1000)];
+    const out = simulateTrade(signal, candles, { timeoutBars: 10, commissionPips: 0 });
+    assert.strictEqual(out.outcome, "invalid");
+  });
+});
+
+describe("dedupeTrades", () => {
+  function makeRawTrade(overrides = {}) {
+    return {
+      symbol: "EURUSD",
+      side: "buy",
+      entry: 1.1,
+      sl: 1.099,
+      tp: 1.103,
+      ts: date("2026-01-01T10:00:00Z"),
+      holdBars: 10,
+      outcome: "win",
+      ...overrides,
+    };
+  }
+
+  it("drops overlapping identical trades until the first exits", () => {
+    const trades = [
+      makeRawTrade({ ts: date("2026-01-01T10:00:00Z"), holdBars: 20 }),
+      makeRawTrade({ ts: date("2026-01-01T10:10:00Z") }),
+      makeRawTrade({ ts: date("2026-01-01T10:25:00Z") }),
+    ];
+    const windowEnd = date("2026-01-01T12:00:00Z");
+    const deduped = dedupeTrades(trades, windowEnd);
+    assert.strictEqual(deduped.length, 2);
+    assert.strictEqual(deduped[0].ts.toISOString(), "2026-01-01T10:00:00.000Z");
+    assert.strictEqual(deduped[1].ts.toISOString(), "2026-01-01T10:25:00.000Z");
+  });
+
+  it("does not dedupe trades with different fingerprints", () => {
+    const trades = [
+      makeRawTrade({ ts: date("2026-01-01T10:00:00Z"), holdBars: 20 }),
+      makeRawTrade({ ts: date("2026-01-01T10:10:00Z"), tp: 1.104 }),
+    ];
+    const deduped = dedupeTrades(trades, date("2026-01-01T12:00:00Z"));
+    assert.strictEqual(deduped.length, 2);
+  });
+});
+
+describe("computeWarmupTs", () => {
+  it("uses the entry timeframe when present", () => {
+    const spec = baseSpec({ entry: [{ id: "e", feature: "features_zone", tf: "15m" }] });
+    const from = date("2026-01-01T00:00:00Z");
+    const ts = computeWarmupTs(spec, from, 200);
+    assert.strictEqual(ts.toISOString(), "2026-01-03T02:00:00.000Z"); // 200 * 15m = 50h
+  });
+
+  it("falls back to setup timeframe when entry is missing", () => {
+    const spec = baseSpec({ entry: undefined });
+    const from = date("2026-01-01T00:00:00Z");
+    const ts = computeWarmupTs(spec, from, 200);
+    assert.strictEqual(ts.toISOString(), "2026-01-03T02:00:00.000Z");
+  });
+
+  it("defaults to 15m when no entry or setup exists", () => {
+    const spec = baseSpec({ entry: undefined, setup: undefined });
+    const from = date("2026-01-01T00:00:00Z");
+    const ts = computeWarmupTs(spec, from, 200);
+    assert.strictEqual(ts.toISOString(), "2026-01-03T02:00:00.000Z");
+  });
+
+  it("honors a spec warmupBars override", () => {
+    const spec = baseSpec({ entry: [{ id: "e", feature: "features_zone", tf: "15m" }] });
+    const from = date("2026-01-01T00:00:00Z");
+    const ts = computeWarmupTs(spec, from, 96);
+    assert.strictEqual(ts.toISOString(), "2026-01-02T00:00:00.000Z"); // 96 * 15m = 24h
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ORB session-scoped join (V4 BUG-11)
+// ---------------------------------------------------------------------------
+
+describe("ORB session-scoped join (V4 BUG-11)", () => {
+  function orbSpec(overrides = {}) {
+    return baseSpec({
+      signalSource: "orb",
+      setup: [
+        { id: "bias", required: true, feature: "features_bias", tf: "15m", predicate: "direction = 'bullish'" },
+        { id: "orb", required: true, feature: "features_opening_range", tf: "15m", session: "london", predicate: "1 = 1" },
+      ],
+      ...overrides,
+    });
+  }
+
+  const from = date("2026-01-05T00:00:00Z");
+  const to = date("2026-01-06T00:00:00Z");
+
+  it("pins the range to signal UTC date + session + completion", () => {
+    const { sql } = compilePITSQL(orbSpec(), "EURUSD", from, to);
+    assert.match(sql, /o\.date = \(e\.ts AT TIME ZONE 'UTC'\)::date/);
+    assert.match(sql, /o\.session = 'london'/);
+    assert.match(sql, /o\.range_minutes = 15/);
+    assert.match(sql, /o\.ts <= e\.ts/);
+    // The stale MAX(ts) self-join must be gone.
+    assert.doesNotMatch(sql, /SELECT MAX\(ts\) FROM features_opening_range/);
+  });
+
+  it("setup LATERAL uses the session-scoped policy, not an interval lookback", () => {
+    const { sql } = compilePITSQL(orbSpec(), "EURUSD", from, to);
+    assert.ok(
+      sql.includes("features_opening_range.date = (b.ts AT TIME ZONE 'UTC')::date"),
+      "expected date-scoped LATERAL join on features_opening_range"
+    );
+  });
+
+  it("throws when the orb condition omits session", () => {
+    const spec = orbSpec();
+    delete spec.setup[1].session;
+    assert.throws(() => compilePITSQL(spec, "EURUSD", from, to), /session/);
+  });
+
+  it("honors a different declared session and tf-derived range minutes", () => {
+    const spec = orbSpec({
+      setup: [
+        { id: "bias", required: true, feature: "features_bias", tf: "15m", predicate: "direction = 'bullish'" },
+        { id: "orb", required: true, feature: "features_opening_range", tf: "5m", session: "ny", predicate: "1 = 1" },
+      ],
+    });
+    const { sql } = compilePITSQL(spec, "EURUSD", from, to);
+    assert.match(sql, /o\.session = 'ny'/);
+    assert.match(sql, /o\.range_minutes = 5/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Zone PIT pushdown + bounded lookback (P0-3)
+// ---------------------------------------------------------------------------
+
+describe("zone PIT pushdown and bounded lookback (P0-3)", () => {
+  function zoneSpec(overrides = {}) {
+    return baseSpec({
+      setup: [
+        { id: "bias", required: true, feature: "features_bias", tf: "5m", predicate: "direction = 'bullish'" },
+      ],
+      entry: [
+        {
+          id: "opening_break_fvg",
+          required: true,
+          feature: "features_zone",
+          tf: "5m",
+          predicate: "zone_kind = 'fvg' AND direction IN ('bullish', 'bearish')",
+          groupBy: ["direction"],
+        },
+      ],
+      ...overrides,
+    });
+  }
+
+  const from = date("2026-01-05T00:00:00Z");
+  const to = date("2026-01-06T00:00:00Z");
+
+  it("pushes zone_kind equality into the canonical LATERAL WHERE", () => {
+    const { sql } = compilePITSQL(zoneSpec(), "EURUSD", from, to);
+    const lateral = sql.match(/LATERAL \([\s\S]*?FROM features_zone[\s\S]*?\) AS pit_opening_break_fvg/);
+    assert.ok(lateral, "expected entry LATERAL for features_zone");
+    assert.ok(lateral[0].includes("AND zone_kind = 'fvg'"), "zone_kind equality must be inside the LATERAL");
+  });
+
+  it("uses the registry bounded lookback for active_window features with session gap padding", () => {
+    const { sql } = compilePITSQL(zoneSpec(), "EURUSD", from, to);
+    // features_zone@5m: registry defaultLookbackBars=96 → 96*5=480min=8h,
+    // plus weekend gap padding (49h as spec has no session filter) = 57h.
+    assert.ok(sql.includes("INTERVAL '57 hours'"), "expected 57h registry lookback + weekend padding for features_zone@5m");
+  });
+
+  it("honors explicit lookbackBars with session gap padding", () => {
+    const spec = zoneSpec();
+    spec.entry[0].lookbackBars = 24; // 24 * 5m = 2h, plus 49h padding = 51h
+    const { sql } = compilePITSQL(spec, "EURUSD", from, to);
+    assert.ok(sql.includes("INTERVAL '51 hours'"), "expected 51h (2h explicit + 49h weekend padding)");
+  });
+
+  it("uses tf-tier lookback for candidate_set features", () => {
+    const spec = zoneSpec({
+      setup: [
+        { id: "bias", required: true, feature: "features_bias", tf: "5m", predicate: "direction = 'bullish'" },
+        { id: "pricing", required: true, feature: "features_pricing", tf: "5m", predicate: "position = 'discount'" },
+      ],
+    });
+    const { sql } = compilePITSQL(spec, "EURUSD", from, to);
+    // features_pricing uses buildLookbackIntervalForTf which returns the
+    // tf-tier default: 24 hours for 5m.
+    assert.ok(sql.includes("INTERVAL '24 hours'"), "candidate_set features should use tf-tier lookback (24h for 5m)");
+  });
+
+  it("never pushes is_fresh into the LATERAL (as-of semantics preserved)", () => {
+    const spec = zoneSpec();
+    spec.entry[0].predicate = "zone_kind = 'fvg' AND is_fresh = true";
+    const { sql } = compilePITSQL(spec, "EURUSD", from, to);
+    const lateral = sql.match(/LATERAL \([\s\S]*?FROM features_zone[\s\S]*?\) AS pit_opening_break_fvg/);
+    assert.ok(lateral && !/WHERE[\s\S]*is_fresh/.test(lateral[0].split("ORDER BY")[0]));
+    assert.ok(lateral[0].includes("AND zone_kind = 'fvg'"));
   });
 });

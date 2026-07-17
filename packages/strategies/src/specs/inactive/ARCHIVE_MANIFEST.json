@@ -1,0 +1,118 @@
+{
+  "archivedAt": "2026-07-07T17:57:08.256Z",
+  "reason": "Inactive spec cleanup (active: false)",
+  "archivedFiles": [
+    "smart_risk_ob_ifvg_1m_3r.yaml",
+    "smart_risk_ob_ifvg_1m_runon.yaml",
+    "smart_risk_ob_ifvg_1m_runon_15r_age15.yaml",
+    "smart_risk_ob_ifvg_1m_runon_15r_notight.yaml",
+    "smart_risk_ob_ifvg_1m_runon_15r_notight_origwindow.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_ob_tp.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_15m_tp.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_1h_tp.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_5m_tp.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_profit.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_1h.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_5m.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter_loose.yaml",
+    "smart_risk_ob_ifvg_1m_sniper_10r_zone_tp.yaml"
+  ],
+  "deletedDbSpecs": [
+    {
+      "id": "smart_risk_ob_ifvg_1m_3r",
+      "name": "Smart Risk Scalp 1 — OB + iFVG (3R fixed target)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_runon",
+      "name": "Smart Risk Scalp 1 — OB + iFVG (run-on to next pivot)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_age15",
+      "name": "Smart Risk Scalp 1 — OB + iFVG (1.5R floor, age<=15)",
+      "version": "1.0.1"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_notight",
+      "name": "Smart Risk Scalp 1 — OB + iFVG (1.5R floor, no iFVG strength filter)",
+      "version": "1.0.1"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_notight_origwindow",
+      "name": "Smart Risk Scalp 1 — OB + iFVG (1.5R floor, no iFVG strength filter, orig window)",
+      "version": "1.0.1"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r",
+      "name": "Smart Risk Sniper 10R — OB + iFVG (tight 10-pip SL, 10R fixed TP) [EXPERIMENTAL]",
+      "version": "1.0.2"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply",
+      "name": "Smart Risk Sniper 10R — demand/supply HTF only, no 10:00/16:00 UTC [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_ob_tp",
+      "name": "Smart Risk Sniper 10R — demand/supply + HTF OB TP beyond minRR [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_15m_tp",
+      "name": "Smart Risk Sniper 10R — demand/supply + nearest 15m swing pivot TP [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_1h_tp",
+      "name": "Smart Risk Sniper 10R — demand/supply + nearest 1h swing pivot TP [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_5m_tp",
+      "name": "Smart Risk Sniper 10R — demand/supply + nearest 5m swing pivot TP [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_profit",
+      "name": "Smart Risk Sniper 10R — demand/supply + nearest opposing zone TP [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_1h",
+      "name": "Smart Risk Sniper 10R — demand/supply + 1h zone TP beyond minRR [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_5m",
+      "name": "Smart Risk Sniper 10R — demand/supply + 5m zone TP beyond minRR [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter",
+      "name": "Smart Risk Sniper 10R — demand/supply + 15m zone TP + iFVG strength filter [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter_loose",
+      "name": "Smart Risk Sniper 10R — demand/supply + 15m zone TP + iFVG strength >= 0.6 [EXPERIMENTAL]",
+      "version": "1.0.0"
+    },
+    {
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_zone_tp",
+      "name": "Smart Risk Sniper 10R — HTF zone TP beyond minRR [EXPERIMENTAL]",
+      "version": "1.0.0"
+    }
+  ],
+  "counts": {
+    "archivedYaml": 17,
+    "deletedDbRows": 17
+  },
+  "restoredBases": [
+    "keylevel_bounce.yaml",
+    "watukushay.yaml"
+  ]
+}

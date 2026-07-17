@@ -56,7 +56,7 @@ async function fetchLatestMarketData(
 
   const { rows: candles } = await pool.query(
     `SELECT DISTINCT ON (symbol) symbol, o, h, l, c, ts
-     FROM candles_1m
+     FROM market.candles_1m_canonical
      WHERE symbol = ANY($1)
      ORDER BY symbol, ts DESC`,
     [symbols]

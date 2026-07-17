@@ -8,7 +8,10 @@
  */
 
 import { join } from "path";
+import { config } from "dotenv";
 import { parseArgs, runMigrations } from "../packages/shared/src/utils/migrationRunner";
+
+config({ path: ".env.local" });
 
 async function main() {
   const { repair, reconcile } = parseArgs(process.argv.slice(2));

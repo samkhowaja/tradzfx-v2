@@ -1,9 +1,14 @@
-import type { Pool, TimeFrame, BiasNode } from "@tm/shared";
+import type { Pool, Queryable, TimeFrame, BiasNode } from "@tm/shared";
 import {
-  CANDLE_TABLE_BY_TF,
+  getLatestCandle,
   getPairCharacteristics,
+  getGateMaxSpreadPips,
   getRegistryPipSize,
+  SPREAD_SANITY_MULTIPLIER,
 } from "@tm/shared";
+
+// SPREAD_SANITY_MULTIPLIER comes from @tm/shared (pairCharacteristics) so the
+// setup engine, the spread producer, and the PIT backtester share one ceiling.
 import type {
   SetupDirection,
   BiasFeature,
@@ -26,7 +31,7 @@ export function setupToBias(direction: SetupDirection): string {
 }
 
 export async function buildContext(
-  pool: Pool,
+  pool: Queryable,
   input: EvaluationInput
 ): Promise<EvaluationContext> {
   const symbol = input.symbol.toUpperCase();
@@ -74,10 +79,14 @@ export async function buildContext(
   const sessionName = sessionRow?.session ?? "UNKNOWN";
   const sessionIsKillzone = /KILLZONE|LONDON|NY|OVERLAP/i.test(sessionName);
 
-  const maxAllowedSpreadPips = Math.max(pair.baseSpreadPips * 4, 3);
+  // Asset-class-aware spread gate: uses the pair's gateSpreadMultiplier (FX 4×,
+  // metals 6×, exotics 8×) instead of the previous universal Math.max(base*4, 3)
+  // formula that conflated the trading gate with the data-quarantine cap.
+  // (RC-6 / BUG-3.1)
+  const maxAllowedSpreadPips = getGateMaxSpreadPips(symbol);
   const maxStopPips = atrPips > 0 ? Math.max(15, atrPips * 1.5) : 50;
 
-  const entryZone = deriveEntryZone(zones, direction, atrPrice, latestCandle?.c);
+  const entryZone = deriveEntryZone(zones, direction, atrPrice, latestCandle?.c, input.signalZone);
 
   const featuresUsed: string[] = [];
   if (bias) featuresUsed.push("features_bias");
@@ -94,6 +103,10 @@ export async function buildContext(
     symbol,
     tf,
     asOf,
+    setupFamily: input.setupFamily ?? "zone_reversal",
+    strategyId: input.strategyId,
+    familyId: input.familyId,
+    signalSource: input.signalSource,
     direction,
     minRR: input.minRR ?? 2,
     latestCandle,
@@ -122,37 +135,30 @@ export async function buildContext(
 }
 
 async function fetchLatestCandle(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
 ): Promise<EvaluationContext["latestCandle"]> {
-  const table = CANDLE_TABLE_BY_TF[tf];
-  if (!table) return null;
   try {
-    const { rows } = await pool.query(
-      `SELECT ts, o, h, l, c, v FROM ${table}
-       WHERE symbol = $1 AND ts <= $2
-       ORDER BY ts DESC LIMIT 1`,
-      [symbol, asOf]
-    );
-    if (!rows.length) return null;
+    const candle = await getLatestCandle(pool, symbol, tf, asOf);
+    if (!candle) return null;
     return {
-      ts: rows[0].ts,
-      o: Number(rows[0].o),
-      h: Number(rows[0].h),
-      l: Number(rows[0].l),
-      c: Number(rows[0].c),
-      v: rows[0].v != null ? Number(rows[0].v) : undefined,
+      ts: candle.ts,
+      o: candle.o,
+      h: candle.h,
+      l: candle.l,
+      c: candle.c,
+      v: candle.v,
     };
   } catch (err) {
-    console.warn(`[setupEngine] Failed to fetch candle from ${table}:`, (err as Error).message);
+    console.warn(`[setupEngine] Failed to fetch candle for ${symbol} ${tf}:`, (err as Error).message);
     return null;
   }
 }
 
 async function fetchBias(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
@@ -179,7 +185,7 @@ async function fetchBias(
 }
 
 async function fetchHtfBias(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
@@ -187,7 +193,7 @@ async function fetchHtfBias(
   try {
     const { rows } = await pool.query(
       `SELECT direction, confidence, state, score, reason,
-              by_time_frame, trading_tf
+              by_time_frame, trading_tf, local_agreement
        FROM features_htf_bias
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
        ORDER BY ts DESC
@@ -205,6 +211,7 @@ async function fetchHtfBias(
       strength: inferStrength(Number(row.confidence)),
       byTimeFrame: parseHtfTree(row.by_time_frame),
       tradingTf: row.trading_tf ?? tf,
+      localAgreement: row.local_agreement != null ? Number(row.local_agreement) : undefined,
     };
   } catch (err) {
     console.warn("[setupEngine] Failed to fetch HTF bias:", (err as Error).message);
@@ -231,7 +238,7 @@ function parseHtfTree(raw: unknown): Record<TimeFrame, BiasNode> | undefined {
 }
 
 async function fetchPricing(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
@@ -267,27 +274,34 @@ async function fetchPricing(
 }
 
 async function fetchZones(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
 ): Promise<ZoneFeature[]> {
   try {
     const { rows } = await pool.query(
-      `SELECT zone_kind, top, bottom, fill_pct, tapped
+      `SELECT zone_kind, direction, top, bottom, fill_pct, tapped,
+              first_touch_at, mitigated_at, invalidated_at, touch_count, retest_count
        FROM features_zone
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND (invalidated_at IS NULL OR invalidated_at > $3)
        ORDER BY ts DESC`,
       [symbol, tf, asOf]
     );
     return rows.map((r) => ({
-      id: `${r.zone_kind}-${r.top}-${r.bottom}`,
+      id: `${r.zone_kind}-${r.direction ?? ""}-${r.top}-${r.bottom}`,
       type: r.zone_kind,
       top: Number(r.top),
       bottom: Number(r.bottom),
       fillPct: r.fill_pct != null ? Number(r.fill_pct) : 0,
       tapped: r.tapped === true,
-      direction: zoneKindToDirection(r.zone_kind),
+      direction: r.direction ? biasToSetup(r.direction) : zoneKindToDirection(r.zone_kind),
+      firstTouchAt: r.first_touch_at ?? null,
+      mitigatedAt: r.mitigated_at ?? null,
+      invalidatedAt: r.invalidated_at ?? null,
+      touchCount: r.touch_count ?? 0,
+      retestCount: r.retest_count ?? 0,
     }));
   } catch (err) {
     console.warn("[setupEngine] Failed to fetch zones:", (err as Error).message);
@@ -296,7 +310,7 @@ async function fetchZones(
 }
 
 async function fetchStructure(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
@@ -323,7 +337,7 @@ async function fetchStructure(
 }
 
 async function fetchAtr(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
@@ -345,21 +359,31 @@ async function fetchAtr(
 }
 
 async function fetchSpread(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   tf: TimeFrame,
   asOf: Date
 ): Promise<{ spread: number } | null> {
   try {
+    // features_spread is a 1m feature: the producer averages 1m candles
+    // regardless of the requested tf, and only @1m rows are produced
+    // continuously (liveRunner requires features_spread@1m freshness). Reading
+    // the strategy tf here served weeks-stale one-off rows (V4 live-rejection
+    // fix), so always read the latest 1m row as of the anchor.
     const { rows } = await pool.query(
       `SELECT spread FROM features_spread
-       WHERE symbol = $1 AND tf = $2 AND ts <= $3
+       WHERE symbol = $1 AND tf = '1m' AND ts <= $2
        ORDER BY ts DESC
        LIMIT 1`,
-      [symbol, tf, asOf]
+      [symbol, asOf]
     );
     if (!rows.length) return null;
-    return { spread: Number(rows[0].spread) };
+    const raw = Number(rows[0].spread);
+    const cap = getPairCharacteristics(symbol).baseSpreadPips * SPREAD_SANITY_MULTIPLIER;
+    if (Number.isFinite(raw) && raw > cap) {
+      console.warn(`[setupEngine] Quarantined extreme spread for ${symbol}@${tf}: ${raw.toFixed(2)}p capped to ${cap.toFixed(2)}p`);
+    }
+    return { spread: Number.isFinite(raw) && raw > 0 ? Math.min(raw, cap) : cap };
   } catch (err) {
     console.warn("[setupEngine] Failed to fetch spread:", (err as Error).message);
     return null;
@@ -367,7 +391,7 @@ async function fetchSpread(
 }
 
 async function fetchSession(
-  pool: Pool,
+  pool: Queryable,
   symbol: string,
   asOf: Date
 ): Promise<{ session: string } | null> {
@@ -387,7 +411,7 @@ async function fetchSession(
   }
 }
 
-async function fetchActivePositionCount(pool: Pool, symbol: string): Promise<number> {
+async function fetchActivePositionCount(pool: Queryable, symbol: string): Promise<number> {
   try {
     const { rows } = await pool.query(
       `SELECT COUNT(*)::int AS cnt FROM orders
@@ -426,11 +450,23 @@ function classifyVolatility(
   return "normal";
 }
 
+/**
+ * Extended zone input carrying the compiler-pre-validated zone for the current
+ * signal. Used to bypass the ATR-distance guard when the signal fired on a
+ * wick retest and the closing price is farther from the zone than 1.5 ATR.
+ */
+export interface SignalZone {
+  top: number;
+  bottom: number;
+  zoneKind?: string;
+}
+
 function deriveEntryZone(
   zones: ZoneFeature[],
   direction: SetupDirection,
   atr: number,
-  price?: number
+  price?: number,
+  signalZone?: SignalZone | null
 ): { top: number; bottom: number; zoneId?: string; zoneType?: string } | null {
   const aligned = zones.filter((z) => {
     if (direction === "long") return z.direction === "long" || z.type === "demand";
@@ -455,7 +491,27 @@ function deriveEntryZone(
       })
     : candidates;
 
-  if (!nearCandidates.length) return null;
+  if (!nearCandidates.length) {
+    // No zone within ATR distance. If the signal compiler already identified
+    // a zone via LATERAL join (retest strategies, e.g. lewis_kelly), use it
+    // directly. The compiler validated direction/lifecycle at signal time.
+    if (signalZone && aligned.length > 0) {
+      const matched = aligned.find(
+        (z) =>
+          Math.abs(z.top - signalZone.top) < 0.000001 &&
+          Math.abs(z.bottom - signalZone.bottom) < 0.000001
+      );
+      if (matched) {
+        return {
+          top: matched.top,
+          bottom: matched.bottom,
+          zoneId: matched.id,
+          zoneType: matched.type,
+        };
+      }
+    }
+    return null;
+  }
 
   nearCandidates.sort((a, b) => {
     if (direction === "long") return b.bottom - a.bottom; // nearest support
@@ -468,4 +524,451 @@ function deriveEntryZone(
     zoneId: nearCandidates[0].id,
     zoneType: nearCandidates[0].type,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Batched context builder for backtests
+// ---------------------------------------------------------------------------
+
+const BATCH_FEATURE_LOOKBACK = "7 days";
+const BATCH_ZONE_LIMIT = 50;
+const BATCH_STRUCTURE_LIMIT = 20;
+
+function asOfKey(d: Date): string {
+  return d.toISOString();
+}
+
+function groupRowsByAsOf<T extends { as_of: Date }>(rows: T[]): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const row of rows) {
+    const key = asOfKey(new Date(row.as_of));
+    const list = map.get(key);
+    if (list) list.push(row);
+    else map.set(key, [row]);
+  }
+  return map;
+}
+
+async function batchFetchLatestCandles(
+  pool: Queryable,
+  symbol: string,
+  _tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, EvaluationContext["latestCandle"]>> {
+  if (!asOfs.length) return new Map();
+  // The setup engine only consumes the close price (latestCandle.c) to measure
+  // entry-zone distance and volatility regime. The dense candles_1m series is
+  // the canonical point-in-time price source: it is always populated (unlike the
+  // sparse HTF candle tables) and its close at-or-before asOf IS the current
+  // price. This mirrors getLatestCandle's 1m rollup fallback but in one batched,
+  // PIT-bounded query per (symbol, tf) group.
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, c.ts, c.o, c.h, c.l, c.c, c.v
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT ts, o, h, l, c, v FROM market.candles_1m_canonical
+       WHERE symbol = $2 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC LIMIT 1
+     ) c ON true`,
+    [asOfs, symbol]
+  );
+  const map = new Map<string, EvaluationContext["latestCandle"]>();
+  for (const r of rows) {
+    if (!r.ts) continue;
+    map.set(asOfKey(new Date(r.as_of)), {
+      ts: r.ts,
+      o: Number(r.o),
+      h: Number(r.h),
+      l: Number(r.l),
+      c: Number(r.c),
+      v: r.v != null ? Number(r.v) : undefined,
+    });
+  }
+  return map;
+}
+
+async function batchFetchBias(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, BiasFeature | null>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, f.direction, f.confidence, f.reason
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT direction, confidence, reason FROM features_bias
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC LIMIT 1
+     ) f ON true`,
+    [asOfs, symbol, tf]
+  );
+  const map = new Map<string, BiasFeature | null>();
+  for (const r of rows) {
+    const key = asOfKey(new Date(r.as_of));
+    if (!r.direction) {
+      map.set(key, null);
+      continue;
+    }
+    map.set(key, {
+      direction: biasToSetup(r.direction),
+      confidence: Number(r.confidence) || 0,
+      reason: r.reason,
+      strength: inferStrength(Number(r.confidence)),
+    });
+  }
+  return map;
+}
+
+async function batchFetchHtfBias(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, EvaluationContext["htfBias"]>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, f.direction, f.confidence, f.state, f.score, f.reason,
+            f.by_time_frame, f.trading_tf, f.local_agreement
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT direction, confidence, state, score, reason,
+              by_time_frame, trading_tf, local_agreement FROM features_htf_bias
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC LIMIT 1
+     ) f ON true`,
+    [asOfs, symbol, tf]
+  );
+  const map = new Map<string, EvaluationContext["htfBias"]>();
+  for (const r of rows) {
+    const key = asOfKey(new Date(r.as_of));
+    if (!r.direction) {
+      map.set(key, null);
+      continue;
+    }
+    map.set(key, {
+      direction: biasToSetup(r.direction),
+      confidence: Number(r.confidence) || 0,
+      state: r.state ?? "BLOCK",
+      score: Number(r.score) || 0,
+      reason: r.reason ?? "",
+      strength: inferStrength(Number(r.confidence)),
+      byTimeFrame: parseHtfTree(r.by_time_frame),
+      tradingTf: r.trading_tf ?? tf,
+      localAgreement: r.local_agreement != null ? Number(r.local_agreement) : undefined,
+    });
+  }
+  return map;
+}
+
+async function batchFetchPricing(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, EvaluationContext["pricing"]>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, f.position, f.in_ote, f.ote_low, f.ote_high,
+            f.dynamic_ote_low, f.dynamic_ote_high, f.dynamic_ote_mid,
+            f.dynamic_ote_source, f.dynamic_ote_quality, f.premium_discount_score
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT position, in_ote, ote_low, ote_high,
+              dynamic_ote_low, dynamic_ote_high, dynamic_ote_mid,
+              dynamic_ote_source, dynamic_ote_quality, premium_discount_score FROM features_pricing
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC LIMIT 1
+     ) f ON true`,
+    [asOfs, symbol, tf]
+  );
+  const map = new Map<string, EvaluationContext["pricing"]>();
+  for (const r of rows) {
+    const key = asOfKey(new Date(r.as_of));
+    if (!r.position) {
+      map.set(key, null);
+      continue;
+    }
+    map.set(key, {
+      position: r.position,
+      inOte: r.in_ote === true,
+      oteLow: r.ote_low != null ? Number(r.ote_low) : undefined,
+      oteHigh: r.ote_high != null ? Number(r.ote_high) : undefined,
+      dynamicOteLow: r.dynamic_ote_low != null ? Number(r.dynamic_ote_low) : undefined,
+      dynamicOteHigh: r.dynamic_ote_high != null ? Number(r.dynamic_ote_high) : undefined,
+      dynamicOteMid: r.dynamic_ote_mid != null ? Number(r.dynamic_ote_mid) : undefined,
+      dynamicOteSource: r.dynamic_ote_source ?? undefined,
+      dynamicOteQuality: r.dynamic_ote_quality != null ? Number(r.dynamic_ote_quality) : undefined,
+      premiumDiscountScore: r.premium_discount_score != null ? Number(r.premium_discount_score) : undefined,
+    });
+  }
+  return map;
+}
+
+async function batchFetchZones(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, ZoneFeature[]>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, z.zone_kind, z.direction, z.top, z.bottom, z.fill_pct, z.tapped,
+            z.first_touch_at, z.mitigated_at, z.invalidated_at, z.touch_count, z.retest_count
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT zone_kind, direction, top, bottom, fill_pct, tapped,
+              first_touch_at, mitigated_at, invalidated_at, touch_count, retest_count
+       FROM features_zone
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND (invalidated_at IS NULL OR invalidated_at > b.as_of)
+         AND (mitigated_at IS NULL OR mitigated_at > b.as_of)
+       ORDER BY ts DESC
+       LIMIT ${BATCH_ZONE_LIMIT}
+     ) z ON true`,
+    [asOfs, symbol, tf]
+  );
+  const grouped = groupRowsByAsOf(rows);
+  const map = new Map<string, ZoneFeature[]>();
+  for (const [key, group] of grouped) {
+    map.set(
+      key,
+      group
+        .filter((g: any) => g.zone_kind != null)
+        .map((r: any) => ({
+          id: `${r.zone_kind}-${r.direction ?? ""}-${r.top}-${r.bottom}`,
+          type: r.zone_kind,
+          top: Number(r.top),
+          bottom: Number(r.bottom),
+          fillPct: r.fill_pct != null ? Number(r.fill_pct) : 0,
+          tapped: r.tapped === true,
+          direction: r.direction ? biasToSetup(r.direction) : zoneKindToDirection(r.zone_kind),
+          firstTouchAt: r.first_touch_at ?? null,
+          mitigatedAt: r.mitigated_at ?? null,
+          invalidatedAt: r.invalidated_at ?? null,
+          touchCount: r.touch_count ?? 0,
+          retestCount: r.retest_count ?? 0,
+        }))
+    );
+  }
+  return map;
+}
+
+async function batchFetchStructure(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, StructureFeature[]>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, s.event_type, s.direction, s.level, s.ts
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT event_type, direction, level, ts FROM features_structure
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC
+       LIMIT ${BATCH_STRUCTURE_LIMIT}
+     ) s ON true`,
+    [asOfs, symbol, tf]
+  );
+  const grouped = groupRowsByAsOf(rows);
+  const map = new Map<string, StructureFeature[]>();
+  for (const [key, group] of grouped) {
+    map.set(
+      key,
+      group
+        .filter((g: any) => g.event_type != null)
+        .map((r: any) => ({
+          eventType: r.event_type,
+          direction: biasToSetup(r.direction),
+          level: Number(r.level),
+          ts: r.ts,
+        }))
+    );
+  }
+  return map;
+}
+
+async function batchFetchAtr(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[]
+): Promise<Map<string, { value: number; period: number } | null>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, a.value, a.period
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT value, period FROM features_atr
+       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC, period DESC LIMIT 1
+     ) a ON true`,
+    [asOfs, symbol, tf]
+  );
+  const map = new Map<string, { value: number; period: number } | null>();
+  for (const r of rows) {
+    const key = asOfKey(new Date(r.as_of));
+    if (r.value == null) {
+      map.set(key, null);
+      continue;
+    }
+    map.set(key, { value: Number(r.value), period: Number(r.period) });
+  }
+  return map;
+}
+
+async function batchFetchSession(
+  pool: Queryable,
+  symbol: string,
+  asOfs: Date[]
+): Promise<Map<string, { session: string } | null>> {
+  if (!asOfs.length) return new Map();
+  const { rows } = await pool.query(
+    `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
+     SELECT b.as_of, s.session
+     FROM buckets b
+     LEFT JOIN LATERAL (
+       SELECT session FROM features_session
+       WHERE symbol = $2 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+       ORDER BY ts DESC LIMIT 1
+     ) s ON true`,
+    [asOfs, symbol]
+  );
+  const map = new Map<string, { session: string } | null>();
+  for (const r of rows) {
+    const key = asOfKey(new Date(r.as_of));
+    map.set(key, r.session ? { session: r.session } : null);
+  }
+  return map;
+}
+
+export interface BuildContextBatchOptions {
+  /** Per-input direction overrides. Same length as asOfs. Falls back to LTF bias when omitted. */
+  directions?: SetupDirection[];
+  /** Optional per-input minimum R:R. Same length as asOfs. */
+  minRRs?: number[];
+  /** Optional per-input setup family. Same length as asOfs. */
+  setupFamilies?: EvaluationInput["setupFamily"][];
+  strategyIds?: Array<string | undefined>;
+  familyIds?: Array<string | undefined>;
+  signalSources?: Array<EvaluationInput["signalSource"] | undefined>;
+  /** Per-input compiler-identified signal zone. Same length as asOfs. */
+  signalZones?: Array<EvaluationInput["signalZone"] | undefined>;
+  /** Shared backtest overrides applied to every input. */
+  backtest?: EvaluationInput["backtest"];
+}
+
+/**
+ * Build setup-evaluation contexts for many as-of timestamps in a single pass
+ * over the feature tables. This is the long-term fix for backtest setup-engine
+ * performance: instead of ~9 queries per signal, it runs ~9 queries per
+ * (symbol, tf) group and assigns the nearest as-of row per timestamp.
+ */
+export async function buildContextBatch(
+  pool: Queryable,
+  symbol: string,
+  tf: TimeFrame,
+  asOfs: Date[],
+  opts: BuildContextBatchOptions = {}
+): Promise<EvaluationContext[]> {
+  const sym = symbol.toUpperCase();
+  if (!asOfs.length) return [];
+
+  const backtest = opts.backtest;
+  const pair = getPairCharacteristics(sym);
+  const useStaticSpread = backtest?.spreadPips != null;
+  const useStaticSession = backtest?.sessionName != null;
+  const staticPositionCount = backtest?.activePositionCount;
+
+  const [candles, biasMap, htfMap, pricingMap, zonesMap, structureMap, atrMap, sessionMap] =
+    await Promise.all([
+      batchFetchLatestCandles(pool, sym, tf, asOfs),
+      batchFetchBias(pool, sym, tf, asOfs),
+      batchFetchHtfBias(pool, sym, tf, asOfs),
+      batchFetchPricing(pool, sym, tf, asOfs),
+      batchFetchZones(pool, sym, tf, asOfs),
+      batchFetchStructure(pool, sym, tf, asOfs),
+      batchFetchAtr(pool, sym, tf, asOfs),
+      useStaticSession ? Promise.resolve(new Map()) : batchFetchSession(pool, sym, asOfs),
+    ]);
+
+  const contexts: EvaluationContext[] = [];
+  for (let i = 0; i < asOfs.length; i++) {
+    const asOf = asOfs[i];
+    const key = asOfKey(asOf);
+    const bias = biasMap.get(key) ?? null;
+    const direction = opts.directions?.[i] ?? bias?.direction ?? "neutral";
+    const latestCandle = candles.get(key) ?? null;
+    const htfBias = htfMap.get(key) ?? null;
+    const pricing = pricingMap.get(key) ?? null;
+    const zones = zonesMap.get(key) ?? [];
+    const structure = structureMap.get(key) ?? [];
+    const atrRow = atrMap.get(key) ?? null;
+    const sessionRow = useStaticSession ? { session: backtest!.sessionName! } : sessionMap.get(key) ?? null;
+
+    const spreadPips = useStaticSpread ? backtest!.spreadPips! : pair.baseSpreadPips;
+    const atrPrice = atrRow?.value ?? 0;
+    const pipSize = getRegistryPipSize(sym);
+    const atrPips = pipSize > 0 ? atrPrice / pipSize : 0;
+    const volatilityRegime = classifyVolatility(atrPips, latestCandle?.c ?? 0, pair.volLowAtrPct, pair.volHighAtrPct);
+    const sessionName = sessionRow?.session ?? "UNKNOWN";
+    const sessionIsKillzone = /KILLZONE|LONDON|NY|OVERLAP/i.test(sessionName);
+    const maxAllowedSpreadPips = getGateMaxSpreadPips(sym);
+    const maxStopPips = atrPips > 0 ? Math.max(15, atrPips * 1.5) : 50;
+    const entryZone = deriveEntryZone(zones, direction, atrPrice, latestCandle?.c, opts.signalZones?.[i]);
+
+    const featuresUsed: string[] = [];
+    if (bias) featuresUsed.push("features_bias");
+    if (htfBias) featuresUsed.push("features_htf_bias");
+    if (pricing) featuresUsed.push("features_pricing");
+    if (zones.length) featuresUsed.push("features_zone");
+    if (structure.length) featuresUsed.push("features_structure");
+    if (atrRow) featuresUsed.push("features_atr");
+    if (useStaticSpread) featuresUsed.push("features_spread");
+    if (sessionRow) featuresUsed.push("features_session");
+
+    contexts.push({
+      pool,
+      symbol: sym,
+      tf,
+      asOf,
+      setupFamily: opts.setupFamilies?.[i] ?? "zone_reversal",
+      strategyId: opts.strategyIds?.[i],
+      familyId: opts.familyIds?.[i],
+      signalSource: opts.signalSources?.[i],
+      direction,
+      minRR: opts.minRRs?.[i] ?? 2,
+      latestCandle,
+      bias,
+      htfBias,
+      pricing,
+      zones,
+      structure,
+      pivots: [],
+      atr: atrPrice,
+      spreadPips,
+      maxAllowedSpreadPips,
+      maxStopPips,
+      volatility: { regime: volatilityRegime, atrPips },
+      sessionProfile: sessionRow ? { name: sessionName, killzone: sessionIsKillzone } : null,
+      activePositionCount: staticPositionCount ?? 0,
+      maxPositionsPerSymbol: 2,
+      evidence: [],
+      warnings: [],
+      featuresUsed,
+      entryZone,
+    });
+  }
+
+  return contexts;
 }
