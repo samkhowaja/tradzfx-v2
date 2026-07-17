@@ -127,7 +127,12 @@
         "apps/web/src/app/api/dashboard/activity/route.ts",
         "apps/web/src/app/api/dashboard/strategies/route.ts",
         "apps/web/src/app/api/signals/route.ts",
-        "apps/web/src/app/api/pairs/route.ts"
+        "apps/web/src/app/api/pairs/route.ts",
+        "apps/web/src/app/api/journal/route.ts",
+        "apps/web/src/app/api/strategies/detail/route.ts",
+        "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts",
+        "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
+        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts"
       ],
       "schemas": ["public", "market"],
       "relations": {
@@ -139,6 +144,7 @@
         "public.decision_trace": ["SELECT"],
         "public.features_bias": ["SELECT"],
         "public.features_pricing": ["SELECT"],
+        "public.backtest_results": ["SELECT"],
         "market.candles_1m_canonical": ["SELECT"]
       },
       "sequences": {},
@@ -153,10 +159,15 @@
         "apps/web/src/app/api/dashboard/activity/route.ts:5",
         "apps/web/src/app/api/dashboard/strategies/route.ts:9",
         "apps/web/src/app/api/signals/route.ts:12",
-        "apps/web/src/app/api/pairs/route.ts:11"
+        "apps/web/src/app/api/pairs/route.ts:11",
+        "apps/web/src/app/api/journal/route.ts:2",
+        "apps/web/src/app/api/strategies/detail/route.ts:2",
+        "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts:2",
+        "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts:2",
+        "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts:2"
       ],
       "blockers": [
-        "Initial pure-read route cohort is independently pooled, but remaining Next.js read routes still use the web-command pool",
+        "Migrated pure-read route cohorts are independently pooled, but remaining Next.js read routes still use the web-command pool",
         "Do not activate WEB_READ until every migrated route relation is verified against the live catalog and the complete intended read cohort is enumerated"
       ]
     },

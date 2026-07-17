@@ -474,6 +474,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - WEB_READ activation remains blocked. Remaining read routes still use the command pool, and catalog/grant verification has not occurred.
 - Configuration-only staged cutover: no role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action.
 
+### Third web-read route cohort — 2026-07-17
+
+- Migrated five additional GET-only routes: journal, strategy detail, family backtest report, variant backtest report, and variant trade history.
+- Added exact `SELECT` evidence for `public.backtest_results`; `public.orders`, `public.strategy_specs`, and `public.strategy_variants` were already declared.
+- Deferred candle export because its bounded dynamic table allowlist spans seven candle relations and merits separate contract review.
+- Static governance now covers fifteen migrated routes and forbids primary `getPool()` usage or SQL mutation verbs in every route.
+- WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

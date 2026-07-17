@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const outcome = searchParams.get("outcome");
   const offset = (page - 1) * limit;
 
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   let whereClause = "WHERE status = 'closed'";
   const params: any[] = [];

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 import { generateReport, runMonteCarlo } from "@tm/analyzer-backtest";
 
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ export async function GET(
   const withMonteCarlo = searchParams.get("monteCarlo") === "true";
   const mcIterations = parseInt(searchParams.get("mcIterations") ?? "5000", 10);
 
-  const pool = getPool();
+  const pool = getWebReadPool();
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   try {

@@ -105,6 +105,11 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     "apps/web/src/app/api/dashboard/strategies/route.ts",
     "apps/web/src/app/api/signals/route.ts",
     "apps/web/src/app/api/pairs/route.ts",
+    "apps/web/src/app/api/journal/route.ts",
+    "apps/web/src/app/api/strategies/detail/route.ts",
+    "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts",
+    "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
+    "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");

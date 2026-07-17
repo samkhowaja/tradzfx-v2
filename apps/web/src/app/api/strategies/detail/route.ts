@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 import { loadHistoricalPIT, loadWalkforward, loadPortfolioOverlap } from "@/lib/backtestSeed";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   const [specRes, statsRes] = await Promise.all([
     pool.query(
