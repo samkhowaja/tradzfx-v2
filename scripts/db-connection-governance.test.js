@@ -111,6 +111,10 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
     "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts",
     "apps/web/src/app/api/candles/export/route.ts",
+    "apps/web/src/app/api/v2/pipeline/health/route.ts",
+    "apps/web/src/app/api/v2/pipeline/alerts/route.ts",
+    "apps/web/src/app/api/ingest/status/route.ts",
+    "apps/web/src/app/api/orders/[orderId]/setup/route.ts",
   ];
   for (const route of routes) {
     const source = fs.readFileSync(path.join(ROOT, route), "utf8");
@@ -118,6 +122,14 @@ test("migrated pure-read web routes use only the web-read pool", () => {
     assert.doesNotMatch(source, /\bgetPool\b/);
     assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
   }
+});
+
+test("monitor helper used by migrated alerts route contains no mutations", () => {
+  const source = fs.readFileSync(
+    path.join(ROOT, "packages/tradePipeline/src/monitor.ts"),
+    "utf8"
+  );
+  assert.doesNotMatch(source, /\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE)\b/i);
 });
 
 test("candle export uses only its exact schema-qualified relation allowlist", () => {

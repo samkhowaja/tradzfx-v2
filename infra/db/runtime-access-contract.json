@@ -133,7 +133,11 @@
         "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts",
         "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts",
         "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts",
-        "apps/web/src/app/api/candles/export/route.ts"
+        "apps/web/src/app/api/candles/export/route.ts",
+        "apps/web/src/app/api/v2/pipeline/health/route.ts",
+        "apps/web/src/app/api/v2/pipeline/alerts/route.ts",
+        "apps/web/src/app/api/ingest/status/route.ts",
+        "apps/web/src/app/api/orders/[orderId]/setup/route.ts"
       ],
       "schemas": ["public", "market"],
       "relations": {
@@ -153,6 +157,9 @@
         "public.candles_4h": ["SELECT"],
         "public.candles_1d_utc": ["SELECT"],
         "public.candles_1d_ny": ["SELECT"],
+        "public.pipeline_health": ["SELECT"],
+        "public.setup_evaluations": ["SELECT"],
+        "public.backtest_runs": ["SELECT"],
         "market.candles_1m_canonical": ["SELECT"]
       },
       "sequences": {},
@@ -173,7 +180,11 @@
         "apps/web/src/app/api/strategies/backtest/[familyId]/route.ts:2",
         "apps/web/src/app/api/strategies/variants/[variantId]/backtest/route.ts:2",
         "apps/web/src/app/api/strategies/variants/[variantId]/trades/route.ts:2",
-        "apps/web/src/app/api/candles/export/route.ts:14"
+        "apps/web/src/app/api/candles/export/route.ts:14",
+        "apps/web/src/app/api/v2/pipeline/health/route.ts:9",
+        "apps/web/src/app/api/v2/pipeline/alerts/route.ts:15",
+        "apps/web/src/app/api/ingest/status/route.ts:7",
+        "apps/web/src/app/api/orders/[orderId]/setup/route.ts:2"
       ],
       "blockers": [
         "Migrated pure-read route cohorts are independently pooled, but remaining Next.js read routes still use the web-command pool",

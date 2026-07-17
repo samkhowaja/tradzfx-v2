@@ -489,6 +489,14 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Added exact `SELECT` access evidence for all seven relations and a static allowlist regression. Governance now covers sixteen migrated pure-read routes.
 - WEB_READ activation remains blocked pending complete intended route enumeration and grant verification. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
 
+### Operational read route cohort — 2026-07-17
+
+- Migrated pipeline health, pipeline alerts, authenticated ingest status GET, and order setup snapshot routes to `getWebReadPool()` after source verification found SELECT-only behavior. Ingest status POST remains an acknowledgement with no DB access.
+- Live catalog verification confirmed `public.pipeline_health` is a view and `public.setup_evaluations` plus `public.backtest_runs` are tables. Existing alert-helper dependencies were already declared except these additions.
+- Added static mutation regression for the shared pipeline monitor helper. Governance now covers twenty migrated routes.
+- Root `/api/health` remains on the command pool because it reports command-pool telemetry. Data-clock remains deferred because its dynamic allowlist spans twenty-four relations and requires separate exact-contract review.
+- WEB_READ activation remains blocked. No role URL population, PM2 reload, DB role/grant/data mutation, or PostgreSQL lifecycle action occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

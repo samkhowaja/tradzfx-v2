@@ -8,13 +8,13 @@
  */
 
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 import { runAllChecks } from "@tm/trade-pipeline";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const pool = getPool();
+  const pool = getWebReadPool();
 
   try {
     const result = await runAllChecks(pool);

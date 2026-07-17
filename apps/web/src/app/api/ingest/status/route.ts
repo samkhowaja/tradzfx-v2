@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 import { validateMt5ApiKey } from "@/lib/mt5Auth";
 
 async function auth(request: NextRequest) {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   const cleanSymbol = symbol.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 
   try {
-    const pool = getPool();
+    const pool = getWebReadPool();
     const { rows } = await pool.query(
       `SELECT ts FROM candles_1m WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
       [cleanSymbol],

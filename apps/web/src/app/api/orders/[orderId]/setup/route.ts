@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getPool } from "@tm/shared";
+import { getWebReadPool } from "@tm/shared";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
-  const pool = getPool();
+  const pool = getWebReadPool();
   const { orderId } = await params;
 
   const { rows } = await pool.query(
