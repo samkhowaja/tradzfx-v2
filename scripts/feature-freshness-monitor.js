@@ -26,6 +26,7 @@
  *   FRESHNESS_STALE_EVENT_MIN     (default 120) — event/lifecycle features
  *   FRESHNESS_STALE_UNMANAGED_MIN (default 360) — orphan features w/o lifecycle
  *   FRESHNESS_XAUUSD_ONLY         (default true) — only monitor XAUUSD
+ *   FRESHNESS_AUTO_HEAL           (default false) — spawn engine recompute for stale leaves
  */
 
 require("dotenv").config({ path: ".env.local" });
@@ -39,6 +40,7 @@ const STALE_DERIVED_MIN = parseInt(process.env.FRESHNESS_STALE_DERIVED_MIN || "6
 const STALE_EVENT_MIN = parseInt(process.env.FRESHNESS_STALE_EVENT_MIN || "120", 10);
 const STALE_UNMANAGED_MIN = parseInt(process.env.FRESHNESS_STALE_UNMANAGED_MIN || "360", 10);
 const XAUUSD_ONLY = process.env.FRESHNESS_XAUUSD_ONLY !== "false";
+const AUTO_HEAL = process.env.FRESHNESS_AUTO_HEAL === "true";
 
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const RECOMPUTE_SCRIPT = path.join(__dirname, "recompute-feature-recent.js");
@@ -190,8 +192,13 @@ async function tick() {
         const ageStr = `${Math.round(age)}m`;
         switch (status) {
           case "LEAF_STALE":
-            staleLeaves.push({ symbol, tbl, age });
-            console.log(`[freshness] ⚠️  ${symbol} ${tbl} ${ageStr} — auto-healing`);
+            if (AUTO_HEAL) {
+              staleLeaves.push({ symbol, tbl, age });
+              console.log(`[freshness] ⚠️  ${symbol} ${tbl} ${ageStr} — auto-healing`);
+            } else {
+              alerts.push(`${symbol} ${tbl} ${ageStr} — LEAF stale, healer owns recompute`);
+              console.log(`[freshness] 🔶 ${symbol} ${tbl} ${ageStr} — leaf, alerting`);
+            }
             break;
           case "DERIVED_STALE":
             alerts.push(`${symbol} ${tbl} ${ageStr} — DERIVED stale, needs leaf deps fresh`);
@@ -228,7 +235,10 @@ async function tick() {
 }
 
 async function main() {
-  console.log(`[freshness] Starting (interval=${INTERVAL_MS}ms, XAUUSD_ONLY=${XAUUSD_ONLY})`);
+  console.log(
+    `[freshness] Starting (interval=${INTERVAL_MS}ms, XAUUSD_ONLY=${XAUUSD_ONLY}, ` +
+      `AUTO_HEAL=${AUTO_HEAL})`
+  );
   await tick();
   setInterval(tick, INTERVAL_MS);
 }

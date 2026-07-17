@@ -439,6 +439,15 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - No sequence privilege is inferred from inserts. Current evidenced inserts use supplied identifiers or defaults whose exact backing identity sequence has not yet been proven. Contract stays empty rather than granting sequence families.
 - Added `scripts/runtime-access-contract.test.js` to enforce exact runtime-role coverage, qualified non-wildcard object names, known privileges, exact function signatures, blocker semantics, and zero direct web writes. This phase creates no roles, grants, functions, ownership changes, or DB mutations.
 
+### Freshness observer/healer isolation — 2026-07-17
+
+- `tz-feature-freshness` is now an explicit read-only observer (`FRESHNESS_AUTO_HEAL=false`) under `TM_DATABASE_URL_MONITOR`. Stale leaves become alerts; observer never spawns recompute.
+- Added separately attributed `tz-feature-freshness-healer` (`FRESHNESS_AUTO_HEAL=true`) under `TM_DATABASE_URL_ENGINE`. It retains existing sequential leaf healing without granting monitor mutation rights.
+- `scripts/recompute-feature-recent.js` now inherits `TM_DB_HOST`, `TM_DB_PORT`, `TM_DB_USER`, pool bounds, and application attribution from its parent. Hardcoded `localhost`/`postgres` identity is removed; staged role URL fallback remains intact.
+- Governance tests enforce distinct application names, observer/monitor mapping, healer/engine mapping, opposite heal flags, inherited recompute identity, bounded pool settings, and graceful shutdown.
+- Runtime access contract records healer entrypoints and keeps engine/monitor activation blocked until exact dynamic feature/candle/cache/ledger reads and writes are enumerated. No broad feature wildcard was added.
+- Configuration is committed only. No PM2 process was started, stopped, restarted, or reloaded; no role URL was activated; no DB mutation occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

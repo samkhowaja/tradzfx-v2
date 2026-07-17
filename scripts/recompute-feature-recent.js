@@ -190,9 +190,17 @@ async function main() {
   );
 
   const pool = new Pool({
-    host: "localhost", port: 5432,
+    host: process.env.TM_DB_HOST || "localhost",
+    port: parseInt(process.env.TM_DB_PORT || "5432", 10),
     database: process.env.TM_DB_NAME || "tradzfx_v2",
-    user: "postgres", password: process.env.TM_DB_PASSWORD, max: 4,
+    user: process.env.TM_DB_USER || "postgres",
+    password: process.env.TM_DB_PASSWORD,
+    application_name: process.env.TM_DB_APPLICATION_NAME || "tradzfx-feature-recompute",
+    max: parseInt(process.env.TM_DB_POOL_MAX || "4", 10),
+    connectionTimeoutMillis: parseInt(process.env.TM_DB_CONNECTION_TIMEOUT || "5000", 10),
+    idleTimeoutMillis: parseInt(process.env.TM_DB_IDLE_TIMEOUT || "30000", 10),
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
   });
 
   try {

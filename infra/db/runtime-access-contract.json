@@ -28,7 +28,11 @@
     },
     "tradzfx_engine": {
       "activationReady": false,
-      "entrypoints": ["scripts/run-dxy-synthetic-cron.js"],
+      "entrypoints": [
+        "scripts/run-dxy-synthetic-cron.js",
+        "scripts/feature-freshness-monitor.js",
+        "scripts/recompute-feature-recent.js"
+      ],
       "schemas": ["public"],
       "relations": {
         "public.candles_1m": ["SELECT", "INSERT", "UPDATE"]
@@ -37,10 +41,13 @@
       "functions": {},
       "evidence": [
         "scripts/run-dxy-synthetic-cron.js:74",
-        "scripts/run-dxy-synthetic-cron.js:122"
+        "scripts/run-dxy-synthetic-cron.js:122",
+        "scripts/feature-freshness-monitor.js:159",
+        "scripts/recompute-feature-recent.js:195"
       ],
       "blockers": [
-        "DXY producer writes raw candles_1m while tradzfx_engine forbids raw writes; assign dedicated synthetic-ingest path or bounded owner procedure"
+        "DXY producer writes raw candles_1m while tradzfx_engine forbids raw writes; assign dedicated synthetic-ingest path or bounded owner procedure",
+        "Freshness healer now inherits TM_DATABASE_URL_ENGINE instead of hardcoded postgres, but exact bounded feature, candle, cache, and producer-ledger allowlists remain unresolved"
       ]
     },
     "tradzfx_lifecycle": {
@@ -172,7 +179,7 @@
       ],
       "blockers": [
         "Cleanup process deletes public.live_signal_rejection but monitor role forbids strategy writes; move retention to dedicated maintenance role or bounded procedure",
-        "Freshness monitor spawns recompute-feature-recent.js, which uses hardcoded postgres identity and writes engine feature tables; split observer from healer and assign healer to engine role",
+        "Freshness observer is now read-only and healer runs under TM_DATABASE_URL_ENGINE, but monitor activation still requires exact bounded feature SELECT allowlists",
         "pg_stat_activity visibility may require pg_monitor membership or bounded security-definer health view; do not grant catalog-wide access"
       ]
     }

@@ -63,6 +63,7 @@ test("direct long-running PM2 pools declare safeguards and graceful shutdown", (
     "scripts/expire-pending-orders-cron.js",
     "scripts/cleanup-rejection-log-cron.js",
     "scripts/feature-freshness-monitor.js",
+    "scripts/recompute-feature-recent.js",
   ];
 
   for (const relativePath of directPoolScripts) {
@@ -73,6 +74,22 @@ test("direct long-running PM2 pools declare safeguards and graceful shutdown", (
     assert.match(source, /keepAlive\s*:\s*true/, `${relativePath}: missing TCP keepalive`);
     assert.match(source, /pool\.end\(\)/, `${relativePath}: missing graceful pool shutdown`);
   }
+});
+
+test("freshness observer and healer use isolated runtime identities", () => {
+  const observer = ecosystem.apps.find((app) => app.name === "tz-feature-freshness");
+  const healer = ecosystem.apps.find((app) => app.name === "tz-feature-freshness-healer");
+  const recompute = fs.readFileSync(path.join(ROOT, "scripts/recompute-feature-recent.js"), "utf8");
+
+  assert.ok(observer, "missing freshness observer");
+  assert.ok(healer, "missing freshness healer");
+  assert.equal(observer.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_MONITOR");
+  assert.equal(observer.env.FRESHNESS_AUTO_HEAL, "false");
+  assert.equal(healer.env.TM_DB_ROLE_URL_NAME, "TM_DATABASE_URL_ENGINE");
+  assert.equal(healer.env.FRESHNESS_AUTO_HEAL, "true");
+  assert.notEqual(observer.env.TM_DB_APPLICATION_NAME, healer.env.TM_DB_APPLICATION_NAME);
+  assert.match(recompute, /user:\s*process\.env\.TM_DB_USER/);
+  assert.doesNotMatch(recompute, /user:\s*["']postgres["']/);
 });
 
 test("health and monitor expose safe pool telemetry and enforce session bounds", () => {
