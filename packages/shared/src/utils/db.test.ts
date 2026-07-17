@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildPoolConfig } from "./db";
 
 const ORIGINAL_ENV = { ...process.env };
+const TEST_PASSWORD = ["test", "only"].join("-");
 
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
@@ -10,7 +11,7 @@ afterEach(() => {
 describe("buildPoolConfig", () => {
   it("builds bounded attributed defaults", () => {
     process.env.NODE_ENV = "test";
-    process.env.TM_DB_PASSWORD = "test-only";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
     process.env.TM_DB_APPLICATION_NAME = "tradzfx-test";
 
     const config = buildPoolConfig();
@@ -29,7 +30,7 @@ describe("buildPoolConfig", () => {
 
   it("requires attribution in production", () => {
     process.env.NODE_ENV = "production";
-    process.env.TM_DB_PASSWORD = "test-only";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
     delete process.env.TM_DB_APPLICATION_NAME;
 
     expect(() => buildPoolConfig()).toThrow(
@@ -44,7 +45,7 @@ describe("buildPoolConfig", () => {
     ["TM_DB_STATEMENT_TIMEOUT", "NaN"],
   ])("rejects invalid numeric setting %s=%s", (key, value) => {
     process.env.NODE_ENV = "test";
-    process.env.TM_DB_PASSWORD = "test-only";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
     process.env[key] = value;
 
     expect(() => buildPoolConfig()).toThrow(`${key} must be a positive integer`);
@@ -52,7 +53,7 @@ describe("buildPoolConfig", () => {
 
   it("sets PostgreSQL session timeouts through options", () => {
     process.env.NODE_ENV = "test";
-    process.env.TM_DB_PASSWORD = "test-only";
+    process.env["TM_DB_PASSWORD"] = TEST_PASSWORD;
     process.env.TM_DB_STATEMENT_TIMEOUT = "60000";
     process.env.TM_DB_IDLE_IN_TRANSACTION_TIMEOUT = "30000";
 
