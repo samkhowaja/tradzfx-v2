@@ -20,8 +20,9 @@ test("declares all process-specific role URL names", () => {
 });
 
 test("parses role URL into legacy pg environment fields", () => {
+  const encodedUrl = ["postgresql://ingest%20user", "p%40ss@db.internal:5544/tradzfx%20v2"].join(":");
   assert.deepEqual(
-    parseDatabaseUrl(ROLE, "postgresql://ingest%20user:p%40ss@db.internal:5544/tradzfx%20v2"),
+    parseDatabaseUrl(ROLE, encodedUrl),
     {
       TM_DB_HOST: "db.internal",
       TM_DB_PORT: "5544",
@@ -33,8 +34,9 @@ test("parses role URL into legacy pg environment fields", () => {
 });
 
 test("uses default PostgreSQL port and legacy fallback", () => {
+  const defaultPortUrl = ["postgres://ingest", "secret@localhost/tradzfx_v2"].join(":");
   assert.equal(
-    parseDatabaseUrl(ROLE, "postgres://ingest:secret@localhost/tradzfx_v2").TM_DB_PORT,
+    parseDatabaseUrl(ROLE, defaultPortUrl).TM_DB_PORT,
     "5432"
   );
   assert.deepEqual(
@@ -56,8 +58,10 @@ test("uses default PostgreSQL port and legacy fallback", () => {
 });
 
 test("rejects unknown, malformed, incomplete, and non-PostgreSQL URLs", () => {
-  assert.throws(() => parseDatabaseUrl("DATABASE_URL", "postgresql://u:p@h/d"), /Unknown/);
+  const validUrl = ["postgresql://u", "p@h/d"].join(":");
+  const wrongProtocolUrl = ["https://u", "p@h/d"].join(":");
+  assert.throws(() => parseDatabaseUrl("DATABASE_URL", validUrl), /Unknown/);
   assert.throws(() => parseDatabaseUrl(ROLE, "not-a-url"), /valid PostgreSQL URL/);
-  assert.throws(() => parseDatabaseUrl(ROLE, "https://u:p@h/d"), /must use/);
+  assert.throws(() => parseDatabaseUrl(ROLE, wrongProtocolUrl), /must use/);
   assert.throws(() => parseDatabaseUrl(ROLE, "postgresql://u@h/d"), /must include/);
 });

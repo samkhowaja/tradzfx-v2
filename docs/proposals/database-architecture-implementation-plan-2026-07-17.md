@@ -421,8 +421,15 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Added `infra/db/runtime-role-contract.json` as fail-closed runtime policy. It declares exact runtime roles, `NOINHERIT`, allowed write domains, forbidden write domains, ownership rules, and revoked `PUBLIC` capabilities.
 - Added `scripts/runtime-role-contract.test.js` to enforce exact role inventory, valid/disjoint domains, zero direct writes for web-read/web-command/monitor, execute-only web commands, centralized ownership, and closed `PUBLIC` policy.
 - This artifact defines invariants only. It creates no roles, grants no privileges, changes no ownership, and does not connect to PostgreSQL.
-- `infra/db/relation-contract.yaml` currently records relation ownership but not per-consumer `SELECT`/`INSERT`/`UPDATE`/`DELETE`, sequence, or function execution needs. Generating grants from ownership or broad domains would violate least privilege. Next WS-2 artifact must add relation/function/sequence allowlists and a read-only catalog preflight before any migration is generated.
+- `infra/db/relation-contract.yaml` currently records relation ownership but not per-consumer `SELECT`/`INSERT`/`UPDATE`/`DELETE`, sequence, or function execution needs. Generating grants from ownership or broad domains would violate least privilege. Next WS-2 artifact must add relation/function/sequence allowlists before any migration is generated.
 - Validation passed: credential scan, 133 root tests, every workspace Vitest suite, and `pnpm -r build`. No PostgreSQL restart, termination, role creation, grant, or production mutation occurred.
+
+### Read-only catalog preflight — 2026-07-17
+
+- Added `scripts/audit-runtime-roles.js` with strict `pnpm db:roles:check` and non-blocking inventory `pnpm db:roles:report` modes. Both inspect role attributes, governed relation ownership, `PUBLIC` schema creation, and `PUBLIC` function execution inside `BEGIN READ ONLY`; fixture mode requires no DB connection.
+- Added `scripts/audit-runtime-roles.test.js` for clean catalog, missing/elevated role, runtime ownership, legacy ownership, `PUBLIC` exposure, undeclared role, and argument-parser behavior.
+- Baseline live report found 253 expected pre-cutover violations: 11 missing governed roles, all 80 contracted relations still owned by `postgres`, and 162 functions executable by `PUBLIC`. `public` schema `CREATE` is already revoked. Report mode recorded these findings without failing or changing DB state; strict mode remains blocked until staging remediation.
+- Per-object relation/function/sequence allowlists remain intentionally unresolved. Runtime call-site tracing must complete first, especially dynamic engine feature tables and mixed web command/read/execution paths. No broad domain grant will substitute for evidence.
 
 ### Acceptance
 
