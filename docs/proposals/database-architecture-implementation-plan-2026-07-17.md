@@ -538,6 +538,16 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Rollback sequence: restore prior `TM_DATABASE_URL_WEB_READ` or remove override so read pool falls back to command URL; restart only `tz-web-v2`; verify health and read routes; revoke new role grants; drop role only after `pg_stat_activity` shows zero sessions and dependency checks pass. Ownership transfer is a separate change and must use captured ownership backup.
 - No generated SQL was executed. No role, ACL, ownership, credential, PM2, DB data/schema, or PostgreSQL lifecycle change occurred.
 
+### Governance snapshot and PUBLIC function classification — 2026-07-17
+
+- Added `snapshot-runtime-governance.js`, a deterministic, secret-free, read-only catalog snapshot for governed roles, memberships, schema ownership/ACLs, relation ownership/ACLs, default ACLs, and PUBLIC-executable function metadata.
+- PUBLIC functions are classified as `extension_owned`, `application_contracted`, or `application_uncontracted`; `SECURITY DEFINER` functions receive an independent high-risk marker. Extension ownership is derived from `pg_depend`/`pg_extension`, not naming guesses.
+- Snapshot execution uses one bounded connection and `BEGIN READ ONLY`; output goes to stdout unless a new path is explicitly supplied with `--output`. Existing files are never overwritten.
+- Corrected scope and identity during live validation: governance schemas come from `relation-contract.yaml`, excluding `pg_catalog`; function identity uses argument types only and normalized comma spacing so PostgreSQL output matches exact contract signatures.
+- Live read-only snapshot found 162 PUBLIC-executable functions: 139 TimescaleDB extension-owned, 12 application-contracted lifecycle functions, and 11 application-uncontracted functions. None is `SECURITY DEFINER`. The 11 require caller/trigger/job and ownership review: broker arbitration/job wrappers, backfill/cleanup helpers, direction helper, lifecycle orchestration/overload, market-zone refresh, zone-touch refresh, and spec-activation trigger.
+- Snapshot is evidence, not revoke policy. TimescaleDB-owned functions require extension compatibility review; application functions require owner/search-path/body/caller review before exact `REVOKE EXECUTE FROM PUBLIC` and explicit role grants are designed.
+- Role activation remains blocked. This phase performs no role creation, grants/revokes, ownership transfer, credential change, process reload, DB mutation, or PostgreSQL lifecycle action.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.
