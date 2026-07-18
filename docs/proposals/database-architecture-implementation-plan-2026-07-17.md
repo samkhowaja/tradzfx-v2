@@ -529,6 +529,15 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Replaced stale route-enumeration blockers with actual activation blockers. `activationReady` remains `false`: credentials/grants have not been staged, ownership has not transferred, and PUBLIC function policy is unresolved.
 - No role creation, ownership transfer, grant, credential change, PM2 reload, DB data/schema mutation, or PostgreSQL lifecycle action occurred.
 
+### Runtime access dry-run and exact verifier — 2026-07-17
+
+- Added `generate-runtime-access-sql.js`, a deterministic print-only SQL planner. It never connects to PostgreSQL, omits passwords/URLs, rejects unsafe identifiers, and refuses blocked roles unless `--include-blocked` is explicit.
+- Added `audit-runtime-access.js`, a read-only effective privilege verifier. It runs inside `BEGIN READ ONLY` and detects missing or extra table, sequence, and function privileges across contract-scoped schemas.
+- `pnpm db:access:plan:web-read` remains fail-closed while WEB_READ is blocked. `pnpm db:access:plan:web-read:blocked` exists only for plan review. `pnpm db:access:check:web-read` verifies live effective privileges after approved rollout.
+- Approved rollout sequence: export current roles/memberships/object ACLs and ownership; review generated SQL; classify PUBLIC function execution; create role through DBA secret channel; apply exact schema/object grants; verify exact effective privileges; stage `TM_DATABASE_URL_WEB_READ`; restart only `tz-web-v2`; smoke-test all twenty-six read routes; retain command URL for rollback.
+- Rollback sequence: restore prior `TM_DATABASE_URL_WEB_READ` or remove override so read pool falls back to command URL; restart only `tz-web-v2`; verify health and read routes; revoke new role grants; drop role only after `pg_stat_activity` shows zero sessions and dependency checks pass. Ownership transfer is a separate change and must use captured ownership backup.
+- No generated SQL was executed. No role, ACL, ownership, credential, PM2, DB data/schema, or PostgreSQL lifecycle change occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.

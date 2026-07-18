@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "test": "node --test scripts/audit-db-contract.test.js scripts/audit-runtime-roles.test.js scripts/backtest-pit-v2.test.js scripts/backfill-candles-from-mt5-csv.test.js scripts/db-connection-governance.test.js scripts/db-role-env.test.js scripts/db-session-inventory.test.js scripts/ingestion-server.test.js scripts/observe-broker-session-quality.test.js scripts/policy-transition-governance.test.js scripts/runtime-access-contract.test.js scripts/runtime-role-contract.test.js scripts/session-failover-governance.test.js scripts/golden-fixture-parity.js && pnpm -r test",
+    "test": "node --test scripts/audit-db-contract.test.js scripts/audit-runtime-access.test.js scripts/audit-runtime-roles.test.js scripts/backtest-pit-v2.test.js scripts/backfill-candles-from-mt5-csv.test.js scripts/db-connection-governance.test.js scripts/db-role-env.test.js scripts/db-session-inventory.test.js scripts/generate-runtime-access-sql.test.js scripts/ingestion-server.test.js scripts/observe-broker-session-quality.test.js scripts/policy-transition-governance.test.js scripts/runtime-access-contract.test.js scripts/runtime-role-contract.test.js scripts/session-failover-governance.test.js scripts/golden-fixture-parity.js && pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:repair": "tsx scripts/migrate.ts --repair",
@@ -16,6 +16,9 @@
     "db:contract:report": "node scripts/audit-db-contract.js --report",
     "db:roles:check": "node scripts/audit-runtime-roles.js",
     "db:roles:report": "node scripts/audit-runtime-roles.js --report",
+    "db:access:plan:web-read": "node scripts/generate-runtime-access-sql.js --role tradzfx_web_read",
+    "db:access:plan:web-read:blocked": "node scripts/generate-runtime-access-sql.js --role tradzfx_web_read --include-blocked",
+    "db:access:check:web-read": "node scripts/audit-runtime-access.js tradzfx_web_read",
     "db:indexes:duplicates": "node scripts/audit-duplicate-indexes.js",
     "db:indexes:duplicates:removed": "node scripts/audit-duplicate-indexes.js --expect-removed",
     "db:indexes:bloat": "node scripts/audit-index-bloat.js",
