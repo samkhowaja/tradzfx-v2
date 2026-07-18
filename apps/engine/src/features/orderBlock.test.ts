@@ -28,6 +28,10 @@ describe("orderBlockFeature", () => {
     expect(out.orderBlocks[0].obKind).toBe("bullish");
     expect(out.orderBlocks[0].top).toBe(2505);
     expect(out.orderBlocks[0].bottom).toBe(2500);
+    expect(out.orderBlocks[0].sourceEventTs).toEqual(candles[4].ts);
+    expect(out.orderBlocks[0].sourceEventType).toBe("bos");
+    expect(out.orderBlocks[0].sourceEventDirection).toBe("bullish");
+    expect(out.orderBlocks[0].sourceEventLevel).toBe(2505);
   });
 
   it("detects a bearish order block from the last bullish candle before a bearish break", () => {
@@ -81,5 +85,9 @@ describe("orderBlockFeature", () => {
     const restored = orderBlockFeature.deserialize(rows);
     expect(restored.orderBlocks.length).toBe(1);
     expect(restored.orderBlocks[0].obKind).toBe("bullish");
+    expect(restored.orderBlocks[0].sourceEventTs).toEqual(candles[4].ts);
+    expect(restored.orderBlocks[0].sourceEventType).toBe("bos");
+    expect(restored.orderBlocks[0].sourceEventDirection).toBe("bullish");
+    expect(restored.orderBlocks[0].sourceEventLevel).toBe(2505);
   });
 });

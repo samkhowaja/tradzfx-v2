@@ -112,6 +112,10 @@ function detectOrderBlocks(
       bodyBottom,
       ts: candle.ts,
       formationTs: candle.ts,
+      sourceEventTs: event.ts,
+      sourceEventType: event.eventType,
+      sourceEventDirection: direction,
+      sourceEventLevel: event.level,
       ageBars: candles.length - index,
       isFresh: true,
       strengthScore: 0.5,
@@ -140,7 +144,7 @@ function detectOrderBlocks(
 
 export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOutput> = {
   name: "features_order_block",
-  version: "1.3.0",
+  version: "1.4.0",
   dependencies: ["features_structure"],
 
   compute(input): OrderBlockOutput {
@@ -179,6 +183,10 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       body_top: ob.bodyTop ?? null,
       body_bottom: ob.bodyBottom ?? null,
       formation_ts: ob.formationTs ?? null,
+      source_event_ts: ob.sourceEventTs ?? null,
+      source_event_type: ob.sourceEventType ?? null,
+      source_event_direction: ob.sourceEventDirection ?? null,
+      source_event_level: ob.sourceEventLevel ?? null,
       age_bars: ob.ageBars ?? null,
       is_fresh: ob.isFresh ?? true,
       strength_score: ob.strengthScore ?? null,
@@ -200,6 +208,10 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
         bodyTop: r.body_top as number | undefined,
         bodyBottom: r.body_bottom as number | undefined,
         formationTs: r.formation_ts ? new Date(r.formation_ts as string) : undefined,
+        sourceEventTs: r.source_event_ts ? new Date(r.source_event_ts as string) : undefined,
+        sourceEventType: r.source_event_type as OrderBlockOutput["orderBlocks"][number]["sourceEventType"],
+        sourceEventDirection: r.source_event_direction as OrderBlockOutput["orderBlocks"][number]["sourceEventDirection"],
+        sourceEventLevel: r.source_event_level as number | undefined,
         ts: new Date(r.ts as string),
         ageBars: r.age_bars as number | undefined,
         isFresh: r.is_fresh as boolean | undefined,

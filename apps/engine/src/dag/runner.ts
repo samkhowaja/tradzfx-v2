@@ -3,6 +3,7 @@
  * Executes features in topological order, with caching and incremental support.
  */
 
+import { createHash } from "node:crypto";
 import type { Pool } from "@tm/shared";
 import type {
   FeatureDefinition,
@@ -61,6 +62,46 @@ export function buildCacheInputHash(
  */
 export function resolveFeatureRowTs(rawTs: unknown, sourceMaxTs: Date): Date {
   return rawTs instanceof Date ? rawTs : sourceMaxTs;
+}
+
+export function buildOrderBlockLogicalId(
+  symbol: string,
+  tf: string,
+  row: Record<string, unknown>
+): Buffer | null {
+  const formationTs = row.formation_ts;
+  const sourceEventTs = row.source_event_ts;
+  const sourceEventType = row.source_event_type;
+  const sourceEventDirection = row.source_event_direction;
+  const sourceEventLevel = row.source_event_level;
+  if (
+    !(formationTs instanceof Date) ||
+    !(sourceEventTs instanceof Date) ||
+    typeof sourceEventType !== "string" ||
+    typeof sourceEventDirection !== "string" ||
+    typeof sourceEventLevel !== "number" ||
+    !Number.isFinite(sourceEventLevel)
+  ) {
+    return null;
+  }
+  const parts = [
+    "features_order_block",
+    "logical-id-v1",
+    symbol,
+    tf,
+    formationTs.toISOString(),
+    sourceEventTs.toISOString(),
+    sourceEventType,
+    sourceEventDirection,
+    sourceEventLevel.toString(),
+  ];
+  const hash = createHash("sha256");
+  for (const part of parts) {
+    hash.update(Buffer.from(String(Buffer.byteLength(part)), "ascii"));
+    hash.update(":");
+    hash.update(part, "utf8");
+  }
+  return hash.digest();
 }
 
 /** Keep forward-only event optimization enabled unless exact repair opts out. */
@@ -576,6 +617,8 @@ export class DAGRunner {
           row[col] = feature.version;
         } else if (col === "input_hash") {
           row[col] = inputHash;
+        } else if (col === "logical_id" && tableName === "features_order_block") {
+          row[col] = buildOrderBlockLogicalId(symbol, opts.tf, rawRow);
         } else if (isGeometryTable && (col === "top" || col === "bottom")) {
           // RC-5 / 6-B: round geometry columns to pip-precision so the same
           // logical zone always produces the same PK regardless of ATR-buffer drift.
@@ -620,6 +663,7 @@ export class DAGRunner {
         const v = row[col];
         if (v instanceof Date) return v.toISOString();
         if (v === null || v === undefined) return null;
+        if (Buffer.isBuffer(v)) return v;
         if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return v;
         if (Array.isArray(v) || typeof v === "object") return JSON.stringify(v);
         return v;

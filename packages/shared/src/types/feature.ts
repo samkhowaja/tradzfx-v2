@@ -535,6 +535,10 @@ export interface OrderBlockOutput {
     bodyBottom?: number;
     ts: Date;
     formationTs?: Date;
+    sourceEventTs?: Date;
+    sourceEventType?: StructureEventType;
+    sourceEventDirection?: Direction;
+    sourceEventLevel?: number;
     ageBars?: number;
     isFresh?: boolean;
     strengthScore?: number;
