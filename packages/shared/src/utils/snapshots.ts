@@ -28,6 +28,13 @@ function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
 }
 
+function binarySha256(hexDigest: string): Buffer {
+  if (!/^[0-9a-f]{64}$/.test(hexDigest)) {
+    throw new Error("Snapshot content hash must be a lowercase SHA-256 hex digest");
+  }
+  return Buffer.from(hexDigest, "hex");
+}
+
 export async function getOrCreateFeatureConfigSnapshot(
   pool: Pool,
   dag: FeatureDAGLike,
@@ -54,8 +61,8 @@ export async function getOrCreateFeatureConfigSnapshot(
   const contentHash = sha256(canonicalJson(payload));
 
   const { rows: existing } = await pool.query(
-    `SELECT snapshot_id FROM feature_config_snapshot WHERE content_hash = $1`,
-    [contentHash]
+    `SELECT snapshot_id FROM feature_config_snapshot WHERE content_hash_bin = $1`,
+    [binarySha256(contentHash)]
   );
   if (existing.length > 0) {
     return existing[0].snapshot_id;
@@ -95,8 +102,8 @@ export async function getOrCreateStrategySettingsSnapshot(
   const contentHash = sha256(canonicalJson(payload));
 
   const { rows: existing } = await pool.query(
-    `SELECT snapshot_id FROM strategy_settings_snapshot WHERE content_hash = $1`,
-    [contentHash]
+    `SELECT snapshot_id FROM strategy_settings_snapshot WHERE content_hash_bin = $1`,
+    [binarySha256(contentHash)]
   );
   if (existing.length > 0) {
     return existing[0].snapshot_id;

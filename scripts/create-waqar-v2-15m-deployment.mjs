@@ -10,7 +10,7 @@ const pool = new pg.Pool({
 });
 
 function hash(obj) {
-  return crypto.createHash("md5").update(JSON.stringify(obj)).digest("hex");
+  return crypto.createHash("sha256").update(JSON.stringify(obj)).digest("hex");
 }
 
 async function createDeployment() {
@@ -33,8 +33,8 @@ async function createDeployment() {
   };
   const strategyHash = hash(strategySnapshot);
   let { rows: ssRows } = await pool.query(
-    "SELECT snapshot_id FROM strategy_settings_snapshot WHERE content_hash = $1 LIMIT 1",
-    [strategyHash]
+    "SELECT snapshot_id FROM strategy_settings_snapshot WHERE content_hash_bin = $1 LIMIT 1",
+    [Buffer.from(strategyHash, "hex")]
   );
   let strategySnapshotId;
   if (ssRows.length > 0) {
@@ -56,8 +56,8 @@ async function createDeployment() {
   };
   const featureHash = hash(featureSnapshot);
   let { rows: fsRows } = await pool.query(
-    "SELECT snapshot_id FROM feature_config_snapshot WHERE content_hash = $1 LIMIT 1",
-    [featureHash]
+    "SELECT snapshot_id FROM feature_config_snapshot WHERE content_hash_bin = $1 LIMIT 1",
+    [Buffer.from(featureHash, "hex")]
   );
   let featureSnapshotId;
   if (fsRows.length > 0) {
