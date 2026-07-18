@@ -103,8 +103,9 @@ Write-Host "  OK: PostgreSQL reachable" -ForegroundColor Green
 
 # -- GATE 2: ingestion server online + DB-connected --------------------------
 Write-Host "Gate 2/4: ensuring tz-ingestion (port 3004) is online and DB-connected..." -ForegroundColor Cyan
-$ingestStatus = & pm2 status tz-ingestion --no-color 2>&1
-if ($LASTEXITCODE -ne 0 -or ($ingestStatus -join '`n') -notmatch 'online') {
+$ingestPid = (& pm2 pid tz-ingestion 2>$null | Select-Object -First 1)
+$ingestOnline = $ingestPid -match '^\d+$' -and [int]$ingestPid -gt 0
+if (-not $ingestOnline) {
     Write-Host "  tz-ingestion not online; starting it..." -ForegroundColor Yellow
     & pm2 start ecosystem.config.js --only tz-ingestion
     if ($LASTEXITCODE -ne 0) { throw "pm2 start tz-ingestion failed" }
@@ -120,9 +121,15 @@ if ($LASTEXITCODE -ne 0) { throw "pnpm install failed" }
 if ($LASTEXITCODE -ne 0) { throw "pnpm -r build failed" }
 
 # -- Restart ONLY the web app -------------------------------------------------
-Write-Host "Restarting tz-web-v2 under PM2..." -ForegroundColor Cyan
-& pm2 delete tz-web-v2
-# pm2 delete returns non-zero if the process does not exist; ignore that.
+Write-Host "Restarting canonical web app under PM2..." -ForegroundColor Cyan
+@('tm-web-v2', 'tz-web-v2') | ForEach-Object {
+    $name = $_
+    $pidValue = (& pm2 pid $name 2>$null | Select-Object -First 1)
+    if ($pidValue -match '^\d+$' -and [int]$pidValue -gt 0) {
+        & pm2 delete $name
+        if ($LASTEXITCODE -ne 0) { throw "pm2 delete $name failed" }
+    }
+}
 
 & pm2 start ecosystem.config.js --only tz-web-v2
 if ($LASTEXITCODE -ne 0) { throw "pm2 start failed" }
