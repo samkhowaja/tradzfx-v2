@@ -70,6 +70,29 @@ export function findBandFillThreshold(
   return undefined;
 }
 
+/** Return deepest post-formation band penetration available in `candles`. */
+export function findBandMaxFill(
+  candles: Candle[],
+  fromIndex: number,
+  top: number,
+  bottom: number,
+  direction: "bullish" | "bearish"
+): number {
+  const height = top - bottom;
+  if (height <= 0) return 0;
+  let maxFillPct = 0;
+  for (let i = fromIndex + 1; i < candles.length; i++) {
+    const c = candles[i];
+    if (c.h < bottom || c.l > top) continue;
+    const penetration =
+      direction === "bullish"
+        ? Math.max(0, top - Math.max(bottom, c.l))
+        : Math.max(0, Math.min(top, c.h) - bottom);
+    maxFillPct = Math.max(maxFillPct, Math.min(1, penetration / height));
+  }
+  return maxFillPct;
+}
+
 /**
  * Find the first candle after `fromIndex` that closes beyond the band
  * in the invalidating direction.
@@ -194,7 +217,14 @@ export function computeZoneLifecycle(
     direction = "bullish";
   }
 
-  const { ts: firstTouchAt, fillPct: firstTouchFillPct } = findBandFirstTouch(
+  const { ts: firstTouchAt } = findBandFirstTouch(
+    candles,
+    fromIndex,
+    zone.top,
+    zone.bottom,
+    direction
+  );
+  const fillPct = findBandMaxFill(
     candles,
     fromIndex,
     zone.top,
@@ -206,7 +236,7 @@ export function computeZoneLifecycle(
       ? findBandCloseInside(candles, fromIndex, zone.top, zone.bottom)
       : findBandInvalidation(candles, fromIndex, zone.top, zone.bottom, direction);
 
-  // Only mark as mitigated if price has penetrated >50% of zone depth (significant fill)
+  // Only mark as mitigated if price has penetrated >=50% of zone depth (significant fill)
   // or if invalidated (close beyond far side). First touch alone is NOT mitigation.
   const mitigatedAt = findBandFillThreshold(
     candles,
@@ -217,7 +247,7 @@ export function computeZoneLifecycle(
     0.5
   ) ?? invalidatedAt;
 
-  return { firstTouchAt, mitigatedAt, invalidatedAt, fillPct: firstTouchFillPct };
+  return { firstTouchAt, mitigatedAt, invalidatedAt, fillPct };
 }
 
 /**

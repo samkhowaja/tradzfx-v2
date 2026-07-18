@@ -144,7 +144,7 @@ function detectOrderBlocks(
 
 export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOutput> = {
   name: "features_order_block",
-  version: "1.4.0",
+  version: "1.4.1",
   dependencies: ["features_structure"],
 
   compute(input): OrderBlockOutput {
