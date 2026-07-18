@@ -775,7 +775,11 @@ Start with `features_order_block`:
 - Migration `142` added immutable event, mutable current-state, and append-only history shadow tables plus atomic trigger dual-write. Existing live and PIT readers remain unchanged.
 - Real engine `1.4.0` observations produced stable IDs and state revisions. Initial lifecycle observation found versions 1–3 with exact latest-history/current-state parity.
 - Migration `143` separates `observed_at` (DB audit/discovery clock) from `effective_at` (market-state clock) and labels `change_kind`. Existing rows are conservatively marked `lifecycle_snapshot`; no intermediate history is fabricated.
-- `effective_at` alone does not make historical snapshots PIT-complete. Late observation can contain cumulative touch, mitigation, and invalidation state whose intermediate transitions were never stored. Reader comparison must use replay-generated complete transition history or prove equivalent event-ledger reconstruction before any PIT cutover.
+- `effective_at` alone does not make historical snapshots PIT-complete. Late observation can contain cumulative touch, mitigation, and invalidation state whose intermediate transitions were never stored.
+- Migrations `144`–`145` add a separate replay ledger reconstructed from policy-selected `market.candles_1m_canonical`. It records formation, first-touch, every cumulative fill increase, mitigation, and invalidation at market-effective timestamps. Applied migration `144` remains immutable; `145` adds fill-progress classification.
+- Bounded catch-up replay produced 1,713 states for 268 identified events: 268 formation, 96 first-touch, 865 fill-progress, 247 mitigation, and 237 invalidation rows. Replay reruns are deterministic, catch concurrent ingestion through bounded passes, and show zero missing events, pre-formation states, future lifecycle fields, or non-monotonic timestamps.
+- Current-state comparison is not equivalent: 205 of 268 events differ on lifecycle milestones and 155 differ on fill depth. Engine computation stores first-touch fill from its bounded candle input, while lifecycle SQL computes maximum penetration and uses different mitigation semantics. Higher-timeframe events show the largest window drift.
+- Reader cutover remains blocked. First unify producer and lifecycle-maintenance semantics against the canonical replay contract, then repeat live and PIT result comparison.
 - Live current-state reads and backtest PIT reads retain intentional `trustStoredLifecycle` asymmetry.
 5. Dual-write engine outputs.
 6. Dual-update lifecycle state.
