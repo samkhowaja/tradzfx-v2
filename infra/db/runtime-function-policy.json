@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "policy": {
+    "publicExecuteDefault": false,
+    "extensionFunctionsManagedExternally": true,
+    "activationRequiresNoBlockers": true
+  },
+  "functions": {
+    "ops.arbitrate_broker_session(text,timestamp with time zone)": {
+      "callerClass": "timescaledb_job_internal",
+      "grantRoles": [],
+      "status": "blocked",
+      "evidence": ["infra/migrations/131_quality_scored_session_failover.sql:232"],
+      "blocker": "TimescaleDB job execution identity and required relation privileges are not yet contracted"
+    },
+    "ops.arbitrate_broker_sessions_job(integer,jsonb)": {
+      "objectKind": "PROCEDURE",
+      "callerClass": "timescaledb_job_callback",
+      "grantRoles": [],
+      "status": "blocked",
+      "evidence": ["infra/migrations/131_quality_scored_session_failover.sql:216", "infra/migrations/131_quality_scored_session_failover.sql:246"],
+      "blocker": "TimescaleDB background-worker execution identity must be proven before PUBLIC EXECUTE is revoked"
+    },
+    "public.backfill_htf_bias(text,timestamp with time zone)": {
+      "callerClass": "maintenance_script",
+      "grantRoles": ["tradzfx_maintenance"],
+      "status": "blocked",
+      "evidence": ["scripts/backfill-htf-bias.ts:27", "scripts/backfill-htf-bias-all.ts:27"],
+      "blocker": "Maintenance role relation privileges and script connection attribution remain incomplete"
+    },
+    "public.delete_weekend_fx_candles()": {
+      "callerClass": "obsolete_ephemeral_maintenance",
+      "grantRoles": [],
+      "status": "blocked",
+      "evidence": ["scripts/clean_weekend_candles_v2.js:19", "scripts/clean_weekend_candles_v2.js:56"],
+      "blocker": "Unexpected persistent helper created by an ad-hoc script requires dependency proof before guarded removal"
+    },
+    "public.opposite_direction(text)": {
+      "callerClass": "function_internal_helper",
+      "grantRoles": [],
+      "status": "approved",
+      "evidence": ["infra/migrations/032_incremental_lifecycle.sql:28", "infra/migrations/046_optimize_ifvg_lifecycle.sql:61"],
+      "blocker": null
+    },
+    "public.refresh_lifecycle_for_symbol(text,timestamp with time zone,interval,integer,text,boolean)": {
+      "callerClass": "runtime_orchestrator",
+      "grantRoles": ["tradzfx_lifecycle"],
+      "status": "approved",
+      "evidence": ["apps/engine/src/lifecycleUpdater.ts:59", "infra/migrations/097_zone_lifecycle_tf_filter.sql:219"],
+      "blocker": null
+    },
+    "public.refresh_lifecycle_for_symbol(text,timestamp with time zone,interval,integer)": {
+      "callerClass": "legacy_overload",
+      "grantRoles": [],
+      "status": "blocked",
+      "evidence": ["infra/migrations/043_lifecycle_per_table_checkpoint.sql:482"],
+      "blocker": "Legacy overload remains live despite six-argument replacement; dependency proof required before removal"
+    },
+    "public.refresh_market_zone_objects(text,text,timestamp with time zone,interval)": {
+      "callerClass": "maintenance_script",
+      "grantRoles": ["tradzfx_maintenance"],
+      "status": "blocked",
+      "evidence": ["scripts/refresh-market-zone-objects.js:39", "infra/migrations/113_market_zone_objects.sql:42"],
+      "blocker": "Maintenance role relation privileges and script connection attribution remain incomplete"
+    },
+    "public.refresh_zone_lifecycle(text,timestamp with time zone,interval,integer)": {
+      "callerClass": "legacy_overload",
+      "grantRoles": [],
+      "status": "blocked",
+      "evidence": ["infra/migrations/099_features_fvg_consolidation.sql:19", "infra/migrations/117_zone_lifecycle_open_only.sql:16"],
+      "blocker": "Four-argument overload should have been dropped; live dependency proof required before removal"
+    },
+    "public.refresh_zone_touch_events(text,timestamp with time zone,interval,integer,text,boolean)": {
+      "callerClass": "maintenance_script",
+      "grantRoles": ["tradzfx_lifecycle"],
+      "status": "approved",
+      "evidence": ["scripts/drain-zone-touch-events.js:54", "infra/migrations/112_zone_touch_event_ledger.sql:40"],
+      "blocker": null
+    },
+    "public.track_spec_activation()": {
+      "callerClass": "trigger_only",
+      "grantRoles": [],
+      "status": "approved",
+      "evidence": ["infra/migrations/125_spec_version_tracking.sql:26", "infra/migrations/125_spec_version_tracking.sql:48"],
+      "blocker": null
+    },
+    "public.refresh_atr_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:33"], "blocker": null },
+    "public.refresh_candle_pattern_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:40"], "blocker": null },
+    "public.refresh_displacement_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:42"], "blocker": null },
+    "public.refresh_ifvg_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:30"], "blocker": null },
+    "public.refresh_opening_range_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:48"], "blocker": null },
+    "public.refresh_order_block_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:29"], "blocker": null },
+    "public.refresh_pricing_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:41"], "blocker": null },
+    "public.refresh_spread_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:38"], "blocker": null },
+    "public.refresh_structure_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:32"], "blocker": null },
+    "public.refresh_sweep_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:31"], "blocker": null },
+    "public.refresh_zone_lifecycle(text,timestamp with time zone,interval,integer,text,boolean)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:28", "scripts/drain-lifecycle.js:75"], "blocker": null },
+    "public.refresh_zone_retest_lifecycle(text,timestamp with time zone,interval,integer)": { "callerClass": "runtime_direct", "grantRoles": ["tradzfx_lifecycle"], "status": "approved", "evidence": ["scripts/refresh-lifecycle.js:39"], "blocker": null }
+  }
+}

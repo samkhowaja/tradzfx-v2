@@ -548,6 +548,15 @@ Do this before privilege changes. Access cannot be reduced until actual process 
 - Snapshot is evidence, not revoke policy. TimescaleDB-owned functions require extension compatibility review; application functions require owner/search-path/body/caller review before exact `REVOKE EXECUTE FROM PUBLIC` and explicit role grants are designed.
 - Role activation remains blocked. This phase performs no role creation, grants/revokes, ownership transfer, credential change, process reload, DB mutation, or PostgreSQL lifecycle action.
 
+### Runtime function policy and dry-run plans — 2026-07-17
+
+- Added `infra/db/runtime-function-policy.json` with exact identities and source evidence for all 23 application-owned PUBLIC-executable functions: 16 approved and 7 blocked.
+- Approved set covers 12 direct lifecycle functions, six-argument lifecycle orchestration, zone-touch maintenance, trigger-only spec activation, and function-internal direction helper. Trigger-only/internal helpers receive no runtime-role grant; direct lifecycle entrypoints grant only `tradzfx_lifecycle`.
+- Seven blocked identities remain: two TimescaleDB arbitration/job functions need background-worker identity proof; two maintenance functions need role relation access and process attribution; one unexpected persistent cleanup helper needs dependency proof before removal; two legacy overloads need live dependency proof before removal.
+- Added fail-closed print-only apply and rollback generation. Normal plan commands exit 2 while any blocker remains. `--review-blocked` emits executable SQL only for approved functions and comments every blocked statement; it never connects or executes.
+- Apply plan revokes PUBLIC execution then grants exact roles. Rollback reverses explicit role grants and restores PUBLIC execution. Both omit authentication material and preserve exact argument signatures.
+- No generated SQL was executed. Role activation remains blocked; no role/ACL/ownership/credential/process/DB/PostgreSQL lifecycle change occurred.
+
 ### Acceptance
 
 - Forbidden-write integration suite passes.
