@@ -768,6 +768,15 @@ Start with `features_order_block`:
 2. Add new event/state tables without changing readers.
 3. Backfill immutable events and current state.
 4. Verify one-to-one mapping and valid multi-event anchors.
+
+### Order-block pilot status
+
+- Migrations `138`–`141` added exact immutable source lineage and a nullable 32-byte logical ID. Legacy rows remain unidentified; the legacy logical-ID index is observational and non-unique.
+- Migration `142` added immutable event, mutable current-state, and append-only history shadow tables plus atomic trigger dual-write. Existing live and PIT readers remain unchanged.
+- Real engine `1.4.0` observations produced stable IDs and state revisions. Initial lifecycle observation found versions 1–3 with exact latest-history/current-state parity.
+- Migration `143` separates `observed_at` (DB audit/discovery clock) from `effective_at` (market-state clock) and labels `change_kind`. Existing rows are conservatively marked `lifecycle_snapshot`; no intermediate history is fabricated.
+- `effective_at` alone does not make historical snapshots PIT-complete. Late observation can contain cumulative touch, mitigation, and invalidation state whose intermediate transitions were never stored. Reader comparison must use replay-generated complete transition history or prove equivalent event-ledger reconstruction before any PIT cutover.
+- Live current-state reads and backtest PIT reads retain intentional `trustStoredLifecycle` asymmetry.
 5. Dual-write engine outputs.
 6. Dual-update lifecycle state.
 7. Shadow-read live and PIT queries.

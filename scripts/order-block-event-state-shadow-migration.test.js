@@ -9,6 +9,10 @@ const sql = fs.readFileSync(
   path.resolve(__dirname, "..", "infra", "migrations", "142_order_block_event_state_shadow.sql"),
   "utf8"
 );
+const temporalSql = fs.readFileSync(
+  path.resolve(__dirname, "..", "infra", "migrations", "143_order_block_shadow_effective_time.sql"),
+  "utf8"
+);
 
 test("order-block shadow pilot separates immutable event, current state, and history", () => {
   assert.match(sql, /CREATE TABLE IF NOT EXISTS public\.order_block_event_shadow/);
@@ -32,4 +36,20 @@ test("shadow pilot preserves readers and does not fabricate historical identity"
   assert.doesNotMatch(sql, /INSERT\s+INTO\s+public\.features_order_block/i);
   assert.doesNotMatch(sql, /DELETE\s+FROM|TRUNCATE\s+/i);
   assert.doesNotMatch(sql, /CREATE\s+(?:OR\s+REPLACE\s+)?VIEW/i);
+});
+
+test("shadow history separates market-effective and observation clocks", () => {
+  assert.match(temporalSql, /ADD COLUMN IF NOT EXISTS effective_at TIMESTAMPTZ/);
+  assert.match(temporalSql, /ADD COLUMN IF NOT EXISTS change_kind TEXT/);
+  assert.match(temporalSql, /v_effective_at := GREATEST/);
+  assert.match(temporalSql, /v_change_kind := 'lifecycle_transition'/);
+  assert.match(temporalSql, /v_change_kind := 'geometry_revision'/);
+  assert.match(temporalSql, /observed_at, effective_at, change_kind/);
+});
+
+test("effective-time migration remains additive and does not cut over readers", () => {
+  assert.doesNotMatch(temporalSql, /UPDATE\s+public\.features_order_block/i);
+  assert.doesNotMatch(temporalSql, /INSERT\s+INTO\s+public\.features_order_block/i);
+  assert.doesNotMatch(temporalSql, /DELETE\s+FROM|TRUNCATE\s+/i);
+  assert.doesNotMatch(temporalSql, /CREATE\s+(?:OR\s+REPLACE\s+)?VIEW/i);
 });
