@@ -33,6 +33,7 @@ interface EaSignal {
   trailingStop: null;
   maxHoldMinutes: number | null;
   portfolioId: string | null;
+  tradeMode: "live" | "paper";
 }
 
 export async function GET(req: NextRequest) {
@@ -120,6 +121,7 @@ export async function GET(req: NextRequest) {
         else hasPaper = true;
 
         signals.push({
+          tradeMode: order.trade_mode as "live" | "paper",
           signalId: order.id,
           symbol: order.symbol,
           side: order.side,
@@ -146,10 +148,26 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Poll-level mode consistency guard (#12 interim): reject the entire poll
+    // if live + paper signals would mix. The EA applies a single batch mode,
+    // so mixed modes would cause paper orders to execute with real money.
+    // Orders stay pending and will retry on the next EA poll (isolated by
+    // terminal_key_id de-duplication).
+    if (hasLive && hasPaper) {
+      await client.query("ROLLBACK");
+      console.warn(`[mt5-signals] REJECTED mixed live/paper poll: ${signals.length} signals`);
+      return NextResponse.json({
+        ok: false,
+        error: "mixed_live_paper_poll: live and paper signals cannot share a poll. Retrying next poll.",
+        signals: [],
+        count: 0,
+        mode: "none",
+      }, { status: 409 });
+    }
+
     await client.query("COMMIT");
 
-    // If any order is live, report live so the EA does not paper-fill it.
-    const responseMode = hasLive ? "live" : hasPaper ? "paper" : "paper";
+    const responseMode = hasLive ? "live" : "paper";
 
     return NextResponse.json({
       ok: true,

@@ -64,27 +64,32 @@ async function fetchMarketSnapshot(
   symbol: string,
   referenceTs: Date
 ): Promise<MarketSnapshot | null> {
-  // Latest 1m close as the best server-side proxy for current market price.
-  // We use the newest canonical candle, not the signal's bar timestamp, because
-  // the decision is being made live after the signal has been generated.
+  // Latest 1m close at or before the evaluation edge. In live mode referenceTs
+  // is the current data clock; in replay mode this bound prevents future leakage.
   const { rows: candleRows } = await pool.query(
-    `SELECT c FROM market.candles_1m_canonical WHERE symbol = $1 ORDER BY ts DESC LIMIT 1`,
-    [symbol]
+    `SELECT c FROM market.candles_1m_canonical
+     WHERE symbol = $1 AND ts <= $2
+     ORDER BY ts DESC LIMIT 1`,
+    [symbol, referenceTs]
   );
   if (candleRows.length === 0) return null;
   const currentPrice = parseFloat(candleRows[0].c);
   if (!Number.isFinite(currentPrice)) return null;
 
-  // Latest spread and ATR as of the reference time.
+  // Latest spread and ATR as of the evaluation edge.
   const { rows: spreadRows } = await pool.query(
-    `SELECT spread FROM features_spread WHERE symbol = $1 AND tf = '1m' ORDER BY ts DESC LIMIT 1`,
-    [symbol]
+    `SELECT spread FROM features_spread
+     WHERE symbol = $1 AND tf = '1m' AND ts <= $2
+     ORDER BY ts DESC LIMIT 1`,
+    [symbol, referenceTs]
   );
   const spreadPips = spreadRows[0]?.spread ? parseFloat(spreadRows[0].spread) : 0;
 
   const { rows: atrRows } = await pool.query(
-    `SELECT value FROM features_atr WHERE symbol = $1 AND tf = '15m' ORDER BY ts DESC LIMIT 1`,
-    [symbol]
+    `SELECT value FROM features_atr
+     WHERE symbol = $1 AND tf = '15m' AND ts <= $2
+     ORDER BY ts DESC LIMIT 1`,
+    [symbol, referenceTs]
   );
   const atr = atrRows[0]?.value ? parseFloat(atrRows[0].value) : 0;
 
@@ -147,14 +152,13 @@ export async function evaluateExecutionQuality(
     };
   }
 
-  // market_if_close_else_limit: try market, fall back to limit, reject if geometry is broken.
-  if (entryDriftPips <= profile.maxEntryDriftPips) {
-    return { action: "market", executionStrategy: "market_if_close_else_limit" };
-  }
-
-  // Price has drifted past the signal entry. If effective RR is still acceptable,
-  // we can take the market order anyway (price moved in our favor for entry).
-  if (effectiveRR >= profile.minEffectiveRR) {
+  // market_if_close_else_limit: market execution requires both bounded drift
+  // and valid effective RR. Never let one condition excuse the other: doing so
+  // can submit a crossed bracket or a fill far outside the authored risk plan.
+  if (
+    entryDriftPips <= profile.maxEntryDriftPips &&
+    effectiveRR >= profile.minEffectiveRR
+  ) {
     return { action: "market", executionStrategy: "market_if_close_else_limit" };
   }
 

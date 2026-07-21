@@ -1,0 +1,2 @@
+const test=require("node:test"),assert=require("node:assert/strict"),{utcHourKey}=require("./orb-causal-shadow-cron");
+test("hourly report key is stable within UTC hour",()=>{assert.equal(utcHourKey(new Date("2026-07-19T13:00:01Z")),"2026-07-19T13");assert.equal(utcHourKey(new Date("2026-07-19T13:59:59Z")),"2026-07-19T13");assert.notEqual(utcHourKey(new Date("2026-07-19T14:00:00Z")),"2026-07-19T13")});

@@ -1,0 +1,93 @@
+id: five_one_scalp
+familyId: five_one_scalp
+active: false
+experimental: true
+name: "5m Setup / 1m Entry Scalp (Base)"
+version: "1.0.0"
+description: "Family base for five_one_scalp variants (v1, staged_v1)."
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, NY ]
+  timeWindows:
+    - { utcStart: "07:00", utcEnd: "16:30" }
+
+warmupBars: 200
+
+setup:
+  - id: htf_structure
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos','mss')"
+    required: true
+    weight: 10
+    lookbackBars: 96
+
+  - id: htf_zone
+    feature: features_zone
+    tf: 5m
+    predicate: "zone_kind IN ('fvg','order_block') AND fill_pct < 0.85"
+    required: false
+    weight: 9
+    lookbackBars: 48
+
+  - id: htf_atr
+    feature: features_atr
+    tf: 5m
+    predicate: "value > 0"
+    required: false
+    weight: 5
+    lookbackBars: 96
+
+  - id: htf_direction
+    feature: features_direction_state
+    tf: 5m
+    predicate: "direction IN ('buy','sell')"
+    required: true
+    weight: 8
+    lookbackBars: 96
+
+  - id: htf_pricing_anchor
+    feature: features_pricing
+    tf: 5m
+    predicate: "position IN ('discount','deep_discount','premium','deep_premium')"
+    required: false
+    weight: 3
+    lookbackBars: 96
+
+entry:
+  - id: ltf_structure
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos','mss')"
+    required: true
+    weight: 10
+    lookbackBars: 120
+
+risk:
+  sl: "atr(5m) * 1.5"
+  tp: "sl * 2.0"
+  minRR: 2.0
+  timeoutBars: 90
+  maxFillBars: 30
+
+signalSource: generic
+setupFamily: trend_pullback
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      maxAtr5Pips: 30.0
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxOpenRiskPct: 2.0

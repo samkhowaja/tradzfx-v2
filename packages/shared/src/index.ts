@@ -18,6 +18,8 @@ export * from "./candles/canonicalRelations";
 export * from "./lifecycle";
 export * from "./pairs/pairCharacteristics";
 export * from "./pairs/pipMath";
+export * from "./order/constants";
 export * from "./smallAccountPositionManager";
 export * from "./db/producerRuns";
 export * from "./db/featureUniverse";
+export * from "./db/pgErrors";

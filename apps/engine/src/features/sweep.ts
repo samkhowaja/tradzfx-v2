@@ -283,7 +283,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       output.sweeps
         .map(
           (s) =>
-            `${s.ts.toISOString()}:${s.direction}:${s.sweepType ?? "post_structure"}:${s.targetType ?? ""}:${s.level}:${s.extreme}:${s.close}:${s.mitigatedAt?.toISOString() ?? ""}`
+            `${s.ts.toISOString()}:${s.direction}:${s.sweepType ?? "post_structure"}:${s.targetType ?? ""}:${s.level}:${s.extreme}:${s.close}`
         )
         .join("|")
     );
@@ -299,7 +299,6 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       sweep_type: s.sweepType ?? "post_structure",
       target_type: s.targetType ?? null,
       evidence: s.evidence ? JSON.stringify(s.evidence) : null,
-      mitigated_at: s.mitigatedAt ?? null,
     }));
   },
 

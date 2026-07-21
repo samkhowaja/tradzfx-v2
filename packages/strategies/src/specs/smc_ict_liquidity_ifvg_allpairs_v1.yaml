@@ -1,0 +1,110 @@
+id: smc_ict_liquidity_ifvg_allpairs_v1
+familyId: smc_ict_liquidity_reversal
+setupFamily: fvg_continuation
+active: false
+experimental: true
+name: "SMC/ICT Liquidity Reversal — iFVG Entry"
+version: "1.0.0"
+category: smc
+description: >
+  Cross-asset SMC/ICT research variant. A 1h directional state and 15m
+  premium/discount location precede a 5m liquidity sweep and displacement.
+  A fresh aligned 1m iFVG confirms market entry. Paper only.
+
+filters:
+  symbols: [AUDUSD, EURUSD, GBPUSD, NZDUSD, USDCAD, USDCHF, USDJPY, USDSEK, XAUUSD]
+  sessions: [LONDON, OVERLAP, NY]
+
+steps:
+  - id: htf_direction
+    feature: features_bias
+    tf: 1h
+    predicate: "direction IN ('bullish', 'bearish')"
+    required: true
+
+  - id: value_location
+    feature: features_pricing
+    tf: 15m
+    predicate: "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium')) OR (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))"
+    required: true
+    dependsOn: [htf_direction]
+    autoAlignDirection: false
+    ttlMinutes: 120
+
+  - id: liquidity_sweep
+    feature: features_sweep
+    tf: 5m
+    predicate: "direction = features_bias.direction"
+    required: true
+    dependsOn: [value_location]
+    ttlMinutes: 120
+
+  - id: displacement
+    feature: features_displacement
+    tf: 5m
+    predicate: "direction = features_bias.direction AND grade IN ('MEDIUM', 'HIGH')"
+    required: true
+    dependsOn: [liquidity_sweep]
+    ttlMinutes: 30
+
+entry:
+  - id: ifvg_confirmation
+    feature: features_ifvg
+    tf: 1m
+    predicate: "direction = features_bias.direction"
+    required: true
+    lookbackBars: 240
+
+signalSource: generic
+entryConfig:
+  type: market
+
+risk:
+  sl: "atr(5m) * 1.2"
+  tp: "sl * 2.5"
+  minRR: 2.5
+  timeoutBars: 60
+  maxFillBars: 10
+  minSlDistancePips: 1.5
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [LONDON, OVERLAP, NY]
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 40
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+  - id: family_position_gate
+    name: familyPosition
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+  - id: portfolio_heat_gate
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 6
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 0.5
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 5
+  maxSpreadPips: 40
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 3
+  cooldownMinutes: 30

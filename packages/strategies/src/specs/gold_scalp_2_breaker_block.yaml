@@ -31,7 +31,7 @@ setup:
     feature: features_structure
     tf: 1h
     predicate: "event_type = 'bos' AND direction = 'bullish'"
-    required: true
+    required: false
     weight: 9
     lookbackBars: 24
 
@@ -40,7 +40,7 @@ setup:
     feature: features_zone
     tf: 1h
     predicate: "zone_kind = 'demand' AND fill_pct < 0.8"
-    required: true
+    required: false
     weight: 9
     lookbackBars: 240
 
@@ -74,7 +74,7 @@ entry:
     feature: features_order_block
     tf: 5m
     predicate: "ob_kind = 'bullish' AND degree IN ('major', 'swing')"
-    required: true
+    required: false
     weight: 9
 
   # iFVG in the breaker leg adds confluence
@@ -95,6 +95,8 @@ risk:
   minRR: 2.0
   timeoutBars: 180
   maxFillBars: 45
+
+signalSource: generic
 
 gates:
   - id: session_gate

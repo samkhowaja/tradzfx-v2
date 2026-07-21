@@ -168,7 +168,7 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       output.orderBlocks
         .map(
           (ob) =>
-            `${ob.ts.toISOString()}:${ob.obKind}:${ob.top}:${ob.bottom}:${ob.firstTouchAt?.toISOString() ?? ""}:${ob.mitigatedAt?.toISOString() ?? ""}:${ob.invalidatedAt?.toISOString() ?? ""}`
+            `${ob.ts.toISOString()}:${ob.obKind}:${ob.top}:${ob.bottom}`
         )
         .join("|")
     );
@@ -188,13 +188,8 @@ export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOut
       source_event_direction: ob.sourceEventDirection ?? null,
       source_event_level: ob.sourceEventLevel ?? null,
       age_bars: ob.ageBars ?? null,
-      is_fresh: ob.isFresh ?? true,
       strength_score: ob.strengthScore ?? null,
-      fill_pct: ob.fillPct ?? 0,
       ts: ob.ts,
-      first_touch_at: ob.firstTouchAt ?? null,
-      mitigated_at: ob.mitigatedAt ?? null,
-      invalidated_at: ob.invalidatedAt ?? null,
     }));
   },
 

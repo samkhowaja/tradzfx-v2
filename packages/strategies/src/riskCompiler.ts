@@ -98,6 +98,11 @@ export function buildBaseEntryPriceSql(
       return "fast_ma.value";
     case "fvg":
       return `((f.top + f.bottom) / 2.0)`;
+    case "generic":
+      return `CASE
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN p.ote_low
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN p.ote_high
+    END`;
     case "zone":
     default:
       return `CASE
@@ -114,6 +119,15 @@ export function buildEntryPriceSql(
 ): string {
   const base = buildBaseEntryPriceSql(signalSource, ctx);
   const cfg = spec.entryConfig;
+  const entryType = cfg?.type ?? "market";
+
+  // Moving averages are analytical reference levels, not executable market
+  // prices. Market risk geometry is authored from the latest canonical 1m
+  // candle known at the signal timestamp. Pending entries remain MA-anchored.
+  if (signalSource === "moving_average" && entryType === "market") {
+    return "market_candle.c";
+  }
+
   if (!cfg || cfg.type === "market" || cfg.zonePips == null || cfg.zonePips === 0) {
     return base;
   }
@@ -122,14 +136,14 @@ export function buildEntryPriceSql(
   const a = getSignalAlias(ctx);
   if (cfg.type === "limit") {
     return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN (${base}) - ${offset}
-      WHEN ${a}.bias_direction = 'bearish' THEN (${base}) + ${offset}
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${base}) - ${offset}
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${base}) + ${offset}
     END`;
   }
 
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN (${base}) + ${offset}
-    WHEN ${a}.bias_direction = 'bearish' THEN (${base}) - ${offset}
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${base}) + ${offset}
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${base}) - ${offset}
   END`;
 }
 
@@ -389,8 +403,8 @@ export function buildSlSql(
   const rawSl = isPriceExpression(slExpr)
     ? raw
     : `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN (${entrySql}) - (${raw})
-    WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) + (${raw})
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) - (${raw})
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) + (${raw})
   END`;
 
   return guardSlByMinDistance(rawSl, spec, signalSource, ctx);
@@ -461,8 +475,8 @@ export function buildTpSql(
     if (op === "/") ratio = 1 / ratio;
     const distance = buildSlDistanceSql(spec, signalSource, ctx);
     return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
-      WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
+      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
     END`;
   }
 
@@ -475,7 +489,7 @@ export function buildTpSql(
   }
 
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN (${entrySql}) + (${raw})
-    WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) - (${raw})
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) + (${raw})
+    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) - (${raw})
   END`;
 }

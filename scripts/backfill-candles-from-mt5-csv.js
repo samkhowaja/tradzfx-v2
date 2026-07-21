@@ -281,6 +281,16 @@ async function importFile(filePath, symbol, offsetMinutes, broker, { insertMissi
         );
       }
     }
+
+    // Historical upserts can replace canonical source candles outside the
+    // five-minute projection job's trailing three-day window. Rebuild every
+    // overlapping canonical HTF bucket before reporting import completion.
+    const sourceFrom = rows[0].ts;
+    const sourceTo = new Date(rows[rows.length - 1].ts.getTime() + 60_000);
+    await client.query(
+      "SELECT * FROM market.refresh_canonical_htf($1, $2::timestamptz, $3::timestamptz)",
+      [symbol, sourceFrom, sourceTo]
+    );
   } finally {
     client.release();
   }

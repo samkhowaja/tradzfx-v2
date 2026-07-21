@@ -31,6 +31,16 @@ export interface RunOptions {
   skipLifecycle?: boolean;
   /** Bypass forward-only onEvent optimization for exact historical hole repair. */
   skipEventGate?: boolean;
+  /**
+   * Skip the producer postflight invariant (output_anchor_stale etc.). The
+   * invariant is a LIVE-freshness guard: it fails when a dense feature's
+   * recomputed output anchor is older than the source clock. During a historical
+   * backfill that re-touches already-populated dense deps (e.g. recomputing
+   * features_atr while backfilling an onEvent feature like features_sweep), the
+   * dep's output anchor is legitimately older than the live edge, so the
+   * invariant is a false positive. Backfills pass this to avoid aborting bars.
+   */
+  skipInvariant?: boolean;
   /** Live runs should use a short window; backfills can widen it. */
   lifecycleLookbackDays?: number;
   lifecycleLimit?: number;
@@ -165,6 +175,29 @@ export function computePersistOutcome(
   };
 }
 
+export async function resolveDensePostflightAnchor(
+  pool: Pick<Pool, "query">,
+  tableName: string,
+  symbol: string,
+  tf: string,
+  sourceMaxTs: Date,
+  bufferedOutputMaxTs: Date | null
+): Promise<Date | null> {
+  if (
+    bufferedOutputMaxTs &&
+    bufferedOutputMaxTs.getTime() >= sourceMaxTs.getTime()
+  ) {
+    return bufferedOutputMaxTs;
+  }
+  const persisted = await pool.query(
+    `SELECT MAX(ts) AS max_ts FROM ${tableName}
+      WHERE symbol = $1 AND tf = $2 AND ts <= $3`,
+    [symbol, tf, sourceMaxTs]
+  );
+  const persistedMaxTs = persisted.rows[0]?.max_ts;
+  return persistedMaxTs ? new Date(persistedMaxTs as string) : bufferedOutputMaxTs;
+}
+
 export class DAGRunner {
   private cache: FeatureCache;
   private tableColumnsCache = new Map<string, string[]>();
@@ -178,6 +211,8 @@ export class DAGRunner {
    * since last run. (Audit item #5)
    */
   private featureLastCandleTs = new Map<string, number>();
+  /** When true, the producer postflight invariant is not enforced (backfills). */
+  private skipInvariant = false;
 
   private getFeatureKey(feature: string, symbol: string, tf: string): string {
     return `${feature}:${symbol}:${tf}`;
@@ -197,7 +232,7 @@ export class DAGRunner {
         ? await this.insertRows(tableName, rows)
         : computePersistOutcome(0, 0, 0, null);
       if (anchor) {
-        await this.recordFeatureExecution(tableName, anchor.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome);
+        await this.recordFeatureExecution(tableName, anchor.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome, this.skipInvariant);
       }
       rows.length = 0;
     }
@@ -251,6 +286,7 @@ export class DAGRunner {
 
   async run(opts: RunOptions): Promise<FeatureOutputs> {
     this.candlesCache.clear();
+    this.skipInvariant = opts.skipInvariant ?? false;
     const sorted = this.dag.sort(opts.symbol, opts.tf, opts.requestedFeatures);
     if (opts.batchInserts) {
       await Promise.all(sorted.map((f) => this.getTableColumns(f.name)));
@@ -374,7 +410,7 @@ export class DAGRunner {
         if (rows && rows.length >= batchSize) {
           const outcome = await this.insertRows(feature.name, rows);
           const anchor = this.pendingRunAnchors.get(feature.name)!;
-          await this.recordFeatureExecution(feature.name, feature.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome);
+          await this.recordFeatureExecution(feature.name, feature.version, anchor.symbol, anchor.tf, anchor.sourceMinTs, anchor.sourceMaxTs, rows, outcome, this.skipInvariant);
           rows.length = 0;
           this.pendingRunAnchors.delete(feature.name);
         }
@@ -446,6 +482,34 @@ export class DAGRunner {
     return results;
   }
 
+  /**
+   * Load the latest persisted row for a dependency feature from the DB. Used when
+   * a targeted backfill requests only a downstream feature (e.g. features_sweep)
+   * whose dense dependencies (features_atr/pivot/structure) are already fully
+   * populated — recomputing the whole closure per bar is wasteful. Returns
+   * undefined if the table/row is missing so the feature can fall back to its own
+   * internal guards.
+   */
+  private async loadPersistedDep(
+    dep: string,
+    symbol: string,
+    tf: string,
+    endTs: Date
+  ): Promise<Record<string, unknown> | undefined> {
+    try {
+      const { rows } = await this.pool.query(
+        `SELECT * FROM ${dep}
+         WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         ORDER BY ts DESC LIMIT 1`,
+        [symbol, tf, endTs]
+      );
+      if (rows.length === 0) return undefined;
+      return rows[0] as Record<string, unknown>;
+    } catch {
+      return undefined; // table may not exist yet
+    }
+  }
+
   private async buildInput(
     feature: FeatureDefinition<any, any>,
     opts: RunOptions,
@@ -453,9 +517,19 @@ export class DAGRunner {
   ): Promise<Record<string, unknown>> {
     const input: Record<string, unknown> = {};
 
-    // Add dependency outputs
+    // Add dependency outputs. If a dependency was already computed in this run
+    // (it was requested or is an upstream of another requested feature), use it.
+    // Otherwise, if it is already persisted in the DB (e.g. a dense feature fully
+    // backfilled earlier) and this is a targeted backfill that only requested a
+    // downstream feature, load the latest persisted row instead of recomputing
+    // the entire dependency closure — a huge speedup for onEvent backfills.
     for (const dep of feature.dependencies) {
-      input[dep] = results[dep];
+      if (results[dep] !== undefined) {
+        input[dep] = results[dep];
+        continue;
+      }
+      const loaded = await this.loadPersistedDep(dep, opts.symbol, opts.tf, opts.endTs);
+      input[dep] = loaded;
     }
 
     // Add raw candles for all features (compute + hashInput need them)
@@ -519,7 +593,7 @@ export class DAGRunner {
       const series = await getRecentCandles(this.pool, symbol, tf, endTs, count, {
         allowRealtimeFallback: true,
       });
-      const candles = filterWeekdayCandles(series);
+      const candles = filterWeekdayCandles(series, symbol);
       this.candlesCache.set(key, candles);
       return candles;
     }
@@ -554,7 +628,8 @@ export class DAGRunner {
             tickCount: r.tick_count != null ? parseInt(r.tick_count, 10) : undefined,
           })
         )
-        .reverse()
+        .reverse(),
+      symbol
     );
 
     this.candlesCache.set(key, candles);
@@ -717,7 +792,8 @@ export class DAGRunner {
     sourceMinTs: Date,
     sourceMaxTs: Date,
     rows: Record<string, unknown>[],
-    outcome: PersistOutcome
+    outcome: PersistOutcome,
+    skipInvariant = false
   ): Promise<void> {
     let outputMaxTs: Date | null = null;
     for (const row of rows) {
@@ -726,6 +802,20 @@ export class DAGRunner {
       if (ts && (!outputMaxTs || ts > outputMaxTs)) outputMaxTs = ts;
     }
     const mode = getProducerOutputMode(tableName);
+    // Batch flushes can end with no in-memory rows when an earlier threshold
+    // flush already persisted the expected dense anchor, or when an idempotent
+    // repair recomputes an existing row. Postflight must inspect persisted truth;
+    // judging only the final buffer creates a false output_anchor_missing error.
+    if (mode === "dense" && outcome.status === "done") {
+      outputMaxTs = await resolveDensePostflightAnchor(
+        this.pool,
+        tableName,
+        symbol,
+        tf,
+        sourceMaxTs,
+        outputMaxTs
+      );
+    }
     const invariant = evaluateProducerInvariant({
       mode,
       sourceMaxTs,
@@ -755,7 +845,7 @@ export class DAGRunner {
         invariant_reason: invariant.reason,
       },
     });
-    if (!invariant.passed) {
+    if (!invariant.passed && !skipInvariant) {
       throw new Error(`${tableName} producer invariant failed: ${invariant.reason}`);
     }
   }
@@ -798,7 +888,8 @@ export class DAGRunner {
       candles[0].ts,
       candles[candles.length - 1].ts,
       rows,
-      outcome
+      outcome,
+      opts.skipInvariant ?? false
     );
   }
 

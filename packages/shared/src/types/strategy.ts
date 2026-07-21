@@ -55,11 +55,15 @@ export interface StrategySpec {
     }>;
   };
 
+  /** Progressive steps replace flat setup[] for progressive specs. Steps form a DAG via dependsOn. */
+  steps?: ProgressiveStep[];
+
+  /** LEGACY: flat condition list. Kept for backward compat. New specs use steps[]. */
   setup: StrategyCondition[];
   entry: StrategyCondition[];
 
   /** How the final signal price levels are derived. Defaults to zone-based S/D logic. */
-  signalSource?: "zone" | "orb" | "indicator" | "moving_average" | "fvg";
+  signalSource?: "zone" | "orb" | "indicator" | "moving_average" | "fvg" | "generic";
 
   /** Optional entry configuration. Defaults to market orders with no offset. */
   entryConfig?: EntryConfig;
@@ -69,13 +73,59 @@ export interface StrategySpec {
     fastPeriod?: number;
     slowPeriod?: number;
     maType?: "sma" | "ema";
+    /**
+     * For signalSource "fvg": require the FVG to break the ORB range
+     * (f.bottom > orb.high for bullish, f.top < orb.low for bearish) AND fall
+     * within orbWindow. Defaults to true (ORB-breakout confluence). Set false
+     * for strategies (e.g. SMC liquidity-sweep) that use FVG continuation
+     * without an ORB reference.
+     */
+    requireOrbBreakout?: boolean;
+    /** ORB window override (UTC time-of-day). Defaults to 13:45–16:00. */
+    orbWindow?: { utcStart: string; utcEnd: string };
+    /** ORB close time-of-day (UTC) used to fetch the ORB range candle. Defaults to 13:30. */
+    orbCloseUtc?: string;
   };
+
+  /**
+   * Optional ordered setup evaluator. Specs without this field continue through
+   * the legacy independent-condition compiler, allowing side-by-side results.
+   */
+  staged?: StagedStrategyConfig;
 
   risk: RiskRules;
   gates: GateConfig[];
 
   /** Live execution overrides — backtest uses risk, live uses these */
   live?: LiveExecutionConfig;
+}
+
+export interface StagedStrategyConfig {
+  enabled: boolean;
+  mode?: "shadow" | "compare" | "primary";
+  context: {
+    tf: TimeFrame;
+    maxAgeBars: number;
+    requireAgreement?: boolean;
+  };
+  setup: {
+    tf: TimeFrame;
+    eventTypes: Array<"bos" | "mss" | "choch">;
+    maxAgeBars: number;
+    requireZone: boolean;
+    zoneKinds?: string[];
+    zoneMaxAgeBars?: number;
+  };
+  entry: {
+    tf: TimeFrame;
+    eventTypes: Array<"bos" | "mss" | "choch">;
+    maxBarsAfterTouch: number;
+  };
+  cancellation: {
+    onBiasFlip: boolean;
+    onZoneInvalidation: boolean;
+    oneTradePerSetup: boolean;
+  };
 }
 
 export interface StrategyCondition {
@@ -99,6 +149,37 @@ export interface StrategyCondition {
    *  (lowercase, matching the producer). The join pins the row to the same UTC
    *  date + session and requires the signal time to be after range completion,
    *  so stale ranges from prior sessions/days can never match. */
+  session?: string;
+}
+
+/**
+ * Progressive step — replaces flat setup[] with sequential DAG steps.
+ * Each step declares dependsOn to reference prior steps. The compiler
+ * generates a CTE chain: root → step_1 → step_2 → ... → entry → signal.
+ */
+export interface ProgressiveStep {
+  id: string;
+  feature: string;
+  tf: TimeFrame;
+  predicate: string;
+  required: boolean;
+  /** IDs of prior steps this step depends on. Empty/undefined = root step (bias anchor). */
+  dependsOn?: string[];
+  /** Bars of step-tf after parent.ts to bound the lookback window. */
+  lookbackBars?: number;
+  /** Columns for DISTINCT ON grouping (e.g. ["direction", "zone_kind"]). */
+  groupBy?: string[];
+  /** Max age of this step's output in minutes. Rows older than this are discarded at query time. */
+  ttlMinutes?: number;
+  /** Top-N per (symbol, groupBy) by rankOrderBy. 0 = no limit. */
+  rankLimit?: number;
+  /** ORDER BY clause for rankLimit (e.g. "rank_score DESC NULLS LAST, ts DESC"). */
+  rankOrderBy?: string;
+  /** When false, skip auto-alignment of direction from parent. Default: align. */
+  autoAlignDirection?: boolean;
+  /** Skip lifecycle validity window (like ignoreLifecycle in StrategyCondition). */
+  ignoreLifecycle?: boolean;
+  /** Required for session-scoped features: which session's object this binds to. */
   session?: string;
 }
 

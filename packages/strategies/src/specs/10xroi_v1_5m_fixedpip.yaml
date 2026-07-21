@@ -1,0 +1,28 @@
+id: 10xroi_v1_5m_fixedpip
+familyId: 10xroi
+active: true
+name: "10XROI V1 — 5m fixed pip"
+version: "1.0.0"
+description: "10XROI on 5m TF. Fixed 25-pip SL, 125-pip TP (5:1). 5m push-pull + daily bias + candle confirmation."
+overrides:
+  setup:
+    - id: push_pull
+      feature: features_push_pull
+      tf: 5m
+      predicate: "push_count >= 1"
+      required: true
+
+  entry:
+    - id: candle_confirm
+      feature: features_candle_pattern
+      tf: 5m
+      predicate: "pattern_name IN ('pin_bar', 'engulfing_bull', 'engulfing_bear', 'hammer', 'hanging_man') AND confidence >= 0.5"
+      required: true
+      lookbackBars: 6
+
+  risk:
+    sl: "25 pips"
+    tp: "125 pips"
+    minRR: 4.0
+    timeoutBars: 120
+    maxFillBars: 30

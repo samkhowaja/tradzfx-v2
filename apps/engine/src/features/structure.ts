@@ -335,7 +335,7 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
           (e) =>
             `${e.ts.toISOString()}:${e.eventType}:${e.direction}:${e.level}:` +
             `${e.strength ?? ""}:${e.confirmed ?? ""}:${e.confirmationTs?.toISOString() ?? ""}:` +
-            `${e.htfAligned ?? ""}:${e.invalidatedAt?.toISOString() ?? ""}`
+            `${e.htfAligned ?? ""}`
         )
         .join("|")
     );
@@ -353,7 +353,6 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
       opposing_sweep_ts: e.opposingSweepTs ?? null,
       is_cisd: e.isCisd ?? false,
       htf_aligned: e.htfAligned ?? false,
-      invalidated_at: e.invalidatedAt ?? null,
     }));
   },
 

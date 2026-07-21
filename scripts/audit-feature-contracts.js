@@ -14,17 +14,21 @@ require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.
 const { Pool } = require("pg");
 const { FEATURE_REGISTRY } = require("../packages/strategies/dist/featureRegistry.js");
 
-const SQL_WORDS = new Set(["asc", "desc", "nulls", "last", "first"]);
-const IDENT = /^[a-z_][a-z0-9_]*$/i;
+const SQL_WORDS = new Set([
+  "asc", "desc", "nulls", "last", "first",
+  "case", "when", "then", "else", "end",
+  "and", "or", "not", "is", "null", "true", "false",
+]);
+const IDENT = /\b[a-z_][a-z0-9_]*\b/gi;
 
 function tieBreakerColumns(tb) {
   if (!tb) return [];
-  const out = [];
-  for (const part of tb.split(",")) {
-    const tok = part.trim().split(/\s+/)[0];
-    if (tok && IDENT.test(tok) && !SQL_WORDS.has(tok.toLowerCase())) out.push(tok);
-  }
-  return out;
+  // Remove SQL string literals before tokenizing. Remaining non-keyword
+  // identifiers are column references, including columns inside CASE clauses.
+  const expression = tb.replace(/'(?:''|[^'])*'/g, " ");
+  return [...new Set(
+    (expression.match(IDENT) ?? []).filter((tok) => !SQL_WORDS.has(tok.toLowerCase()))
+  )];
 }
 
 (async () => {

@@ -17,6 +17,7 @@ const {
   loadStrategyFromDB,
   compileStrategy,
   FEATURE_REGISTRY,
+  deriveSignalTf,
 } = require("../packages/strategies/dist/index.js");
 const { collectCapabilityMatrix } = require("./feature-capability.js");
 const { appendCandidate, drainSpool } = require("./candidate-audit-spool.js");
@@ -83,9 +84,17 @@ const BACKTEST_MODES = {
   // Setup-engine grading is skipped, all costs are zeroed, gates are evaluated for
   // visibility but do not drop trades, and portfolio heat is disabled.
   research: { setupProfile: "skip", intrabar: "sl_first", label: "research" },
+  // Shadow mode retains normal execution costs while preserving every simulated
+  // candidate for counterfactual gate comparison. It never persists results.
+  shadow: { setupProfile: "skip", intrabar: "sl_first", label: "shadow" },
 };
 
 const SETUP_PROFILES = new Set(["strict", "lenient", "skip"]);
+
+// Setup-engine version baked into the persistent context hash so a grader or
+// setup-engine bug fix invalidates cached setup_evaluations (see §3.2.8).
+// Bump this any time the setup-engine evaluation logic changes.
+const SETUP_ENGINE_VERSION = "1.0.0";
 
 function extractNumericPeriods(text) {
   const out = [];
@@ -96,24 +105,82 @@ function extractNumericPeriods(text) {
 }
 
 /**
- * Build a deterministic context hash for a signal. Two signals with the same
- * hash will produce the same setup evaluation result, allowing us to skip
- * redundant evaluateSetupBatch calls.
+ * Check if strategies dist/ is stale relative to src/. Warns if any .ts source
+ * file is newer than the corresponding .js dist file, indicating the dist was
+ * built from older source. Call once at startup to prevent silent stale-compiler
+ * bugs that produce inverted SL/TP or other incorrect signal SQL.
  */
-function buildSignalContextHash(sig, primaryTf) {
+function checkStrategiesDistStale() {
+  const fs = require("fs");
+  const path = require("path");
+  const srcDir = path.resolve(__dirname, "..", "packages", "strategies", "src");
+  const distDir = path.resolve(__dirname, "..", "packages", "strategies", "dist");
+  let stale = false;
+  try {
+    if (!fs.existsSync(distDir)) return; // no dist yet — first build not done
+    for (const f of fs.readdirSync(srcDir)) {
+      if (!f.endsWith(".ts")) continue;
+      const srcStat = fs.statSync(path.join(srcDir, f));
+      const distFile = f.replace(/\.ts$/, ".js");
+      const distPath = path.join(distDir, distFile);
+      if (!fs.existsSync(distPath)) continue;
+      const distStat = fs.statSync(distPath);
+      if (srcStat.mtimeMs > distStat.mtimeMs + 1000) {
+        // +1s tolerance for filesystem timestamp granularity
+        stale = true;
+        if (DEBUG_MODE) {
+          console.warn(`  [stale-dist] ${f} modified ${srcStat.mtime.toISOString()} > dist ${distStat.mtime.toISOString()}`);
+        }
+      }
+    }
+    if (stale) {
+      console.warn(
+        "\n  ⚠  WARNING: packages/strategies/dist/ is STALE (source files newer than compiled output).\n" +
+        "     Run 'pnpm build' from the workspace root before trusting backtest results.\n" +
+        "     Stale dist/ produces incorrect compiler SQL (inverted SL/TP, wrong signal geometry).\n"
+      );
+    }
+  } catch {
+    // Non-fatal: don't crash if fs operations fail
+  }
+  return stale;
+}
+
+/**
+ * Build a signal-specific setup cache key. Setup results contain absolute
+ * prices, so every risk-sensitive identity field must participate in the key.
+ * The version prefix prevents rows written with older/coarser key semantics
+ * from matching current backtests.
+ */
+function buildSignalContextHash(sig, primaryTf, spec, setupFamily) {
+  const ts = sig.ts instanceof Date ? sig.ts.toISOString() : new Date(sig.ts).toISOString();
   const ctx = [
+    "pit-setup-v3",
+    spec?.id ?? "unknown-spec",
+    spec?.familyId ?? spec?.id ?? "unknown-family",
+    spec?.version ?? "unknown-version",
+    setupFamily ?? "unknown-setup-family",
+    // Include engine version so a grader/setup-engine bug fix invalidates
+    // cached results; rely on the npm-published version of @tm/setup-engine
+    // (mismatches after `pnpm -r build` force a re-eval).
+    SETUP_ENGINE_VERSION,
     sig.symbol,
     primaryTf,
-    sig.bias_direction ?? "unknown",
+    ts,
+    sig.side ?? "unknown-side",
+    sig.entry_price ?? "unknown-entry",
+    sig.bias_direction ?? "unknown-bias",
     sig.zone_kind ?? "none",
-    sig.pricing_position ?? "unknown",
-    typeof sig.atr_5 === "number" ? sig.atr_5.toFixed(2) : "0",
+    sig.zone_top ?? "unknown-zone-top",
+    sig.zone_bottom ?? "unknown-zone-bottom",
+    sig.pricing_position ?? "unknown-pricing",
+    typeof sig.atr_5 === "number" ? String(sig.atr_5) : "unknown-atr",
   ];
-  return createHash("sha256").update(ctx.join("|")).digest("hex").slice(0, 16);
+  return createHash("sha256").update(ctx.join("|")).digest("hex").slice(0, 32);
 }
 
 function computeWarmupBars(spec, minCandles = MIN_WARMUP_CANDLES) {
-  const signalTf = spec.entry?.[0]?.tf ?? spec.setup?.[0]?.tf ?? "15m";
+  const signalTf = deriveSignalTf(spec);
   const tfMs = TF_MS[signalTf] ?? TF_MS["15m"];
   let bars = Math.max(minCandles, spec.warmupBars ?? 0);
 
@@ -141,7 +208,7 @@ function computeWarmupBars(spec, minCandles = MIN_WARMUP_CANDLES) {
 }
 
 function computeWarmupTs(spec, from, minCandles = MIN_WARMUP_CANDLES) {
-  const signalTf = spec.entry?.[0]?.tf ?? spec.setup?.[0]?.tf ?? "15m";
+  const signalTf = deriveSignalTf(spec);
   const tfMs = TF_MS[signalTf] ?? TF_MS["15m"];
   const warmupBars = computeWarmupBars(spec, minCandles);
   return new Date(from.getTime() + tfMs * warmupBars);
@@ -187,6 +254,7 @@ const pool = new Pool({
 const ALLOWED_FEATURES = new Set([
   "features_bias",
   "features_htf_bias",
+  "features_direction_state",
   "features_zone",
   "features_ifvg",
   "features_order_block",
@@ -208,6 +276,7 @@ const ALLOWED_FEATURES = new Set([
   "features_zone_retest",
   "features_candle_pattern",
   "features_time_of_day_edge",
+  "features_push_pull",
 ]);
 
 const ALLOWED_TFS = new Set(["1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d"]);
@@ -216,6 +285,7 @@ const ALLOWED_ENTRY_TYPES = new Set(["market", "limit", "stop"]);
 const ALLOWED_GROUP_BY = {
   features_bias: ["direction"],
   features_htf_bias: ["direction", "state"],
+  features_direction_state: ["direction", "regime", "agreement", "htf_state"],
   features_zone: [
     "zone_kind", "direction", "fill_pct", "tapped", "grade", "age_bars",
     "formation_ts", "strength_score", "is_fresh", "quality_score",
@@ -251,6 +321,7 @@ const ALLOWED_GROUP_BY = {
   features_zone_retest: ["zone_kind", "direction", "wick_into_zone", "close_inside_zone", "engulfing_at_zone", "grade", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
   features_candle_pattern: ["pattern_name", "direction", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
   features_time_of_day_edge: ["value", "session", "direction", "age_bars", "formation_ts", "strength_score"],
+  features_push_pull: ["pattern_name", "direction", "push_count", "pull_count", "confidence"],
 };
 
 const TIME_WINDOW_RE = /^\d{2}:\d{2}$/;
@@ -412,7 +483,7 @@ function collectCoverageTargets(spec) {
   else if (signalSource === "indicator") addFeature("features_indicator", tfs.indicatorTf);
   else if (signalSource === "moving_average") addFeature("features_moving_average", tfs.movingAverageTf);
   else if (signalSource === "fvg") addFeature("features_zone", tfs.fvgTf);
-  else if (signalSource === "custom") { /* no implicit tables */ }
+  else if (signalSource === "generic") { /* no implicit tables — spec declares explicit features only */ }
   else addFeature("features_zone", tfs.zoneTf);
 
   // Pricing is always consulted for entry price.
@@ -683,7 +754,7 @@ function compilePITSQL(spec, symbol, from, to, overrides = {}, debug = false, op
   const allowedSymbols = spec.filters?.symbols ?? [symbol];
   assertAllowedSymbol(symbol, allowedSymbols);
 
-  const setupConds = spec.setup.filter((c) => c.required);
+  const setupConds = (spec.setup ?? []).filter((c) => c.required);
   const entryConds = spec.entry.filter((c) => c.required);
   for (const cond of [...setupConds, ...entryConds]) {
     assertValidId(cond.id);
@@ -796,27 +867,101 @@ function isValidSignalGeometry(signal) {
   return false;
 }
 
+/**
+ * Execute market signals against MT5 bid candles. Signal is known only after
+ * its timestamped bar closes, so fill uses next bar open. Buy enters at ask;
+ * sell enters at bid. Buy exits trigger on bid; sell exits trigger on ask.
+ * `MqlRates.spread` supplies per-bar bid/ask distance in pips. MT5 deviation is
+ * a maximum tolerance, not guaranteed slippage, so default expected slippage is zero.
+ */
+/**
+ * Simulate a market trade using mid-price bars (no spread/slip/commission).
+ * Fill at next-bar open (mid). Exit at SL/TP mid price. Intrabar resolution
+ * defaults to `close` (fair midpoint between sl_first and tp_first).
+ * Execution costs are deducted AFTER the backtest as aggregate overhead.
+ */
+function simulateBidCandleMarketTrade(signal, candles, options) {
+  const {
+    timeoutBars = 24,
+    intrabarMode = "close",
+    signalTf,
+  } = options;
+  const effectiveSignalTs = signalTf
+    ? new Date(signal.ts.getTime() + (TF_MS[signalTf] ?? TF_MS["15m"]))
+    : signal.ts;
+  const future = candles.slice(findCandleIndexAfter(candles, effectiveSignalTs), findCandleIndexAfter(candles, effectiveSignalTs) + timeoutBars);
+  if (!future.length) return { outcome: "timeout", r: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null };
+  const side = signal.side;
+  const authoredEntry = parseFloat(signal.entry_price);
+  const sl = parseFloat(signal.stop_loss);
+  const tp = parseFloat(signal.take_profit);
+  const plannedRisk = side === "buy" ? authoredEntry - sl : sl - authoredEntry;
+  if (!(plannedRisk > 0)) return { outcome: "invalid", invalidReason: "planned_risk_nonpositive", r: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null };
+  const first = future[0];
+  const effectiveEntry = Number(first.o);
+  if ((side === "buy" && !(sl < effectiveEntry && tp > effectiveEntry)) || (side === "sell" && !(sl > effectiveEntry && tp < effectiveEntry))) {
+    // Gap-through: the market opened past the bracket. In live this is an
+    // immediate loss at the open, not an excluded non-event. Book it as a
+    // loss using the gap-open price as fill and implicit exit (§3.2.4).
+    const gapExit = side === "buy" ? Math.min(sl, effectiveEntry) : Math.max(sl, effectiveEntry);
+    const gapR = computeOutcomeR(side, effectiveEntry, gapExit, plannedRisk);
+    return {
+      outcome: "loss", r: gapR, holdBars: 1, closePrice: gapExit,
+      effectiveEntry, maxAdverse: effectiveEntry, maxFavorable: effectiveEntry,
+      invalidReason: "gap_through",
+    };
+  }
+  let maxAdverse = effectiveEntry;
+  let maxFavorable = effectiveEntry;
+  const tsStr = signal.ts instanceof Date ? signal.ts.toISOString() : String(signal.ts);
+  for (let i = 0; i < future.length; i++) {
+    const candle = future[i];
+    const high = Number(candle.h), low = Number(candle.l), close = Number(candle.c);
+    if (side === "buy") {
+      if (low < maxAdverse) maxAdverse = low;
+      if (high > maxFavorable) maxFavorable = high;
+    } else {
+      if (high > maxAdverse) maxAdverse = high;
+      if (low < maxFavorable) maxFavorable = low;
+    }
+    const slHit = side === "buy" ? low <= sl : high >= sl;
+    const tpHit = side === "buy" ? high >= tp : low <= tp;
+    if (!slHit && !tpHit) continue;
+    const expected = slHit && tpHit
+      ? resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`)
+      : tpHit ? "win" : "loss";
+    const closePrice = expected === "win" ? tp : sl;
+    const r = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
+    return { outcome: r >= 0 ? expected : "loss", r, holdBars: i + 1, closePrice, effectiveEntry, maxAdverse, maxFavorable };
+  }
+  // Timeout: close at the last candle's close price so the trade contributes
+  // to win/loss/R stats instead of being excluded as a no-decision (#3.2.5).
+  const lastCandle = future[future.length - 1];
+  const closePrice = Number(lastCandle.c);
+  const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
+  return { outcome: timeoutR >= 0 ? "win" : "loss", r: timeoutR, holdBars: future.length, closePrice, effectiveEntry, maxAdverse, maxFavorable };
+}
+
 function simulateTrade(signal, candles, options = {}) {
-  // Use pair-characteristic defaults when the caller does not override costs.
-  // This prevents accidental zero-cost backtests that inflate performance.
   const symbol = signal.symbol ?? "";
   const session = getSession(new Date(signal.ts).getUTCHours());
   const defaultPipSize = getPairCharacteristics(symbol).pipSize || 0.0001;
-  const defaultSpread = getSessionSpread(symbol, session);
-  const atr5Pips =
-    defaultPipSize > 0 && typeof signal.atr_5 === "number"
-      ? signal.atr_5 / defaultPipSize
-      : undefined;
-  const defaultSlippage = getSessionSlippage(symbol, atr5Pips);
 
   const {
     timeoutBars = 24,
-    intrabarMode = "sl_first",
-    spreadPips = defaultSpread,
-    slippagePips = defaultSlippage,
+    intrabarMode = "close",
     pipSize = defaultPipSize,
-    commissionPips = getPairCharacteristics(symbol).commissionPipsPerLot ?? 0,
+    executionModel = "next_bar_bid_ask",
+    signalTf,
   } = options;
+
+  if ((signal.entry_type ?? "market") === "market" && executionModel === "next_bar_bid_ask") {
+    return simulateBidCandleMarketTrade(signal, candles, {
+      timeoutBars,
+      intrabarMode,
+      signalTf,
+    });
+  }
 
   const tsStr = signal.ts instanceof Date ? signal.ts.toISOString() : String(signal.ts);
   const future = candles.slice(findCandleIndexAfter(candles, signal.ts));
@@ -830,15 +975,11 @@ function simulateTrade(signal, candles, options = {}) {
   const side = signal.side;
   const entryType = signal.entry_type ?? "market";
 
-  const spreadPrice = priceFromPips(spreadPips, pipSize);
-  const slippagePrice = priceFromPips(slippagePips, pipSize);
-  const halfSpread = spreadPrice / 2;
-  const commissionPrice = priceFromPips(commissionPips / 2, pipSize);
-  const cost = halfSpread + slippagePrice + commissionPrice;
+  const cost = 0;
 
   let effectiveEntry = entry;
   if (entryType === "market") {
-    effectiveEntry = side === "buy" ? entry + cost : entry - cost;
+    effectiveEntry = entry;
   }
 
   let fillIndex = 0;
@@ -849,7 +990,7 @@ function simulateTrade(signal, candles, options = {}) {
       const low = parseFloat(future[i].l);
       if (isFill(side, entryType, entry, high, low)) {
         fillIndex = i;
-        effectiveEntry = side === "buy" ? entry + slippagePrice + commissionPrice : entry - slippagePrice - commissionPrice;
+        effectiveEntry = side === "buy" ? entry : entry;
         break;
       }
     }
@@ -868,10 +1009,14 @@ function simulateTrade(signal, candles, options = {}) {
     }
   }
 
-  const risk = side === "buy" ? effectiveEntry - sl : sl - effectiveEntry;
-  if (risk <= 0 || !Number.isFinite(risk)) {
+  // Validate directional geometry against planned entry, then normalize R by
+  // planned signal risk. Using effectiveEntry for denominator can shrink risk
+  // toward zero on tight stops and inflate fixed-target wins beyond configured RR.
+  const directionalRisk = side === "buy" ? entry - sl : sl - entry;
+  if (directionalRisk <= 0 || !Number.isFinite(directionalRisk)) {
     return {
       outcome: "invalid",
+      invalidReason: "directional_risk_nonpositive",
       r: 0,
       holdBars: 0,
       closePrice: null,
@@ -880,6 +1025,7 @@ function simulateTrade(signal, candles, options = {}) {
       maxFavorable: effectiveEntry,
     };
   }
+  const risk = directionalRisk;
   let maxAdverse = side === "buy" ? effectiveEntry : effectiveEntry;
   let maxFavorable = side === "buy" ? effectiveEntry : effectiveEntry;
 
@@ -981,13 +1127,17 @@ function simulateTrade(signal, candles, options = {}) {
     }
   }
 
-  // Trade was still open at the end of the backtest window.
-  // Report as timeout/no-result and exclude from win/loss/R stats.
+  // Trade was still open at the end of the lookback window.
+  // Close at the last candle's close price so it contributes to win/loss/R
+  // stats instead of being excluded as a no-decision (#3.2.5).
+  const lastCandle = future[future.length - 1];
+  const closePrice = Number(lastCandle.c);
+  const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, risk);
   return {
-    outcome: "timeout",
-    r: 0,
+    outcome: timeoutR >= 0 ? "win" : "loss",
+    r: timeoutR,
     holdBars: future.length,
-    closePrice: null,
+    closePrice,
     effectiveEntry,
     maxAdverse,
     maxFavorable,
@@ -1279,24 +1429,35 @@ function resolveGateSpread(t, session) {
 // Cached per (symbol,tf,period,session); null when no profile row exists (gate falls
 // back to absolute pip ceilings).
 const _volProfileCache = new Map();
-async function getVolProfile(symbol, tf, period, session) {
-  const key = `${symbol}|${tf}|${period}|${session}`;
+async function getVolProfile(symbol, tf, period, session, signalTs) {
+  const key = `${symbol}|${tf}|${period}|${session}|${signalTs ? signalTs.toISOString() : "latest"}`;
   if (_volProfileCache.has(key)) return _volProfileCache.get(key);
   try {
+    const asOfClause = signalTs instanceof Date && Number.isFinite(signalTs.getTime())
+      ? `AND sample_end <= $5`
+      : ``;
+    const params = signalTs instanceof Date && Number.isFinite(signalTs.getTime())
+      ? [symbol, tf, period, session, signalTs]
+      : [symbol, tf, period, session];
     const { rows } = await pool.query(
       `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile
        WHERE symbol = $1 AND tf = $2 AND period = $3 AND session = $4
+       ${asOfClause}
        ORDER BY lookback_days DESC LIMIT 1`,
-      [symbol, tf, period, session]
+      params
     );
     let row = rows[0];
     if (!row && session !== "ALL") {
       // Fall back to the all-sessions profile when the exact session is absent.
+      const allParams = signalTs instanceof Date && Number.isFinite(signalTs.getTime())
+        ? [symbol, tf, period, signalTs]
+        : [symbol, tf, period];
       const { rows: allRows } = await pool.query(
         `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile
          WHERE symbol = $1 AND tf = $2 AND period = $3 AND session = 'ALL'
+         ${asOfClause}
          ORDER BY lookback_days DESC LIMIT 1`,
-        [symbol, tf, period]
+        allParams
       );
       row = allRows[0];
     }
@@ -1395,7 +1556,13 @@ async function applyGates(trades, spec, options = {}) {
   if (gateEvaluators.length === 0) {
     const decisive = trades.filter((t) => t.outcome === "win" || t.outcome === "loss");
     const timeouts = trades.filter((t) => t.outcome === "timeout").length;
-    return { executed: decisive, skipped: 0, reasons: {}, timeouts, quarantined: 0, atrQuarantined: 0 };
+    const invalidTrades = trades.filter((t) => t.outcome !== "win" && t.outcome !== "loss" && t.outcome !== "timeout");
+    const invalidReasons = invalidTrades.reduce((counts, t) => {
+      const reason = t.invalidReason || "unknown_invalid_outcome";
+      counts[reason] = (counts[reason] || 0) + 1;
+      return counts;
+    }, {});
+    return { executed: decisive, skipped: 0, reasons: {}, timeouts, invalid: invalidTrades.length, invalidReasons, quarantined: 0, atrQuarantined: 0 };
   }
 
   const sorted = trades.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
@@ -1405,6 +1572,8 @@ async function applyGates(trades, spec, options = {}) {
   const reasons = {};
   let skipped = 0;
   let timeouts = 0;
+  let invalid = 0;
+  const invalidReasons = {};
   let quarantined = 0;
   let atrQuarantined = 0;
 
@@ -1428,7 +1597,7 @@ async function applyGates(trades, spec, options = {}) {
     const { spreadPips: gateSpreadPips, quarantined: wasQuarantined } = resolveGateSpread(t, session);
     if (wasQuarantined) quarantined++;
     if (typeof t.atr_5_raw === "number" && typeof t.atr_5 === "number" && t.atr_5_raw > t.atr_5) atrQuarantined++;
-    const volProfile = _vg ? await getVolProfile(t.symbol, _atrTf, _atrPeriod, session) : null;
+    const volProfile = _vg ? await getVolProfile(t.symbol, _atrTf, _atrPeriod, session, ts) : null;
     const dirState = _rr && _rr.enabled ? latestAsOf(await getDirectionStateRows(t.symbol, _dsTf), ts) : null;
     const ctx = {
       ts,
@@ -1462,6 +1631,12 @@ async function applyGates(trades, spec, options = {}) {
       timeouts++;
       continue;
     }
+    if (t.outcome !== "win" && t.outcome !== "loss") {
+      invalid++;
+      const reason = t.invalidReason || "unknown_invalid_outcome";
+      invalidReasons[reason] = (invalidReasons[reason] || 0) + 1;
+      continue;
+    }
 
     const holdBars = t.holdBars ?? 0;
     const closeTs = new Date(ts.getTime() + holdBars * 60000);
@@ -1481,7 +1656,7 @@ async function applyGates(trades, spec, options = {}) {
     executed.push(t);
   }
 
-  return { executed, skipped, reasons, timeouts, quarantined, atrQuarantined };
+  return { executed, skipped, reasons, timeouts, invalid, invalidReasons, quarantined, atrQuarantined };
 }
 
 // ---------------------------------------------------------------------------
@@ -1500,7 +1675,7 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
   const upper = to;
   const t0 = performance.now();
   const { rows } = await pool.query(
-    `SELECT c.ts, c.o, c.h, c.l, c.c,
+    `SELECT c.ts, c.o, c.h, c.l, c.c, c.spread AS spread_pips,
             (cq.is_suspect IS TRUE) AS suspect
        FROM market.candles_1m_canonical c
        LEFT JOIN candle_quality cq
@@ -1518,7 +1693,7 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
       !Number.isFinite(o) || !Number.isFinite(h) || !Number.isFinite(l) || !Number.isFinite(c) ||
       h < l || o <= 0 || h <= 0 || l <= 0 || c <= 0;
     if (corrupt) { quarantined++; continue; }
-    candles.push({ ts: r.ts, o, h, l, c });
+    candles.push({ ts: r.ts, o, h, l, c, spread_pips: r.spread_pips == null ? null : Number(r.spread_pips) });
   }
   if (process.argv.includes("--debug")) {
     console.log(`  [prefetch] ${candles.length} candles (${quarantined} quarantined) in ${(performance.now() - t0).toFixed(0)}ms`);
@@ -1572,6 +1747,15 @@ async function main() {
     process.exit(1);
   }
 
+  // Progressive specs store their conditions in `steps` (consumed directly by
+  // the compiler), but the preflight/coverage helpers below read `setup`.
+  // Normalize so preflight resolves the correct feature timeframes (e.g.
+  // features_pricing@15m instead of falling back to 1m). The compiler still
+  // dispatches on `spec.steps?.length`, so this is purely a backtester-view fix.
+  if (spec.steps && (!spec.setup || spec.setup.length === 0)) {
+    spec.setup = spec.steps;
+  }
+
   const requestedMode = modeArg ? modeArg.slice("--mode=".length) : null;
   if (requestedMode && !BACKTEST_MODES[requestedMode]) {
     console.error(`[backtest-pit-v2] Unknown mode "${requestedMode}". Use: ${Object.keys(BACKTEST_MODES).join(", ")}`);
@@ -1588,7 +1772,12 @@ async function main() {
 
   const modeLabel = requestedMode ?? (setupProfile === "skip" || setupProfile === "lenient" ? "fast" : "full");
   const isResearch = requestedMode === "research";
-  const skipSetupEngine = setupProfile === "skip" || setupProfile === "lenient";
+  const isShadow = requestedMode === "shadow";
+  const isCounterfactual = isResearch || isShadow;
+  const skipSetupEngine = setupProfile === "skip" || setupProfile === "lenient" || spec.signalSource === "generic";
+  // Opt-in: allow PRODUCER_STALE / STALE_STATE to warn (not block) for historical
+  // PIT windows that end before now. Counterfactual evidence requires current producer state.
+  const historicalStaleOk = process.env.BACKTEST_HISTORICAL_STALE_OK === "1" && !isCounterfactual;
 
   let intrabarMode = intrabarArg
     ? intrabarArg.slice("--intrabar=".length)
@@ -1627,6 +1816,9 @@ async function main() {
   console.log(`[backtest-pit-v2] Range: ${from.toISOString().slice(0, 10)} → ${to.toISOString().slice(0, 10)} (${days} days)`);
   console.log(`[backtest-pit-v2] Warmup: ${warmupBars} derived bars -> signals before ${warmupTs.toISOString()} skipped`);
   console.log(`[backtest-pit-v2] Symbols: ${symbols.join(", ")}\n`);
+
+  // Stale-dist guard: warn if strategies src/ is newer than dist/
+  checkStrategiesDistStale();
 
   // ---------------------------------------------------------------------------
   // Preflight coverage check
@@ -1687,6 +1879,14 @@ async function main() {
     for (const row of capability.blocked) {
       // Research mode: STALE_STATE and PRODUCER_STALE warn but don't block.
       if (isResearch && (row.verdict === "STALE_STATE" || row.verdict === "PRODUCER_STALE")) {
+        degradedReasons.push(`capability_${row.verdict}_${row.table}${row.tf ? `@${row.tf}` : ""}`);
+        continue;
+      }
+      // Historical PIT backtest (window ends before wall-clock now): producer
+      // staleness reflects LIVE producer freshness at the data edge, which is
+      // irrelevant to PIT-correct historical rows. Downgrade to a warning when
+      // explicitly opted in, preserving costs/gates (unlike research mode).
+      if (historicalStaleOk && (row.verdict === "STALE_STATE" || row.verdict === "PRODUCER_STALE")) {
         degradedReasons.push(`capability_${row.verdict}_${row.table}${row.tf ? `@${row.tf}` : ""}`);
         continue;
       }
@@ -1898,6 +2098,7 @@ async function main() {
     const rawTrades = [];
     let warmupSkipped = 0;
     let geometrySkipped = 0;
+    let setupInvalidGeometry = 0;
     let setupBlocked = 0;
     const setupBlockReasons = {};
     const primaryTf = resolvePrimaryTf(spec);
@@ -1927,8 +2128,9 @@ async function main() {
     let tSetupEngineStart = 0;
     if (!skipSetupEngine && eligible.length > 0) {
       tSetupEngineStart = performance.now();
-      // Build context hashes for every eligible signal upfront
-      const sigHashes = eligible.map((sig) => buildSignalContextHash(sig, primaryTf));
+      // Setup results contain absolute SL/TP prices. Cache only against exact
+      // signal, strategy, version, setup-family, and risk-sensitive context.
+      const sigHashes = eligible.map((sig) => buildSignalContextHash(sig, primaryTf, spec, setupFamily));
       const seenHashes = new Map(); // hash -> { result, eligibleIdx }
 
       // De-duplicate: only evaluate signals whose context hash hasn't been seen
@@ -2044,47 +2246,50 @@ async function main() {
             // Cache for context-hash dedup across subsequent signals
             seenHashes.set(hash, { result, eligibleIdx });
 
-            // Persist every unique result to setup_evaluations for analysis
-            try {
-              const directionStr = eligible[eligibleIdx]?.side === "buy" ? "long"
-                : eligible[eligibleIdx]?.side === "sell" ? "short" : null;
-              const ts = new Date(eligible[eligibleIdx]?.ts);
-              await pool.query(
-                `INSERT INTO setup_evaluations (
-                  symbol, tf, ts, grade, direction, confidence,
-                  entry_zone, stop_loss, take_profit, risk_reward,
-                  evidence, warnings, block_reasons,
-                  setup_status, context_hash
-                ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
-                ON CONFLICT (context_hash)
-                WHERE context_hash IS NOT NULL
-                DO NOTHING`,
-                [
-                  symbol,
-                  primaryTf,
-                  ts,
-                  result.grade,
-                  directionStr ?? "neutral",
-                  result.confidence,
-                  result.entryZone ? JSON.stringify(result.entryZone) : null,
-                  result.stopLoss ?? null,
-                  result.takeProfit ?? null,
-                  result.riskReward ?? null,
-                  result.evidence ? JSON.stringify(result.evidence) : null,
-                  result.warnings ?? [],
-                  result.blockReasons ?? [],
-                  result.grade === "BLOCK" ? "blocked" : result.grade === "A+" || result.grade === "A" ? "ready" : "waiting",
-                  hash,
-                ]
-              );
-              setupEvalsPersisted++;
-              if (result.grade === "BLOCK") {
-                setupBlockedHashes.add(hash);
-              }
-            } catch (persistErr) {
-              // Non-fatal: setup_evaluations is for analysis, not correctness
-              if (DEBUG_MODE) {
-                console.warn(`[setup-eval] persist failed for ${symbol} @ ${eligible[eligibleIdx]?.ts}: ${persistErr.message}`);
+            // Persist every unique result to setup_evaluations for analysis.
+            // Counterfactual modes are read-only, including strict setup grading.
+            if (!isCounterfactual) {
+              try {
+                const directionStr = eligible[eligibleIdx]?.side === "buy" ? "long"
+                  : eligible[eligibleIdx]?.side === "sell" ? "short" : null;
+                const ts = new Date(eligible[eligibleIdx]?.ts);
+                await pool.query(
+                  `INSERT INTO setup_evaluations (
+                    symbol, tf, ts, grade, direction, confidence,
+                    entry_zone, stop_loss, take_profit, risk_reward,
+                    evidence, warnings, block_reasons,
+                    setup_status, context_hash
+                  ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                  ON CONFLICT (context_hash)
+                  WHERE context_hash IS NOT NULL
+                  DO NOTHING`,
+                  [
+                    symbol,
+                    primaryTf,
+                    ts,
+                    result.grade,
+                    directionStr ?? "neutral",
+                    result.confidence,
+                    result.entryZone ? JSON.stringify(result.entryZone) : null,
+                    result.stopLoss ?? null,
+                    result.takeProfit ?? null,
+                    result.riskReward ?? null,
+                    result.evidence ? JSON.stringify(result.evidence) : null,
+                    result.warnings ?? [],
+                    result.blockReasons ?? [],
+                    result.grade === "BLOCK" ? "blocked" : result.grade === "A+" || result.grade === "A" ? "ready" : "waiting",
+                    hash,
+                  ]
+                );
+                setupEvalsPersisted++;
+                if (result.grade === "BLOCK") {
+                  setupBlockedHashes.add(hash);
+                }
+              } catch (persistErr) {
+                // Non-fatal: setup_evaluations is for analysis, not correctness
+                if (DEBUG_MODE) {
+                  console.warn(`[setup-eval] persist failed for ${symbol} @ ${eligible[eligibleIdx]?.ts}: ${persistErr.message}`);
+                }
               }
             }
           }
@@ -2104,7 +2309,6 @@ async function main() {
     for (let i = 0; i < eligible.length; i++) {
       const sig = eligible[i];
       const session = getSession(new Date(sig.ts).getUTCHours());
-      const atr5Pips = pipSize > 0 && typeof sig.atr_5 === "number" ? sig.atr_5 / pipSize : 0;
       const sessionSpread = getSessionSpread(symbol, session);
       const direction = sig.side === "buy" ? "long" : sig.side === "sell" ? "short" : null;
 
@@ -2116,25 +2320,32 @@ async function main() {
         continue;
       }
 
-      // TIER 3: Override signal SL/TP with setup engine values when available.
-      // The setup engine's risk grader uses structural levels (@tm/levels),
-      // spread buffers, minRR guards, and maxStopPips guards — producing more
-      // contextualized SL/TP than the SQL-time riskCompiler tokens. This ensures
-      // the same risk values evaluated by the grader are what actually executes.
-      if (setupEval && typeof setupEval.stopLoss === "number" && typeof setupEval.takeProfit === "number") {
+      // Strategy risk expressions are the execution contract. Setup engine may
+      // grade/block every setup, but structural SL/TP replaces authored risk only
+      // when the strategy explicitly opts in. Unconditional replacement silently
+      // turns fixed-RR strategies into unrelated variable-target strategies.
+      if (
+        spec.setupEngine?.overrideRisk === true &&
+        setupEval &&
+        typeof setupEval.stopLoss === "number" &&
+        typeof setupEval.takeProfit === "number"
+      ) {
         sig.stop_loss = String(setupEval.stopLoss);
         sig.take_profit = String(setupEval.takeProfit);
+        // Fail closed after the override. Compiler geometry was validated above,
+        // but setup-derived absolute prices can independently be malformed.
+        if (!isValidSignalGeometry(sig)) {
+          setupInvalidGeometry++;
+          continue;
+        }
       }
 
-      const sessionSlippage = getSessionSlippage(symbol, atr5Pips);
       const simOptions = {
         timeoutBars,
         intrabarMode,
-        // Research mode strips all execution costs so candidate quality is visible.
-        spreadPips: isResearch ? 0 : sessionSpread,
-        slippagePips: isResearch ? 0 : sessionSlippage,
-        commissionPips: isResearch ? 0 : (getPairCharacteristics(symbol).commissionPipsPerLot ?? 0),
+        // Zero execution costs — calc aggregate costs post-hoc from raw signal data.
         pipSize,
+        signalTf: deriveSignalTf(spec),
       };
       const out = simulateTrade(sig, candles, simOptions);
       rawTrades.push({
@@ -2155,18 +2366,18 @@ async function main() {
     const uniqueTrades = dedupeTrades(rawTrades, to);
     const dedupedCount = rawTrades.length - uniqueTrades.length;
 
-    const { executed, skipped, reasons, timeouts, quarantined, atrQuarantined } = await applyGates(uniqueTrades, spec, { research: isResearch });
-    const heatMarked = isResearch
+    const { executed, skipped, reasons, timeouts, invalid, invalidReasons, quarantined, atrQuarantined } = await applyGates(uniqueTrades, spec, { research: isCounterfactual });
+    const heatMarked = isCounterfactual
       ? executed.map((t) => ({ ...t, heatDropped: false }))
       : evaluatePortfolioHeat(executed, spec);
     const stats = computeStats(heatMarked, timeouts);
     allTrades.push(...heatMarked.map((t) => ({ ...t, symbol })));
 
-    console.log(`${symbol}: ${signals.length} raw signals (${warmupSkipped} skipped for warmup, ${geometrySkipped} invalid geometry, ${setupBlocked} setup-engine BLOCK, ${dedupedCount} deduped) | signal query ${queryMs.toFixed(0)}ms | prefetch ${(tPrefetch - tSignals).toFixed(0)}ms | setup-engine ${setupEngineMs > 0 ? setupEngineMs.toFixed(0) : 'N/A'}ms | simulate ${(tSimEnd - tPrefetch).toFixed(0)}ms`);
+    console.log(`${symbol}: ${signals.length} raw signals (${warmupSkipped} skipped for warmup, ${geometrySkipped} invalid compiler geometry, ${setupInvalidGeometry} invalid setup geometry, ${setupBlocked} setup-engine BLOCK, ${dedupedCount} deduped) | signal query ${queryMs.toFixed(0)}ms | prefetch ${(tPrefetch - tSignals).toFixed(0)}ms | setup-engine ${setupEngineMs > 0 ? setupEngineMs.toFixed(0) : 'N/A'}ms | simulate ${(tSimEnd - tPrefetch).toFixed(0)}ms`);
     if (setupEvalsPersisted > 0) {
       console.log(`  Setup evaluations: ${setupEvalsPersisted} persisted, ${actuallyEvaluated} evaluated, ${contextDedupSkipped} context-hash skips`);
     }
-    console.log(`  Executed: ${stats.total} | Skipped: ${skipped} | Heat dropped: ${stats.heatDropped}${quarantined > 0 ? ` | Spread quarantined: ${quarantined}` : ""}${atrQuarantined > 0 ? ` | ATR quarantined: ${atrQuarantined}` : ""}`);
+    console.log(`  Executed: ${stats.total} | Invalid outcomes: ${invalid} | Timeouts: ${timeouts} | Skipped: ${skipped} | Heat dropped: ${stats.heatDropped}${quarantined > 0 ? ` | Spread quarantined: ${quarantined}` : ""}${atrQuarantined > 0 ? ` | ATR quarantined: ${atrQuarantined}` : ""}`);
     if (Object.keys(reasons).length > 0) {
       console.log(`  Gate skips: ${Object.entries(reasons).map(([k, v]) => `${k}=${v}`).join(", ")}`);
     }
@@ -2181,12 +2392,16 @@ async function main() {
       rawSignals: signals.length,
       warmupSkipped,
       invalidGeometry: geometrySkipped,
+      setupInvalidGeometry,
       setupBlocked,
       setupBlockReasons,
       simulated: rawTrades.length,
       deduped: dedupedCount,
       gateSkipped: skipped,
       gateSkipReasons: reasons,
+      invalidOutcomes: invalid,
+      invalidOutcomeReasons: invalidReasons,
+      timeouts,
       heatDropped: stats.heatDropped,
       spreadQuarantined: quarantined,
       candlesQuarantined,
@@ -2217,6 +2432,8 @@ async function main() {
       wins: stats.wins,
       losses: stats.losses,
       timeouts: stats.timeouts,
+      invalidOutcomes: invalid,
+      invalidOutcomeReasons: invalidReasons,
       winRate: stats.winRate,
       netR: stats.netR,
       avgWinR: stats.avgWinR,
@@ -2226,7 +2443,7 @@ async function main() {
       avgHoldBars: stats.avgHoldBars,
       queryMs: Math.round(queryMs),
       trades: includeTrades
-        ? executed.map((t) => ({
+        ? heatMarked.filter((t) => t.heatDropped !== true).map((t) => ({
             symbol: t.symbol,
             side: t.side,
             ts: t.ts instanceof Date ? t.ts.toISOString() : t.ts,
@@ -2289,7 +2506,7 @@ async function main() {
   }
 
   let runId;
-  if (persistMode && !isResearch && allTrades.length > 0) {
+  if (persistMode && !isCounterfactual && allTrades.length > 0) {
     // biasTf is derived from the spec (the legacy-branch local `biasTf` is out of
     // scope here and used to throw ReferenceError on --persist).
     runId = await persistTrades(allTrades, spec, strategyId, from, to, resolveBiasTf(spec));
@@ -2302,6 +2519,10 @@ async function main() {
 }
 
 async function persistTrades(trades, spec, strategyId, from, to, tf) {
+  const nonDecisive = trades.filter((t) => t.outcome !== "win" && t.outcome !== "loss");
+  if (nonDecisive.length > 0) {
+    throw new Error(`Refusing to persist ${nonDecisive.length} non-decisive backtest outcomes`);
+  }
   const runId = `${strategyId}-${from.toISOString()}-${to.toISOString()}-${randomUUID().slice(0, 8)}`;
   const variantId = strategyId;
   const familyId = spec.familyId || strategyId;
@@ -2382,6 +2603,13 @@ async function persistTrades(trades, spec, strategyId, from, to, tf) {
       );
     }
 
+    // Delete any prior rows for the same run before inserting — backtest_results
+    // has no natural unique key (BIGSERIAL id), so re-runs would otherwise
+    // double-count every trade in the API (CRITICAL, §3.2.6).
+    await client.query(
+      `DELETE FROM backtest_results WHERE run_id = $1`,
+      [runId]
+    );
     await client.query(
       `INSERT INTO backtest_results (${columns.join(", ")}) VALUES ${placeholders.join(", ")} ON CONFLICT DO NOTHING`,
       values
@@ -2476,6 +2704,7 @@ function mergeStageCounts(countsArray) {
     rawSignals: 0,
     warmupSkipped: 0,
     invalidGeometry: 0,
+    setupInvalidGeometry: 0,
     setupBlocked: 0,
     setupBlockReasons: {},
     simulated: 0,
@@ -2492,6 +2721,7 @@ function mergeStageCounts(countsArray) {
     out.rawSignals += sc.rawSignals ?? 0;
     out.warmupSkipped += sc.warmupSkipped ?? 0;
     out.invalidGeometry += sc.invalidGeometry ?? 0;
+    out.setupInvalidGeometry += sc.setupInvalidGeometry ?? 0;
     out.setupBlocked += sc.setupBlocked ?? 0;
     for (const [k, v] of Object.entries(sc.setupBlockReasons ?? {})) {
       out.setupBlockReasons[k] = (out.setupBlockReasons[k] || 0) + v;
@@ -2528,6 +2758,8 @@ module.exports = {
   assertAllowedTf,
   computeWarmupBars,
   computeWarmupTs,
+  buildSignalContextHash,
+  isValidSignalGeometry,
   inferSetupFamily,
   collectCoverageTargets,
   requiredFeatureTargets,

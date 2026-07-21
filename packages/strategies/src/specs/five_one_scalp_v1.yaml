@@ -1,0 +1,124 @@
+id: five_one_scalp_v1
+familyId: five_one_scalp
+active: true
+experimental: true
+name: "5m Setup / 1m Entry Scalp"
+version: "1.1.0"
+description: >
+  Custom strategy: 5m timeframe establishes directional bias and key zone
+  (FVG/order block + structure BOS). 1m timeframe provides the precise entry
+  trigger via structure MSS/BOS into the 5m zone with pricing confirmation.
+  SL = 1m ATR * 2.5 (widened from 1.5 after loss analysis showed all 16 losses
+  were whipsaws — price spiked past SL then reversed). TP = SL * 2.0.
+  Added 5m direction-state gate so 1m entry only fires when 5m arbiter agrees.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, NY ]
+  timeWindows:
+    - { utcStart: "07:00", utcEnd: "16:30" }
+
+warmupBars: 200
+
+setup:
+  # 5m structure break (BOS/MSS) — trend context + direction
+  - id: htf_structure
+    feature: features_structure
+    tf: 5m
+    predicate: "event_type IN ('bos','mss')"
+    required: true
+    weight: 10
+    lookbackBars: 96
+
+  # 5m zone (FVG or order block) — context only, does not block signal
+  - id: htf_zone
+    feature: features_zone
+    tf: 5m
+    predicate: "zone_kind IN ('fvg','order_block') AND fill_pct < 0.85"
+    required: false
+    weight: 9
+    lookbackBars: 48
+
+  # 5m ATR for risk sizing (dense but well-populated at 5m)
+  - id: htf_atr
+    feature: features_atr
+    tf: 5m
+    predicate: "value > 0"
+    required: false
+    weight: 5
+    lookbackBars: 96
+
+  # 5m direction arbiter — entry only fires when 5m regime agrees with side.
+  # 5m direction arbiter — entry only fires when 5m regime has a defined direction.
+  # Added after loss analysis: 9/16 losses never moved in favor (wrong timing).
+  # This is the bias anchor (5m), so the 1m entry side derives from 5m direction.
+  - id: htf_direction
+    feature: features_direction_state
+    tf: 5m
+    predicate: "direction IN ('buy','sell')"
+    required: true
+    weight: 8
+    lookbackBars: 96
+
+  # 5m pricing anchor — sets pricingTf=5m so the forced pricing coverage
+  # check uses 5m (well-populated) instead of 1m (sparse in short windows).
+  - id: htf_pricing_anchor
+    feature: features_pricing
+    tf: 5m
+    predicate: "position IN ('discount','deep_discount','premium','deep_premium')"
+    required: false
+    weight: 3
+    lookbackBars: 96
+
+entry:
+  # 1m structure MSS/BOS in same direction — entry trigger
+  - id: ltf_structure
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos','mss')"
+    required: true
+    weight: 10
+    lookbackBars: 120
+
+  # 1m price inside the 5m zone (retrace rejection)
+  - id: ltf_zone_touch
+    feature: features_zone
+    tf: 1m
+    predicate: "zone_kind IN ('fvg','order_block') AND fill_pct >= 0.5 AND is_fresh = true"
+    required: true
+    weight: 8
+    lookbackBars: 480
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  sl: "atr(5m) * 1.5"
+  tp: "sl * 2.0"
+  minRR: 2.0
+  timeoutBars: 90
+  maxFillBars: 30
+
+signalSource: generic
+setupFamily: trend_pullback
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtrPercentile: 0.95
+      maxAtr5Pips: 30.0
+
+  - id: portfolio_heat
+    name: portfolioHeat

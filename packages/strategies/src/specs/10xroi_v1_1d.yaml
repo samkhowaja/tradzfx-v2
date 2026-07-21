@@ -1,0 +1,34 @@
+id: 10xroi_v1_1d
+familyId: 10xroi
+active: true
+name: "10XROI V1 — 1d"
+version: "1.0.0"
+description: "10XROI on daily TF. 1d push-pull + daily bias + 1d candle confirmation. SL = ATR(1d)*1.0, 10R."
+overrides:
+  setup:
+    - id: daily_bias
+      feature: features_bias
+      tf: 1d
+      predicate: "direction != 'opposite'"
+      required: true
+
+    - id: push_pull
+      feature: features_push_pull
+      tf: 1d
+      predicate: "push_count >= 1"
+      required: true
+
+  entry:
+    - id: candle_confirm
+      feature: features_candle_pattern
+      tf: 1d
+      predicate: "pattern_name IN ('pin_bar', 'engulfing_bull', 'engulfing_bear', 'hammer', 'hanging_man') AND confidence >= 0.5"
+      required: true
+      lookbackBars: 6
+
+  risk:
+    sl: "atr(1d) * 1.0"
+    tp: "sl * 10.0"
+    minRR: 5.0
+    timeoutBars: 30
+    maxFillBars: 30

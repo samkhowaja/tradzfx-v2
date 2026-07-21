@@ -49,7 +49,9 @@ export function extractEqualityPushdowns(predicate: string): Array<{ column: str
   let m: RegExpExecArray | null;
   while ((m = re.exec(predicate)) !== null) {
     const column = m[1].toLowerCase();
-    const literal = m[2].toLowerCase();
+    // Preserve case for string literals (e.g. 'DXY', 'NY') — only lowercase
+    // numeric and boolean literals. String case matters in SQL equality.
+    const literal = m[2].startsWith("'") ? m[2] : m[2].toLowerCase();
     // `is_fresh` is a mutable current-state flag, not a real equality dimension:
     // never push it into the LATERAL WHERE. In PIT mode the compiler strips it
     // from the predicate and relies on the as-of lifecycle window; in live mode
@@ -245,11 +247,17 @@ function buildDistinctOn(contract: FeatureContract, cond: StrategyCondition): st
   return ["symbol", ...groupCols].join(", ");
 }
 
-function buildPushdownSql(cond: StrategyCondition): string {
+function buildPushdownSql(cond: StrategyCondition, mode?: "live" | "pit"): string {
   if (!cond.predicate) return "";
   const pushdowns = extractEqualityPushdowns(cond.predicate);
   if (!pushdowns.length) return "";
-  return "\n      " + pushdowns.map((f) => `AND ${f.column} = ${f.literal}`).join("\n      ");
+  // In PIT mode, strip is_fresh, fill_pct, and tapped equality pushdowns
+  // (wall-clock tainted lifecycle columns that leak future state).
+  const filtered = mode === "pit"
+    ? pushdowns.filter((f) => f.column !== "is_fresh" && f.column !== "fill_pct" && f.column !== "tapped")
+    : pushdowns;
+  if (!filtered.length) return "";
+  return "\n      " + filtered.map((f) => `AND ${f.column} = ${f.literal}`).join("\n      ");
 }
 
 function buildOrderBy(contract: FeatureContract, cond: StrategyCondition): string {
@@ -263,31 +271,36 @@ function buildJoinPolicyWhere(
   contract: FeatureContract,
   cond: StrategyCondition,
   tableRef: string,
-  asOfRef: "b" | "s",
+  asOfRef: string,
   spec?: StrategySpec
 ): string {
   const lookback = buildLookbackInterval(cond, spec);
   const policy = contract.joinPolicy;
+  const confirmationLag = buildConfirmationLagSql(contract, cond, asOfRef);
+
+  const upperBound = confirmationLag
+    ? `AND ${tableRef}.ts <= ${asOfRef}.ts - ${confirmationLag}`
+    : `AND ${tableRef}.ts <= ${asOfRef}.ts`;
 
   switch (policy) {
     case "latest_as_of":
       return `
-      AND ${tableRef}.ts <= ${asOfRef}.ts
+      ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "active_window":
       return `
-      AND ${tableRef}.ts <= ${asOfRef}.ts
+      ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "candidate_set":
       return `
-      AND ${tableRef}.ts <= ${asOfRef}.ts
+      ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "sample_distribution":
       return `
-      AND ${tableRef}.ts <= ${asOfRef}.ts
+      ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "session_scoped":
@@ -295,9 +308,35 @@ function buildJoinPolicyWhere(
 
     default:
       return `
-      AND ${tableRef}.ts <= ${asOfRef}.ts
+      ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
   }
+}
+
+/**
+ * Build an SQL fragment for the confirmation-lag upper-bound shift.
+ *
+ * Features whose producer needs N bars AFTER `ts` to confirm an event (e.g.
+ * pivots, which scan `lookback` bars after the center bar) are put at `ts`
+ * but NOT knowable until `ts + N * barDuration`.  This function returns an
+ * interval expression that shifts the LATERAL upper bound so backtests never
+ * see events before they were actually confirmable.
+ *
+ * Returns empty string when no confirmation lag is configured.
+ */
+function buildConfirmationLagSql(
+  contract: FeatureContract,
+  cond: StrategyCondition,
+  asOfRef: string
+): string {
+  const lagBars =
+    contract.confirmationLookbackBarsByTf?.[cond.tf] ??
+    contract.confirmationLookbackBars;
+  if (!lagBars || lagBars <= 0) return "";
+
+  const tfMinutes = TF_MINUTES[cond.tf] ?? 15;
+  const lagMinutes = lagBars * tfMinutes;
+  return `INTERVAL '${lagMinutes} minutes'`;
 }
 
 /**
@@ -353,12 +392,13 @@ export function buildOrbSessionScopedJoin(
 export function buildPitLateral(
   cond: StrategyCondition,
   alias: string,
-  asOfRef: "b" | "s",
-  spec?: StrategySpec
+  asOfRef: string,
+  spec?: StrategySpec,
+  mode?: "live" | "pit"
 ): string {
   const contract = getFeatureContract(cond.feature);
   const distinctOn = buildDistinctOn(contract, cond);
-  const pushdownSql = buildPushdownSql(cond);
+  const pushdownSql = buildPushdownSql(cond, mode);
   const orderBy = buildOrderBy(contract, cond);
   const policyWhere = buildJoinPolicyWhere(contract, cond, cond.feature, asOfRef, spec);
   // Include the freshness predicate INSIDE the LATERAL so DISTINCT ON only
@@ -366,7 +406,7 @@ export function buildPitLateral(
   // can return a mitigated/invalidated zone as the "best" row, then the outer
   // WHERE drops it, losing the signal.
   // (RC-1 / compiler under-emission fix)
-  const asOfCol = asOfRef === "b" ? "b.ts" : "s.ts";
+  const asOfCol = `${asOfRef}.ts`;
   const freshnessSql = buildFreshnessPredicate(cond, cond.feature, asOfCol);
 
   return `LATERAL (

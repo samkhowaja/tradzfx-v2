@@ -28,7 +28,7 @@ function Get-JsonEvenOnError([string]$Url) {
         return Invoke-RestMethod -Uri $Url -Method GET -TimeoutSec 10
     } catch {
         $webResp = $_.Exception.Response
-        if ($webResp -eq $null) { return $null }
+        if ($null -eq $webResp) { return $null }
         try {
             $stream = $webResp.GetResponseStream()
             $reader = New-Object System.IO.StreamReader($stream)
@@ -46,7 +46,7 @@ function Wait-ForHealthy([string]$Url, [scriptblock]$Ok, [int]$TimeoutSec, [stri
     $deadline = (Get-Date).AddSeconds($TimeoutSec)
     while ((Get-Date) -lt $deadline) {
         $resp = Get-JsonEvenOnError -Url $Url
-        if ($resp -ne $null -and (& $Ok $resp)) { Write-Host "  OK: $What" -ForegroundColor Green; return }
+        if ($null -ne $resp -and (& $Ok $resp)) { Write-Host "  OK: $What" -ForegroundColor Green; return }
         Start-Sleep -Seconds 3
     }
     throw "Timed out after ${TimeoutSec}s waiting for $What ($Url)"
@@ -69,6 +69,25 @@ if (Test-Path $EnvFile) {
     }
 }
 
+$GitCommit = (& git rev-parse HEAD 2>$null | Select-Object -First 1).Trim()
+if ([string]::IsNullOrWhiteSpace($GitCommit)) { throw "Cannot resolve Git revision for provenance" }
+$DirtyFiles = @(& git status --porcelain --untracked-files=all)
+$SourceRevision = $GitCommit
+if ($DirtyFiles.Count -gt 0) {
+    $SourceManifest = (& git ls-files --cached --others --exclude-standard | Sort-Object | ForEach-Object {
+        $Path = $_
+        $Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+        "$Path`:$Hash"
+    }) -join "`n"
+    $Bytes = [System.Text.Encoding]::UTF8.GetBytes($SourceManifest)
+    $Hasher = [System.Security.Cryptography.SHA256]::Create()
+    try { $TreeHash = ([BitConverter]::ToString($Hasher.ComputeHash($Bytes))).Replace('-', '').ToLowerInvariant() }
+    finally { $Hasher.Dispose() }
+    $SourceRevision = "$GitCommit+dirty.$TreeHash"
+}
+[Environment]::SetEnvironmentVariable('GIT_COMMIT', $SourceRevision, 'Process')
+Write-Host "[deploy] Source revision: $SourceRevision" -ForegroundColor DarkGray
+
 Write-Host "[deploy] Installing dependencies..." -ForegroundColor Cyan
 pnpm install
 
@@ -80,6 +99,11 @@ pnpm -r build
 
 Write-Host "[deploy] Applying DB migrations..." -ForegroundColor Cyan
 pnpm db:migrate
+if ($LASTEXITCODE -ne 0) { throw "pnpm db:migrate failed" }
+
+Write-Host "[deploy] Verifying compiled-strategy provenance schema..." -ForegroundColor Cyan
+pnpm db:provenance:check
+if ($LASTEXITCODE -ne 0) { throw "compiled-strategy provenance check failed" }
 
 Write-Host "[deploy] Stopping any previous tradzfx-v2 PM2 services..." -ForegroundColor Cyan
 @("tm-web-v2", "tm-web-v2-ninja-trail", "tz-web-v2", "tz-dxy-synthetic") | ForEach-Object {

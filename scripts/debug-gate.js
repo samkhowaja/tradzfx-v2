@@ -22,6 +22,7 @@ const { runLivePipeline } = require('../packages/tradePipeline/dist/index.js');
     strategySpec: spec,
     latestSignalSQL,
     pool,
+    evaluationOnly: true,
     createOrder: async (input) => ({ id: 'paper-' + Math.random().toString(36).slice(2) }),
   });
 

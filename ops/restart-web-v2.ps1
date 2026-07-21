@@ -94,6 +94,25 @@ if (Test-Path $EnvFile) {
     }
 }
 
+$GitCommit = (& git rev-parse HEAD 2>$null | Select-Object -First 1).Trim()
+if ([string]::IsNullOrWhiteSpace($GitCommit)) { throw "Cannot resolve Git revision for provenance" }
+$DirtyFiles = @(& git status --porcelain --untracked-files=all)
+$SourceRevision = $GitCommit
+if ($DirtyFiles.Count -gt 0) {
+    $SourceManifest = (& git ls-files --cached --others --exclude-standard | Sort-Object | ForEach-Object {
+        $Path = $_
+        $Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+        "$Path`:$Hash"
+    }) -join "`n"
+    $Bytes = [System.Text.Encoding]::UTF8.GetBytes($SourceManifest)
+    $Hasher = [System.Security.Cryptography.SHA256]::Create()
+    try { $TreeHash = ([BitConverter]::ToString($Hasher.ComputeHash($Bytes))).Replace('-', '').ToLowerInvariant() }
+    finally { $Hasher.Dispose() }
+    $SourceRevision = "$GitCommit+dirty.$TreeHash"
+}
+[Environment]::SetEnvironmentVariable('GIT_COMMIT', $SourceRevision, 'Process')
+Write-Host "Source revision: $SourceRevision" -ForegroundColor DarkGray
+
 # -- GATE 1: PostgreSQL reachable --------------------------------------------
 Write-Host "Gate 1/4: checking PostgreSQL on 127.0.0.1:5432..." -ForegroundColor Cyan
 if (-not (Test-TcpPort -Port 5432)) {
@@ -119,6 +138,12 @@ if ($LASTEXITCODE -ne 0) { throw "pnpm install failed" }
 
 & pnpm -r build
 if ($LASTEXITCODE -ne 0) { throw "pnpm -r build failed" }
+
+Write-Host "Applying migrations and verifying provenance schema..." -ForegroundColor Cyan
+& pnpm db:migrate
+if ($LASTEXITCODE -ne 0) { throw "pnpm db:migrate failed" }
+& pnpm db:provenance:check
+if ($LASTEXITCODE -ne 0) { throw "compiled-strategy provenance check failed" }
 
 # -- Restart ONLY the web app -------------------------------------------------
 Write-Host "Restarting canonical web app under PM2..." -ForegroundColor Cyan

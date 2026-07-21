@@ -130,12 +130,21 @@ export function createVolatilityGate(rawConfig: VolatilityGateConfig) {
   // This makes a single spec work across FX (low ATR) and metals (high ATR)
   // without manual per-symbol tuning. The spec can still override with explicit
   // maxAtr5Pips or maxAtrPercentile. (RC-6 / BUG-3.1)
-  if (
-    config.maxAtr5Pips === undefined &&
-    config.maxAtrPercentile === undefined &&
-    !config.sessionMaxAtr5Pips &&
-    !config.sessionMaxAtrPercentile
-  ) {
+  //
+  // Only applies when no explicit ATR pips/percentile config exists at all
+  // (neither max nor min). If the user explicitly configures minAtr5Pips,
+  // sessionMinAtr5Pips, etc., they have a specific policy — do NOT silently
+  // add a max-percentile that would unexpectedly require a profile row.
+  const hasAnyAtrConfig =
+    config.maxAtr5Pips !== undefined ||
+    config.minAtr5Pips !== undefined ||
+    config.maxAtrPercentile !== undefined ||
+    config.minAtrPercentile !== undefined ||
+    !!config.sessionMaxAtr5Pips ||
+    !!config.sessionMinAtr5Pips ||
+    !!config.sessionMaxAtrPercentile ||
+    !!config.sessionMinAtrPercentile;
+  if (!hasAnyAtrConfig) {
     config.maxAtrPercentile = 0.95;
   }
   validateVolatilityPercentiles(config);
@@ -161,6 +170,17 @@ export function createVolatilityGate(rawConfig: VolatilityGateConfig) {
 
     const maxPct = config.sessionMaxAtrPercentile?.[session] ?? config.maxAtrPercentile;
     const minPct = config.sessionMinAtrPercentile?.[session] ?? config.minAtrPercentile;
+
+    // Fail-closed: if a percentile policy is configured but the profile row is
+    // missing AND there is no absolute pips fallback, we cannot compute the
+    // ceiling. Block the trade rather than silently passing everything (which
+    // would let wide-ATR trades through during data outages). (#3.5.8e)
+    if (maxPct !== undefined && !profile && maxAtr5Pips === undefined) {
+      return {
+        passed: false,
+        reason: `Volatility profile unavailable for ${ctx.symbol}/${session} (maxAtrPercentile=${maxPct})`,
+      };
+    }
     if (maxPct !== undefined && profile) {
       const col = pctToColumn(maxPct);
       const v = profile[col];

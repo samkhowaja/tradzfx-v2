@@ -23,12 +23,20 @@ export async function GET(
   try {
     let sql = `
       SELECT
-        ts, symbol, tf, grade, direction, confidence,
-        entry_zone, stop_loss, take_profit, risk_reward,
-        outcome, outcome_r, exit_price, exit_ts, bars_held,
-        htf_state, session_name, effective_entry, max_adverse_r, max_favorable_r
-      FROM backtest_results
-      WHERE variant_id = $1 AND ts >= $2`;
+        bt.ts, bt.symbol, bt.tf, bt.grade, bt.direction, bt.confidence,
+        bt.entry_zone, bt.stop_loss, bt.take_profit, bt.risk_reward,
+        bt.outcome, bt.outcome_r, bt.exit_price, bt.exit_ts, bt.bars_held,
+        bt.htf_state, bt.session_name, bt.effective_entry, bt.max_adverse_r, bt.max_favorable_r
+      FROM backtest_results bt
+      INNER JOIN (
+        SELECT id AS latest_run_id
+        FROM backtest_runs
+        WHERE variant_id = $1
+        ORDER BY end_ts DESC, id DESC
+        LIMIT 1
+      ) latest ON bt.run_id = latest.latest_run_id
+      WHERE bt.variant_id = $1 AND bt.ts >= $2
+        AND bt.heat_dropped = false`;
     const paramsArr: (string | Date)[] = [variantId, since];
     let idx = 3;
     if (symbol) {

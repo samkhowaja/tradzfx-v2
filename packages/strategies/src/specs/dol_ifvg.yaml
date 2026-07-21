@@ -1,0 +1,95 @@
+id: dol_ifvg
+familyId: dol_ifvg
+active: true
+name: "DOL iFVG — Draw on Liquidity"
+version: "1.0.0"
+description: >
+  Draw on Liquidity (DOL) strategy per YouTube transcript. Three reads condensed
+  to two conditions: (1) HTF bias sets direction, (2) anti-bias sweep + iFVG
+  in bias direction confirms entry. HTF context is the bias. DOL is implicit:
+  the sweep consumed wrong-side liquidity, the iFVG is the reversal entry.
+signalSource: generic
+
+filters:
+  symbols: [XAUUSD]
+  sessions: [ASIA, LONDON, OVERLAP, NY]
+
+setup:
+  # Read 1: HTF directional context
+  - id: htf_bias
+    feature: features_bias
+    tf: 1h
+    predicate: "direction IN ('bullish', 'bearish')"
+    required: true
+    weight: 8
+    lookbackBars: 8
+
+entry:
+  # Read 3a: Anti-bias sweep — wrong-side liquidity consumed (induction)
+  - id: sweep_induction
+    feature: features_sweep
+    tf: 5m
+    predicate: "direction != features_bias.direction"
+    required: true
+    weight: 9
+    lookbackBars: 48
+
+  # Read 3b: iFVG in bias direction — entry trigger
+  - id: ifvg_entry
+    feature: features_ifvg
+    tf: 5m
+    predicate: "direction = features_bias.direction AND fill_pct > 0 AND fill_pct < 0.8 AND is_fresh = true"
+    required: true
+    weight: 10
+    lookbackBars: 120
+
+entryConfig:
+  type: market
+
+risk:
+  sl: "25 pips"
+  tp: "125 pips"
+  minRR: 4.0
+  timeoutBars: 120
+  maxFillBars: 30
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ASIA, LONDON, OVERLAP, NY]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 2
+      maxSignalsPerDay: 6
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 30
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 60
+
+notes:
+  - "Three-read framework: (1) HTF context (bias), (2) DOL (implicit via sweep target), (3) alignment (anti-bias sweep + iFVG entry)."
+  - "Entry is downstream of the read. Anti-bias sweep induces the move, iFVG confirms reversal entry."
+  - "Source: YouTube strategy transcript — saved in docs/strategies/draw-on-liquidity.md"

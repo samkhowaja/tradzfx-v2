@@ -13,6 +13,7 @@
  */
 
 import { getPool, type Queryable } from "./utils/db";
+import { ACTIVE_ORDER_STATUSES } from "./order/constants";
 
 export interface SmallAccountPositionConfig {
   enabled: boolean;
@@ -63,29 +64,32 @@ export interface GateResult {
   reason?: string;
 }
 
-const ACTIVE_STATUSES = ["pending", "sent", "acked"];
+const ACTIVE_STATUSES = ACTIVE_ORDER_STATUSES as readonly string[];
 
 async function countActiveOrders(
   db: Queryable,
+  asOf: Date,
   symbol?: string
 ): Promise<number> {
   const sql = symbol
-    ? `SELECT count(*)::int AS cnt FROM orders WHERE symbol = $1 AND status = ANY($2) AND created_at >= NOW() - INTERVAL '24 hours'`
-    : `SELECT count(*)::int AS cnt FROM orders WHERE status = ANY($1) AND created_at >= NOW() - INTERVAL '24 hours'`;
-  const params = symbol ? [symbol, ACTIVE_STATUSES] : [ACTIVE_STATUSES];
+    ? `SELECT count(*)::int AS cnt FROM orders WHERE symbol = $1 AND status = ANY($2) AND created_at >= $3::timestamptz - INTERVAL '24 hours' AND created_at <= $3::timestamptz`
+    : `SELECT count(*)::int AS cnt FROM orders WHERE status = ANY($1) AND created_at >= $2::timestamptz - INTERVAL '24 hours' AND created_at <= $2::timestamptz`;
+  const params = symbol ? [symbol, ACTIVE_STATUSES, asOf] : [ACTIVE_STATUSES, asOf];
   const { rows } = await db.query(sql, params);
   return rows[0]?.cnt ?? 0;
 }
 
 async function getDailyRealizedPnl(
   db: Queryable,
+  asOf: Date,
   terminalKeyId?: string
 ): Promise<number> {
-  const params: (string | string[])[] = [];
+  const params: (string | Date)[] = [asOf];
   let sql = `SELECT COALESCE(SUM(realized_pnl), 0)::double precision AS total
      FROM orders
      WHERE status = 'closed'
-       AND closed_at >= date_trunc('day', now() AT TIME ZONE 'UTC')`;
+       AND closed_at >= date_trunc('day', $1::timestamptz AT TIME ZONE 'UTC')
+       AND closed_at <= $1`;
 
   if (terminalKeyId) {
     params.push(terminalKeyId);
@@ -98,15 +102,16 @@ async function getDailyRealizedPnl(
 
 async function getLastCloseTimestamp(
   db: Queryable,
-  symbol: string
+  symbol: string,
+  asOf: Date
 ): Promise<number | null> {
   const { rows } = await db.query(
     `SELECT EXTRACT(EPOCH FROM closed_at) * 1000 AS ts
      FROM orders
-     WHERE symbol = $1 AND status = 'closed'
+     WHERE symbol = $1 AND status = 'closed' AND closed_at <= $2
      ORDER BY closed_at DESC
      LIMIT 1`,
-    [symbol]
+    [symbol, asOf]
   );
   const ts = rows[0]?.ts;
   return ts ? Number(ts) : null;
@@ -134,12 +139,13 @@ async function getLatestTerminalBalance(
 
 async function getConsecutiveLosses(
   db: Queryable,
+  asOf: Date,
   terminalKeyId?: string
 ): Promise<number> {
   let sql = `SELECT outcome, realized_pnl
      FROM orders
-     WHERE status = 'closed'`;
-  const params: string[] = [];
+     WHERE status = 'closed' AND closed_at <= $1`;
+  const params: (string | Date)[] = [asOf];
 
   if (terminalKeyId) {
     params.push(terminalKeyId);
@@ -173,13 +179,14 @@ async function getConsecutiveLosses(
 export async function checkSmallAccountGate(
   db: Queryable,
   symbol: string,
-  config?: Partial<SmallAccountPositionConfig>
+  config?: Partial<SmallAccountPositionConfig>,
+  asOf: Date = new Date()
 ): Promise<GateResult> {
   const cfg = { ...loadSmallAccountConfig(config?.terminalKeyId), ...config };
   if (!cfg.enabled) return { ok: true };
 
   // 1. One position per symbol.
-  const symbolActive = await countActiveOrders(db, symbol);
+  const symbolActive = await countActiveOrders(db, asOf, symbol);
   if (symbolActive >= cfg.maxPositionsPerSymbol) {
     return {
       ok: false,
@@ -188,7 +195,7 @@ export async function checkSmallAccountGate(
   }
 
   // 2. Total concurrent cap.
-  const totalActive = await countActiveOrders(db);
+  const totalActive = await countActiveOrders(db, asOf);
   if (totalActive >= cfg.maxPositionsTotal) {
     return {
       ok: false,
@@ -204,7 +211,7 @@ export async function checkSmallAccountGate(
         ? cfg.accountBalance
         : (await getLatestTerminalBalance(db, cfg.terminalKeyId)) ?? 0;
     if (dailyLossUsd > 0 || balance > 0) {
-      const dailyPnl = await getDailyRealizedPnl(db, cfg.terminalKeyId);
+      const dailyPnl = await getDailyRealizedPnl(db, asOf, cfg.terminalKeyId);
       const limit = dailyLossUsd > 0
         ? dailyLossUsd
         : balance * (cfg.maxDailyLossPct / 100);
@@ -219,9 +226,9 @@ export async function checkSmallAccountGate(
 
   // 4. Cooldown on the same symbol.
   if (cfg.cooldownMinutes > 0) {
-    const lastCloseMs = await getLastCloseTimestamp(db, symbol);
+    const lastCloseMs = await getLastCloseTimestamp(db, symbol, asOf);
     if (lastCloseMs) {
-      const elapsedMin = (Date.now() - lastCloseMs) / 60_000;
+      const elapsedMin = (asOf.getTime() - lastCloseMs) / 60_000;
       if (elapsedMin < cfg.cooldownMinutes) {
         return {
           ok: false,
@@ -233,7 +240,7 @@ export async function checkSmallAccountGate(
 
   // 5. Consecutive-loss circuit breaker.
   if (cfg.maxConsecutiveLosses > 0) {
-    const streak = await getConsecutiveLosses(db, cfg.terminalKeyId);
+    const streak = await getConsecutiveLosses(db, asOf, cfg.terminalKeyId);
     if (streak >= cfg.maxConsecutiveLosses) {
       return {
         ok: false,

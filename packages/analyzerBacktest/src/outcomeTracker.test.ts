@@ -130,4 +130,35 @@ describe("trackOutcome", () => {
     });
     expect(withCommission.outcomeR).toBeLessThan(withoutCommission.outcomeR);
   });
+
+  it("returns sl for shorts in pessimistic mode when both levels hit (symmetric)", () => {
+    // Both SL and TP touched in one bar. pessimistic must resolve to "sl" for
+    // BOTH directions — the old code resolved shorts to "tp" (flattering short
+    // scalps by booking wins on both-hit bars).
+    const future = [
+      { ts: "2026-01-01T00:01:00Z", o: 100, h: 104, l: 96, c: 101, v: 1 },
+    ];
+    const shortResult = trackOutcome("short", { top: 101, bottom: 99 }, 103, 97, future, {
+      intrabarMode: "pessimistic",
+    });
+    expect(shortResult.outcome).toBe("loss");
+    expect(shortResult.outcomeR).toBeLessThan(0);
+
+    // Sanity check: long is also loss in pessimistic (regression guard)
+    const longResult = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future, {
+      intrabarMode: "pessimistic",
+    });
+    expect(longResult.outcome).toBe("loss");
+
+    // Optimistic mode should resolve to win for BOTH directions (symmetric)
+    const shortOpt = trackOutcome("short", { top: 101, bottom: 99 }, 103, 97, future, {
+      intrabarMode: "optimistic",
+    });
+    expect(shortOpt.outcome).toBe("win");
+
+    const longOpt = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future, {
+      intrabarMode: "optimistic",
+    });
+    expect(longOpt.outcome).toBe("win");
+  });
 });

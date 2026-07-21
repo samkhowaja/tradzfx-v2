@@ -20,8 +20,20 @@ interface FeatureDAGLike {
   ): { name: string; version: string; dependencies: string[] } | undefined;
 }
 
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, nested]) => [key, canonicalize(nested)]),
+    );
+  }
+  return value;
+}
+
 function canonicalJson(obj: unknown): string {
-  return JSON.stringify(obj, Object.keys(obj as object).sort());
+  return JSON.stringify(canonicalize(obj));
 }
 
 function sha256(input: string): string {
@@ -127,6 +139,66 @@ export async function getOrCreateStrategySettingsSnapshot(
   return inserted[0].snapshot_id as string;
 }
 
+export interface CompiledStrategyArtifactInput {
+  strategySnapshotId: string;
+  strategyId: string;
+  compilerVersion: string;
+  registryVersion: string;
+  sourceRevision: string;
+  sourceSpecHash: string;
+  pitSignalSql: string;
+}
+
+/** Persist exact PIT SQL used for future replay without invoking mutable compiler code. */
+export async function getOrCreateCompiledStrategySnapshot(
+  pool: Pool,
+  input: CompiledStrategyArtifactInput,
+): Promise<string> {
+  const parameterContract = { symbol: 1, ttlInterval: 2, evaluationTs: 3 };
+  const payload = {
+    strategySnapshotId: input.strategySnapshotId,
+    strategyId: input.strategyId,
+    compilerVersion: input.compilerVersion,
+    registryVersion: input.registryVersion,
+    sourceRevision: input.sourceRevision,
+    sourceSpecHash: input.sourceSpecHash,
+    pitSignalSql: input.pitSignalSql,
+    parameterContract,
+  };
+  if (!/^[0-9a-f]{64}$/.test(input.sourceSpecHash)) {
+    throw new Error("Compiled strategy sourceSpecHash must be a lowercase SHA-256 hex digest");
+  }
+  if (!input.compilerVersion.trim() || !input.registryVersion.trim()
+      || !input.sourceRevision.trim() || !input.pitSignalSql.trim()) {
+    throw new Error("Compiled strategy provenance and PIT SQL must be non-empty");
+  }
+
+  const contentHash = sha256(canonicalJson(payload));
+  const { rows } = await pool.query(
+    `WITH inserted AS (
+       INSERT INTO compiled_strategy_snapshot (
+         content_hash, strategy_snapshot_id, strategy_id, compiler_version,
+         registry_version, source_revision, source_spec_hash, pit_signal_sql,
+         parameter_contract_json
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (content_hash_bin) DO NOTHING
+       RETURNING snapshot_id
+     )
+     SELECT snapshot_id FROM inserted
+     UNION ALL
+     SELECT snapshot_id FROM compiled_strategy_snapshot WHERE content_hash_bin = $10
+     LIMIT 1`,
+    [
+      contentHash, input.strategySnapshotId, input.strategyId,
+      input.compilerVersion, input.registryVersion, input.sourceRevision,
+      input.sourceSpecHash, input.pitSignalSql, JSON.stringify(parameterContract),
+      binarySha256(contentHash),
+    ],
+  );
+  if (!rows[0]?.snapshot_id) throw new Error("Compiled strategy snapshot persistence returned no identity");
+  return rows[0].snapshot_id as string;
+}
+
 export interface DeploymentMatch {
   deploymentId: string;
   isNew: boolean;
@@ -138,56 +210,63 @@ export async function getOrCreateLiveDeployment(
   strategySnapshotId: string,
   featureSnapshotId: string,
   mode: "paper" | "live" = "paper",
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  compiledStrategySnapshotId?: string,
 ): Promise<DeploymentMatch> {
-  // Serialize per strategy/mode so concurrent ingest triggers can't create
-  // multiple active deployments.
-  await pool.query("SELECT pg_advisory_xact_lock(hashtext($1 || ':' || $2))", [
-    strategyId,
-    mode,
-  ]);
-
-  // Look for an active deployment with the exact same snapshots.
-  const { rows: active } = await pool.query(
-    `SELECT deployment_id
-     FROM live_deployment
-     WHERE strategy_id = $1
-       AND strategy_snapshot_id = $2
-       AND feature_snapshot_id = $3
-       AND mode = $4
-       AND is_active = TRUE
-     ORDER BY started_at DESC
-     LIMIT 1`,
-    [strategyId, strategySnapshotId, featureSnapshotId, mode]
-  );
-
-  if (active.length > 0) {
-    return { deploymentId: active[0].deployment_id as string, isNew: false };
+  if (!compiledStrategySnapshotId) {
+    throw new Error("Live deployment requires compiled strategy provenance");
   }
 
-  // Deactivate any prior deployment for this strategy/mode.
-  await pool.query(
-    `UPDATE live_deployment
-     SET is_active = FALSE, ended_at = NOW()
-     WHERE strategy_id = $1 AND mode = $2 AND is_active = TRUE`,
-    [strategyId, mode]
-  );
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1 || ':' || $2))", [strategyId, mode]);
 
-  const { rows: inserted } = await pool.query(
-    `INSERT INTO live_deployment (
-       strategy_id, strategy_snapshot_id, feature_snapshot_id, mode, metadata_json
-     ) VALUES ($1, $2, $3, $4, $5)
-     RETURNING deployment_id`,
-    [
-      strategyId,
-      strategySnapshotId,
-      featureSnapshotId,
-      mode,
-      JSON.stringify(metadata ?? {}),
-    ]
-  );
+    const { rows: active } = await client.query(
+      `SELECT deployment_id
+       FROM live_deployment
+       WHERE strategy_id = $1
+         AND strategy_snapshot_id = $2
+         AND feature_snapshot_id = $3
+         AND mode = $4
+         AND compiled_strategy_snapshot_id = $5
+         AND is_active = TRUE
+       ORDER BY started_at DESC
+       LIMIT 1`,
+      [strategyId, strategySnapshotId, featureSnapshotId, mode, compiledStrategySnapshotId],
+    );
 
-  return { deploymentId: inserted[0].deployment_id as string, isNew: true };
+    if (active.length > 0) {
+      await client.query("COMMIT");
+      return { deploymentId: active[0].deployment_id as string, isNew: false };
+    }
+
+    await client.query(
+      `UPDATE live_deployment
+       SET is_active = FALSE, ended_at = NOW()
+       WHERE strategy_id = $1 AND mode = $2 AND is_active = TRUE`,
+      [strategyId, mode],
+    );
+
+    const { rows: inserted } = await client.query(
+      `INSERT INTO live_deployment (
+         strategy_id, strategy_snapshot_id, feature_snapshot_id, mode,
+         metadata_json, compiled_strategy_snapshot_id
+       ) VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING deployment_id`,
+      [
+        strategyId, strategySnapshotId, featureSnapshotId, mode,
+        JSON.stringify(metadata ?? {}), compiledStrategySnapshotId,
+      ],
+    );
+    await client.query("COMMIT");
+    return { deploymentId: inserted[0].deployment_id as string, isNew: true };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export interface ActiveDeployment {

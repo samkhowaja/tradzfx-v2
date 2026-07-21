@@ -1,0 +1,93 @@
+id: 10xroi_v1
+familyId: 10xroi
+active: true
+experimental: true
+name: "10XROI V1 — Push-Pull 10R"
+version: "1.0.0"
+description: >
+  LR Thomas 10XROI system v1. 1h push-pull pattern aligned with daily bias.
+  Entry on 1h candle confirmation (pin bar, engulfing, hammer) near push-pull
+  level. SL proxy via ATR(1h). Fixed 10R target. Low frequency, high quality.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ ASIA, LONDON, OVERLAP, NY ]
+
+warmupBars: 240
+
+setup:
+  # Daily bias — block trades against bias (neutral = any direction OK)
+  - id: daily_bias
+    feature: features_bias
+    tf: 1d
+    predicate: "direction != 'opposite'"
+    required: true
+    weight: 5
+    lookbackBars: 5
+
+  # 1h push-pull pattern — core signal (direction set by pattern, not bias filter)
+  - id: push_pull
+    feature: features_push_pull
+    tf: 1h
+    predicate: "push_count >= 1"
+    required: true
+    weight: 10
+
+entry:
+  # 1h candle confirmation at or near push-pull level
+  - id: candle_confirm
+    feature: features_candle_pattern
+    tf: 1h
+    predicate: "pattern_name IN ('pin_bar', 'engulfing_bull', 'engulfing_bear', 'hammer', 'hanging_man') AND confidence >= 0.5"
+    required: true
+    weight: 9
+    lookbackBars: 6
+
+entryConfig:
+  type: market
+  zonePips: null
+
+risk:
+  sl: "atr(1h) * 1.0"
+  tp: "sl * 10.0"
+  minRR: 5.0
+  timeoutBars: 120
+  maxFillBars: 30
+
+signalSource: generic
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ ASIA, LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 1
+
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 1
+      maxSignalsPerDay: 2
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 60
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 30
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 1
+  cooldownMinutes: 240

@@ -135,7 +135,9 @@ describe("getCandles (candleSource)", () => {
       new Date("2026-06-08T02:00:00.000Z"),
     ].map((ts, i) => caggRow(ts, 100 + i));
     const pool = createFakePool([{ match: /FROM market\.candles_1h_canonical/, rows }]);
-    const out = await getCandles(pool, "XAUUSD", "1h", from, to);
+    // Use FX here: XAUUSD has an additional daily break at 21:00 UTC,
+    // covered independently below.
+    const out = await getCandles(pool, "EURUSD", "1h", from, to);
     expect(out).toHaveLength(6);
     expect(out.map((c) => c.tickCount)).toEqual([100, 101, 102, 103, 104, 105]);
     expect(pool.query).not.toHaveBeenCalledWith(expect.stringMatching(/time_bucket/), expect.anything());

@@ -20,7 +20,7 @@ import {
   getCandleTableForTf,
   floorToTf,
 } from "../utils/timeBucket";
-import { expectedTradableBars, gapInfo, tradableBarStarts } from "../utils/marketCalendar";
+import { expectedTradableBars, gapInfo, isTradableInstant, tradableBarStarts } from "../utils/marketCalendar";
 
 export interface CandleCoverageInfo {
   symbol: string;
@@ -79,6 +79,12 @@ function mapCandleRow(r: Record<string, unknown>): Candle {
   };
 }
 
+/** Closed-market rows remain raw evidence but must not count toward strategy
+ * coverage or enter feature computation. */
+function filterTradableCandles(candles: Candle[], symbol: string): Candle[] {
+  return candles.filter((candle) => isTradableInstant(candle.ts, symbol));
+}
+
 /**
  * Query the TimescaleDB continuous aggregate view for a timeframe.
  */
@@ -107,7 +113,7 @@ async function queryCagg(
          ORDER BY ts ASC`,
         [symbol, from, to]
       );
-  return rows.map(mapCandleRow);
+  return filterTradableCandles(rows.map(mapCandleRow), symbol);
 }
 
 /**
@@ -144,7 +150,7 @@ async function queryRollup(
          ORDER BY ts ASC`,
         [symbol, from, to, interval]
       );
-  return rows.map(mapCandleRow);
+  return filterTradableCandles(rows.map(mapCandleRow), symbol);
 }
 
 /**

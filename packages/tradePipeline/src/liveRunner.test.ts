@@ -37,17 +37,19 @@ vi.mock("@tm/shared", async (importOriginal) => {
 interface QueryHandler {
   match: RegExp;
   rows: any[];
+  error?: Error;
 }
 
 function createFakePool(handlers: QueryHandler[]): Pool {
   const query = vi.fn(async (sql: string, _params?: any[]) => {
-    if (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql)) return { rows: [] };
+    if (/^\s*(BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE\s+SAVEPOINT|ROLLBACK\s+TO\s+SAVEPOINT)/i.test(sql)) return { rows: [] };
     if (/INSERT INTO risk_state/i.test(sql)) return { rows: [] };
     if (/SELECT .+ FROM risk_state/i.test(sql)) return { rows: [{ ok: 1 }] };
     const handler = handlers.find((h) => h.match.test(sql));
     if (!handler) {
       throw new Error(`Unexpected query in test: ${sql.slice(0, 120)}`);
     }
+    if (handler.error) throw handler.error;
     return { rows: handler.rows };
   });
   const client = { query, release: vi.fn() };
@@ -61,8 +63,8 @@ function freshnessHandlers(): QueryHandler[] {
     // Candles MAX(ts) is handled separately (uses CANDLE_TABLE_BY_TF, not features)
     { match: /SELECT MAX\(ts\).*FROM candles_1m/i, rows: [{ max_ts: now }] },
     // Batched feature freshness: single UNION ALL query replacing 3 separate MAX(ts).
-    // Return fresh timestamps for all 3 features in one batch.
-    { match: /UNION ALL/i, rows: [
+    // Match feature projection too; canonical lineage CTE also contains UNION ALL.
+    { match: /feature_name[\s\S]*UNION ALL/i, rows: [
       { feature_name: "features_atr", tf: "15m", max_ts: now },
       { feature_name: "features_session", tf: "1m", max_ts: now },
       { feature_name: "features_spread", tf: "1m", max_ts: now },
@@ -138,7 +140,7 @@ function baseStrategy(gates: StrategySpec["gates"] = []): StrategySpec {
 function orderHandlers(): QueryHandler[] {
   return [
     { match: /FROM orders/i, rows: [] },
-    { match: /INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
+    { match: /WITH inserted AS[\s\S]*INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
     { match: /UPDATE live_signal SET gate_trace_run_id/i, rows: [] },
     { match: /INSERT INTO live_order/i, rows: [{ order_id: "live-order-1" }] },
     { match: /INSERT INTO decision_trace/i, rows: [] },
@@ -174,9 +176,10 @@ describe("runLivePipeline", () => {
 
     expect(result.reason).toBe("no_signal");
     expect(result.orderCreated).toBeUndefined();
-    // 5 base queries (candle MAX, 1x batched feature freshness, 3x producer SLA)
-    // + 1 signal SELECT + 1 rejection INSERT = 7 total (no transaction on early return).
-    expect(fakePool.query).toHaveBeenCalledTimes(7);
+    // 1 wall-clock guard (fires first, fails open — query count stays same)
+    // + 5 base queries (candle MAX, 1x batched feature freshness, 3x producer SLA)
+    // + 1 signal SELECT + 1 rejection INSERT = 8 total (no transaction on early return).
+    expect(fakePool.query).toHaveBeenCalledTimes(8);
   });
 
   it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {
@@ -209,13 +212,36 @@ describe("runLivePipeline", () => {
     expect(insertOrder).toBeDefined();
   });
 
-  it("does not write live_signal or live_order when deploymentId is omitted", async () => {
+  it("rolls back legacy order when canonical live_order persistence fails", async () => {
     fakePool = createFakePool([
       ...freshnessHandlers(),
       { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
       ...featureHandlers("LONDON"),
-      { match: /FROM orders/i, rows: [] },
-      { match: /INSERT INTO decision_trace/i, rows: [] },
+      ...orderHandlers().filter((handler) => !/INSERT INTO live_order/i.test(handler.match.source)),
+      { match: /INSERT INTO live_order/i, rows: [], error: new Error("canonical lineage unavailable") },
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-1",
+      createOrder: mockCreateOrder,
+    });
+
+    expect(mockCreateOrder).toHaveBeenCalledTimes(1);
+    expect(result.orderCreated).toBe(false);
+    expect(result.reason).toContain("order_creation_failed: canonical lineage unavailable");
+    expect(fakePool.query).toHaveBeenCalledWith("ROLLBACK");
+    expect(fakePool.query).not.toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("fails closed before order creation when deploymentId is omitted", async () => {
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
     ]);
     poolRef.pool = fakePool;
 
@@ -227,9 +253,9 @@ describe("runLivePipeline", () => {
       createOrder: mockCreateOrder,
     });
 
-    expect(result.orderCreated).toBe(true);
-    expect(result.liveSignalId).toBeUndefined();
-    expect(result.liveOrderId).toBeUndefined();
+    expect(result.orderCreated).toBe(false);
+    expect(result.reason).toBe("provenance_required: active deployment missing");
+    expect(mockCreateOrder).not.toHaveBeenCalled();
 
     const insertSignal = fakePool.query.mock.calls.find((c) => /INSERT INTO live_signal/i.test(c[0] as string));
     expect(insertSignal).toBeUndefined();
@@ -243,7 +269,7 @@ describe("runLivePipeline", () => {
       { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
       ...featureHandlers("LONDON"),
       { match: /FROM orders/i, rows: [] },
-      { match: /INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
+      { match: /WITH inserted AS[\s\S]*INSERT INTO live_signal/i, rows: [{ signal_id: "live-signal-1" }] },
       { match: /UPDATE live_signal SET gate_trace_run_id/i, rows: [] },
       { match: /INSERT INTO decision_trace/i, rows: [] },
     ]);
@@ -267,6 +293,41 @@ describe("runLivePipeline", () => {
 
     const insertOrder = fakePool.query.mock.calls.find((c) => /INSERT INTO live_order/i.test(c[0] as string));
     expect(insertOrder).toBeUndefined();
+  });
+
+  it("builds an order candidate but rolls back all writes in evaluation-only mode", async () => {
+    const evaluationTs = new Date();
+    fakePool = createFakePool([
+      ...freshnessHandlers(),
+      { match: /SELECT \* FROM signal_view/i, rows: [baseSignalRow()] },
+      ...featureHandlers("LONDON"),
+      { match: /FROM orders/i, rows: [] },
+      { match: /INSERT INTO decision_trace/i, rows: [] },
+    ]);
+    poolRef.pool = fakePool;
+
+    const result = await runLivePipeline({
+      symbol: "EURUSD",
+      strategySpec: baseStrategy(),
+      latestSignalSQL: "SELECT * FROM signal_view",
+      pool: fakePool,
+      deploymentId: "deployment-must-not-write",
+      evaluationTs,
+      evaluationOnly: true,
+      createOrder: mockCreateOrder,
+    });
+
+    expect(result.orderCreated).toBe(true);
+    expect(result.orderCandidate).toBeDefined();
+    expect(result.liveSignalId).toBeUndefined();
+    expect(result.liveOrderId).toBeUndefined();
+    expect(mockCreateOrder).not.toHaveBeenCalled();
+
+    const writes = fakePool.query.mock.calls.filter((c) =>
+      /INSERT INTO (live_signal|live_order|live_signal_rejection)/i.test(c[0] as string)
+    );
+    expect(writes).toHaveLength(0);
+    expect(fakePool.query).toHaveBeenCalledWith("ROLLBACK");
   });
 });
 

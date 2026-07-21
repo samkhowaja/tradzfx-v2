@@ -25,6 +25,7 @@ interface FeatureJob {
 
 const DEFAULT_REQUESTED_FEATURES: string[] = [
   "features_atr",
+  "features_volatility_normalized",
   "features_pivot",
   "features_structure",
   "features_sweep",
@@ -49,6 +50,7 @@ const DEFAULT_REQUESTED_FEATURES: string[] = [
   "features_direction_state",
   "features_spread",
   "features_zone_retest",
+  "features_push_pull",
 ];
 
 /**

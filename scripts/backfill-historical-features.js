@@ -75,6 +75,7 @@ const SEED_FEATURES = [
   "features_sweep",
   "features_candle_pattern",
   "features_ifvg",
+  "features_push_pull",
 ];
 
 function getRequestedFeatures() {
@@ -164,6 +165,8 @@ async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
         requestedFeatures,
         lookbackBars: 500,
         skipCache: true,
+        skipEventGate: true,
+        skipInvariant: true,
         batchInserts: true,
         batchSize: 1000,
         skipLifecycle: true,

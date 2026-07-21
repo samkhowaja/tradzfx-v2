@@ -73,7 +73,12 @@ gates:
   - id: volatility_gate
     name: volatility
     params:
-      maxAtr5Pips: 2.5
+      # Cross-asset policy: resolve p95 from each symbol/session profile.
+      # One absolute pip ceiling blocked normal GBPUSD London volatility and
+      # every XAUUSD candidate because their ATR scales differ by design.
+      maxAtrPercentile: 0.95
+      atrTf: 5m
+      atrPeriod: 5
 
   - id: spread_gate
     name: spread

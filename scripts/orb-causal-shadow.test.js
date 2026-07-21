@@ -1,0 +1,6 @@
+const test=require("node:test"),assert=require("node:assert/strict");
+const shadow=require("./orb-causal-shadow");
+test("shadow identity stays separate and orderless",()=>{assert.equal(shadow.spec.id,"orb_scalper_1m_causal_shadow");assert.notEqual(shadow.spec.id,"orb_scalper_1m");assert.equal(shadow.spec.live,undefined);assert.equal(shadow.MAX_OBSERVATION_BARS,240)});
+test("fingerprint is deterministic and side-sensitive",()=>{const signal={ts:"2026-07-18T13:30:00Z",side:"buy",entry_price:4000,rangeId:"XAUUSD:15m:2026-07-18:london:15"};assert.equal(shadow.fingerprint(signal),shadow.fingerprint({...signal}));assert.notEqual(shadow.fingerprint(signal),shadow.fingerprint({...signal,side:"sell"}))});
+test("recovery range includes earliest persisted open candidate",()=>{const to=new Date("2026-07-18T20:00:00Z"),state={candidates:{closed:{ts:"2026-07-10T10:00:00Z",status:"win"},newer:{ts:"2026-07-18T13:45:00Z",status:"open"},older:{ts:"2026-07-17T06:00:00Z",status:"open"}}};assert.equal(shadow.recoveryFrom(to,state).toISOString(),"2026-07-17T05:59:00.000Z")});
+test("recovery range defaults to trailing 36 hours without open candidates",()=>{const to=new Date("2026-07-18T20:00:00Z");assert.equal(shadow.recoveryFrom(to,{candidates:{}}).toISOString(),"2026-07-17T08:00:00.000Z")});

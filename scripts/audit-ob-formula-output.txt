@@ -1,0 +1,23 @@
+XAUUSD mismatches: 23
+
+=== event_id=19 tf=5m kind=bearish ===
+  top=3987.8 bottom=3984.5 formed_at=Fri Jul 17 2026 08:25:00 GMT-0400 (Eastern Daylight Time)
+
+=== COMPARISON (DRAIN-SQL | REPLAY-JS | STATE-SHADOW) ===
+first_touch_at  | Fri Jul 17 2026 08:26:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 08:26:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 08:30:00 GMT-0400 (Eastern Daylight Time)
+fill_pct        | 1 | 1 | 1
+mitigated_at    | Fri Jul 17 2026 08:26:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 08:26:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 08:30:00 GMT-0400 (Eastern Daylight Time)
+invalidated_at  | Fri Jul 17 2026 09:38:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 09:38:00 GMT-0400 (Eastern Daylight Time) | Fri Jul 17 2026 09:35:00 GMT-0400 (Eastern Daylight Time)
+is_fresh        | false | false | false
+
+✅ DRAIN==REPLAY — formula correct. STATE stale (engine overwrote after drain).
+
+=== Bulk XAUUSD ===
+{
+  "total": 64,
+  "drain_eq_replay": 64,
+  "state_drain_diff": 23
+}
+
+✅ LIFE-CYCLE FORMULA CORRECT (drain SQL == replay JS for all 64 events)
+   23/64 events have stale state_shadow (engine overwrote after drain)

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { compileStrategy } from "./compiler";
 import { buildLookbackInterval, sessionGapPaddingMinutes } from "./sqlBuilder";
-import type { StrategyCondition, StrategySpec } from "@tm/shared";
+import type { StrategyCondition, StrategySpec, ProgressiveStep } from "@tm/shared";
 
 function baseSpec(overrides: Partial<StrategySpec> = {}): StrategySpec {
   return {
@@ -40,6 +40,21 @@ function baseSpec(overrides: Partial<StrategySpec> = {}): StrategySpec {
 }
 
 describe("compileStrategy", () => {
+  it("generates parameterized historical signal SQL without wall-clock leakage", () => {
+    const compiled = compileStrategy(baseSpec(), {
+      mode: "pit",
+      trustStoredLifecycle: false,
+      asOfParameter: 3,
+    });
+    const sql = compiled.signalAtSQL();
+
+    expect(sql).toContain("ts <= $3::timestamptz");
+    expect(sql).toContain("ts >= $3::timestamptz - $2::interval");
+    expect(sql).not.toContain("NOW()");
+    expect(sql).not.toContain("SELECT MAX(ts) AS max_ts");
+    expect(compiled.sql).toContain("ts <= $3::timestamptz");
+  });
+
   it("uses custom risk.sl and risk.tp formulas", () => {
     const spec = baseSpec({
       risk: {
@@ -77,6 +92,35 @@ describe("compileStrategy", () => {
 
     expect(sql).toContain("'stop' as entry_type");
     expect(sql).toContain("+ 0.0005");
+  });
+
+  it("separates moving-average reference from market planned entry", () => {
+    const spec = baseSpec({
+      signalSource: "moving_average",
+      signalSourceConfig: { maType: "sma", fastPeriod: 9, slowPeriod: 21 },
+      entryConfig: { type: "market" },
+    });
+    const sql = compileStrategy(spec, { mode: "pit", asOfParameter: 3 }).signalAtSQL();
+
+    expect(sql).toContain("fast_ma.value as signal_reference_price");
+    expect(sql).toContain("market_candle.c as planned_entry_price");
+    expect(sql).toContain("market_candle.c as entry_price");
+    expect(sql).toContain("FROM market.candles_1m_canonical c");
+    expect(sql).toContain("c.ts <= e.ts");
+    expect(sql).not.toContain("fast_ma.value as entry_price");
+  });
+
+  it("keeps moving-average pending entries anchored to the MA reference", () => {
+    const spec = baseSpec({
+      signalSource: "moving_average",
+      signalSourceConfig: { maType: "sma", fastPeriod: 9, slowPeriod: 21 },
+      entryConfig: { type: "limit", zonePips: 0.0005 },
+    });
+    const sql = compileStrategy(spec).latestSignalSQL();
+
+    expect(sql).toContain("fast_ma.value as signal_reference_price");
+    expect(sql).toMatch(/THEN \(fast_ma\.value\) - 0\.0005/);
+    expect(sql).toMatch(/THEN \(fast_ma\.value\) \+ 0\.0005/);
   });
 
   it("does not emit entry_type column when entryConfig is absent", () => {
@@ -383,9 +427,10 @@ describe("Direction Arbiter / regime predicates (SK-30)", () => {
     });
     const sql = compileStrategy(spec).latestSignalSQL();
     expect(sql).toMatch(/FROM features_direction_state/);
-    // anchor CTE must project regime (and state, since direction_state has both)
-    // and the predicate must reference b.regime.
-    expect(sql).toMatch(/SELECT symbol, ts, direction, regime, state\s+FROM features_direction_state/);
+    // Direction-state stores `regime` and `htf_state`; no physical `state`
+    // column exists. Anchor must project only valid columns.
+    expect(sql).toMatch(/SELECT symbol, ts, direction, regime\s+FROM features_direction_state/);
+    expect(sql).not.toMatch(/SELECT symbol, ts, direction, regime, state\s+FROM features_direction_state/);
     expect(sql).toMatch(/b\.regime\s*=\s*'trending'/);
   });
 
@@ -457,5 +502,140 @@ describe("buildLookbackInterval padding (P3-C)", () => {
     const noBars: StrategyCondition = { ...cond, lookbackBars: undefined };
     // features_zone default 96 bars * 15m = 1440 min + 2940 = 4380 min = 73 hours.
     expect(buildLookbackInterval(noBars)).toBe("73 hours");
+  });
+});
+
+describe("compileProgressiveSQL", () => {
+  function progressiveSpec(overrides: Partial<StrategySpec> = {}): StrategySpec {
+    return {
+      id: "prog_test",
+      name: "Progressive Test",
+      version: "1",
+      signalSource: "zone",
+      filters: { symbols: ["EURUSD"] },
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "zone_kind = 'demand'", required: true, dependsOn: ["bias"], ttlMinutes: 240 },
+      ],
+      entry: [
+        { id: "structure", feature: "features_structure", tf: "15m", predicate: "event_type IN ('bos','mss')", required: true },
+      ],
+      risk: { sl: "atr(15m) * 1.2", tp: "sl * 3.0", minRR: 3, timeoutBars: 10 },
+      gates: [],
+      ...overrides,
+    };
+  }
+
+  it("emits root step CTE from feature table with ORDER BY symbol", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    // Progressive root step uses ORDER BY (not DISTINCT ON) because the child
+    // step's LATERAL handles deduplication via DISTINCT ON (parent.symbol, parent.ts)
+    expect(sql).toContain("FROM features_bias");
+    expect(sql).toContain("ORDER BY symbol, ts DESC");
+    expect(sql).toContain("WHERE tf = '1h'");
+    // Root predicate must be fully emitted (not just equality pushdowns) —
+    // regression guard for the audit §3.1.2 silent-drop bug.
+    expect(sql).toContain("(direction != 'neutral')");
+  });
+
+  it("chains child step CTE as LATERAL anchored to parent step", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    expect(sql).toMatch(/st_zone AS \([\s\S]*?FROM st_bias/);
+    expect(sql).toContain("FROM features_zone");
+    expect(sql).toContain("WHERE symbol = st_bias.symbol");
+    expect(sql).toContain("AND tf = '15m'");
+    expect(sql).toContain("AND features_zone.ts <= st_bias.ts");
+    expect(sql).toContain("st_bias.ts - INTERVAL");
+  });
+
+  it("applies direction auto-alignment between child and parent step", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    expect(sql).toContain("pit_zone.direction = st_bias.direction");
+  });
+
+  it("skips direction alignment when autoAlignDirection: false", () => {
+    const spec = progressiveSpec({
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "zone_kind = 'demand'", required: true, dependsOn: ["bias"], autoAlignDirection: false },
+      ],
+    });
+    const { sql } = compileStrategy(spec);
+    expect(sql).not.toMatch(/pit_zone\.direction\s*=\s*st_bias\.direction/);
+  });
+
+  it("applies TTL filter when ttlMinutes set on child step", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    expect(sql).toContain("INTERVAL '240 minutes'");
+  });
+
+  it("emits entry conditions anchored to last step", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    // entry_signals CTE should reference last step alias
+    expect(sql).toMatch(/entry_signals AS [\s\S]*?FROM st_zone/);
+    // LATERAL for entry condition anchored to st_zone
+    expect(sql).toMatch(/features_structure[\s\S]*?st_zone\.ts/);
+  });
+
+  it("supports 3-step chain (bias -> zone -> ifvg) with direction alignment", () => {
+    const spec = progressiveSpec({
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "zone_kind = 'demand'", required: true, dependsOn: ["bias"] },
+        { id: "ifvg", feature: "features_ifvg", tf: "5m", predicate: "fill_pct >= 0.3", required: true, dependsOn: ["zone"] },
+      ],
+    });
+    const { sql } = compileStrategy(spec);
+    // Three CTEs in dependency order
+    expect(sql).toMatch(/st_bias AS \(/);
+    expect(sql).toMatch(/st_zone AS \([\s\S]*?FROM st_bias/);
+    expect(sql).toMatch(/st_ifvg AS \([\s\S]*?FROM st_zone/);
+    // Direction alignment on each
+    expect(sql).toContain("pit_zone.direction = st_bias.direction");
+    expect(sql).toContain("pit_ifvg.direction = st_zone.direction");
+    // entry_signals anchored to last step
+    expect(sql).toMatch(/entry_signals AS [\s\S]*?FROM st_ifvg/);
+  });
+
+  it("strips is_fresh in PIT mode for progressive steps", () => {
+    const spec = progressiveSpec({
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "zone_kind = 'demand' AND is_fresh = true", required: true, dependsOn: ["bias"] },
+      ],
+    });
+    const pitFrom = new Date("2026-04-10T00:00:00.000Z");
+    const pitTo = new Date("2026-07-09T00:00:00.000Z");
+    const { sql } = compileStrategy(spec, { mode: "pit", from: pitFrom, to: pitTo, symbol: "EURUSD" });
+    expect(sql).not.toMatch(/is_fresh/i);
+    expect(sql).toContain("zone_kind = 'demand'");
+  });
+
+  it("keeps is_fresh in LIVE mode for progressive steps", () => {
+    const spec = progressiveSpec({
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "zone_kind = 'demand' AND is_fresh = true", required: true, dependsOn: ["bias"] },
+      ],
+    });
+    const { sql } = compileStrategy(spec);
+    expect(sql).toMatch(/is_fresh/i);
+  });
+
+  it("produces a complete WITH chain ending with signal SELECT", () => {
+    const spec = progressiveSpec();
+    const { sql } = compileStrategy(spec);
+    // Full CTE chain structure
+    expect(sql).toMatch(/\nWITH\n/);
+    expect(sql).toMatch(/st_bias AS \(/);
+    expect(sql).toMatch(/st_zone AS \(/);
+    expect(sql).toMatch(/entry_signals AS \(/);
+    // Final signal SELECT
+    expect(sql).toContain("bias_direction");
   });
 });

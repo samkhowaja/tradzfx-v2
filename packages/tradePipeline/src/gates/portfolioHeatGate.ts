@@ -38,8 +38,21 @@ const TF_TO_COLUMN: Record<string, string> = {
   "1d": "correlation1d",
 };
 
-/** Cache: (symbolA, symbolB) → correlation, cleared per-tick. */
-const corrCache = new Map<string, number>();
+/**
+ * Cache: (symbolA, symbolB) → { value, expiresAt }.
+ * TTL prevents a transient DB error from poisoning the cache forever:
+ * a failed query stores 0 for the rest of the pipeline tick, but on the
+ * *next* tick the entry is evicted and the query is re-attempted.
+ * The upstream caller (pipelineTrigger) already hoists pool creation
+ * per tick, so the TTL clock resets naturally between ticks.
+ */
+interface CacheEntry {
+  value: number;
+  expiresAt: number;
+}
+
+const corrCache = new Map<string, CacheEntry>();
+const CORR_CACHE_TTL_MS = 300_000; // 5 min — well below a pipeline tick's lifetime
 
 function cacheKey(a: string, b: string): string {
   return a < b ? `${a}:${b}` : `${b}:${a}`;
@@ -53,7 +66,7 @@ async function queryCorrelation(
 ): Promise<number | null> {
   const key = cacheKey(symbolA, symbolB);
   const cached = corrCache.get(key);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined && Date.now() < cached.expiresAt) return cached.value;
 
   try {
     const { rows } = await pool.query(
@@ -65,7 +78,7 @@ async function queryCorrelation(
       [symbolA, symbolB]
     );
     const val = rows.length > 0 ? (rows[0].corr as number) : null;
-    corrCache.set(key, val ?? 0);
+    corrCache.set(key, { value: val ?? 0, expiresAt: Date.now() + CORR_CACHE_TTL_MS });
     return val;
   } catch {
     return null; // table may not exist

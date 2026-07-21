@@ -95,25 +95,41 @@ function sessionGapPaddingMinutes(spec) {
   return maxGap * 60 + (tradesWeekend ? WEEKEND_GAP_PADDING_MINUTES : 0);
 }
 
+function deepMerge(base, override) {
+  if (Array.isArray(override)) return override;
+  if (!override || typeof override !== "object") return override === undefined ? base : override;
+  const out = { ...(base && typeof base === "object" && !Array.isArray(base) ? base : {}) };
+  for (const [key, value] of Object.entries(override)) out[key] = deepMerge(out[key], value);
+  return out;
+}
+
+function hydrateVariant(row) {
+  const base = typeof row.base_spec === "string" ? JSON.parse(row.base_spec) : row.base_spec;
+  const overrides = typeof row.overrides === "string" ? JSON.parse(row.overrides) : row.overrides;
+  return { id: row.id, name: row.name, spec: deepMerge(base ?? {}, overrides ?? {}) };
+}
+
 async function loadSpec(specId) {
   const { rows } = await pool.query(
-    `SELECT id, name, spec_json FROM strategy_specs WHERE id = $1 OR name = $1 LIMIT 1`,
+    `SELECT v.id, v.name, f.base_spec, v.overrides
+     FROM strategy_variants v
+     JOIN strategy_families f ON f.id = v.family_id
+     WHERE v.id = $1 OR v.name = $1
+     LIMIT 1`,
     [specId]
   );
   if (rows.length === 0) throw new Error(`Spec not found: ${specId}`);
-  const spec = typeof rows[0].spec_json === "string" ? JSON.parse(rows[0].spec_json) : rows[0].spec_json;
-  return { id: rows[0].id, name: rows[0].name, spec };
+  return hydrateVariant(rows[0]);
 }
 
 async function loadAllSpecs() {
   const { rows } = await pool.query(
-    `SELECT id, name, spec_json FROM strategy_specs ORDER BY name`
+    `SELECT v.id, v.name, f.base_spec, v.overrides
+     FROM strategy_variants v
+     JOIN strategy_families f ON f.id = v.family_id
+     ORDER BY v.name`
   );
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    spec: typeof r.spec_json === "string" ? JSON.parse(r.spec_json) : r.spec_json,
-  }));
+  return rows.map(hydrateVariant);
 }
 
 // ── condition analysis ───────────────────────────────────────────────────────
@@ -343,9 +359,8 @@ function printReport(results, spec, failOnWarn) {
   console.log(lines.join("\n"));
 
   if (fail > 0) return 2;
-  if (warn > 0 && failOnWarn) return 1;
   if (error > 0) return 3;
-  if (warn > 0) return 1;
+  if (warn > 0 && failOnWarn) return 1;
   return 0;
 }
 

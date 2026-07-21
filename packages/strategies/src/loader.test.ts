@@ -33,6 +33,6 @@ describe("loadStrategyFromYaml", () => {
     expect(spec.name).toBe("Key-Level Bounce V1 (4R target)");
     expect(spec.risk.tp).toBe("sl * 4.0");
     expect(spec.risk.sl).toBe("50 pips");
-    expect(spec.setup.some((c) => c.feature === "features_htf_bias")).toBe(true);
+    expect(spec.steps!.some((s) => s.feature === "features_bias")).toBe(true);
   });
 });

@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /**
- * Refresh the TimescaleDB continuous aggregates that back the HTF candle views
- * (candles_5m, candles_15m, candles_1h, candles_4h, candles_1d_utc,
- *  candles_1d_ny).
+ * Refresh raw broker TimescaleDB continuous aggregates, then rebuild governed
+ * canonical HTF projections over the same source range.
  *
  * Why this exists:
  *   The HTF candle views are continuous aggregates. Their materialized portion
@@ -55,6 +54,7 @@ async function main() {
 
   console.log(`[refresh-candle-caggs] range: ${from} -> ${to}`);
 
+  let failed = false;
   for (const cagg of CAGGS) {
     const t0 = Date.now();
     try {
@@ -65,8 +65,22 @@ async function main() {
       ]);
       console.log(`[refresh-candle-caggs] ${cagg}: OK (${Date.now() - t0}ms)`);
     } catch (err) {
+      failed = true;
       console.error(`[refresh-candle-caggs] ${cagg}: FAILED - ${err.message}`);
     }
+  }
+
+  if (!failed) {
+    const t0 = Date.now();
+    const { rows } = await pool.query(
+      "SELECT * FROM market.refresh_canonical_htf(NULL, $1::timestamptz, $2::timestamptz)",
+      [from, to]
+    );
+    console.log(`[refresh-candle-caggs] canonical HTF: OK (${Date.now() - t0}ms)`);
+    console.table(rows);
+  } else {
+    process.exitCode = 1;
+    console.error("[refresh-candle-caggs] canonical HTF skipped because raw cagg refresh failed");
   }
 
   await pool.end();

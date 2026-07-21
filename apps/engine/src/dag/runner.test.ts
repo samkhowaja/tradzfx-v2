@@ -1,6 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { getCandleTableForTf } from "@tm/shared";
-import { buildOrderBlockLogicalId, resolveFeatureRowTs, shouldApplyEventGate } from "./runner";
+import {
+  buildOrderBlockLogicalId,
+  resolveDensePostflightAnchor,
+  resolveFeatureRowTs,
+  shouldApplyEventGate,
+} from "./runner";
 
 describe("buildOrderBlockLogicalId", () => {
   const lineage = {
@@ -74,5 +79,43 @@ describe("shouldApplyEventGate", () => {
   it("bypasses onEvent optimization only for explicit historical repair", () => {
     expect(shouldApplyEventGate("onEvent", true)).toBe(false);
     expect(shouldApplyEventGate(undefined, true)).toBe(false);
+  });
+});
+
+describe("resolveDensePostflightAnchor", () => {
+  it("uses persisted truth when final batch buffer is empty", async () => {
+    const sourceMaxTs = new Date("2026-07-17T14:35:00.000Z");
+    const query = vi.fn().mockResolvedValue({
+      rows: [{ max_ts: sourceMaxTs.toISOString() }],
+    });
+
+    const resolved = await resolveDensePostflightAnchor(
+      { query } as any,
+      "features_atr",
+      "EURUSD",
+      "5m",
+      sourceMaxTs,
+      null
+    );
+
+    expect(resolved).toEqual(sourceMaxTs);
+    expect(query).toHaveBeenCalledOnce();
+  });
+
+  it("keeps current buffered anchor without querying DB", async () => {
+    const sourceMaxTs = new Date("2026-07-17T14:35:00.000Z");
+    const query = vi.fn();
+
+    const resolved = await resolveDensePostflightAnchor(
+      { query } as any,
+      "features_pricing",
+      "EURUSD",
+      "5m",
+      sourceMaxTs,
+      sourceMaxTs
+    );
+
+    expect(resolved).toEqual(sourceMaxTs);
+    expect(query).not.toHaveBeenCalled();
   });
 });

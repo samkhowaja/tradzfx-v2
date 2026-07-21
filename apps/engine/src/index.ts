@@ -10,6 +10,7 @@ import { DAGRunner } from "./dag/runner";
 
 // Register all features
 import { atrFeature } from "./features/atr";
+import { volatilityNormalizedFeature } from "./features/volatilityNormalized";
 import { pivotFeature } from "./features/pivot";
 import { structureFeature } from "./features/structure";
 import { sweepFeature } from "./features/sweep";
@@ -35,8 +36,10 @@ import { eqLiquidityFeature } from "./features/eqLiquidity";
 import { htfBiasFeature } from "./features/htfBias";
 import { directionStateFeature } from "./features/directionState";
 import { spreadFeature } from "./features/spread";
+import { pushPullFeature } from "./features/pushPull";
 
 globalDAG.register(atrFeature);
+globalDAG.register(volatilityNormalizedFeature);
 globalDAG.register(pivotFeature);
 globalDAG.register(structureFeature);
 globalDAG.register(sweepFeature);
@@ -62,12 +65,14 @@ globalDAG.register(eqLiquidityFeature);
 globalDAG.register(htfBiasFeature);
 globalDAG.register(directionStateFeature);
 globalDAG.register(spreadFeature);
+globalDAG.register(pushPullFeature);
 
 export { globalDAG, DAGRunner };
 export { updateLifecycleForSymbol, updateLifecycleForAllSymbols } from "./lifecycleUpdater";
 export { runFeatureWorker, type FeatureWorkerOptions } from "./worker/featureWorker";
 export * from "./featureProfiles";
 export * from "./features/atr";
+export * from "./features/volatilityNormalized";
 export * from "./features/pivot";
 export * from "./features/structure";
 export * from "./features/sweep";
@@ -93,6 +98,7 @@ export * from "./features/eqLiquidity";
 export * from "./features/htfBias";
 export * from "./features/directionState";
 export * from "./features/spread";
+export * from "./features/pushPull";
 
 // CLI entry point
 async function main() {
@@ -106,6 +112,7 @@ async function main() {
 
   const features = [
     "features_atr",
+    "features_volatility_normalized",
     "features_pivot",
     "features_structure",
     "features_sweep",

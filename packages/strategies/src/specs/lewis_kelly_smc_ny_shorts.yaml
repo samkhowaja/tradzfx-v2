@@ -2,13 +2,14 @@ id: lewis_kelly_smc_ny_shorts
 familyId: lewis_kelly_smc
 active: true
 name: Lewis Kelly SMC NY Shorts
-version: 1.0.0
+version: 2.0.0
 description: >
   SMC liquidity-sweep strategy decoded from the Lewis Kelly Trades course.
   Bearish-only, London–NY execution.
   15m structure sets bearish bias, price rotates back into a 15m supply zone,
   then a 1m bearish CHoCH/MSS confirms entry.
   Stop above the recent swing high; target at the next demand level.
+  v2: Progressive steps replaces flat setup[].
 
 category: smc
 
@@ -21,7 +22,7 @@ filters:
     - OVERLAP
     - NY
 
-setup:
+steps:
   - id: mtf_bias
     feature: features_bias
     tf: 15m
@@ -33,12 +34,17 @@ setup:
     tf: 4h
     predicate: direction = 'bearish'
     required: true
+    dependsOn: [mtf_bias]
+    ttlMinutes: 480
 
   - id: premium_pricing
     feature: features_pricing
     tf: 15m
     predicate: position IN ('premium', 'deep_premium')
     required: true
+    dependsOn: [htf_bias]
+    autoAlignDirection: false
+    ttlMinutes: 30
 
   - id: supply_retest
     feature: features_zone_retest
@@ -46,6 +52,8 @@ setup:
     groupBy: [zone_kind]
     predicate: zone_kind = 'supply' AND wick_into_zone = true
     required: true
+    dependsOn: [premium_pricing]
+    ttlMinutes: 240
 
 entry:
   - id: ltf_choch
@@ -53,7 +61,6 @@ entry:
     tf: 1m
     predicate: event_type IN ('choch', 'mss', 'bos') AND direction = 'bearish'
     required: true
-
 
 risk:
   sl: nearest_swing_high_1m

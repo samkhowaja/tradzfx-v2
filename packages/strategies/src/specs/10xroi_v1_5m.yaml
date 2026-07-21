@@ -1,0 +1,28 @@
+id: 10xroi_v1_5m
+familyId: 10xroi
+active: true
+name: "10XROI V1 — 5m"
+version: "1.0.0"
+description: "10XROI on 5m TF. 5m push-pull + daily bias + 5m candle confirmation. SL = ATR(5m)*1.0, 10R."
+overrides:
+  setup:
+    - id: push_pull
+      feature: features_push_pull
+      tf: 5m
+      predicate: "push_count >= 1"
+      required: true
+
+  entry:
+    - id: candle_confirm
+      feature: features_candle_pattern
+      tf: 5m
+      predicate: "pattern_name IN ('pin_bar', 'engulfing_bull', 'engulfing_bear', 'hammer', 'hanging_man') AND confidence >= 0.5"
+      required: true
+      lookbackBars: 6
+
+  risk:
+    sl: "atr(5m) * 1.0"
+    tp: "sl * 10.0"
+    minRR: 5.0
+    timeoutBars: 120
+    maxFillBars: 30

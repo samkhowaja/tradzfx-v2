@@ -2,10 +2,10 @@ id: keylevel_bounce
 familyId: keylevel_bounce
 active: false
 name: Key-Level Bounce
-version: 1.0.1
+version: 2.0.0
 description: >
   Captures bounces from demand/supply key levels confirmed by a 15m structure break. Targets a 3R move (≈150-250 pips on
-  XAUUSD) with a fixed 50-pip stop.
+  XAUUSD) with a fixed 50-pip stop. v2: Progressive steps replaces flat setup[].
 filters:
   symbols:
     - XAUUSD
@@ -13,30 +13,35 @@ filters:
     - LONDON
     - OVERLAP
     - NY
-setup:
+steps:
   - id: trend_bias
     feature: features_bias
     tf: 1h
     predicate: direction != 'neutral'
     required: true
+
   - id: directional_zone
     feature: features_pricing
     tf: 15m
-    predicate: |
-      (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))
-      OR
-      (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))
+    predicate: position IN ('discount', 'deep_discount', 'equilibrium', 'premium', 'deep_premium')
     required: true
+    dependsOn: [trend_bias]
+    autoAlignDirection: false
+    ttlMinutes: 30
+
   - id: htf_zone
     feature: features_zone
     tf: 15m
     predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.95
     required: true
+    dependsOn: [directional_zone]
+    ttlMinutes: 240
+
 entry:
   - id: structure_break
     feature: features_structure
     tf: 15m
-    predicate: event_type IN ('bos', 'mss') AND direction = features_bias.direction
+    predicate: event_type IN ('bos', 'mss')
     required: true
   - id: zone_retest
     feature: features_zone

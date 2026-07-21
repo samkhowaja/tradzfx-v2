@@ -1,0 +1,115 @@
+id: waqar_ebook_v1
+familyId: waqar_v2
+active: true
+experimental: true
+name: "Waqar Asim Scalp — Ebook Faithful"
+version: "1.0.0"
+description: >
+  Testable core of Waqar Asim's Forex Scalping Strategy ebook: EURUSD and
+  GBPUSD only; 1H decisional supply/demand context, 15m directional bias,
+  and 1m BOS/MSB/CHOCH followed by an inducement-style retest into aligned
+  lower-timeframe supply/demand. Shorts require premium and longs require
+  discount. Uses fixed 5-pip stop and full take-profit at 3R.
+
+filters:
+  symbols: [ EURUSD, GBPUSD ]
+  sessions: [ LONDON, OVERLAP ]
+  timeWindows:
+    - { utcStart: "08:00", utcEnd: "09:00" }
+    - { utcStart: "14:00", utcEnd: "15:00" }
+
+setup:
+  - id: htf_decisional_zone
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind IN ('demand', 'supply') AND is_fresh = true"
+    required: true
+    groupBy: [ zone_kind ]
+
+  - id: trend_bias
+    feature: features_htf_bias
+    tf: 15m
+    predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
+    required: true
+
+  - id: ebook_premium_discount
+    feature: features_pricing
+    tf: 1h
+    predicate: |
+      (features_htf_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount'))
+      OR
+      (features_htf_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))
+    required: true
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos', 'mss', 'choch') AND direction = features_htf_bias.direction"
+    required: true
+    groupBy: [ direction ]
+    ignoreLifecycle: true
+
+  - id: inducement_retest
+    feature: features_zone
+    tf: 1m
+    predicate: "zone_kind IN ('demand', 'supply') AND is_fresh = true AND fill_pct <= 1.0 AND direction = features_htf_bias.direction"
+    required: true
+    groupBy: [ zone_kind ]
+
+  - id: displacement_confluence
+    feature: features_displacement
+    tf: 1m
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND direction = features_htf_bias.direction"
+    required: false
+
+signalSource: zone
+setupFamily: zone_reversal
+
+risk:
+  sl: "5 pips"
+  tp: "sl * 3.0"
+  minRR: 3.0
+  timeoutBars: 180
+  maxFillBars: 45
+
+gates:
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP ]
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+live:
+  mode: disabled
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 180
+
+notes:
+  - "Ebook universe preserved: EURUSD and GBPUSD only."
+  - "Ebook pricing preserved: shorts in premium, longs in discount."
+  - "Full position exits at 3R; optional 50% at 3R plus 50% at 10R is not represented by the single-target backtester."
+  - "Optional GBPUSD SMT divergence is omitted because no causally complete SMT condition is available for this variant."
+  - "Aggressive break-even after a new internal high/low is omitted because the current simulator has no event-driven stop-management model."
+  - "The ebook's discretionary 50%-of-local-range pre-entry invalidation is not encoded; no exact range anchor is specified."
+  - "London clock windows are stored as fixed UTC windows, matching the existing Waqar implementation; DST-aware London conversion remains unsupported."

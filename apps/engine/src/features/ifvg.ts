@@ -200,7 +200,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       output.ifvgs
         .map(
           (z) =>
-            `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}:${z.firstTouchAt?.toISOString() ?? ""}:${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}`
+            `${z.ts.toISOString()}:${z.direction}:${z.top}:${z.bottom}`
         )
         .join("|")
     );
@@ -211,17 +211,11 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       direction: z.direction,
       top: z.top,
       bottom: z.bottom,
-      fill_pct: z.fillPct ?? null,
-      tapped: z.tapped ?? false,
       age_bars: z.ageBars ?? null,
-      is_fresh: z.isFresh ?? true,
       strength_score: z.strengthScore ?? null,
       confirmation_count: z.confirmationCount ?? null,
       originating_zone_ts: z.originatingZoneTs ?? null,
       ts: z.ts,
-      first_touch_at: z.firstTouchAt ?? null,
-      mitigated_at: z.mitigatedAt ?? null,
-      invalidated_at: z.invalidatedAt ?? null,
     }));
   },
 

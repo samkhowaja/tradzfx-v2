@@ -41,7 +41,10 @@ export class DecisionGraph {
   private nodes: Map<string, GraphNode> = new Map();
   private roots: string[] = [];
 
-  constructor(private queryClient?: Queryable) {}
+  constructor(
+    private queryClient?: Queryable,
+    private persistEnabled = true,
+  ) {}
 
   addNode(node: GraphNode): void {
     this.nodes.set(node.id, node);
@@ -107,6 +110,7 @@ export class DecisionGraph {
   }
 
   private async persistTrace(trace: DecisionTrace): Promise<void> {
+    if (!this.persistEnabled) return;
     const db = this.queryClient ?? getPool();
     const n = trace.nodes.length;
     if (n === 0) return;
@@ -124,7 +128,9 @@ export class DecisionGraph {
     try {
       await db.query(
         `INSERT INTO decision_trace (run_id, symbol, strategy_id, ts, node_id, node_type, passed, reason, latency_ms, input_hash)
-         SELECT $1, $2, $3, $4, * FROM UNNEST($5::text[], $6::text[], $7::bool[], $8::text[], $9::float8[])
+         SELECT $1, $2, $3, $4, u.node_id, u.node_type, u.passed, u.reason, u.latency_ms, NULL
+         FROM UNNEST($5::text[], $6::text[], $7::bool[], $8::text[], $9::float8[])
+           AS u(node_id, node_type, passed, reason, latency_ms)
          ON CONFLICT DO NOTHING`,
         [runId, symbol, strategyId, ts, nodeIds, nodeTypes, passed, reasons, latencies]
       );

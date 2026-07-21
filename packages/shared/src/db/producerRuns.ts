@@ -136,7 +136,10 @@ export async function assertProducerFresh(
       };
     }
   } catch {
-    return { fresh: true, ageMinutes: null, lastFinishedAt: null, watermarkTs: null, lifecycleAgeMinutes: null };
+    // Query failed (e.g. DB connection error). Fail-closed: return not fresh so
+    // the producer freshness gate can block trades during a DB outage rather than
+    // silently passing everything (which would let trades through on stale features).
+    return { fresh: false, ageMinutes: null, lastFinishedAt: null, watermarkTs: null, lifecycleAgeMinutes: null, reason: "BLOCKED_PRODUCER_QUERY_FAILED: could not query feature_producer_runs" };
   }
 
   const now = Date.now();

@@ -2,35 +2,41 @@ id: keylevel_bounce_v3
 familyId: keylevel_bounce
 active: true
 name: Key-Level Bounce V3
-version: 3.0.0
+version: 4.0.0
 description: >
   Quality-filtered key-level bounce. Requires the level to have already been tapped and to have decent quality/strength,
-  so we only trade retests of meaningful zones.
+  so we only trade retests of meaningful zones. v4: Progressive steps replaces flat setup[].
+  Direction cross-references removed — chain guarantees alignment.
 overrides:
-  setup:
+  steps:
     - id: trend_bias
       feature: features_bias
       tf: 1h
       predicate: direction != 'neutral'
       required: true
+
     - id: directional_zone
       feature: features_pricing
       tf: 15m
-      predicate: |
-        (features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))
-        OR
-        (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))
+      predicate: position IN ('discount', 'deep_discount', 'equilibrium', 'premium', 'deep_premium')
       required: true
+      dependsOn: [trend_bias]
+      autoAlignDirection: false
+      ttlMinutes: 30
+
     - id: htf_zone
       feature: features_zone
       tf: 15m
       predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.95 AND tapped = true AND quality_score > 0.05
       required: true
+      dependsOn: [directional_zone]
+      ttlMinutes: 240
+
   entry:
     - id: structure_break
       feature: features_structure
       tf: 15m
-      predicate: event_type IN ('bos', 'mss') AND direction = features_bias.direction
+      predicate: event_type IN ('bos', 'mss')
       required: true
     - id: zone_retest
       feature: features_zone

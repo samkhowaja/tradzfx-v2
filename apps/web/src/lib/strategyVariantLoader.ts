@@ -107,6 +107,42 @@ const VARIANT_SQL = `
   JOIN strategy_families f ON f.id = v.family_id
 `;
 
+/**
+ * Compute the minimal override object that, when deep-merged with `base`,
+ * reconstructs `variant`. Arrays are replaced wholesale.
+ * Ported from scripts/seed-strategy-specs.js.
+ */
+export function computeOverrides(
+  base: Record<string, any>,
+  variant: Record<string, any>
+): Record<string, any> | undefined {
+  if (variant === base) return undefined;
+  if (Array.isArray(variant)) return [...variant];
+  if (Array.isArray(base)) return variant;
+  if (isPlainObject(base) && isPlainObject(variant)) {
+    const diff: Record<string, any> = {};
+    const keys = new Set([...Object.keys(base), ...Object.keys(variant)]);
+    for (const key of keys) {
+      if (!(key in base) && key in variant) {
+        diff[key] = variant[key];
+      } else if (key in base && !(key in variant)) {
+        // Field removed in variant — store as null to override base value
+        diff[key] = null as any;
+      } else {
+        const childDiff = computeOverrides(
+          (base as any)[key],
+          (variant as any)[key]
+        );
+        if (childDiff !== undefined) {
+          diff[key] = childDiff;
+        }
+      }
+    }
+    return Object.keys(diff).length > 0 ? diff : undefined;
+  }
+  return variant;
+}
+
 export async function loadVariantById(
   pool: Pool,
   variantId: string

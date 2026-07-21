@@ -2,6 +2,7 @@ import type { TimeFrame } from "@tm/shared";
 
 export const LIVE_COMPLETE_FEATURES = [
   "features_atr",
+  "features_volatility_normalized",
   "features_pivot",
   "features_structure",
   "features_sweep",
@@ -26,6 +27,7 @@ export const LIVE_COMPLETE_FEATURES = [
   "features_direction_state",
   "features_spread",
   "features_zone_retest",
+  "features_push_pull",
 ] as const;
 
 export interface FeatureProfileRun {

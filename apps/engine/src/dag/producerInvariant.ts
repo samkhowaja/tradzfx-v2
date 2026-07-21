@@ -7,6 +7,7 @@ export type ProducerOutputMode = "dense" | "sparse" | "session_scoped";
  */
 const OUTPUT_MODES: Readonly<Record<string, ProducerOutputMode>> = {
   features_atr: "dense",
+  features_volatility_normalized: "dense",
   features_bias: "dense",
   features_bollinger: "dense",
   features_candle_pattern: "sparse",
@@ -24,6 +25,7 @@ const OUTPUT_MODES: Readonly<Record<string, ProducerOutputMode>> = {
   features_order_block: "sparse",
   features_pivot: "sparse",
   features_pricing: "dense",
+  features_push_pull: "sparse",
   features_session: "dense",
   features_session_hl: "dense",
   features_spread: "dense",

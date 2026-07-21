@@ -66,9 +66,9 @@ export function isWeekendTimestamp(ts: Date): boolean {
   return day === 0 || day === 6;
 }
 
-export function filterWeekdayCandles<T extends { ts: Date }>(candles: T[]): T[] {
+export function filterWeekdayCandles<T extends { ts: Date }>(candles: T[], symbol?: string): T[] {
   if (process.env.TM_FEATURE_ALLOW_WEEKEND === "1") return candles;
-  return candles.filter((c) => !isWeekendTimestamp(c.ts));
+  return candles.filter((c) => isTradableInstant(c.ts, symbol));
 }
 
 /**

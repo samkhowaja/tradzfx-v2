@@ -9,6 +9,7 @@ export * from "./gates/dailyLossGate";
 export * from "./gates/dailyWinGate";
 export * from "./orderExecutor";
 export * from "./liveRunner";
+export * from "./replayComparison";
 export * from "./notify";
 export * from "./postFill";
 export * from "./monitor";

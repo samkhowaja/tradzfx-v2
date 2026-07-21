@@ -34,6 +34,7 @@ async function main() {
     strategySpec: spec,
     latestSignalSQL: sql,
     pool,
+    evaluationOnly: true,
     createOrder: async (input) => {
       console.log("[dry-run-live] Would create order:", {
         side: input.side,

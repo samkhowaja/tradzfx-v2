@@ -504,7 +504,6 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
           (z) =>
             `${z.ts.toISOString()}:${z.zoneKind}:${z.direction ?? ""}:${z.top}:${z.bottom}:` +
             `${z.rankScore ?? 0}:${z.qualityScore ?? 0}:${z.outcome ?? ""}:` +
-            `${z.mitigatedAt?.toISOString() ?? ""}:${z.invalidatedAt?.toISOString() ?? ""}:` +
             `${z.touchCount ?? 0}:${z.retestCount ?? 0}`
         )
         .join("|")
@@ -520,20 +519,14 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       direction: z.direction ?? null,
       top: z.top,
       bottom: z.bottom,
-      fill_pct: z.fillPct,
-      tapped: z.tapped,
       ts: z.ts,
       age_bars: z.ageBars ?? null,
       departure_candles: z.departureCandles ?? null,
-      is_fresh: z.isFresh ?? null,
       quality_score: z.qualityScore ?? null,
       formation: z.formation ?? null,
       strength_score: z.strengthScore ?? null,
       rank_score: z.rankScore ?? null,
       outcome: z.outcome ?? null,
-      first_touch_at: z.firstTouchAt ?? null,
-      mitigated_at: z.mitigatedAt ?? null,
-      invalidated_at: z.invalidatedAt ?? null,
       touch_count: z.touchCount ?? 0,
       retest_count: z.retestCount ?? 0,
     }));

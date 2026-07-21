@@ -14,7 +14,7 @@ const { Pool } = require("pg");
 const fs = require("fs");
 const YAML = require("yaml");
 const path = require("path");
-const { validateSpec, validateTemporalCoverage, FEATURE_REGISTRY } = require("../packages/strategies/dist/index.js");
+const { validateSpec, validateTemporalCoverage, compileStrategy, FEATURE_REGISTRY } = require("../packages/strategies/dist/index.js");
 const { collectCapabilityMatrix } = require("./feature-capability.js");
 
 // Load credentials from .env.local if present.
@@ -87,13 +87,23 @@ function computeOverrides(base, variant) {
   if (isObject(base) && isObject(variant)) {
     const diff = {};
     const keys = arrayUnique([...Object.keys(base), ...Object.keys(variant)]);
+
+    // Structural top-level keys that must inherit from the base when absent.
+    // Setting them to null at runtime deletes inherited steps/setup/entry/risk/gates/filters.
+    // Leaf-level nulls (e.g. zonePips: null, entryZonePips: null) are preserved because
+    // the variant explicitly declares them — they fall through to the normal diff path.
+    const STRUCTURAL_KEYS = new Set(["steps", "setup", "entry", "risk", "gates", "filters"]);
+
     for (const key of keys) {
       if (!(key in base) && key in variant) {
         diff[key] = variant[key];
       } else if (key in base && !(key in variant)) {
-        // Field removed in variant — represent as explicit undefined? YAML can't.
-        // Represent as null to override base value.
-        diff[key] = null;
+        // Absence = inherit for structural keys; skip to prevent null override.
+        // For non-structural keys, emit null to preserve the "field removed" signal
+        // (though no known spec currently relies on this for non-structural fields).
+        if (!STRUCTURAL_KEYS.has(key)) {
+          diff[key] = null;
+        }
       } else {
         const childDiff = computeOverrides(base[key], variant[key]);
         if (childDiff !== undefined) {
@@ -122,6 +132,23 @@ async function seedFamilies(specs) {
   }
 
   for (const [familyId, familySpecs] of byFamily) {
+    // For multi-variant families, the canonical <familyId>.yaml base file MUST exist.
+    // Without it, the fallback to the alphabetically-first variant collapses all variants
+    // into the wrong base spec — e.g. smc_ict_liquidity_reversal's fvg/ob/ifvg variants
+    // all hydrate to the fvg spec, and five_one_scalp's staged_v1 runs under v1's name.
+    if (familySpecs.length > 1) {
+      const baseFile = loadBaseSpec(familyId);
+      if (!baseFile || baseFile.id !== familyId) {
+        const variantNames = familySpecs.map((s) => s.id).join(", ");
+        throw new Error(
+          `Family '${familyId}' has ${familySpecs.length} variants (${variantNames}) ` +
+            `but no canonical base spec at '${familyId}.yaml' with id === familyId. ` +
+            `Create 'packages/strategies/src/specs/${familyId}.yaml' with id: ${familyId} ` +
+            `as the shared base before seeding.`
+        );
+      }
+    }
+
     // Prefer the canonical variant (id === familyId) as the source of family metadata.
     const canonical = familySpecs.find((s) => s.id === familyId) || familySpecs[0];
     const familyName = stripVersionSuffix(canonical.name);
@@ -230,7 +257,7 @@ async function validateCapabilities(specs) {
   for (const spec of specs) {
     if (spec.active !== true) continue;
     for (const s of spec.filters?.symbols ?? []) allSymbols.add(s.toUpperCase());
-    for (const item of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
+    for (const item of [...(spec.setup ?? []), ...(spec.entry ?? []), ...(spec.steps ?? [])]) {
       if (item.tf) allTfs.add(item.tf);
     }
   }
@@ -271,6 +298,7 @@ async function validateCapabilities(specs) {
 
 async function main() {
   const runTemporalCheck = process.argv.includes("--check");
+  const skipCapability = process.argv.includes("--skip-capability");
   console.log("[seed] Seeding strategy families + variants...\n");
 
   // Clean up legacy default variants created by earlier seeders. Old default
@@ -296,8 +324,31 @@ async function main() {
     ...YAML.parse(fs.readFileSync(filePath, "utf8")),
   }));
 
+  // Build effective specs for validation: thin variants store risk/setup/entry
+  // inside `overrides`, but validateSpec() checks the top-level fields. Merge
+  // overrides (or the spec itself for standalone partial specs) into the family
+  // base so validation sees the full effective spec.
+  const effectiveSpecs = specs.map((spec) => {
+    const familyId = spec.familyId || spec.id;
+    const basePath = path.join(SPECS_DIR, `${familyId}.yaml`);
+    if (!fs.existsSync(basePath)) return spec;
+    const base = YAML.parse(fs.readFileSync(basePath, "utf8"));
+    // Only merge if there's a real base (id === familyId).
+    if (base.id !== familyId) return spec;
+    if (spec.overrides) {
+      // Thin variant: merge overrides into base.
+      const merged = deepMerge(base, spec.overrides);
+      return { ...spec, ...merged };
+    }
+    if (spec.id === familyId) return spec; // already the base itself
+    // Standalone partial spec (no overrides key): merge into base so
+    // validateSpec sees risk/setup/entry inherited from the family base.
+    const merged = deepMerge(base, spec);
+    return { ...spec, ...merged };
+  });
+
   // Validate structure (session-scoped features, warmup floor, etc.)
-  const validationErrors = specs.flatMap((spec) =>
+  const validationErrors = effectiveSpecs.flatMap((spec) =>
     validateSpec(spec).map((e) => `${path.basename(spec.filePath)}: ${e}`)
   );
   if (validationErrors.length > 0) {
@@ -305,6 +356,84 @@ async function main() {
     validationErrors.forEach((e) => console.error(`  - ${e}`));
     await pool.end();
     process.exit(1);
+  }
+
+  // Compile smoke test (#8): verify every effective spec can be compiled by the
+  // strategy compiler without throwing. A spec that passes validateSpec() but
+  // crashes compileStrategy() would seed cleanly but fail at runtime — the
+  // highest-leverage single check in the pipeline audit.
+  console.log("[seed] Compile smoke test: verifying every spec compiles...");
+  for (const spec of effectiveSpecs) {
+    try {
+      compileStrategy(spec, { trustStoredLifecycle: true });
+    } catch (err) {
+      console.error(`[seed] ❌ Compile failed for ${path.basename(spec.filePath)} (${spec.id}):`, err.message ?? err);
+      await pool.end();
+      process.exit(1);
+    }
+  }
+  console.log(`[seed] ✓ All ${effectiveSpecs.length} specs compiled successfully.`);
+
+  // Compile-time SQL diff check (#5C): verify every predicate from the spec
+  // appears somewhere in the compiled SQL. A predicate that was silently dropped
+  // by the compiler (e.g. root predicates before the fan-out fix, or a code path
+  // that forgets translatePredicate) would produce SQL that omits the filter.
+  // This is a string-inclusion heuristic: it catches total drops, not semantic
+  // equivalence (transformed/renamed predicates may need manual review).
+  console.log("[seed] SQL predicate diff check: verifying predicates in compiled SQL...");
+  let diffErrors = 0;
+  for (const spec of effectiveSpecs) {
+    try {
+      const compiled = compileStrategy(spec, { trustStoredLifecycle: true });
+      const sql = compiled.sql.toLowerCase();
+
+      // Collect all predicates from steps, setup, and entry conditions
+      const predicates = [];
+      for (const step of spec.steps ?? []) {
+        if (step.predicate) predicates.push({ source: `step '${step.id}'`, text: step.predicate });
+      }
+      for (const cond of spec.setup ?? []) {
+        if (cond.predicate) predicates.push({ source: `setup condition '${cond.id}'`, text: cond.predicate });
+      }
+      for (const cond of spec.entry ?? []) {
+        if (cond.predicate) predicates.push({ source: `entry condition '${cond.id}'`, text: cond.predicate });
+      }
+
+      for (const p of predicates) {
+        // Normalize whitespace for comparison
+        const normalizedPred = p.text.replace(/\s+/g, " ").trim().toLowerCase();
+        const normalizedSql = sql.replace(/\s+/g, " ").trim();
+
+        // Skip trivial predicates
+        if (normalizedPred.length < 5) continue;
+        if (normalizedPred === "1 = 1" || normalizedPred === "true") continue;
+
+        if (!normalizedSql.includes(normalizedPred)) {
+          // Try a looser check: extract content after the last `=` or compare operators
+          // Some predicates get table-qualified (e.g. `direction = 'bullish'` → `pit_x.direction = 'bullish'`)
+          // Check if the core column-reference pairs appear
+          const coreParts = normalizedPred.match(/([a-z_]+)\s*(=|!=|>=|<=|>|<|is\s+not\s+null|is\s+null)\s*('[^']*'|\d+(?:\.\d+)?)/gi);
+          if (coreParts) {
+            const allFound = coreParts.every((part) => normalizedSql.includes(part));
+            if (allFound) continue; // core equality pairs found despite table-qual difference
+          }
+
+          diffErrors++;
+          console.warn(
+            `[seed] ⚠ Predicate '${p.text.trim()}' (${p.source}) not found verbatim in compiled SQL for ` +
+            `${path.basename(spec.filePath)} (${spec.id}). May have been dropped or transformed.`
+          );
+        }
+      }
+    } catch {
+      // Compile errors already caught by the smoke test above; skip here.
+      continue;
+    }
+  }
+  if (diffErrors > 0) {
+    console.warn(`[seed] SQL diff: ${diffErrors} predicate(s) not confirmed in compiled SQL (warnings, not blocking).\n`);
+  } else {
+    console.log(`[seed] ✓ All predicates confirmed in compiled SQL.\n`);
   }
 
   // Temporal-coverage warnings (P1-B) — soft, doesn't block seeding
@@ -318,16 +447,21 @@ async function main() {
   // Capability matrix check: fail fast if any active spec requires a feature/tf
   // surface that is EMPTY_DENSE, MISSING_TABLE, or STALE_STATE. Experimental
   // specs (experimental: true) bypass this check. (RC-4 / Bugs #1, #9)
-  console.log("[seed] Checking feature/tf capability matrix for active specs...");
-  const capabilityErrors = await validateCapabilities(specs);
-  if (capabilityErrors.length > 0) {
-    console.error("[seed] Capability check failed — active specs require unavailable feature surfaces:\n");
-    capabilityErrors.forEach((e) => console.error(`  - ${e}`));
-    console.error("\n[seed] Fix the feature producer/backfill before seeding, or mark the spec as experimental: true.");
-    await pool.end();
-    process.exit(1);
+  // Use --skip-capability to bypass PRODUCER_STALE gate for dev seeding.
+  if (!skipCapability) {
+    console.log("[seed] Checking feature/tf capability matrix for active specs...");
+    const capabilityErrors = await validateCapabilities(specs);
+    if (capabilityErrors.length > 0) {
+      console.error("[seed] Capability check failed — active specs require unavailable feature surfaces:\n");
+      capabilityErrors.forEach((e) => console.error(`  - ${e}`));
+      console.error("\n[seed] Fix the feature producer/backfill before seeding, or mark the spec as experimental: true.");
+      await pool.end();
+      process.exit(1);
+    }
+    console.log("[seed] Capability check passed.\n");
+  } else {
+    console.log("[seed] Skipping capability check (--skip-capability).\n");
   }
-  console.log("[seed] Capability check passed.\n");
 
   // Seed families first so metadata comes from the canonical variant.
   await seedFamilies(specs);
@@ -336,6 +470,55 @@ async function main() {
   for (const spec of specs) {
     await seedVariant(spec);
   }
+
+  // Re-sync strategy_specs as a derived read model from effective specs.
+  // The legacy table is kept for backward-compatible readers (e.g. fallback in
+  // dbLoader.ts, temp scripts); its contents now reflect the canonical store.
+  // (Audit #7 fix)
+  console.log("\n[seed] Re-syncing strategy_specs from effective specs...");
+  await pool.query("DELETE FROM strategy_specs");
+  for (const spec of specs) {
+    const familyId = spec.familyId || spec.id;
+    const basePath = path.join(SPECS_DIR, `${familyId}.yaml`);
+    const base = fs.existsSync(basePath)
+      ? YAML.parse(fs.readFileSync(basePath, "utf8"))
+      : null;
+
+    let effective;
+    if (spec.overrides && base && base.id === familyId) {
+      effective = deepMerge(base, spec.overrides);
+    } else if (base && base.id === familyId && spec.id !== familyId) {
+      effective = deepMerge(base, spec);
+    } else {
+      effective = spec;
+    }
+    // Strip file-level meta
+    const { filePath, overrides, ...clean } = effective;
+
+    await pool.query(
+      `INSERT INTO strategy_specs (id, name, version, description, spec_json, is_active, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name,
+         version = EXCLUDED.version,
+         description = EXCLUDED.description,
+         spec_json = EXCLUDED.spec_json,
+         is_active = EXCLUDED.is_active,
+         updated_at = NOW()`,
+      [
+        spec.id,
+        spec.name,
+        clean.version ?? "1.0.0",
+        spec.description ?? null,
+        JSON.stringify(clean),
+        spec.active === true,
+      ]
+    );
+  }
+  const { rows: specRows } = await pool.query(
+    `SELECT id FROM strategy_specs ORDER BY id`
+  );
+  console.log(`[seed] strategy_specs re-synced: ${specRows.length} rows`);
 
   const { rows } = await pool.query(
     `SELECT f.name AS family_name, v.name AS variant_name, v.is_active

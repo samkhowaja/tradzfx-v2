@@ -2,33 +2,101 @@ id: watukushay_no1
 familyId: watukushay
 active: true
 name: Watukushay No.1
-version: 1.2.0
+version: 2.0.0
 description: >
   MA cross strategy per Daniel Pinto's Watukushay No.1 system. Trades in the direction of the 1h bias when SMA 15 is
-  above/below SMA 250. Uses the new configurable features_moving_average table.
+  above/below SMA 250. Uses the new configurable features_moving_average table. v2: Progressive steps replaces flat setup[].
+
+# ═══════════════════════════════════════════════════════════════
+# RESEARCH NOTES — 2026-07-20 AUDIT
+# ═══════════════════════════════════════════════════════════════
+#
+# STYLE: Intraday trend-following (MA cross), NOT scalping.
+#   - avg hold 5 bars (1h tf = ~5h). WR ~51% across 7 pairs.
+#   - R symmetric after engine cleanup (avgWinR≈1.0, avgLossR≈-1.0).
+#
+# KNOWN LIMITATION — ENTRY GAP:
+#   Signal known only after its 1h candle closes → fill at next bar open.
+#   plannedRisk = authoredEntry - SL (signal candle close), but
+#   effectiveEntry = next bar open. Gap distorts R:
+#     win: r ≈ (planR - gap) / planR  →  under-reports (~0.3-0.5R)
+#     loss: r ≈ -(planR + gap) / planR →  over-reports (~-1.4 to -1.7R)
+#   This is INHERENT — MA cross is momentum signal, price gaps away
+#   from signal close. Limit fill at signal close = 0% fill rate
+#   (price never revisits). Alt strategies (zone, OB, FVG) have
+#   entries at known levels where price can return.
+#
+# CLEAN ENGINE (applied 2026-07-19):
+#   - Stripped per-trade spread/slip/commission from fills.
+#   - intrabar default changed sl_first → close (fair midpoint).
+#   - Costs deducted post-hoc as aggregate overhead.
+#   - Verify: scripts/backtest-pit-v2.js, simulateBidCandleMarketTrade()
+#
+# SWEEP RESULTS (XAUUSD 30d, shadow mode, strict setup):
+#   Config                  Trades  WR    NetR    Notes
+#   ─────────────────────── ─────── ───── ─────── ───────────────────
+#   base (sl*0.5, 1:1)      12      58.3% +2.05   ★ BEST — only positive NetR
+#   sl*0.4,  1:1            26      50.0% -0.04   trade count ↑ but NetR ≈ 0
+#   sl*0.4,  1:1.2          20      35.0% -4.68   WR crashes at higher RR
+#   sl*0.4,  1:1.4          19      31.6% -4.67
+#   sl*0.4,  1:1.6          18      27.8% -5.07
+#   sl*0.4,  1:1.8          15      13.3% -9.53
+#   sl*0.4,  1:2.0          15      13.3% -9.13
+#   Key insight: Reducing SL doubles signals but doesn't improve NetR.
+#   Higher RR kills WR — TP never gets hit. Edge is in direction, not magnitude.
+#
+# MULTI-PAIR (30d, clean engine):
+#   GBPUSD 14t 71.4% +6.02  |  EURUSD  2t 100% +1.94
+#   USDCHF  3t 100% +2.93  |  USDJPY  5t  80% +2.99
+#   USDCAD  6t  50% -0.06  |  AUDUSD  8t  13% -5.99
+#   XAUUSD 23t  48% -0.93  |  Total: 47t 51.1% WR, R symmetric
+#
+# TRADE UNIQUENESS: 0 bundles (23/23 unique timestamps).
+#   2 same-hour clusters (Jul 16 13h: x3, Jul 08 08h: x2 in diff. bars/minutes).
+#
+# FUTURE OPTIONS:
+#   a) Gap filter — drop trades where gap > N% of SL.
+#      Catches worst slippage, harmless for tight-gap pairs (GBPUSD).
+#   b) Stop-entry inside N pips — partial gap mitigation, may skip entries.
+#   c) Dynamic SL from effectiveEntry — change risk denominator to
+#      effectiveEntry-SL instead of authoredEntry-SL. Makes R symmetric
+#      but changes SL% math. Requires riskCompiler change.
+#   d) Zone/key-level variant of watukushay — MA cross for direction,
+#      zone entry for fill. Different signalSource.
+#   e) Aggregate cost model — subtract (avgSpread + 2×slippage + commission)
+#      / avgPlanR from clean NetR to estimate live.
+#   f) 90d test — current data is 30d only. Extend to 90d for sample stability.
+# ═══════════════════════════════════════════════════════════════
 overrides:
-  setup:
+  steps:
     - id: bias
       feature: features_bias
       tf: 1h
       predicate: direction != 'neutral'
       required: true
+
     - id: ma_fast
       feature: features_moving_average
       tf: 1h
       predicate: ma_type = 'sma' AND period = 15 AND value > 0
       required: true
+      dependsOn: [bias]
+      autoAlignDirection: false
       groupBy:
         - ma_type
         - period
+
     - id: ma_slow
       feature: features_moving_average
       tf: 1h
       predicate: ma_type = 'sma' AND period = 250 AND value > 0
       required: true
+      dependsOn: [ma_fast]
+      autoAlignDirection: false
       groupBy:
         - ma_type
         - period
+
   entry: []
   signalSource: moving_average
   signalSourceConfig:

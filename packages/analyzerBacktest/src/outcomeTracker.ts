@@ -57,8 +57,8 @@ function resolveIntrabar(
   candle: Candle,
   mode: TrackOutcomeOptions["intrabarMode"]
 ): "sl" | "tp" {
-  if (mode === "optimistic") return direction === "long" ? "tp" : "sl";
-  if (mode === "pessimistic") return direction === "long" ? "sl" : "tp";
+  if (mode === "optimistic") return "tp";
+  if (mode === "pessimistic") return "sl";
 
   if (mode === "proportion") {
     // Estimate which level was closer to the open relative to the full range.

@@ -201,3 +201,92 @@ describe("validateSpec", () => {
     }
   });
 });
+
+// ── Progressive spec validation tests ───────────────────────────────────
+
+describe("validateProgressiveSpec", () => {
+  function progressiveSpec(overrides: Partial<StrategySpec> = {}): StrategySpec {
+    return {
+      id: "progressive_test",
+      name: "Progressive Test",
+      version: "1",
+      signalSource: "zone",
+      filters: { symbols: ["EURUSD"] },
+      steps: [
+        { id: "bias", feature: "features_bias", tf: "1h", predicate: "direction != 'neutral'", required: true },
+        { id: "zone", feature: "features_zone", tf: "15m", predicate: "kind IN ('support','demand')", required: true, dependsOn: ["bias"] },
+        { id: "structure", feature: "features_structure", tf: "15m", predicate: "event_type IN ('bos','mss')", required: true, dependsOn: ["zone"] },
+      ],
+      setup: [],
+      entry: [
+        { id: "retest", feature: "features_zone", tf: "15m", predicate: "1=1", required: true },
+      ],
+      risk: { sl: "atr(15m) * 1.2", tp: "sl * 3.0", minRR: 3, timeoutBars: 10 },
+      gates: [],
+      ...overrides,
+    };
+  }
+
+  it("accepts a valid progressive spec with root + chain", () => {
+    const errors = validateSpec(progressiveSpec());
+    // Should pass all validation with steps
+    expect(errors.filter((e) => !/lookbackBars/.test(e))).toEqual([]);
+  });
+
+  it("rejects a spec with no root step", () => {
+    const spec = progressiveSpec();
+    spec.steps![0].dependsOn = ["bias"]; // bias now depends on itself — but also means no root
+    // Actually: make ALL steps have dependsOn pointing to non-root chain
+    spec.steps = [
+      { id: "a", feature: "features_bias", tf: "1h", predicate: "1=1", required: true, dependsOn: ["b"] },
+      { id: "b", feature: "features_zone", tf: "15m", predicate: "1=1", required: true, dependsOn: ["a"] },
+    ];
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /must be a root/.test(e))).toBe(true);
+  });
+
+  it("rejects a spec with dangling dependsOn", () => {
+    const spec = progressiveSpec();
+    spec.steps![1].dependsOn = ["nonexistent"];
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /does not exist/.test(e))).toBe(true);
+  });
+
+  it("detects a cycle A→B→C→A", () => {
+    const spec = progressiveSpec();
+    spec.steps = [
+      { id: "a", feature: "features_bias", tf: "1h", predicate: "1=1", required: true, dependsOn: ["c"] },
+      { id: "b", feature: "features_zone", tf: "15m", predicate: "1=1", required: true, dependsOn: ["a"] },
+      { id: "c", feature: "features_structure", tf: "15m", predicate: "1=1", required: true, dependsOn: ["b"] },
+    ];
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /cycle/.test(e))).toBe(true);
+  });
+
+  it("rejects invalid TTL", () => {
+    const spec = progressiveSpec();
+    spec.steps![1].ttlMinutes = -5;
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /ttlMinutes.*positive/.test(e))).toBe(true);
+  });
+
+  it("rejects rankLimit without rankOrderBy", () => {
+    const spec = progressiveSpec();
+    spec.steps![1].rankLimit = 3;
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /rankLimit.*no rankOrderBy/.test(e))).toBe(true);
+  });
+
+  it("rejects unknown feature in step", () => {
+    const spec = progressiveSpec();
+    spec.steps![0].feature = "features_bais";
+    const errors = validateSpec(spec);
+    expect(errors.some((e) => /unknown feature/.test(e))).toBe(true);
+  });
+
+  it("passes legacy specs without steps (no progressive validation)", () => {
+    const spec = progressiveSpec();
+    delete spec.steps;
+    expect(validateSpec(spec)).toEqual([]);
+  });
+});

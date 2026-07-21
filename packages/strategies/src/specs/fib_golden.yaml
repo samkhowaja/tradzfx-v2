@@ -1,0 +1,98 @@
+id: fib_golden
+familyId: fib_golden
+active: false
+name: "Fibonacci Golden Zone (Base)"
+version: "1.0.0"
+description: "Family base for Fibonacci golden zone variants (50 EMA, AVWAP, swap zone)."
+filters:
+  symbols:
+    - EURUSD
+    - GBPUSD
+    - XAUUSD
+  sessions:
+    - LONDON
+    - OVERLAP
+    - NY
+
+setup:
+  - id: bias
+    feature: features_bias
+    tf: 4h
+    predicate: "direction != 'neutral'"
+    required: true
+    weight: 8
+
+  - id: golden_zone
+    feature: features_pricing
+    tf: 4h
+    predicate: "fib_position IN ('500_618', '618_786') AND in_ote = true AND position IS NOT NULL"
+    required: true
+    weight: 10
+
+entry:
+  - id: engulfing
+    feature: features_candle_pattern
+    tf: 4h
+    predicate: "pattern_name IN ('engulfing_bull', 'engulfing_bear') AND direction = features_bias.direction AND confidence >= 0.6"
+    required: true
+    weight: 10
+    lookbackBars: 6
+
+entryConfig:
+  type: market
+  zonePips: null
+
+signalSource: zone
+
+risk:
+  sl: "atr(4h) * 1.5"
+  tp: "sl * 3.0"
+  minRR: 3.0
+  timeoutBars: 24
+  maxFillBars: 6
+  minSlDistancePips: 5.0
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed:
+        - LONDON
+        - OVERLAP
+        - NY
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+  - id: volatility_gate
+    name: volatility
+    params:
+      maxAtr5Pips: 65
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 3
+  - id: rate_limit
+    name: rateLimit
+    params:
+      maxSignalsPerHour: 1
+      maxSignalsPerDay: 3
+  - id: daily_loss
+    name: dailyLoss
+    params:
+      maxLossesPerDay: 2
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 60
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 3
+  cooldownMinutes: 240

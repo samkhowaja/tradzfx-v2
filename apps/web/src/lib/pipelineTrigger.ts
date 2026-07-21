@@ -9,6 +9,13 @@
  *
  * Phase 2 enhancement: Replaced process-local Maps with distributed state
  * (PostgreSQL trigger checkpoint + Redis-backed compiled-strategy cache).
+ *
+ * Phase 2b enhancement: Data-clock anchored execution. Engine endTs and strategy
+ * evaluationTs pin to latest candle ts (market.candles_1m_canonical MAX(ts))
+ * instead of wall clock NOW(). Compiler time filters use MAX(ts) from the data-
+ * clock table. Bucket acquisition (which candle close triggered the run) still
+ * uses wall clock. This ensures live and backtest evaluation see identical
+ * feature/strategy state for the same data window.
  */
 
 import {
@@ -20,12 +27,17 @@ import {
   type Pool,
 } from "@tm/shared";
 import {
+  getOrCreateCompiledStrategySnapshot,
   getOrCreateFeatureConfigSnapshot,
   getOrCreateStrategySettingsSnapshot,
   getOrCreateLiveDeployment,
 } from "@tm/shared";
 import {
-  compileStrategy, restoreCompiledStrategy,
+  COMPILER_CONTRACT_VERSION,
+  FEATURE_REGISTRY_CONTRACT_VERSION,
+  compileStrategy,
+  resolveSourceRevision,
+  restoreCompiledStrategy,
 } from "@tm/strategies";
 import type { StrategySpec, TimeFrame } from "@tm/shared";
 import crypto from "crypto";
@@ -68,7 +80,7 @@ const COMPILED_MEMORY_MAX = 100;
 
 /** SHA-256 of stable-JSON'd spec. Detects ANY spec content change. */
 function computeSpecHash(spec: StrategySpec): string {
-  return crypto.createHash("sha256").update(JSON.stringify(spec, Object.keys(spec).sort())).digest("hex");
+  return crypto.createHash("sha256").update(JSON.stringify(spec)).digest("hex");
 }
 
 async function loadVariantWithVersion(
@@ -87,6 +99,7 @@ async function getCompiledStrategy(variantId: string) {
     throw new Error(`Strategy variant not found in DB: ${variantId}`);
   }
   const { spec } = loaded.variant;
+  const DATA_CLOCK_TABLE = "market.candles_1m_canonical";
 
   // 1. In-process cache keyed by specHash
   const specHash = computeSpecHash(spec);
@@ -105,6 +118,20 @@ async function getCompiledStrategy(variantId: string) {
         const cached = JSON.parse(raw);
         if (typeof cached.sql === "string") {
           sql = cached.sql;
+          // #9C: Warn if cached payload has a different dataClockTable or mode
+          // than the current runtime — cache hit may be stale for the caller.
+          if (cached.dataClockTable && cached.dataClockTable !== DATA_CLOCK_TABLE) {
+            console.warn(
+              `[pipelineTrigger] 🟡 Cache mismatch for ${variantId}: ` +
+              `cached dataClockTable="${cached.dataClockTable}", current="${DATA_CLOCK_TABLE}"`
+            );
+          }
+          if (cached.mode && cached.mode !== "live") {
+            console.warn(
+              `[pipelineTrigger] 🟡 Cache mismatch for ${variantId}: ` +
+              `cached mode="${cached.mode}", current="live"`
+            );
+          }
         }
       }
     } catch (err: any) {
@@ -114,14 +141,14 @@ async function getCompiledStrategy(variantId: string) {
 
   // 3. Compile if not cached
   if (!sql) {
-    const compiled = compileStrategy(spec, { trustStoredLifecycle: true });
+    const compiled = compileStrategy(spec, { trustStoredLifecycle: true, dataClockTable: DATA_CLOCK_TABLE });
     sql = compiled.sql;
     if (redis) {
       try {
         await redis.setEx(
           `tm:compiled:${specHash}`,
           3600,
-          JSON.stringify({ sql, spec })
+          JSON.stringify({ sql, spec, dataClockTable: DATA_CLOCK_TABLE })
         );
       } catch (err: any) {
         console.warn(`[pipelineTrigger] Redis compiled-strategy write failed for ${variantId}:`, err.message);
@@ -129,7 +156,7 @@ async function getCompiledStrategy(variantId: string) {
     }
   }
 
-  const compiled = restoreCompiledStrategy(spec, sql);
+  const compiled = restoreCompiledStrategy(spec, sql, DATA_CLOCK_TABLE);
 
   // Evict oldest if necessary
   if (compiledMemory.size >= COMPILED_MEMORY_MAX) {
@@ -251,20 +278,41 @@ async function runStrategyPipeline(
       engineVersion: "2.0.0",
     });
     const strategySnapshotId = await getOrCreateStrategySettingsSnapshot(pool, compiled.spec);
+    const pitCompiled = compileStrategy(compiled.spec, {
+      mode: "pit",
+      trustStoredLifecycle: false,
+      asOfParameter: 3,
+    });
+    const sourceSpecHash = computeSpecHash(compiled.spec);
+    const compiledSnapshotId = await getOrCreateCompiledStrategySnapshot(pool, {
+      strategySnapshotId,
+      strategyId: variantId,
+      compilerVersion: COMPILER_CONTRACT_VERSION,
+      registryVersion: FEATURE_REGISTRY_CONTRACT_VERSION,
+      sourceRevision: resolveSourceRevision(),
+      sourceSpecHash,
+      pitSignalSql: pitCompiled.signalAtSQL(),
+    });
     const deployment = await getOrCreateLiveDeployment(
       pool,
       variantId,
       strategySnapshotId,
       featureSnapshotId,
-      compiled.spec.live?.mode === "live" ? "live" : "paper"
+      compiled.spec.live?.mode === "live" ? "live" : "paper",
+      undefined,
+      compiledSnapshotId,
     );
     deploymentId = deployment.deploymentId;
   } catch (err: any) {
     console.error(`[pipelineTrigger] Snapshot/deployment setup failed for ${symbol}/${variantId}:`, err.message);
-    // Continue without deployment; live_signal/order won't be written.
+    return {
+      symbol,
+      triggered: false,
+      reason: `provenance_error: ${err.message}`,
+    };
   }
 
-  // Run the live pipeline
+  // Run the live pipeline only after immutable provenance is durable.
   try {
     const latestSignalSQL = compiled.latestSignalSQL();
 
@@ -351,9 +399,9 @@ export async function checkAndTriggerPipeline(
   );
 
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  // Feature engine endTs = wall clock so all existing candles are visible.
+  // Feature engine endTs = data-clock (latest candle ts) for live/backtest parity.
   // Lifecycle asOf stays at candle ts to avoid marking zones invalidated in the future.
-  const engineResult = await runFeatureEngine(symbol, now, featureRuns);
+  const engineResult = await runFeatureEngine(symbol, latestCandleTs, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -394,7 +442,7 @@ export async function checkAndTriggerPipeline(
     );
   }
 
-  return runStrategyPipeline(symbol, latestCandleTs, resolvedVariantId, now);
+  return runStrategyPipeline(symbol, latestCandleTs, resolvedVariantId, latestCandleTs);
 }
 
 /**
@@ -436,7 +484,7 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
   const active = await loadActiveVariants(pool, { symbol });
 
   // ── Phase 0: Run V2 feature engine BEFORE strategy evaluation ──
-  const engineResult = await runFeatureEngine(symbol, now, featureRuns);
+  const engineResult = await runFeatureEngine(symbol, latestCandleTs, featureRuns);
   if (engineResult.ok) {
     console.log(
       `[pipelineTrigger] Feature engine completed for ${symbol} in ${engineResult.latencyMs.toFixed(1)}ms`
@@ -452,7 +500,7 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
   // Fallback variants are handled after Promise.all.
   const results: TriggerResult[] = await Promise.all(
     active.map((variant) =>
-      runStrategyPipeline(symbol, latestCandleTs, variant.variantId, now)
+      runStrategyPipeline(symbol, latestCandleTs, variant.variantId, latestCandleTs)
     )
   );
 
@@ -461,7 +509,7 @@ export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerR
   if (active.length === 0) {
     const fallbackId = await getDefaultActiveVariantForSymbol(pool, symbol);
     if (fallbackId) {
-      const result = await runStrategyPipeline(symbol, latestCandleTs, fallbackId, now);
+      const result = await runStrategyPipeline(symbol, latestCandleTs, fallbackId, latestCandleTs);
       results.push(result);
     }
   }

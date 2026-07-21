@@ -2,26 +2,34 @@ id: keylevel_bounce_v5_longs
 familyId: keylevel_bounce
 active: true
 name: Key-Level Bounce V5 (longs only)
-version: 5.0.0
+version: 6.0.0
 description: |
   Long-only key-level bounce. Avoids shorting into the prevailing uptrend.
 overrides:
-  setup:
+  steps:
     - id: trend_bias
       feature: features_bias
       tf: 1h
       predicate: direction = 'bullish'
       required: true
+
     - id: directional_zone
       feature: features_pricing
       tf: 15m
       predicate: position IN ('discount', 'deep_discount', 'equilibrium')
       required: true
+      dependsOn: [trend_bias]
+      autoAlignDirection: false
+      ttlMinutes: 30
+
     - id: htf_zone
       feature: features_zone
       tf: 15m
       predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.95
       required: true
+      dependsOn: [directional_zone]
+      ttlMinutes: 240
+
   entry:
     - id: structure_break
       feature: features_structure

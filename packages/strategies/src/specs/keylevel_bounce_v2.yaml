@@ -2,7 +2,7 @@ id: keylevel_bounce_v2
 familyId: keylevel_bounce
 active: true
 name: Key-Level Bounce V2
-version: 2.0.0
+version: 2.1.0
 description: >
   Improved key-level bounce. Adds a 1m zone-retest confirmation (wick into the level + directional close) to avoid
   entries that never actually touch the zone. Uses a volatility-based ATR stop.
@@ -11,13 +11,13 @@ overrides:
     - id: structure_break
       feature: features_structure
       tf: 15m
-      predicate: event_type IN ('bos', 'mss') AND direction = features_bias.direction
+      predicate: event_type IN ('bos', 'mss')
       required: true
     - id: zone_retest_confirm
       feature: features_zone_retest
       tf: 1m
-      predicate: wick_into_zone = true AND direction = features_bias.direction
-      required: true
+      predicate: wick_into_zone = true
+      required: false
   risk:
     sl: atr(15m) * 2.0
     timeoutBars: 480

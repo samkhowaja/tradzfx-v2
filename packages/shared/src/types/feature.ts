@@ -3,6 +3,8 @@
  * Every feature is a pure function with typed inputs, outputs, and content-addressed caching.
  */
 
+import type { SessionLabel } from "../utils/time";
+
 export interface Candle {
   symbol: string;
   ts: Date;
@@ -125,6 +127,34 @@ export interface AtrOutput {
     /** Underlying 1m tick count of the bucket (sparseness signal). */
     tickCount?: number;
     /** 'winsorized' | 'sparse_bucket' | 'warmup' | undefined */
+    qualityReason?: string;
+  }>;
+}
+
+export type VolatilityRegime =
+  | "extreme_low"
+  | "low"
+  | "normal"
+  | "high"
+  | "extreme_high";
+
+export interface VolatilityNormalizedOutput {
+  values: Array<{
+    period: number;
+    session: SessionLabel;
+    atrRaw: number;
+    atrEffective: number;
+    pipSize: number;
+    closePrice: number;
+    atrPips: number;
+    atrBps: number;
+    percentileRank?: number;
+    robustZ?: number;
+    regime?: VolatilityRegime;
+    sampleCount: number;
+    sampleStart?: Date;
+    sourceAtrEngineVer?: string;
+    isValid: boolean;
     qualityReason?: string;
   }>;
 }
@@ -448,6 +478,23 @@ export interface CandlePatternOutput {
     shadowPctOfAtr?: number;
     ts: Date;
     isWickClose?: boolean;
+  }>;
+}
+
+export interface PushPullOutput {
+  patterns: Array<{
+    patternName: string;       // 'push_pull' | 'push_pull_reversal' | 'push_pull_doji' | 'push_pull_after_pullback' | 'push_pull_multi'
+    direction: Direction;
+    pushCount: number;         // candles in the push
+    pullCount: number;         // candles in the pullback
+    pushStart: number;         // price at start of push
+    pushEnd: number;           // extreme of push
+    pullLow: number;           // low of pullback
+    pullHigh: number;          // high of pullback
+    pullRetracePct?: number;   // how far pull retraced into push (0-1)
+    pushPullLevel: number;     // close of first push candle = key level
+    confidence?: number;
+    ts: Date;
   }>;
 }
 

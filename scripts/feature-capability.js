@@ -2,6 +2,14 @@ const { FEATURE_REGISTRY } = require("../packages/strategies/dist/index.js");
 
 const DEFAULT_TFS = ["1m", "5m", "15m", "1h", "4h", "1d"];
 const LIFECYCLE_TABLES = new Set(["features_zone", "features_ifvg", "features_order_block"]);
+const CANONICAL_CANDLE_TABLES = Object.freeze({
+  "1m": "market.candles_1m_canonical",
+  "5m": "market.candles_5m_canonical",
+  "15m": "market.candles_15m_canonical",
+  "1h": "market.candles_1h_canonical",
+  "4h": "market.candles_4h_canonical",
+  "1d": "market.candles_1d_utc_canonical",
+});
 const VALID_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 function assertIdent(name) {
@@ -41,7 +49,12 @@ function classifyVerdict(row) {
     if (maxAgeHours != null && row.latestAgeHours > maxAgeHours) return "STALE_STATE";
   }
 
-  if (row.producerAgeHours != null && row.producerAgeHours > row.producerMaxAgeHours) {
+  // Producer freshness follows the data clock, not wall clock. During weekends
+  // or historical checks, a producer can be many wall hours old while still
+  // covering the governed candle edge. Legacy ledger rows without source_max_ts
+  // retain the finished_at fallback.
+  const producerLagHours = row.producerLagHours ?? row.producerAgeHours;
+  if (producerLagHours != null && producerLagHours > row.producerMaxAgeHours) {
     return sem === "event" ? "PRODUCER_STALE_EVENT" : "PRODUCER_STALE";
   }
 
@@ -86,10 +99,12 @@ async function featureStats(pool, table, hasTf, symbol, tf, from, to) {
 
 async function producerStats(pool, table, symbol, tf) {
   const { rows } = await pool.query(
-    `SELECT finished_at, watermark_ts, status, rows_seen, rows_inserted, rows_updated, rows_invalidated
+    `SELECT finished_at, source_max_ts, watermark_ts, status,
+            rows_seen, rows_inserted, rows_updated, rows_invalidated
      FROM feature_producer_runs
      WHERE symbol = $1 AND feature_table = $2 AND ($3::text IS NULL OR tf = $3 OR tf IS NULL)
-     ORDER BY finished_at DESC NULLS LAST
+     ORDER BY CASE WHEN tf = $3 THEN 0 ELSE 1 END,
+              finished_at DESC NULLS LAST
      LIMIT 1`,
     [symbol, table, tf]
   );
@@ -131,10 +146,11 @@ async function lifecycleStats(pool, table, symbol, tf, dataEdge) {
   };
 }
 
-async function dataEdge(pool, symbol, to) {
+async function dataEdge(pool, symbol, to, tf = "1m") {
+  const table = CANONICAL_CANDLE_TABLES[tf] ?? CANONICAL_CANDLE_TABLES["1m"];
   const { rows } = await pool.query(
     `SELECT MAX(ts) AS max_ts
-     FROM market.candles_1m_canonical
+     FROM ${table}
      WHERE symbol = $1
        AND ts <= $2
        AND EXTRACT(DOW FROM ts) NOT IN (0, 6)`,
@@ -167,10 +183,10 @@ async function collectCapabilityMatrix(pool, opts = {}) {
     const tfList = hasTf ? tfs : [null];
 
     for (const symbol of symbols) {
-      if (!dataEdges.has(symbol)) dataEdges.set(symbol, await dataEdge(pool, symbol, to));
-      const edge = dataEdges.get(symbol);
-
       for (const tf of tfList) {
+        const edgeKey = `${symbol}:${tf ?? "1m"}`;
+        if (!dataEdges.has(edgeKey)) dataEdges.set(edgeKey, await dataEdge(pool, symbol, to, tf ?? "1m"));
+        const edge = dataEdges.get(edgeKey);
         let stats = { rows90d: 0, latestTs: null };
         let producer = null;
         let lifecycle = null;
@@ -182,6 +198,9 @@ async function collectCapabilityMatrix(pool, opts = {}) {
 
         const latestAgeHours = stats.latestTs ? ageHours(stats.latestTs, edge ?? to) : null;
         const producerAgeHours = producer?.finished_at ? ageHours(producer.finished_at, now) : null;
+        const producerLagHours = producer?.source_max_ts && edge
+          ? ageHours(producer.source_max_ts, edge)
+          : null;
         const row = {
           feature: featureName,
           table,
@@ -197,8 +216,10 @@ async function collectCapabilityMatrix(pool, opts = {}) {
           maxFreshnessMinutes: tf ? freshnessMinutes(contract, tf) : null,
           producerStatus: producer?.status ?? null,
           producerFinishedAt: fmtIso(producer?.finished_at),
+          producerSourceMaxTs: fmtIso(producer?.source_max_ts),
           producerWatermarkTs: fmtIso(producer?.watermark_ts),
           producerAgeHours: producerAgeHours == null ? null : Number(producerAgeHours.toFixed(2)),
+          producerLagHours: producerLagHours == null ? null : Number(producerLagHours.toFixed(2)),
           producerMaxAgeHours,
           lifecycleLastProcessedTs: fmtIso(lifecycle?.lastProcessedTs),
           lifecycleAgeHours: lifecycle?.ageHours == null ? null : Number(lifecycle.ageHours.toFixed(2)),

@@ -9,7 +9,7 @@
 import crypto from "node:crypto";
 import type { Pool, Queryable, SetupEvaluationSnapshot } from "@tm/shared";
 import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig, TimeFrame } from "@tm/shared";
-import { checkSmallAccountGate, CANDLE_TABLE_BY_TF, assertProducerFresh } from "@tm/shared";
+import { checkSmallAccountGate, CANDLE_TABLE_BY_TF, assertProducerFresh, ACTIVE_ORDER_STATUSES } from "@tm/shared";
 import {
   getDefaultFreshnessMinutes,
   getDefaultLookbackBars,
@@ -108,7 +108,10 @@ export interface LiveRunOptions {
   pool: Pool;
   /** Optional: override live config (e.g. from environment) */
   liveOverrides?: Partial<LiveExecutionConfig>;
-  /** Active deployment snapshot ID. If provided, live_signal / live_order rows are written. */
+  /**
+   * Active provenance-backed deployment ID. Mandatory for non-evaluation runs;
+   * canonical live_signal/live_order lineage is part of order commit.
+   */
   deploymentId?: string;
   /**
    * Timestamp of pipeline evaluation. Used instead of Date.now() for stale_data
@@ -117,6 +120,10 @@ export interface LiveRunOptions {
    * engine. Defaults to Date.now() for backward compat.
    */
   evaluationTs?: Date;
+  /** Optional third SQL parameter for historical signal-at evaluation. */
+  signalAsOfParameter?: Date;
+  /** Evaluate canonical decision path but always roll back and create no order. */
+  evaluationOnly?: boolean;
   /** Callback to create an order. Return the order ID. */
   createOrder: (
     input: {
@@ -149,6 +156,10 @@ export interface LiveRunResult {
   orderId?: string;
   liveOrderId?: string;
   reason?: string;
+  /** Order candidate built by evaluation-only mode; never persisted. */
+  orderCandidate?: Record<string, unknown>;
+  setupSnapshot?: SetupEvaluationSnapshot;
+  qualityDecision?: import("./qualityEngine").QualityDecision;
 }
 
 interface SignalWithSource extends Signal {
@@ -244,60 +255,104 @@ function hashSpec(spec: StrategySpec): string {
 async function findRecentDuplicate(
   pool: Queryable,
   fingerprint: string,
-  cooldownMinutes: number
+  cooldownMinutes: number,
+  asOf: Date
 ): Promise<{ status: string; created_at: Date } | null> {
   const { rows } = await pool.query(
     `SELECT status, created_at
      FROM orders
      WHERE signal_fingerprint = $1
        AND status IN ('pending', 'filled', 'rejected', 'expired', 'closed')
-       AND created_at >= NOW() - ($2 || ' minutes')::interval
+       AND created_at >= $3::timestamptz - ($2 || ' minutes')::interval
+       AND created_at <= $3::timestamptz
      ORDER BY created_at DESC
      LIMIT 1`,
-    [fingerprint, String(cooldownMinutes)]
+    [fingerprint, String(cooldownMinutes), asOf]
   );
   return rows[0] ?? null;
 }
 
-/** Total realized P&L across all closed orders. Used for profit-based lot sizing. */
-async function getTotalRealizedPnl(db: Queryable): Promise<number> {
+/** Total realized P&L across closed orders at the evaluation edge. */
+async function getTotalRealizedPnl(db: Queryable, asOf: Date): Promise<number> {
   const { rows } = await db.query(
     `SELECT COALESCE(SUM(realized_pnl), 0)::double precision AS total
      FROM orders
-     WHERE status = 'closed'`
+     WHERE status = 'closed' AND closed_at <= $1`,
+    [asOf]
   );
   return Number(rows[0]?.total ?? 0);
 }
 
+/**
+ * Insert a live_signal row inside the current transaction. Uses a SAVEPOINT
+ * so that a unique-violation on the fingerprint dedup index (idx_live_signal_dedup_v2)
+ * does NOT abort the entire transaction — it is caught and treated as a dedup-RETRY
+ * signal (caller should handle accordingly).
+ *
+ * Three outcomes:
+ *   a) INSERT succeeds → returns the new signal_id.
+ *   b) Primary (deployment_id, symbol, ts, strategy_id, side) dedup → returns
+ *      the existing signal_id (ON CONFLICT DO NOTHING + re-select).
+ *   c) Fingerprint index 23505 → ROLLBACK TO SAVEPOINT, returns null (caller
+ *      treats as "in-flight duplicate, skip gracefully").
+ */
 async function insertLiveSignal(
   pool: Queryable,
   deploymentId: string,
   signal: SignalWithSource,
   fingerprint: string
-): Promise<string | undefined> {
-  const { rows } = await pool.query<{ signal_id: string }>(
-    `INSERT INTO live_signal (
-       deployment_id, symbol, ts, strategy_id, side, entry_type,
-       entry_price, stop_loss, take_profit, confidence, source_json, signal_fingerprint
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-     ON CONFLICT (deployment_id, symbol, ts, strategy_id, side) DO NOTHING
-     RETURNING signal_id`,
-    [
-      deploymentId,
-      signal.symbol,
-      signal.ts,
-      signal.strategyId,
-      signal.side,
-      signal.entryType,
-      signal.entryPrice,
-      signal.stopLoss,
-      signal.takeProfit,
-      signal.confidence ?? null,
-      signal.source,
-      fingerprint,
-    ],
-  );
-  return rows[0]?.signal_id;
+): Promise<string | null> {
+  // SAVEPOINT scoped to this INSERT so a 23505 on the fingerprint dedup index
+  // does not poison the outer transaction (audit §3.5.3 / #10).
+  await pool.query("SAVEPOINT live_signal_insert");
+  try {
+    const { rows } = await pool.query<{ signal_id: string }>(
+      `WITH inserted AS (
+         INSERT INTO live_signal (
+           deployment_id, symbol, ts, strategy_id, side, entry_type,
+           entry_price, stop_loss, take_profit, confidence, source_json, signal_fingerprint
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+         ON CONFLICT (deployment_id, symbol, ts, strategy_id, side) DO NOTHING
+         RETURNING signal_id
+       )
+       SELECT signal_id FROM inserted
+       UNION ALL
+       SELECT signal_id FROM live_signal
+        WHERE deployment_id = $1 AND symbol = $2 AND ts = $3
+          AND strategy_id = $4 AND side = $5
+       LIMIT 1`,
+      [
+        deploymentId,
+        signal.symbol,
+        signal.ts,
+        signal.strategyId,
+        signal.side,
+        signal.entryType,
+        signal.entryPrice,
+        signal.stopLoss,
+        signal.takeProfit,
+        signal.confidence ?? null,
+        signal.source,
+        fingerprint,
+      ],
+    );
+    const signalId = rows[0]?.signal_id;
+    if (!signalId) throw new Error("canonical live_signal persistence returned no identity");
+    await pool.query("RELEASE SAVEPOINT live_signal_insert");
+    return signalId;
+  } catch (err: any) {
+    // Code 23505 = unique violation on the fingerprint dedup index.
+    // Roll back just this INSERT and return null — caller will treat as
+    // graceful dedup-skip instead of aborting the whole transaction.
+    if (err?.code === "23505") {
+      await pool.query("ROLLBACK TO SAVEPOINT live_signal_insert");
+      return null;
+    }
+    // RELEASE the savepoint before re-throwing so the outer transaction
+    // is clean — a plain error (not 23505) still aborts the outer txn.
+    await pool.query("RELEASE SAVEPOINT live_signal_insert").catch(() => {});
+    throw err;
+  }
 }
 
 async function updateLiveSignalTrace(
@@ -392,8 +447,69 @@ async function insertLiveOrder(
 }
 
 export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResult> {
-  const { symbol, strategySpec, latestSignalSQL, pool, liveOverrides, deploymentId, createOrder, evaluationTs } = opts;
+  const {
+    symbol, strategySpec, latestSignalSQL, pool, liveOverrides, deploymentId,
+    createOrder, evaluationTs, signalAsOfParameter, evaluationOnly = false,
+  } = opts;
   const now = evaluationTs ?? new Date();
+  const effectiveDeploymentId = evaluationOnly ? undefined : deploymentId;
+
+  // 0. Wall-clock staleness guard (step 0 — independent of evaluationTs).
+  // When ingestion stalls, evaluationTs freezes at the last candle ts and the
+  // stale-data breaker (0a) compares against that frozen value — age is ~0.
+  // This guard uses Date.now() to detect the true ingestion lag.
+  // Block when the latest 1m candle is older than 2× the trigger interval (30m).
+  // The query uses absolute MAX(ts) with no WHERE filter on ts <= now so we
+  // read the true data edge, not the evaluation-anchored edge.
+  {
+    const wallClockNow = Date.now();
+    try {
+      const { rows: wallRows } = await pool.query(
+        `SELECT MAX(ts) as max_ts FROM market.candles_1m_canonical WHERE symbol = $1`,
+        [symbol]
+      );
+      if (wallRows[0]?.max_ts) {
+        const dataEdgeTs = new Date(wallRows[0].max_ts).getTime();
+        const ingestionLagMinutes = (wallClockNow - dataEdgeTs) / 60_000;
+        // 2× trigger interval (15m trigger → 30m threshold) with a 5m floor
+        // for fast-pulse triggers. Ensures brief ingestion hiccups don't
+        // false-positive but a stalled feed is caught well before the next
+        // daily candle.
+        const WALL_CLOCK_STALENESS_THRESHOLD_MINUTES = 30;
+        if (ingestionLagMinutes > WALL_CLOCK_STALENESS_THRESHOLD_MINUTES) {
+          const reason =
+            `wall_clock_stale_data: latest 1m candle is ${ingestionLagMinutes.toFixed(1)} min old ` +
+            `(wall-clock edge ${dataEdgeTs}, evaluationTs ${now.toISOString()})`;
+          await logSignalRejection(pool, effectiveDeploymentId, { symbol, strategyId: strategySpec.id, reason });
+          return {
+            trace: {
+              runId: crypto.randomUUID(),
+              symbol,
+              strategyId: strategySpec.id,
+              ts: new Date(wallClockNow),
+              nodes: [
+                {
+                  nodeId: "wall_clock_stale_data",
+                  nodeType: "gate",
+                  passed: false,
+                  reason,
+                  latencyMs: 0,
+                },
+              ],
+            },
+            reason,
+          };
+        }
+      }
+    } catch (err: any) {
+      // Fail-open on DB error — don't block trading because we can't confirm
+      // staleness. Log prominently so ops is aware the guard is offline.
+      console.warn(
+        `[liveRunner] Wall-clock staleness guard query failed for ${symbol}: ${err.message} — ` +
+        `proceeding without wall-clock protection`
+      );
+    }
+  }
 
   // 0a. Global stale-data circuit breaker: if the newest candle (1m, plus the
   // strategy's entry tf) is older than a tf-aware threshold, block signal
@@ -412,19 +528,19 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   const entryTf = strategySpec.entry?.[0]?.tf as TimeFrame | undefined;
   if (entryTf) candleTfsToCheck.add(entryTf);
   for (const tf of candleTfsToCheck) {
-    const latestTs = await fetchLatestCandleTs(pool, symbol, tf);
+    const latestTs = await fetchLatestCandleTs(pool, symbol, tf, now);
     if (!latestTs) continue;
     const candleAgeMinutes = (now.getTime() - latestTs.getTime()) / 60_000;
     const maxAge = CANDLE_MAX_AGE_MINUTES[tf] ?? 15;
     if (candleAgeMinutes > maxAge) {
       const reason = `stale_data: latest ${tf} candle is ${candleAgeMinutes.toFixed(1)} min old`;
-      await logSignalRejection(pool, deploymentId, { symbol, strategyId: strategySpec.id, reason });
+      await logSignalRejection(pool, effectiveDeploymentId, { symbol, strategyId: strategySpec.id, reason });
       return {
         trace: {
           runId: crypto.randomUUID(),
           symbol,
           strategyId: strategySpec.id,
-          ts: new Date(),
+          ts: now,
           nodes: [
             {
               nodeId: "stale_data",
@@ -441,9 +557,9 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   }
 
   // 0b. Feature freshness guard — check all features the strategy needs
-  const freshness = await checkFeatureFreshness(pool, symbol, strategySpec, now);
+  const freshness = await checkFeatureFreshness(pool, symbol, strategySpec, now, !evaluationOnly);
   if (!freshness.ok) {
-    await logSignalRejection(pool, deploymentId, {
+    await logSignalRejection(pool, effectiveDeploymentId, {
       symbol,
       strategyId: strategySpec.id,
       reason: freshness.reason ?? "feature_freshness",
@@ -453,7 +569,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         runId: crypto.randomUUID(),
         symbol,
         strategyId: strategySpec.id,
-        ts: new Date(),
+        ts: now,
         nodes: [
           {
             nodeId: "feature_freshness",
@@ -470,13 +586,15 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
 
   // 1. Fetch latest signal using compiled strategy SQL (parameterized: $1=symbol, $2=ttl interval)
   const maxAgeMin = strategySpec.live?.signalTtlMinutes ?? 15;
-  const signal = await fetchLatestSignal(pool, latestSignalSQL, [symbol, `${maxAgeMin} minutes`], strategySpec.id);
+  const signalParams: unknown[] = [symbol, `${maxAgeMin} minutes`];
+  if (signalAsOfParameter) signalParams.push(signalAsOfParameter);
+  const signal = await fetchLatestSignal(pool, latestSignalSQL, signalParams, strategySpec.id);
   if (signal && strategySpec.familyId) {
     signal.familyId = strategySpec.familyId;
   }
 
   if (!signal) {
-    await logSignalRejection(pool, deploymentId, {
+    await logSignalRejection(pool, effectiveDeploymentId, {
       symbol,
       strategyId: strategySpec.id,
       reason: "no_signal",
@@ -486,7 +604,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         runId: crypto.randomUUID(),
         symbol,
         strategyId: strategySpec.id,
-        ts: new Date(),
+        ts: now,
         nodes: [],
       },
       reason: "no_signal",
@@ -499,7 +617,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   const maxSignalAgeMinutes = strategySpec.live?.signalTtlMinutes ?? 15;
   if (signalAgeMinutes > maxSignalAgeMinutes) {
     const reason = `stale_signal: age=${signalAgeMinutes.toFixed(1)}min > max=${maxSignalAgeMinutes}min`;
-    await logSignalRejection(pool, deploymentId, {
+    await logSignalRejection(pool, effectiveDeploymentId, {
       symbol,
       strategyId: strategySpec.id,
       side: signal.side,
@@ -522,6 +640,23 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   // 1c. Signal fingerprint + cooldown deduplication.
   const fingerprint = computeSignalFingerprint(signal);
   const cooldownMinutes = strategySpec.live?.cooldownMinutes ?? 30;
+
+  // Live execution without immutable deployment provenance is forbidden. Replay
+  // evaluation remains deployment-optional because it always rolls back.
+  if (!evaluationOnly && !effectiveDeploymentId) {
+    return {
+      trace: {
+        runId: crypto.randomUUID(),
+        symbol,
+        strategyId: strategySpec.id,
+        ts: now,
+        nodes: [],
+      },
+      signal,
+      orderCreated: false,
+      reason: "provenance_required: active deployment missing",
+    };
+  }
 
   // Serialize the critical section: risk reads, live_signal insert, gate trace,
   // small-account check, setup eval, quality check, and order insert all happen
@@ -549,7 +684,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       [symbol]
     );
 
-    const duplicate = await findRecentDuplicate(client, fingerprint, cooldownMinutes);
+    const duplicate = await findRecentDuplicate(client, fingerprint, cooldownMinutes, now);
     if (duplicate) {
       const reason = `duplicate_signal: cooldown=${cooldownMinutes}min`;
       throw new PipelineRejectionError({
@@ -557,7 +692,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
           runId: crypto.randomUUID(),
           symbol,
           strategyId: strategySpec.id,
-          ts: new Date(),
+          ts: now,
           nodes: [
             {
               nodeId: "signal_dedup",
@@ -574,17 +709,40 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       });
     }
 
-    // 1a. Persist raw live signal when a deployment snapshot is active
-    if (deploymentId) {
-      try {
-        liveSignalId = await insertLiveSignal(client, deploymentId, signal, fingerprint);
-      } catch (err: any) {
-        console.warn(`[liveRunner] failed to persist live_signal: ${err.message}`);
+    // 1a. Canonical signal identity is mandatory for live execution. Any
+    // persistence error aborts transaction before legacy order creation.
+    // Returns null if the fingerprint dedup index caught a duplicate (23505
+    // on idx_live_signal_dedup_v2) — the SAVEPOINT rolled back only the INSERT
+    // so the outer transaction is clean and we gracefully reject.
+    if (effectiveDeploymentId) {
+      liveSignalId = (await insertLiveSignal(client, effectiveDeploymentId, signal, fingerprint)) ?? undefined;
+      if (!liveSignalId) {
+        throw new PipelineRejectionError({
+          trace: {
+            runId: crypto.randomUUID(),
+            symbol,
+            strategyId: strategySpec.id,
+            ts: now,
+            nodes: [
+              {
+                nodeId: "signal_dedup",
+                nodeType: "gate",
+                passed: false,
+                reason: `fingerprint_dedup: identical signal already recorded for this symbol/strategy (${fingerprint.slice(0, 12)}…)`,
+                latencyMs: 0,
+              },
+            ],
+          },
+          signal,
+          orderCreated: false,
+          reason: "fingerprint_dedup: unique index caught in-flight duplicate",
+        });
       }
     }
 
-    // 2. Build DecisionGraph from strategy gates
-    const graph = new DecisionGraph(client);
+    // 2. Build DecisionGraph from strategy gates. Evaluation-only replay keeps
+    // identical graph logic but disables trace persistence.
+    const graph = new DecisionGraph(client, !evaluationOnly);
 
     const gateMap: Record<string, (params: any) => any> = {
       volatility: createVolatilityGate,
@@ -600,8 +758,11 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     for (const gateConfig of strategySpec.gates) {
       const gateFactory = gateMap[gateConfig.name];
       if (!gateFactory) {
-        console.warn(`[liveRunner] Unknown gate: ${gateConfig.name}`);
-        continue;
+        throw new Error(
+          `[liveRunner] Unknown gate '${gateConfig.name}' in spec '${strategySpec.id}' — ` +
+          `typo'd gate names silently vanish, creating a false sense of protection. ` +
+          `Valid gates: ${Object.keys(gateMap).join(", ")}`
+        );
       }
       const gate = gateFactory(gateConfig.params);
       graph.addNode({
@@ -615,14 +776,16 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     // 3. Fetch latest features for gate evaluation
     const features = await fetchLatestFeatures(client, symbol, signal.ts, strategySpec);
 
-    // 3b. Fetch recent orders (last 24h) for rate-limit and daily P&L gates,
-    //      plus active orders for portfolio heat gate.
+    // 3b. Fetch recent orders at the evaluation edge for rate-limit and daily
+    // P&L gates, plus active orders for portfolio heat gate.
     const { rows: recentRows } = await client.query(
       `SELECT id, symbol, strategy_id, variant_id, family_id, side, entry_type, entry_price, stop_loss, take_profit,
               status, fill_price, close_price, outcome, outcome_r, realized_pnl,
               created_at, filled_at, closed_at
        FROM orders
-       WHERE created_at >= NOW() - INTERVAL '24 hours'`,
+       WHERE created_at >= $1::timestamptz - INTERVAL '24 hours'
+         AND created_at <= $1::timestamptz`,
+      [now],
     );
 
     const mapOrder = (r: any) => ({
@@ -648,7 +811,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
 
     const recentOrders = recentRows.map(mapOrder);
     const activeOrders = recentOrders.filter((o) =>
-      ["pending", "sent", "filled"].includes(o.status)
+      (ACTIVE_ORDER_STATUSES as readonly string[]).includes(o.status)
     );
 
     // 4. Evaluate gates with real feature data
@@ -693,7 +856,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       maxPositionsTotal: strategySpec.live?.maxPositionsTotal,
       cooldownMinutes: strategySpec.live?.cooldownMinutes,
       accountBalance: strategySpec.live?.accountBalance,
-    });
+    }, now);
     if (!smallAccountGate.ok) {
       throw new PipelineRejectionError({
         trace,
@@ -735,7 +898,17 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         blockReasons: setupEval.blockReasons,
       };
     } catch (err: any) {
-      console.warn(`[liveRunner] setup evaluation failed for ${symbol}:`, err.message);
+      // Fail-closed: if setup evaluation throws (DB error, missing data, grader
+      // crash), block the order rather than proceeding ungraded. A setup that
+      // cannot be evaluated is not safe to trade. (#3.5.8c)
+      console.error(`[liveRunner] ❌ setup evaluation failed for ${symbol}/${strategySpec.id}: ${err.message}`);
+      throw new PipelineRejectionError({
+        trace,
+        signal,
+        orderCreated: false,
+        liveSignalId,
+        reason: `setup_evaluation_failed: ${err.message}`,
+      });
     }
 
     // 8. Block orders with a BLOCK setup grade
@@ -753,13 +926,15 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     // 9. Pre-trade execution quality: decide market, limit, or reject based on
     // current price vs. signal entry. This prevents bad fills like the USDCHF
     // trade where the market had already moved 10 pips away.
-    const quality = await evaluateExecutionQuality(client, signal, strategySpec);
+    const quality = await evaluateExecutionQuality(client, { ...signal, ts: now }, strategySpec);
     if (quality.action === "reject") {
       throw new PipelineRejectionError({
         trace,
         signal,
         orderCreated: false,
         liveSignalId,
+        setupSnapshot,
+        qualityDecision: quality,
         reason: `quality_rejected: ${quality.reason}`,
       });
     }
@@ -774,7 +949,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         ? {
             ...liveOverrides,
             useProfitLotSizing: true,
-            realizedProfit: await getTotalRealizedPnl(client),
+            realizedProfit: await getTotalRealizedPnl(client, now),
           }
         : liveOverrides;
 
@@ -787,34 +962,53 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       quality
     );
     orderInput.signal_fingerprint = fingerprint;
-    order = await createOrder(orderInput, client);
 
-    // 6b. Persist live order when a deployment snapshot is active
-    if (deploymentId && liveSignalId) {
-      try {
-        liveOrderId = await insertLiveOrder(client, liveSignalId, deploymentId, orderInput, order.id);
-      } catch (err: any) {
-        console.warn(`[liveRunner] failed to persist live_order: ${err.message}`);
+    if (evaluationOnly) {
+      result = {
+        trace,
+        signal,
+        orderCreated: true,
+        orderCandidate: orderInput,
+        setupSnapshot,
+        qualityDecision: quality,
+      };
+      await client.query("ROLLBACK");
+    } else {
+      order = await createOrder(orderInput, client);
+
+      // 10b. Canonical order lineage and legacy order share transaction. Missing
+      // identity or insert failure rolls both records back; execution fails closed.
+      if (!effectiveDeploymentId || !liveSignalId) {
+        throw new Error("canonical order lineage unavailable");
       }
+      liveOrderId = await insertLiveOrder(
+        client,
+        liveSignalId,
+        effectiveDeploymentId,
+        orderInput,
+        order.id,
+      );
+
+      result = {
+        trace,
+        signal,
+        orderCreated: true,
+        orderId: order.id,
+        liveSignalId,
+        liveOrderId,
+        setupSnapshot,
+        qualityDecision: quality,
+      };
+
+      await client.query("COMMIT");
     }
-
-    result = {
-      trace,
-      signal,
-      orderCreated: true,
-      orderId: order.id,
-      liveSignalId,
-      liveOrderId,
-    };
-
-    await client.query("COMMIT");
   } catch (err: any) {
     await client.query("ROLLBACK").catch(() => {});
 
     if (err instanceof PipelineRejectionError) {
       result = err.result;
       const reason = result.reason ?? "rejected";
-      await logSignalRejection(pool, deploymentId, {
+      await logSignalRejection(pool, effectiveDeploymentId, {
         symbol,
         strategyId: strategySpec.id,
         side: signal.side,
@@ -823,13 +1017,13 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         fingerprint,
       });
     } else {
-      await notifyOrderRejected(
+      if (!evaluationOnly) await notifyOrderRejected(
         signal.symbol,
         signal.side,
         strategySpec.name ?? strategySpec.id,
         err.message
       );
-      await logSignalRejection(pool, deploymentId, {
+      await logSignalRejection(pool, effectiveDeploymentId, {
         symbol,
         strategyId: strategySpec.id,
         side: signal.side,
@@ -855,8 +1049,8 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     client.release();
   }
 
-  // Notifications and side effects happen only after the transaction commits.
-  if (liveSignalId && result.orderCreated) {
+  // Notifications and audit side effects happen only after a live commit.
+  if (!evaluationOnly && liveSignalId && result.orderCreated) {
     await notifySignal(
       signal.symbol,
       signal.side,
@@ -867,7 +1061,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     );
   }
 
-  if (result.orderCreated && orderInput && order) {
+  if (!evaluationOnly && result.orderCreated && orderInput && order) {
     await notifyOrderCreated(
       orderInput.symbol,
       orderInput.side,
@@ -881,7 +1075,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     );
   }
 
-  if (result.reason?.startsWith("quality_rejected")) {
+  if (!evaluationOnly && result.reason?.startsWith("quality_rejected")) {
     await notifyQualityRejected(
       signal.symbol,
       signal.side,
@@ -890,7 +1084,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     );
   }
 
-  appendSignalCandidate({
+  if (!evaluationOnly) appendSignalCandidate({
     strategy_id: strategySpec.id,
     symbol: signal.symbol,
     tf: null,
@@ -949,14 +1143,15 @@ const TF_MINUTES: Record<TimeFrame, number> = {
 async function fetchLatestCandleTs(
   pool: Queryable,
   symbol: string,
-  tf: TimeFrame
+  tf: TimeFrame,
+  asOf: Date
 ): Promise<Date | null> {
   const table = CANDLE_TABLE_BY_TF[tf];
   if (!table) return null;
   try {
     const { rows } = await pool.query(
-      `SELECT MAX(ts) as max_ts FROM ${table} WHERE symbol = $1`,
-      [symbol]
+      `SELECT MAX(ts) as max_ts FROM ${table} WHERE symbol = $1 AND ts <= $2`,
+      [symbol, asOf]
     );
     return rows[0]?.max_ts ? new Date(rows[0].max_ts) : null;
   } catch {
@@ -1034,7 +1229,8 @@ async function checkFeatureFreshness(
   pool: Queryable,
   symbol: string,
   strategySpec: StrategySpec,
-  evaluationTs?: Date
+  evaluationTs?: Date,
+  checkProducerLedger = true
 ): Promise<{ ok: boolean; reason?: string; latencyMs: number }> {
   const start = performance.now();
 
@@ -1051,11 +1247,11 @@ async function checkFeatureFreshness(
   // code, not user input — so string interpolation is safe.
   const tableQueries = [...required].map((key) => {
     const [featureName, tf] = key.split("@");
-    return `SELECT '${featureName}'::text AS feature_name, '${tf}'::text AS tf, MAX(ts) AS max_ts FROM ${featureName} WHERE symbol = $1 AND tf = '${tf}'`;
+    return `SELECT '${featureName}'::text AS feature_name, '${tf}'::text AS tf, MAX(ts) AS max_ts FROM ${featureName} WHERE symbol = $1 AND tf = '${tf}' AND ts <= $2`;
   });
   if (tableQueries.length > 0) {
     try {
-      const { rows: freshnessRows } = await pool.query(tableQueries.join(" UNION ALL "), [symbol]);
+      const { rows: freshnessRows } = await pool.query(tableQueries.join(" UNION ALL "), [symbol, now]);
       for (const row of freshnessRows) {
         const featureName = row.feature_name as string;
         const tf = row.tf as TimeFrame;
@@ -1083,7 +1279,7 @@ async function checkFeatureFreshness(
   const STATE_PRODUCER_MAX_AGE_MIN = 10;
   const producerAction = (process.env.TM_PRODUCER_STALE_ACTION ?? "warn").toLowerCase();
   const producerProblems: string[] = [];
-  for (const key of required) {
+  for (const key of checkProducerLedger ? required : []) {
     const [featureName, tfRaw] = key.split("@");
     const tf = tfRaw as TimeFrame;
     if (isEventFeature(featureName)) continue; // sparse: tracked by candle freshness

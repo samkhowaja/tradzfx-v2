@@ -64,6 +64,21 @@ export interface FeatureContract {
    */
   defaultLookbackBarsByTf?: Partial<Record<TimeFrame, number>>;
   /**
+   * Confirmation lookback bars: number of additional bars AFTER the persisted
+   * ts that the feature producer needs to confirm the event. During this window
+   * the row at ts is NOT yet knowable.
+   *
+   * Used by the PIT compiler to shift the upper LATERAL bound so backtests
+   * never see events before they were actually confirmable. Set on features
+   * whose producers scan lookahead bars (e.g. pivots need N bars after the
+   * center bar to confirm a swing).
+   *
+   * When set as a plain number, it applies to all timeframes. Per-TF values
+   * override the default.
+   */
+  confirmationLookbackBars?: number;
+  confirmationLookbackBarsByTf?: Partial<Record<TimeFrame, number>>;
+  /**
    * Default GROUP BY columns for DISTINCT ON in PIT lateral joins.
    * The anchor symbol is always included; these are additional equality
    * dimensions such as direction or zone_kind.
@@ -164,6 +179,28 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     },
     equalityGroupByDefaults: ["period"],
     requiredColumns: ["symbol", "ts", "tf", "period", "value"],
+  }),
+
+  features_volatility_normalized: contract({
+    table: "features_volatility_normalized",
+    semanticType: "state",
+    joinPolicy: "latest_as_of",
+    defaultFreshnessMinutesByTf: FRESHNESS_STATE,
+    defaultLookbackBars: 14,
+    defaultLookbackBarsByTf: {
+      "1m": 84,
+      "5m": 42,
+      "15m": 28,
+      "1h": 28,
+      "4h": 14,
+      "1d": 10,
+    },
+    equalityGroupByDefaults: ["period", "session"],
+    requiredColumns: [
+      "symbol", "ts", "tf", "period", "session", "atr_pips", "atr_bps",
+      "percentile_rank", "robust_z", "regime", "sample_count", "is_valid",
+      "engine_ver", "input_hash",
+    ],
   }),
 
   features_session: contract({
@@ -387,6 +424,24 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     requiredColumns: ["symbol", "ts", "tf", "pattern_name", "direction", "confidence"],
   }),
 
+  features_push_pull: contract({
+    table: "features_push_pull",
+    semanticType: "event",
+    joinPolicy: "candidate_set",
+    defaultLookbackBars: 8,
+    defaultLookbackBarsByTf: {
+      "1m": 96,
+      "5m": 48,
+      "15m": 32,
+      "1h": 24,
+      "4h": 12,
+      "1d": 10,
+    },
+    equalityGroupByDefaults: ["pattern_name", "direction"],
+    tieBreaker: "confidence DESC NULLS LAST, ts DESC",
+    requiredColumns: ["symbol", "ts", "tf", "pattern_name", "direction", "push_count", "pull_count", "push_pull_level", "confidence"],
+  }),
+
   features_time_of_day_edge: contract({
     table: "features_time_of_day_edge",
     semanticType: "event",
@@ -466,6 +521,18 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
       "1h": 48,
       "4h": 24,
       "1d": 10,
+    },
+    // Pivot producer needs `lookback` bars AFTER the center bar to confirm a
+    // swing (findPivots scans candles[i + j] for j = 1..lookback). The row at
+    // `ts` is NOT knowable until +lookback bars — this sets the LATERAL upper
+    // bound shift so backtests don't see pivots before they exist.
+    confirmationLookbackBarsByTf: {
+      "1m": 3,
+      "5m": 5,
+      "15m": 8,
+      "1h": 10,
+      "4h": 15,
+      "1d": 20,
     },
     // features_pivot columns are kind/price/confidence; no period/value and no
     // lifecycle columns (point-in-time levels).

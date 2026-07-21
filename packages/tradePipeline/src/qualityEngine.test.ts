@@ -86,11 +86,20 @@ describe("evaluateExecutionQuality", () => {
     expect(decision.action).toBe("market");
   });
 
-  it("takes a market order when price moved favorably and RR is still acceptable", async () => {
-    // For a buy, current price below entry is favorable; RR improves.
-    const pool = mockPool(0.8118);
+  it("falls back to limit when favorable price movement exceeds drift tolerance", async () => {
+    // Favorable RR does not excuse execution outside declared drift bounds.
+    const pool = mockPool(0.8116);
     const decision = await evaluateExecutionQuality(pool, baseSignal(), baseSpec());
-    expect(decision.action).toBe("market");
+    expect(decision.action).toBe("limit");
+    expect(decision.limitPrice).toBeCloseTo(0.81191, 5);
+  });
+
+  it("does not market-fill when drift is bounded but effective RR is invalid", async () => {
+    const signal = baseSignal({ stopLoss: 0.81194, takeProfit: 0.811955 });
+    const pool = mockPool(0.81195);
+    const decision = await evaluateExecutionQuality(pool, signal, baseSpec());
+    expect(decision.action).toBe("reject");
+    expect(decision.reason).toContain("limit_geometry");
   });
 
   it("respects a pure limit strategy", async () => {

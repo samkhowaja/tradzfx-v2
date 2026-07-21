@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Pool } from "pg";
 import type { StrategySpec } from "../types/strategy";
 import {
+  getOrCreateCompiledStrategySnapshot,
   getOrCreateFeatureConfigSnapshot,
   getOrCreateStrategySettingsSnapshot,
 } from "./snapshots";
@@ -41,5 +42,38 @@ describe("snapshot binary hash lookup", () => {
     const digest = query.mock.calls[0][1][0];
     expect(Buffer.isBuffer(digest)).toBe(true);
     expect(digest).toHaveLength(32);
+  });
+
+  it("reuses compiled strategy artifact through content hash", async () => {
+    const { pool, query } = poolReturning("compiled-id");
+    await expect(getOrCreateCompiledStrategySnapshot(pool, {
+      strategySnapshotId: "strategy-id",
+      strategyId: "test_strategy",
+      compilerVersion: "pit-sql-v1",
+      registryVersion: "feature-registry-v1",
+      sourceRevision: "commit-1",
+      sourceSpecHash: "a".repeat(64),
+      pitSignalSql: "SELECT * FROM signals WHERE ts <= $3::timestamptz",
+    })).resolves.toBe("compiled-id");
+
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][0]).toContain("ON CONFLICT (content_hash_bin) DO NOTHING");
+    const digest = query.mock.calls[0][1][9];
+    expect(Buffer.isBuffer(digest)).toBe(true);
+    expect(digest).toHaveLength(32);
+  });
+
+  it("rejects incomplete compiled strategy provenance before querying", async () => {
+    const { pool, query } = poolReturning("compiled-id");
+    await expect(getOrCreateCompiledStrategySnapshot(pool, {
+      strategySnapshotId: "strategy-id",
+      strategyId: "test_strategy",
+      compilerVersion: "",
+      registryVersion: "feature-registry-v1",
+      sourceRevision: "commit-1",
+      sourceSpecHash: "a".repeat(64),
+      pitSignalSql: "SELECT 1",
+    })).rejects.toThrow("provenance and PIT SQL must be non-empty");
+    expect(query).not.toHaveBeenCalled();
   });
 });
