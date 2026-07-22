@@ -977,7 +977,10 @@ function simulateTrade(signal, candles, options = {}) {
   }
 
   const tsStr = signal.ts instanceof Date ? signal.ts.toISOString() : String(signal.ts);
-  const future = candles.slice(findCandleIndexAfter(candles, signal.ts));
+  const effectiveSignalTs = signalTf
+    ? new Date(signal.ts.getTime() + (TF_MS[signalTf] ?? TF_MS["15m"]))
+    : signal.ts;
+  const future = candles.slice(findCandleIndexAfter(candles, effectiveSignalTs));
   if (future.length > timeoutBars) {
     future.length = timeoutBars;
   }
