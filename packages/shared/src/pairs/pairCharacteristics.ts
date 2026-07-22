@@ -47,6 +47,9 @@ export interface PairCharacteristics {
     longMinQuality?: "STANDARD" | "HIGH";
   };
 
+  /** Minimum stop distance in pips. Signals with SL closer than this are invalid. Falls back to 3 for unregistered pairs. */
+  minStopPips?: number;
+
   /** Commission in pips per round-trip lot (entry+exit). */
   commissionPipsPerLot: number;
 
@@ -221,6 +224,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 8,
     poiTolerancePips: 6,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.7,
   },
   EURJPY: {
@@ -236,6 +240,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 6,
     poiTolerancePips: 5,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.7,
   },
   CADJPY: {
@@ -251,6 +256,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 6,
     poiTolerancePips: 5,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.7,
   },
   AUDJPY: {
@@ -266,6 +272,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 6,
     poiTolerancePips: 5,
     preferredKillzones: ["ASIA_KILLZONE", "LONDON_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.7,
   },
   CHFJPY: {
@@ -281,6 +288,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 6,
     poiTolerancePips: 5,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.7,
   },
   EURCAD: {
@@ -296,6 +304,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 5,
     poiTolerancePips: 4,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.5,
   },
   EURGBP: {
@@ -311,6 +320,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 5,
     poiTolerancePips: 3,
     preferredKillzones: ["LONDON_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.5,
   },
   AUDNZD: {
@@ -326,6 +336,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 5,
     poiTolerancePips: 3,
     preferredKillzones: ["ASIA_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 0.5,
   },
   XAUUSD: {
@@ -343,6 +354,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE", "LATE_NY_KILLZONE"],
     minimumExecutionTf: "5m",
     sideAsymmetry: { longSizePct: 60, longMinQuality: "HIGH" },
+    minStopPips: 10,
     commissionPipsPerLot: 1.0,
   },
   NAS100: {
@@ -358,6 +370,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 10,
     poiTolerancePips: 10,
     preferredKillzones: ["NY_KILLZONE"],
+    minStopPips: 10,
     commissionPipsPerLot: 1.0,
   },
   US30: {
@@ -373,6 +386,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 5,
     poiTolerancePips: 15,
     preferredKillzones: ["NY_KILLZONE"],
+    minStopPips: 10,
     commissionPipsPerLot: 1.0,
   },
   SPX500: {
@@ -388,6 +402,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 8,
     poiTolerancePips: 8,
     preferredKillzones: ["NY_KILLZONE"],
+    minStopPips: 10,
     commissionPipsPerLot: 1.0,
   },
   USDHKD: {
@@ -403,6 +418,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 8,
     poiTolerancePips: 5,
     preferredKillzones: ["ASIA_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 1.0,
   },
   USDSEK: {
@@ -422,6 +438,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 10,
     poiTolerancePips: 10,
     preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 1.0,
   },
   USDSGD: {
@@ -437,6 +454,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 6,
     poiTolerancePips: 4,
     preferredKillzones: ["ASIA_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 1.0,
   },
   USDZAR: {
@@ -452,6 +470,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
     eqToleranceTicks: 10,
     poiTolerancePips: 10,
     preferredKillzones: ["LONDON_KILLZONE"],
+    minStopPips: 5,
     commissionPipsPerLot: 1.5,
   },
 };
@@ -498,8 +517,9 @@ export function getPairCharacteristics(symbol: string): PairCharacteristics {
     symbol: s,
     symbolClass,
     // Fill in the class-aware default when the pair entry doesn't specify one.
-    gateSpreadMultiplier: entry.gateSpreadMultiplier ?? CLASS_GATE_SPREAD_MULTIPLIER[symbolClass] ?? 4,
     ...entry,
+    gateSpreadMultiplier: entry.gateSpreadMultiplier ?? CLASS_GATE_SPREAD_MULTIPLIER[symbolClass] ?? 4,
+    minStopPips: entry.minStopPips ?? 3,
   };
 }
 

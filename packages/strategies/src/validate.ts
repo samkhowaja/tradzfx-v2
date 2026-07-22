@@ -7,7 +7,7 @@
  * a violation is a spec bug, not a runtime condition.
  */
 
-import { ORB_SESSION_KEYS } from "@tm/shared";
+import { ORB_SESSION_KEYS, getPairCharacteristics } from "@tm/shared";
 import type { StrategySpec, StrategyCondition, ProgressiveStep } from "@tm/shared";
 import { FEATURE_REGISTRY } from "./featureRegistry";
 
@@ -177,6 +177,27 @@ export function validateSpec(spec: StrategySpec): string[] {
       errors.push(`${specId}: risk.timeoutBars must be >= 0 (got ${tb})`);
     } else if (tb >= 100000) {
       console.warn(`${specId}: risk.timeoutBars = ${tb} is very large — ensures no artificial timeout`);
+    }
+  }
+
+  // Validate minStopPips against every symbol in filters.
+  // risk.sl is a pips expression like "10p". Parse it and reject specs where
+  // the configured stop is narrower than the symbol's minimum.
+  if (spec.risk?.sl && spec.filters?.symbols) {
+    const slStr = spec.risk.sl;
+    const slPipsMatch = typeof slStr === "string" && slStr.match(/^([0-9.]+)\s*p$/i);
+    if (slPipsMatch) {
+      const slPips = parseFloat(slPipsMatch[1]);
+      for (const sym of spec.filters.symbols) {
+        const pc = getPairCharacteristics(sym);
+        const minPips = pc.minStopPips ?? 3;
+        if (slPips < minPips) {
+          errors.push(
+            `${specId}: risk.sl ${slPips}p is below ${sym}'s minStopPips (${minPips}p). ` +
+              `Widen stop or remove the symbol from filters.`
+          );
+        }
+      }
     }
   }
 

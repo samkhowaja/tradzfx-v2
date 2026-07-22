@@ -850,7 +850,7 @@ function findCandleIndexAfter(candles, ts) {
   return lo;
 }
 
-function isValidSignalGeometry(signal) {
+function isValidSignalGeometry(signal, pipSize, minStopPips) {
   const side = signal.side;
   const entry = parseFloat(signal.entry_price);
   const sl = parseFloat(signal.stop_loss);
@@ -859,10 +859,14 @@ function isValidSignalGeometry(signal) {
     return false;
   }
   if (side === "buy") {
-    return sl < entry && tp > entry;
+    if (!(sl < entry && tp > entry)) return false;
+    if (minStopPips > 0 && pipSize > 0 && (entry - sl) / pipSize < minStopPips) return false;
+    return true;
   }
   if (side === "sell") {
-    return sl > entry && tp < entry;
+    if (!(sl > entry && tp < entry)) return false;
+    if (minStopPips > 0 && pipSize > 0 && (sl - entry) / pipSize < minStopPips) return false;
+    return true;
   }
   return false;
 }
@@ -2163,6 +2167,8 @@ async function main() {
     }
 
     const pipSize = getPipSize(symbol);
+    const pc = getPairCharacteristics(symbol);
+    const minStopPips = pc.minStopPips ?? 3;
     const rawTrades = [];
     let warmupSkipped = 0;
     let geometrySkipped = 0;
@@ -2177,7 +2183,7 @@ async function main() {
         warmupSkipped++;
         continue;
       }
-      if (!isValidSignalGeometry(sig)) {
+      if (!isValidSignalGeometry(sig, pipSize, minStopPips)) {
         geometrySkipped++;
         continue;
       }
@@ -2402,7 +2408,7 @@ async function main() {
         sig.take_profit = String(setupEval.takeProfit);
         // Fail closed after the override. Compiler geometry was validated above,
         // but setup-derived absolute prices can independently be malformed.
-        if (!isValidSignalGeometry(sig)) {
+        if (!isValidSignalGeometry(sig, pipSize, minStopPips)) {
           setupInvalidGeometry++;
           continue;
         }
