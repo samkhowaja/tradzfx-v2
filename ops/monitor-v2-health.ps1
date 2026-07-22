@@ -213,6 +213,30 @@ ORDER BY age_min DESC
     $notes += "feature freshness query failed: $_"
 }
 
+# 7. Data-edge alerting: per-symbol candles_1m + producer engine freshness.
+#    Uses watch-data-edge.js which respects isTradableInstant (no weekend/XAU-break false alerts).
+$dataEdgeScript = Join-Path $scriptDir 'watch-data-edge.js'
+if (Test-Path $dataEdgeScript) {
+    try {
+        $dataOut = & node $dataEdgeScript 2>&1
+        $dataExit = $LASTEXITCODE
+        foreach ($line in $dataOut) {
+            if ($line -match '^FAIL:') {
+                $failures += $line -replace '^FAIL:\s*', ''
+            } elseif ($line -match '^NOTE:') {
+                $notes += $line -replace '^NOTE:\s*', ''
+            }
+        }
+        if ($dataExit -ne 0 -and $dataExit -ne 1) {
+            $notes += "watch-data-edge.js exited with code $dataExit (possibly config error)"
+        }
+    } catch {
+        $notes += "watch-data-edge.js invocation failed: $_"
+    }
+} else {
+    $notes += "watch-data-edge.js not found (data-edge checks skipped)"
+}
+
 if ($failures.Count -gt 0) {
     $message = "V2 health check failed:`n" + ($failures -join "`n")
     if ($notes.Count -gt 0) { $message += "`nNotes:`n" + ($notes -join "`n") }
@@ -220,7 +244,7 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-# 6. Pipeline health + alerts: stale pipelines, rejection spikes,
+# 8. Pipeline health + alerts: stale pipelines, rejection spikes,
 #    consecutive losses, drawdown, zero-signal symbols.
 try {
     $alerts = Invoke-RestMethod -Uri 'http://127.0.0.1:3003/api/v2/pipeline/alerts' -Method GET -TimeoutSec 10
