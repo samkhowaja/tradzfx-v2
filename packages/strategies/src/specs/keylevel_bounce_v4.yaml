@@ -17,8 +17,10 @@ overrides:
     - id: htf_bias
       feature: features_bias
       tf: 4h
+      predicate: direction != 'neutral'
       required: true
       dependsOn: [trend_bias]
+      ttlMinutes: 480
 
     - id: directional_zone
       feature: features_pricing
