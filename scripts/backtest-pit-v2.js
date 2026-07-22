@@ -179,39 +179,41 @@ function buildSignalContextHash(sig, primaryTf, spec, setupFamily) {
   return createHash("sha256").update(ctx.join("|")).digest("hex").slice(0, 32);
 }
 
-function computeWarmupBars(spec, minCandles = MIN_WARMUP_CANDLES) {
+function computeWarmupMs(spec, minCandles = MIN_WARMUP_CANDLES) {
   const signalTf = deriveSignalTf(spec);
-  const tfMs = TF_MS[signalTf] ?? TF_MS["15m"];
-  let bars = Math.max(minCandles, spec.warmupBars ?? 0);
+  const signalTfMs = TF_MS[signalTf] ?? TF_MS["15m"];
+  let maxMs = Math.max(minCandles * signalTfMs, (spec.warmupBars ?? 0) * signalTfMs);
 
   for (const cond of [...(spec.setup ?? []), ...(spec.entry ?? [])]) {
-    const condTfMs = TF_MS[cond.tf] ?? tfMs;
-    const tfRatio = Math.max(1, Math.ceil(condTfMs / tfMs));
+    const condTfMs = TF_MS[cond.tf] ?? signalTfMs;
     const reg = FEATURE_REGISTRY?.[cond.feature];
     const registryLookback = reg
       ? reg.defaultLookbackBarsByTf?.[cond.tf] ?? reg.defaultLookbackBars ?? 0
       : 0;
     const lookback = Math.max(cond.lookbackBars ?? 0, registryLookback);
-    if (lookback > 0) bars = Math.max(bars, lookback * tfRatio);
+    if (lookback > 0) maxMs = Math.max(maxMs, lookback * condTfMs);
 
     for (const p of extractNumericPeriods(cond.predicate)) {
-      bars = Math.max(bars, p * tfRatio);
+      maxMs = Math.max(maxMs, p * condTfMs);
     }
   }
 
   const maFast = Number(spec.signalSourceConfig?.fastPeriod ?? 0);
   const maSlow = Number(spec.signalSourceConfig?.slowPeriod ?? 0);
-  if (Number.isFinite(maFast) && maFast > 0) bars = Math.max(bars, maFast);
-  if (Number.isFinite(maSlow) && maSlow > 0) bars = Math.max(bars, maSlow);
+  if (Number.isFinite(maFast) && maFast > 0) maxMs = Math.max(maxMs, maFast * signalTfMs);
+  if (Number.isFinite(maSlow) && maSlow > 0) maxMs = Math.max(maxMs, maSlow * signalTfMs);
 
-  return Math.ceil(bars);
+  return Math.ceil(maxMs);
+}
+
+function computeWarmupBars(spec, minCandles = MIN_WARMUP_CANDLES) {
+  const signalTf = deriveSignalTf(spec);
+  const tfMs = TF_MS[signalTf] ?? TF_MS["15m"];
+  return Math.ceil(computeWarmupMs(spec, minCandles) / tfMs);
 }
 
 function computeWarmupTs(spec, from, minCandles = MIN_WARMUP_CANDLES) {
-  const signalTf = deriveSignalTf(spec);
-  const tfMs = TF_MS[signalTf] ?? TF_MS["15m"];
-  const warmupBars = computeWarmupBars(spec, minCandles);
-  return new Date(from.getTime() + tfMs * warmupBars);
+  return new Date(from.getTime() + computeWarmupMs(spec, minCandles));
 }
 
 function inferSetupFamily(spec) {
@@ -1867,6 +1869,15 @@ async function main() {
 
   const warmupBars = computeWarmupBars(spec, spec.warmupBars ?? MIN_WARMUP_CANDLES);
   const warmupTs = computeWarmupTs(spec, from, spec.warmupBars ?? MIN_WARMUP_CANDLES);
+  const warmupMs = computeWarmupMs(spec);
+  const windowMs = to.getTime() - from.getTime();
+  if (windowMs < 2 * warmupMs) {
+    console.error(
+      `[backtest-pit-v2] FATAL: backtest window ${Math.round(windowMs / 3600000)}h < 2× warmup (${Math.round(2 * warmupMs / 3600000)}h). ` +
+      `Extend window or reduce lookbacks. Exiting.`
+    );
+    process.exit(1);
+  }
   const setupFamily = inferSetupFamily(spec);
 
   console.log(`[backtest-pit-v2] Strategy: ${strategyId} | signalSource: ${spec.signalSource || "zone"}`);
@@ -2850,6 +2861,7 @@ module.exports = {
   assertAllowedFeature,
   assertAllowedTf,
   computeWarmupBars,
+  computeWarmupMs,
   computeWarmupTs,
   buildSignalContextHash,
   isValidSignalGeometry,
