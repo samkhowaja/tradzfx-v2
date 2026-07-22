@@ -885,30 +885,34 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
     timeoutBars = 24,
     intrabarMode = "close",
     signalTf,
+    pipSize = 0.0001,
   } = options;
   const effectiveSignalTs = signalTf
     ? new Date(signal.ts.getTime() + (TF_MS[signalTf] ?? TF_MS["15m"]))
     : signal.ts;
   const future = candles.slice(findCandleIndexAfter(candles, effectiveSignalTs), findCandleIndexAfter(candles, effectiveSignalTs) + timeoutBars);
-  if (!future.length) return { outcome: "timeout", r: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null };
+  if (!future.length) return { outcome: "timeout", r: 0, rRealized: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null, driftPips: 0, realizedRisk: null };
   const side = signal.side;
   const authoredEntry = parseFloat(signal.entry_price);
   const sl = parseFloat(signal.stop_loss);
   const tp = parseFloat(signal.take_profit);
   const plannedRisk = side === "buy" ? authoredEntry - sl : sl - authoredEntry;
-  if (!(plannedRisk > 0)) return { outcome: "invalid", invalidReason: "planned_risk_nonpositive", r: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null };
+  if (!(plannedRisk > 0)) return { outcome: "invalid", invalidReason: "planned_risk_nonpositive", r: 0, rRealized: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null, driftPips: 0, realizedRisk: null };
   const first = future[0];
   const effectiveEntry = Number(first.o);
+  const driftPips = Math.abs(effectiveEntry - authoredEntry) / pipSize;
+  const realizedRisk = side === "buy" ? effectiveEntry - sl : sl - effectiveEntry;
   if ((side === "buy" && !(sl < effectiveEntry && tp > effectiveEntry)) || (side === "sell" && !(sl > effectiveEntry && tp < effectiveEntry))) {
     // Gap-through: the market opened past the bracket. In live this is an
     // immediate loss at the open, not an excluded non-event. Book it as a
     // loss using the gap-open price as fill and implicit exit (§3.2.4).
     const gapExit = side === "buy" ? Math.min(sl, effectiveEntry) : Math.max(sl, effectiveEntry);
     const gapR = computeOutcomeR(side, effectiveEntry, gapExit, plannedRisk);
+    const gapRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, gapExit, realizedRisk) : gapR;
     return {
-      outcome: "loss", r: gapR, holdBars: 1, closePrice: gapExit,
+      outcome: "loss", r: gapR, rRealized: gapRRealized, holdBars: 1, closePrice: gapExit,
       effectiveEntry, maxAdverse: effectiveEntry, maxFavorable: effectiveEntry,
-      invalidReason: "gap_through",
+      invalidReason: "gap_through", driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null,
     };
   }
   let maxAdverse = effectiveEntry;
@@ -932,14 +936,16 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
       : tpHit ? "win" : "loss";
     const closePrice = expected === "win" ? tp : sl;
     const r = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
-    return { outcome: r >= 0 ? expected : "loss", r, holdBars: i + 1, closePrice, effectiveEntry, maxAdverse, maxFavorable };
+    const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : r;
+    return { outcome: r >= 0 ? expected : "loss", r, rRealized, holdBars: i + 1, closePrice, effectiveEntry, maxAdverse, maxFavorable, driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null };
   }
   // Timeout: close at the last candle's close price so the trade contributes
   // to win/loss/R stats instead of being excluded as a no-decision (#3.2.5).
   const lastCandle = future[future.length - 1];
   const closePrice = Number(lastCandle.c);
   const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
-  return { outcome: timeoutR >= 0 ? "win" : "loss", r: timeoutR, holdBars: future.length, closePrice, effectiveEntry, maxAdverse, maxFavorable };
+  const timeoutRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : timeoutR;
+  return { outcome: timeoutR >= 0 ? "win" : "loss", r: timeoutR, rRealized: timeoutRRealized, holdBars: future.length, closePrice, effectiveEntry, maxAdverse, maxFavorable, driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null };
 }
 
 function simulateTrade(signal, candles, options = {}) {
@@ -960,6 +966,7 @@ function simulateTrade(signal, candles, options = {}) {
       timeoutBars,
       intrabarMode,
       signalTf,
+      pipSize,
     });
   }
 
@@ -1000,14 +1007,19 @@ function simulateTrade(signal, candles, options = {}) {
       return {
         outcome: "timeout",
         r: 0,
+        rRealized: 0,
         holdBars: 0,
         closePrice: null,
         effectiveEntry: null,
         maxAdverse: null,
         maxFavorable: null,
+        driftPips: 0,
+        realizedRisk: null,
       };
     }
   }
+
+  const driftPips = Math.abs(effectiveEntry - entry) / pipSize;
 
   // Validate directional geometry against planned entry, then normalize R by
   // planned signal risk. Using effectiveEntry for denominator can shrink risk
@@ -1018,14 +1030,18 @@ function simulateTrade(signal, candles, options = {}) {
       outcome: "invalid",
       invalidReason: "directional_risk_nonpositive",
       r: 0,
+      rRealized: 0,
       holdBars: 0,
       closePrice: null,
       effectiveEntry,
       maxAdverse: effectiveEntry,
       maxFavorable: effectiveEntry,
+      driftPips,
+      realizedRisk: null,
     };
   }
   const risk = directionalRisk;
+  const realizedRisk = side === "buy" ? effectiveEntry - sl : sl - effectiveEntry;
   let maxAdverse = side === "buy" ? effectiveEntry : effectiveEntry;
   let maxFavorable = side === "buy" ? effectiveEntry : effectiveEntry;
 
@@ -1046,37 +1062,47 @@ function simulateTrade(signal, candles, options = {}) {
         const expectedOutcome = resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
         const closePrice = expectedOutcome === "win" ? tpExit : slExit;
         const r = computeOutcomeR(side, effectiveEntry, closePrice, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : r;
         return {
           outcome: r >= 0 ? expectedOutcome : "loss",
-          r,
+          r, rRealized,
           holdBars: i + 1,
           closePrice,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
       if (slHit) {
+        const r = computeOutcomeR(side, effectiveEntry, slExit, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, slExit, realizedRisk) : r;
         return {
           outcome: "loss",
-          r: computeOutcomeR(side, effectiveEntry, slExit, risk),
+          r, rRealized,
           holdBars: i + 1,
           closePrice: slExit,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
       if (tpHit) {
         const r = computeOutcomeR(side, effectiveEntry, tpExit, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, tpExit, realizedRisk) : r;
         return {
           outcome: r >= 0 ? "win" : "loss",
-          r,
+          r, rRealized,
           holdBars: i + 1,
           closePrice: tpExit,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
     } else {
@@ -1091,37 +1117,47 @@ function simulateTrade(signal, candles, options = {}) {
         const expectedOutcome = resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`);
         const closePrice = expectedOutcome === "win" ? tpExit : slExit;
         const r = computeOutcomeR(side, effectiveEntry, closePrice, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : r;
         return {
           outcome: r >= 0 ? expectedOutcome : "loss",
-          r,
+          r, rRealized,
           holdBars: i + 1,
           closePrice,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
       if (slHit) {
+        const r = computeOutcomeR(side, effectiveEntry, slExit, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, slExit, realizedRisk) : r;
         return {
           outcome: "loss",
-          r: computeOutcomeR(side, effectiveEntry, slExit, risk),
+          r, rRealized,
           holdBars: i + 1,
           closePrice: slExit,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
       if (tpHit) {
         const r = computeOutcomeR(side, effectiveEntry, tpExit, risk);
+        const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, tpExit, realizedRisk) : r;
         return {
           outcome: r >= 0 ? "win" : "loss",
-          r,
+          r, rRealized,
           holdBars: i + 1,
           closePrice: tpExit,
           effectiveEntry,
           maxAdverse,
           maxFavorable,
+          driftPips,
+          realizedRisk: realizedRisk > 0 ? realizedRisk : null,
         };
       }
     }
@@ -1133,14 +1169,18 @@ function simulateTrade(signal, candles, options = {}) {
   const lastCandle = future[future.length - 1];
   const closePrice = Number(lastCandle.c);
   const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, risk);
+  const timeoutRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : timeoutR;
   return {
     outcome: timeoutR >= 0 ? "win" : "loss",
     r: timeoutR,
+    rRealized: timeoutRRealized,
     holdBars: future.length,
     closePrice,
     effectiveEntry,
     maxAdverse,
     maxFavorable,
+    driftPips,
+    realizedRisk: realizedRisk > 0 ? realizedRisk : null,
   };
 }
 
@@ -1159,8 +1199,12 @@ function computeStats(trades, timeouts = 0) {
     timeouts,
     winRate: decisive > 0 ? wins.length / decisive : 0,
     netR: active.reduce((s, t) => s + t.r, 0),
+    netRRealized: active.reduce((s, t) => s + (t.rRealized ?? t.r), 0),
     avgWinR: wins.length > 0 ? wins.reduce((s, t) => s + t.r, 0) / wins.length : 0,
     avgLossR: losses.length > 0 ? losses.reduce((s, t) => s + t.r, 0) / losses.length : 0,
+    avgWinRRealized: wins.length > 0 ? wins.reduce((s, t) => s + (t.rRealized ?? t.r), 0) / wins.length : 0,
+    avgLossRRealized: losses.length > 0 ? losses.reduce((s, t) => s + (t.rRealized ?? t.r), 0) / losses.length : 0,
+    avgDriftPips: active.length > 0 ? active.reduce((s, t) => s + (t.driftPips ?? 0), 0) / active.length : 0,
     longWinRate: longs.length > 0 ? longs.filter((t) => t.outcome === "win").length / longs.length : 0,
     shortWinRate: shorts.length > 0 ? shorts.filter((t) => t.outcome === "win").length / shorts.length : 0,
     longCount: longs.length,
@@ -1726,6 +1770,7 @@ async function main() {
   const intrabarArg = process.argv.find((a) => a.startsWith("--intrabar="));
   const modeArg = process.argv.find((a) => a.startsWith("--mode="));
   const setupProfileArg = process.argv.find((a) => a.startsWith("--setup-profile="));
+  const driftGateArg = process.argv.find((a) => a.startsWith("--drift-gate="));
   const args = process.argv.slice(2).filter(
     (a) =>
       a !== "--json" &&
@@ -1735,7 +1780,8 @@ async function main() {
       !a.startsWith("--start=") &&
       !a.startsWith("--intrabar=") &&
       !a.startsWith("--mode=") &&
-      !a.startsWith("--setup-profile=")
+      !a.startsWith("--setup-profile=") &&
+      !a.startsWith("--drift-gate=")
   );
   const symbolArg = args[0] || "EURUSD";
   const days = parseInt(args[1] || "7", 10);
@@ -1787,6 +1833,14 @@ async function main() {
     console.error(`[backtest-pit-v2] Unknown intrabar mode "${intrabarMode}". Use: ${[...validIntrabarModes].join(", ")}`);
     process.exit(1);
   }
+  const driftGateMode = driftGateArg
+    ? driftGateArg.slice("--drift-gate=".length)
+    : "report";
+  if (!["report", "live"].includes(driftGateMode)) {
+    console.error(`[backtest-pit-v2] Unknown drift-gate mode "${driftGateMode}". Use: report | live`);
+    process.exit(1);
+  }
+  const maxEntryDriftPips = spec.liveExecution?.maxEntryDriftPips ?? 2.0;
   const symbols = symbolArg === "ALL" ? spec.filters.symbols : [symbolArg];
 
   let to;
@@ -2362,6 +2416,14 @@ async function main() {
         signalTf: deriveSignalTf(spec),
       };
       const out = simulateTrade(sig, candles, simOptions);
+      // Drift gate: live-mode rejects fills whose drift exceeds the spec's
+      // max_entry_drift_pips (mirroring orderExecutor.ts:293). Report mode
+      // books but flags the drift in stats.
+      if (driftGateMode === "live" && (out.driftPips ?? 0) > maxEntryDriftPips) {
+        // Track as rejected, not simulated — same category as invalid geometry
+        // because the fill occurred outside acceptable execution bounds.
+        continue;
+      }
       rawTrades.push({
         symbol: sig.symbol,
         side: sig.side,
@@ -2450,8 +2512,12 @@ async function main() {
       invalidOutcomeReasons: invalidReasons,
       winRate: stats.winRate,
       netR: stats.netR,
+      netRRealized: stats.netRRealized,
       avgWinR: stats.avgWinR,
       avgLossR: stats.avgLossR,
+      avgWinRRealized: stats.avgWinRRealized,
+      avgLossRRealized: stats.avgLossRRealized,
+      avgDriftPips: stats.avgDriftPips,
       longCount: stats.longCount,
       shortCount: stats.shortCount,
       avgHoldBars: stats.avgHoldBars,
@@ -2469,6 +2535,9 @@ async function main() {
             entryType: t.entryType,
             outcome: t.outcome,
             r: t.r,
+            rRealized: t.rRealized,
+            driftPips: t.driftPips,
+            realizedRisk: t.realizedRisk,
             holdBars: t.holdBars,
             maxAdverse: t.maxAdverse,
             maxFavorable: t.maxFavorable,
@@ -2504,8 +2573,12 @@ async function main() {
       timeouts: agg.timeouts,
       winRate: agg.winRate,
       netR: agg.netR,
+      netRRealized: agg.netRRealized,
       avgWinR: agg.avgWinR,
       avgLossR: agg.avgLossR,
+      avgWinRRealized: agg.avgWinRRealized,
+      avgLossRRealized: agg.avgLossRRealized,
+      avgDriftPips: agg.avgDriftPips,
       longCount: agg.longCount,
       shortCount: agg.shortCount,
       avgHoldBars: agg.avgHoldBars,
@@ -2513,7 +2586,7 @@ async function main() {
       trades: includeTrades ? perSymbolResults.flatMap((r) => r.trades || []) : undefined,
     };
     if (!jsonMode) {
-      console.log(`\nAGGREGATE: Trades=${agg.total} WR=${(agg.winRate * 100).toFixed(1)}% NetR=${agg.netR.toFixed(2)}`);
+      console.log(`\nAGGREGATE: Trades=${agg.total} WR=${(agg.winRate * 100).toFixed(1)}% NetR=${agg.netR.toFixed(2)} RealizedR=${agg.netRRealized.toFixed(2)} AvgDrift=${agg.avgDriftPips.toFixed(2)}p`);
     } else {
       stdoutLog(JSON.stringify(aggregate));
     }
