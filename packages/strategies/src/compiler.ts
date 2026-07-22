@@ -377,6 +377,22 @@ export function topologicalSort(steps: ProgressiveStep[]): string[] {
   return result;
 }
 
+/** Bias-producing features (shared by the flat and progressive compilers). */
+const BIAS_FEATURES = ["features_bias", "features_htf_bias", "features_direction_state"];
+
+/** Features that emit a direction column usable for signal-side derivation. */
+const FEATURES_WITH_DIRECTION = new Set([
+  ...BIAS_FEATURES,
+  "features_push_pull",
+  "features_candle_pattern",
+  "features_zone",
+  "features_ifvg",
+  "features_order_block",
+  "features_sweep",
+  "features_structure",
+  "features_displacement",
+]);
+
 /**
  * Compile a progressive spec (with steps[]) into sequential CTE SQL.
  * Each step becomes a CTE: root step scans its feature table, child steps
@@ -519,13 +535,26 @@ function compileProgressiveSQL(spec: StrategySpec, opts: CompileOptions = {}): s
     }
   }
 
+  // signal_direction projection for the progressive entry CTE — mirrors the flat
+  // compiler (line ~748): the shared SL/TP/side builders reference
+  // COALESCE(e.signal_direction, e.bias_direction), so entry_signals must always
+  // project the column. For generic signalSource, take the direction from the
+  // first entry condition whose feature has one (pit_<id> is in scope here);
+  // otherwise NULL so the COALESCE falls back to bias_direction.
+  const progressiveSignalDirectionCond = (spec.signalSource ?? "zone") === "generic"
+    ? entryConds.find((c) => FEATURES_WITH_DIRECTION.has(c.feature))
+    : null;
+  const progressiveSignalDirectionProjection = progressiveSignalDirectionCond
+    ? `, pit_${progressiveSignalDirectionCond.id}.direction as signal_direction`
+    : ", NULL::text as signal_direction";
+
   const entrySection = entryLaterals.length
     ? `
-SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, ${lastAlias}.direction as bias_direction
+SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, ${lastAlias}.direction as bias_direction${progressiveSignalDirectionProjection}
 FROM ${lastAlias}${entryLaterals.length ? "\n," + entryLaterals.join(",\n") : ""}${entryWheres.length > 0 ? `
 WHERE ${entryWheres.join("\n  AND ")}` : ""}`
     : `
-SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, direction as bias_direction FROM ${lastAlias}`;
+SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, direction as bias_direction${progressiveSignalDirectionProjection} FROM ${lastAlias}`;
 
   // Signal SELECT — same as flat compiler, reads from entry_signals
   const tfMap = resolveTimeframes(spec);
@@ -639,18 +668,6 @@ function compileFullSQL(spec: StrategySpec, opts: CompileOptions = {}): string {
   // Additional bias/htf_bias conditions are joined as point-in-time LATERALs so
   // strategies can require multi-timeframe confluence (e.g. local 15m bias agrees
   // with 1h HTF bias).
-  const BIAS_FEATURES = ["features_bias", "features_htf_bias", "features_direction_state"];
-  const FEATURES_WITH_DIRECTION = new Set([
-    ...BIAS_FEATURES,
-    "features_push_pull",
-    "features_candle_pattern",
-    "features_zone",
-    "features_ifvg",
-    "features_order_block",
-    "features_sweep",
-    "features_structure",
-    "features_displacement",
-  ]);
   const biasCond = spec.setup.find((c) => BIAS_FEATURES.includes(c.feature));
   const biasTf = biasCond?.tf ?? "15m";
   const biasTable = biasCond?.feature ?? "features_bias";
@@ -750,9 +767,7 @@ WHERE tf = '${biasTf}'
     : null;
   const signalDirectionProjection = signalDirectionCond
     ? `, pit_${signalDirectionCond.id}.direction as signal_direction`
-    : signalSource === "generic"
-      ? ", NULL::text as signal_direction"
-      : "";
+    : ", NULL::text as signal_direction";
 
   const setupSection = `
 SELECT b.symbol, b.ts, ${biasDirectionProjection}${signalDirectionProjection}

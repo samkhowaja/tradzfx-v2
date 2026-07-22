@@ -1984,7 +1984,21 @@ async function main() {
   const allTrades = [];
   const perSymbolResults = [];
 
-  const timeoutBars = spec.risk?.timeoutBars ?? 24;
+  // timeoutBars in YAML means "signal-tf bars" (the strategy's decision
+  // timeframe). Convert to 1m simulation bars so the 1m-based simulation
+  // loop looks forward the correct number of minutes.
+  // Support timeoutBars <= 0 as "no artificial cap" (bracket strategies
+  // that should ride until SL/TP hit within the backtest window).
+  const rawTimeoutBars = spec.risk?.timeoutBars ?? 24;
+  const signalTf = deriveSignalTf(spec);
+  const tfMultiplier = (TF_MS[signalTf] ?? TF_MS["1m"]) / TF_MS["1m"];
+  const timeoutBars = rawTimeoutBars > 0
+    ? Math.ceil(rawTimeoutBars * tfMultiplier)
+    : rawTimeoutBars === 0
+      // No artificial cap: use a large sentinel (backtest end date bounds already
+      // limit candles in prefetchCandles, so the actual forward window is finite).
+      ? Number.MAX_SAFE_INTEGER
+      : Math.ceil(rawTimeoutBars * tfMultiplier);
 
   for (const symbol of symbols) {
     // Hard halt on bad data: never run the PIT query and report a fake "0

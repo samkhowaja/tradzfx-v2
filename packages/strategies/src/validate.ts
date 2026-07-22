@@ -165,6 +165,21 @@ export function validateSpec(spec: StrategySpec): string[] {
   if (spec.risk?.minRR === undefined) errors.push(`${specId}: risk.minRR is required`);
   if (spec.risk?.timeoutBars === undefined) errors.push(`${specId}: risk.timeoutBars is required`);
 
+  // Validate timeoutBars semantics.
+  // timeoutBars is interpreted as signal-tf bars by the backtest harness.
+  // Zero means no artificial cap (bracket strategies that ride until SL/TP).
+  // Negative values are always invalid; very large values (>=100k) warn.
+  if (spec.risk?.timeoutBars !== undefined) {
+    const tb = spec.risk.timeoutBars;
+    if (!Number.isInteger(tb)) {
+      errors.push(`${specId}: risk.timeoutBars must be an integer (got ${tb})`);
+    } else if (tb < 0) {
+      errors.push(`${specId}: risk.timeoutBars must be >= 0 (got ${tb})`);
+    } else if (tb >= 100000) {
+      console.warn(`${specId}: risk.timeoutBars = ${tb} is very large — ensures no artificial timeout`);
+    }
+  }
+
   // Ordered evaluation is opt-in. Legacy specs remain unchanged and can run
   // beside staged variants for direct comparison.
   if (spec.staged?.enabled) {

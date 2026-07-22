@@ -145,6 +145,21 @@ describe("validateSpec", () => {
     expect(errors.some((e) => /risk\.timeoutBars is required/.test(e))).toBe(true);
   });
 
+  it("rejects negative timeoutBars", () => {
+    const errors = validateSpec(orbSpec({ risk: { sl: "a", tp: "b", minRR: 1, timeoutBars: -5 } }));
+    expect(errors.some((e) => /timeoutBars must be >= 0/.test(e))).toBe(true);
+  });
+
+  it("rejects non-integer timeoutBars", () => {
+    const errors = validateSpec(orbSpec({ risk: { sl: "a", tp: "b", minRR: 1, timeoutBars: 10.5 } }));
+    expect(errors.some((e) => /timeoutBars must be an integer/.test(e))).toBe(true);
+  });
+
+  it("accepts zero timeoutBars (no artificial cap)", () => {
+    const errors = validateSpec(orbSpec({ risk: { sl: "a", tp: "b", minRR: 1, timeoutBars: 0 } }));
+    expect(errors.filter((e) => /timeoutBars/.test(e))).toEqual([]);
+  });
+
   it("rejects invalid entryConfig.type", () => {
     const spec = orbSpec({ entryConfig: { type: "bogus_entry" as any } });
     const errors = validateSpec(spec);
