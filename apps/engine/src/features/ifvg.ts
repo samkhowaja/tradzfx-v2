@@ -216,6 +216,15 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       confirmation_count: z.confirmationCount ?? null,
       originating_zone_ts: z.originatingZoneTs ?? null,
       ts: z.ts,
+      // Lifecycle columns — engine sets initial values; SQL refresh_ifvg_lifecycle()
+      // re-evaluates on each cycle.  is_fresh mirrors !invalidated_at (no fresh
+      // override for iFVG — freshness = no close-back-inside the gap yet).
+      is_fresh: !z.invalidatedAt,
+      invalidated_at: z.invalidatedAt ?? null,
+      mitigated_at: z.mitigatedAt ?? null,
+      first_touch_at: z.firstTouchAt ?? null,
+      fill_pct: z.fillPct ?? 0,
+      tapped: z.tapped,
     }));
   },
 

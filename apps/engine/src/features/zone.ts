@@ -36,13 +36,15 @@ export interface ZoneInput {
   zoneOutcomeStats?: Record<string, ZoneOutcomeStats>;
 }
 
-const MIN_BODY_PCT = 0.6;
-const MIN_VOLUME_RATIO = 1.2;
+const MIN_BODY_PCT = 0.7;
+const MIN_VOLUME_RATIO = 1.5;
 const MAX_AGE_BARS = 10; // pivot must be within this many bars
 const USE_LEARNED_QUALITY = process.env.ZONE_USE_LEARNED_QUALITY === "true";
 const MIN_ZONE_SIZE_ATR_PCT = Number(process.env.ZONE_MIN_SIZE_ATR_PCT ?? "0.05");
+const MAX_ZONE_SIZE_ATR_MULTIPLIER = Number(process.env.ZONE_MAX_SIZE_ATR_MULTIPLIER ?? "30");
 const ZONE_MIN_QUALITY_SCORE = Number(process.env.ZONE_MIN_QUALITY_SCORE ?? "0.15");
 const ZONE_MAX_PER_BAR = Number(process.env.ZONE_MAX_PER_BAR ?? "5");
+const ZONE_BUFFER_ATR_MULTIPLIER = Number(process.env.ZONE_BUFFER_ATR_MULTIPLIER ?? "0.5");
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
@@ -56,7 +58,7 @@ function candleBody(c: Candle): { top: number; bottom: number } {
 }
 
 function zoneBuffer(atr14: number): number {
-  if (atr14 > 0) return atr14 * 0.1;
+  if (atr14 > 0) return atr14 * ZONE_BUFFER_ATR_MULTIPLIER;
   return 0;
 }
 
@@ -69,9 +71,14 @@ function isZoneSizeMeaningful(
   zone: ZoneOutput["zones"][number],
   atr14: number
 ): boolean {
-  if (MIN_ZONE_SIZE_ATR_PCT <= 0 || atr14 <= 0) return true;
+  if (atr14 <= 0) return true;
   const height = zone.top - zone.bottom;
-  return height >= atr14 * MIN_ZONE_SIZE_ATR_PCT;
+  // Lower bound: zone must be at least MIN_ZONE_SIZE_ATR_PCT of ATR14
+  if (MIN_ZONE_SIZE_ATR_PCT > 0 && height < atr14 * MIN_ZONE_SIZE_ATR_PCT) return false;
+  // Upper bound: zone wider than MAX_ZONE_SIZE_ATR_MULTIPLIER × ATR14 is implausible
+  // (e.g. cross-symbol price contamination, corrupt candle data)
+  if (MAX_ZONE_SIZE_ATR_MULTIPLIER > 0 && height > atr14 * MAX_ZONE_SIZE_ATR_MULTIPLIER) return false;
+  return true;
 }
 
 function barMs(candles: Candle[]): number {

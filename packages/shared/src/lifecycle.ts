@@ -251,9 +251,22 @@ export function computeZoneLifecycle(
 }
 
 /**
- * Compute lifecycle for an inverse FVG.
- * Mitigation = price closes beyond the iFVG in the iFVG direction (it fails as S/R).
- * Invalidation = price closes beyond the far side (it holds and is confirmed).
+ * Compute lifecycle for an inverse FVG (iFVG).
+ *
+ * iFVG = a filled FVG that reversed and confirmed outside the far side.
+ * The original FVG gap area becomes a static S/R level.
+ *
+ * - firstTouchAt: first wick/body intersection with the gap area.
+ * - mitigatedAt: first time price fills ≥ 50 % into the gap (original FVG filled).
+ * - invalidatedAt: the level is breached.
+ *   Bullish iFVG (support): close < bottom.
+ *   Bearish iFVG (resistance): close > top.
+ * - is_fresh: true until invalidated.
+ *
+ * CRITICAL: Invalidation uses the same direction as the iFVG (not opposite).
+ * The old code erroneously used opposite-direction close (= the confirmation
+ * candle) as invalidation, which made every iFVG born already "invalidated"
+ * (0 / 1,484 fresh at 5m XAUUSD).
  */
 export function computeIfvgLifecycle(
   ifvg: {
@@ -274,11 +287,20 @@ export function computeIfvgLifecycle(
     ifvg.direction
   );
 
-  const invalidDirection: "bullish" | "bearish" =
-    ifvg.direction === "bullish" ? "bearish" : "bullish";
+  // Mitigation = fill ≥ 50 % into the gap (original FVG filled).
+  const mitigatedAt = findBandFillThreshold(
+    candles,
+    fromIndex,
+    ifvg.top,
+    ifvg.bottom,
+    ifvg.direction,
+    0.5
+  );
 
-  // Mitigation = price closes beyond the iFVG in the iFVG direction.
-  const mitigatedAt = findBandInvalidation(
+  // Invalidation = level breach in iFVG direction (NOT opposite direction).
+  // Bullish → close < bottom (support broken).
+  // Bearish → close > top (resistance broken).
+  const invalidatedAt = findBandInvalidation(
     candles,
     fromIndex,
     ifvg.top,
@@ -286,16 +308,8 @@ export function computeIfvgLifecycle(
     ifvg.direction
   );
 
-  // Invalidation = price closes beyond the far side (opposite direction).
-  const invalidatedAt = findBandInvalidation(
-    candles,
-    fromIndex,
-    ifvg.top,
-    ifvg.bottom,
-    invalidDirection
-  );
-
   if (invalidatedAt && mitigatedAt && invalidatedAt < mitigatedAt) {
+    // Level broken before 50 % fill — iFVG never properly formed.
     return { firstTouchAt, invalidatedAt, fillPct };
   }
 

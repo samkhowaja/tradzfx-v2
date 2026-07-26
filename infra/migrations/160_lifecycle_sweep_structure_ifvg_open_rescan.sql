@@ -217,8 +217,8 @@ BEGIN
             END
         ) AS fill_mitigation_at_new,
         MIN(c.ts) FILTER (
-          WHERE (opposite_direction(cnd.direction) = 'bullish' AND c.c < cnd.bottom)
-             OR (opposite_direction(cnd.direction) = 'bearish' AND c.c > cnd.top)
+          WHERE (cnd.direction = 'bullish' AND c.c < cnd.bottom)
+             OR (cnd.direction = 'bearish' AND c.c > cnd.top)
         ) AS invalidated_at_new
       FROM market.candles_1m_canonical c
       WHERE c.symbol = cnd.symbol

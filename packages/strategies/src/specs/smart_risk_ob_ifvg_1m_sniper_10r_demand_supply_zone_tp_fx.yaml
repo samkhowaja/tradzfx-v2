@@ -33,7 +33,7 @@ overrides:
     - id: htf_zone
       feature: features_zone
       tf: 15m
-      predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND is_fresh = true
+      predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND age_bars < 20
       required: true
       weight: 8
     - id: htf_ob
@@ -58,7 +58,7 @@ overrides:
     - id: ltf_ifvg
       feature: features_ifvg
       tf: 5m
-      predicate: direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true
+      predicate: direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true AND age_bars < 10
       required: true
       weight: 10
     - id: ltf_structure
