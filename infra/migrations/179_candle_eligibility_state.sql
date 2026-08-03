@@ -23,19 +23,9 @@ CREATE TABLE IF NOT EXISTS market.candle_eligibility (
 CREATE INDEX IF NOT EXISTS idx_candle_eligibility_state
   ON market.candle_eligibility(symbol, timeframe, ts, state);
 
--- Existing rows remain PERSISTED. A validator must positively promote them to CLEAN.
-INSERT INTO market.candle_eligibility(symbol, broker, timeframe, ts, state, policy_id, created_at, updated_at)
-SELECT c.symbol, c.broker, '1m', c.ts,
-  'PERSISTED',
-       p.policy_id, now(), now()
-FROM candles_1m c
-JOIN LATERAL (
-  SELECT policy_id FROM raw.symbol_broker_policy p
-  WHERE p.symbol=c.symbol AND p.broker_id=c.broker AND p.effective_from <= c.ts
-    AND (p.effective_to IS NULL OR c.ts < p.effective_to)
-  ORDER BY p.priority ASC, p.effective_from DESC, p.policy_id DESC LIMIT 1
-) p ON true
-ON CONFLICT DO NOTHING;
+-- Do not bulk-backfill historical rows here. Large raw histories can exceed the
+-- migration statement timeout. Historical validation must run through workers;
+-- absent eligibility rows remain invisible to canonical reads.
 
 CREATE OR REPLACE VIEW market.candles_1m_canonical AS
 SELECT c.symbol, c.ts, c.o, c.h, c.l, c.c, c.v, c.spread, c.broker, c.digits,
