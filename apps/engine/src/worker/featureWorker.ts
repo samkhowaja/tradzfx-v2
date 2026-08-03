@@ -98,6 +98,14 @@ async function markError(pool: Pool, jobId: number, message: string): Promise<vo
   );
 }
 
+async function markBlocked(pool: Pool, jobId: number, reason: string, endTs: Date): Promise<void> {
+  await pool.query(
+    `UPDATE feature_jobs SET status = 'blocked', blocked_reason = $2,
+            input_end_ts = $3, processed_at = NOW() WHERE id = $1`,
+    [jobId, reason, endTs]
+  );
+}
+
 async function validateInputCandles(pool: Pool, symbol: string, endTs: Date, lookbackBars: number): Promise<void> {
   const { rows } = await pool.query<{ broker: string; ts: Date }>(
     `SELECT c.broker, c.ts
@@ -115,7 +123,17 @@ async function validateInputCandles(pool: Pool, symbol: string, endTs: Date, loo
   );
   for (const row of rows) {
     const state = await validateCandleEligibility(pool, { symbol, broker: row.broker, timeframe: "1m", ts: row.ts });
-    if (state !== "CLEAN") throw new Error(`candle eligibility ${state}: ${symbol} ${row.broker} ${row.ts.toISOString()}`);
+    if (state !== "CLEAN") {
+      throw new Error(`BLOCKED_DATA:CANONICAL_CANDLES_BLOCKED:${state}:${symbol}:${row.ts.toISOString()}`);
+    }
+  }
+  const { rows: canonicalRows } = await pool.query<{ ts: Date }>(
+    `SELECT ts FROM market.candles_1m_canonical
+      WHERE symbol = $1 AND ts <= $2 ORDER BY ts DESC LIMIT $3`,
+    [symbol, endTs, lookbackBars]
+  );
+  if (canonicalRows.length === 0) {
+    throw new Error(`BLOCKED_DATA:CANONICAL_CANDLES_MISSING:${symbol}:1m:${endTs.toISOString()}`);
   }
 }
 
@@ -177,7 +195,12 @@ export async function runFeatureWorker(
         `[featureWorker] ${job.symbol} ${job.tf} ${job.ts.toISOString()} (${job.feature_name}) in ${elapsed.toFixed(1)}ms`
       );
     } catch (err: any) {
-      await markError(pool, job.id, err.message ?? String(err));
+      const message = err.message ?? String(err);
+      if (message.startsWith("BLOCKED_DATA:")) {
+        await markBlocked(pool, job.id, message.slice("BLOCKED_DATA:".length), job.ts);
+      } else {
+        await markError(pool, job.id, message);
+      }
       console.error(
         `[featureWorker] ${job.symbol} ${job.tf} ${job.ts.toISOString()} failed:`,
         err.message

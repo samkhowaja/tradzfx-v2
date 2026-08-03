@@ -118,7 +118,7 @@ export async function updateLifecycleForAllSymbols(
   opts: UpdateLifecycleOptions = {}
 ): Promise<{ symbol: string; results: LifecycleUpdateResult[] }[]> {
   const { rows } = await pool.query<{ symbol: string }>(
-    `SELECT DISTINCT symbol FROM candles_1m ORDER BY symbol`
+    `SELECT DISTINCT symbol FROM market.candles_1m_canonical ORDER BY symbol`
   );
 
   const out: { symbol: string; results: LifecycleUpdateResult[] }[] = [];

@@ -6,12 +6,12 @@ interface QueryablePool {
 }
 
 const TABLE_BY_TF: Record<string, string> = {
-  "1m": "candles_1m",
-  "5m": "candles_5m",
-  "15m": "candles_15m",
-  "1h": "candles_1h",
-  "4h": "candles_4h",
-  "1d": "candles_1d_utc",
+  "1m": "market.candles_1m_canonical",
+  "5m": "market.candles_5m_canonical",
+  "15m": "market.candles_15m_canonical",
+  "1h": "market.candles_1h_canonical",
+  "4h": "market.candles_4h_canonical",
+  "1d": "market.candles_1d_utc_canonical",
 };
 
 const DURATION_MS: Record<string, number> = {
@@ -59,6 +59,9 @@ export async function loadFvgSetups(pool: QueryablePool, symbol: string, tf: str
     const from = new Date(formationTs.getTime() - (preBars + 3) * duration);
     const to = new Date(formationTs.getTime() + (postBars + 1) * duration);
     const candlesResult = await pool.query<Record<string, unknown>>(`SELECT symbol, ts, o, h, l, c, v, tick_count FROM ${table} WHERE symbol = $1 AND ts >= $2 AND ts <= $3 ORDER BY ts`, [symbol, from, to]);
+    if (candlesResult.rows.length === 0) {
+      throw new Error(`BLOCKED_DATA:CANONICAL_CANDLES_MISSING:${symbol}:${tf}:${from.toISOString()}:${to.toISOString()}`);
+    }
     const candles = candlesResult.rows.map(toCandle);
     const formationIndex = candles.findIndex((candle) => Math.abs(candle.ts.getTime() - formationTs.getTime()) <= toleranceMs);
     if (formationIndex < 2 || formationIndex + 1 >= candles.length) continue;

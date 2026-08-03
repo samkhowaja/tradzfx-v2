@@ -105,7 +105,9 @@ export class FeatureCache {
     try {
       const { rows } = await this.pool.query<CacheEntry & { output_jsonb: unknown }>(
         `SELECT output_jsonb, output_hash FROM feature_cache
-         WHERE feature_name = $1 AND input_hash = $2 AND output_jsonb IS NOT NULL`,
+         WHERE feature_name = $1 AND input_hash = $2
+           AND lineage_state = 'trusted_current'
+           AND output_jsonb IS NOT NULL`,
         [featureName, inputHash]
       );
       if (rows.length > 0 && rows[0].output_jsonb != null) {
@@ -149,11 +151,13 @@ export class FeatureCache {
 
     try {
       await this.pool.query(
-        `INSERT INTO feature_cache (feature_name, input_hash, output_hash, output_jsonb)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO feature_cache
+          (feature_name, input_hash, output_hash, output_jsonb, lineage_state)
+         VALUES ($1, $2, $3, $4, 'trusted_current')
          ON CONFLICT (feature_name, input_hash) DO UPDATE SET
            output_hash = EXCLUDED.output_hash,
            output_jsonb = EXCLUDED.output_jsonb,
+           lineage_state = EXCLUDED.lineage_state,
            created_at = NOW()`,
         [featureName, inputHash, outputHash, JSON.stringify(output)]
       );

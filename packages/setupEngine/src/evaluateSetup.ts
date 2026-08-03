@@ -127,7 +127,43 @@ export async function evaluateSetup(
   pool: Queryable,
   input: EvaluationInput
 ): Promise<SetupEvaluation> {
-  const ctx = await buildContext(pool, input);
+  let ctx: EvaluationContext;
+  try {
+    ctx = await buildContext(pool, input);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (!message.startsWith("BLOCKED_DATA:")) throw err;
+    const reason = message.slice("BLOCKED_DATA:".length);
+    return {
+      symbol: input.symbol.toUpperCase(),
+      tf: input.tf,
+      timestamp: (input.asOf ?? new Date()).toISOString(),
+      grade: "BLOCK",
+      direction: input.direction ?? "neutral",
+      confidence: 0,
+      entryZone: null,
+      stopLoss: null,
+      takeProfit: null,
+      riskReward: null,
+      status: "blocked",
+      blockReasons: [`BLOCKED_DATA:${reason}`],
+      warnings: [],
+      evidence: [],
+      featuresUsed: [],
+      blockedData: {
+        code: "BLOCKED_DATA",
+        symbol: input.symbol.toUpperCase(),
+        timeframe: input.tf,
+        reason,
+        inputEndTs: (input.asOf ?? new Date()).toISOString(),
+      },
+    };
+  }
+  if (ctx.blockedData) {
+    return buildBlockedEvaluation(ctx, [
+      `BLOCKED_DATA:${ctx.blockedData.reason}`,
+    ]);
+  }
   return finalizeSetup(pool, ctx);
 }
 
@@ -203,6 +239,7 @@ async function finalizeSetup(
     warnings: ctx.warnings,
     evidence,
     featuresUsed: ctx.featuresUsed,
+    blockedData: ctx.blockedData,
   };
 }
 

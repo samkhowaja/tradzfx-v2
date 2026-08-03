@@ -17,6 +17,7 @@ import type {
   EvaluationInput,
   ZoneFeature,
   StructureFeature,
+  BlockedData,
 } from "./types";
 
 export function biasToSetup(direction: string): SetupDirection {
@@ -38,6 +39,7 @@ export async function buildContext(
   const symbol = input.symbol.toUpperCase();
   const tf = input.tf;
   const asOf = input.asOf ?? new Date();
+  const blockedData: BlockedData | undefined = undefined;
 
   // Resolve direction: prefer explicit input, fall back to current LTF bias
   let direction: SetupDirection = "neutral";
@@ -104,6 +106,7 @@ export async function buildContext(
     symbol,
     tf,
     asOf,
+    blockedData,
     setupFamily: input.setupFamily ?? "zone_reversal",
     strategyId: input.strategyId,
     familyId: input.familyId,
@@ -168,10 +171,11 @@ async function fetchBias(
     const { rows } = await pool.query(
       `SELECT direction, confidence, reason FROM features_bias
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1`,
       [symbol, tf, asOf]
     );
-    if (!rows.length) return null;
+    if (!rows.length) throw new Error(`BLOCKED_DATA:FEATURE_LINEAGE_MISSING:${symbol}:${tf}:features_bias`);
     const row = rows[0];
     return {
       direction: biasToSetup(row.direction),
@@ -180,8 +184,7 @@ async function fetchBias(
       strength: inferStrength(Number(row.confidence)),
     };
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch bias:", (err as Error).message);
-    return null;
+    throw err;
   }
 }
 
@@ -197,11 +200,12 @@ async function fetchHtfBias(
               by_time_frame, trading_tf, local_agreement
        FROM features_htf_bias
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC
        LIMIT 1`,
       [symbol, tf, asOf]
     );
-    if (!rows.length) return null;
+    if (!rows.length) throw new Error(`BLOCKED_DATA:FEATURE_LINEAGE_MISSING:${symbol}:${tf}:features_htf_bias`);
     const row = rows[0];
     return {
       direction: biasToSetup(row.direction),
@@ -215,8 +219,7 @@ async function fetchHtfBias(
       localAgreement: row.local_agreement != null ? Number(row.local_agreement) : undefined,
     };
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch HTF bias:", (err as Error).message);
-    return null;
+    throw err;
   }
 }
 
@@ -251,10 +254,11 @@ async function fetchPricing(
               dynamic_ote_source, dynamic_ote_quality, premium_discount_score
        FROM features_pricing
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1`,
       [symbol, tf, asOf]
     );
-    if (!rows.length) return null;
+    if (!rows.length) throw new Error(`BLOCKED_DATA:FEATURE_LINEAGE_MISSING:${symbol}:${tf}:features_pricing`);
     const row = rows[0];
     return {
       position: row.position,
@@ -269,8 +273,7 @@ async function fetchPricing(
       premiumDiscountScore: row.premium_discount_score != null ? Number(row.premium_discount_score) : undefined,
     };
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch pricing:", (err as Error).message);
-    return null;
+    throw err;
   }
 }
 
@@ -306,8 +309,9 @@ async function fetchZones(
       retestCount: r.retest_count ?? 0,
     }));
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch zones:", (err as Error).message);
-    return [];
+    throw err instanceof Error && err.message.startsWith("BLOCKED_DATA:")
+      ? err
+      : new Error(`BLOCKED_DATA:FEATURES_UNTRUSTED:${symbol}:${tf}:features_zone`);
   }
 }
 
@@ -322,6 +326,7 @@ async function fetchStructure(
       `SELECT event_type, direction, level, ts
        FROM features_structure
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC
        LIMIT 20`,
       [symbol, tf, asOf]
@@ -333,8 +338,9 @@ async function fetchStructure(
       ts: r.ts,
     }));
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch structure:", (err as Error).message);
-    return [];
+    throw err instanceof Error && err.message.startsWith("BLOCKED_DATA:")
+      ? err
+      : new Error(`BLOCKED_DATA:FEATURES_UNTRUSTED:${symbol}:${tf}:features_structure`);
   }
 }
 
@@ -348,15 +354,15 @@ async function fetchAtr(
     const { rows } = await pool.query(
       `SELECT value, period FROM features_atr
        WHERE symbol = $1 AND tf = $2 AND ts <= $3
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC, period DESC
        LIMIT 1`,
       [symbol, tf, asOf]
     );
-    if (!rows.length) return null;
+    if (!rows.length) throw new Error(`BLOCKED_DATA:FEATURE_LINEAGE_MISSING:${symbol}:${tf}:features_atr`);
     return { value: Number(rows[0].value), period: Number(rows[0].period) };
   } catch (err) {
-    console.warn("[setupEngine] Failed to fetch ATR:", (err as Error).message);
-    return null;
+    throw err;
   }
 }
 
@@ -375,6 +381,7 @@ async function fetchSpread(
     const { rows } = await pool.query(
       `SELECT spread FROM features_spread
        WHERE symbol = $1 AND tf = '1m' AND ts <= $2
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC
        LIMIT 1`,
       [symbol, asOf]
@@ -401,6 +408,7 @@ async function fetchSession(
     const { rows } = await pool.query(
       `SELECT session FROM features_session
        WHERE symbol = $1 AND ts <= $2
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC
        LIMIT 1`,
       [symbol, asOf]
@@ -604,6 +612,7 @@ async function batchFetchBias(
      LEFT JOIN LATERAL (
        SELECT direction, confidence, reason FROM features_bias
        WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1
      ) f ON true`,
     [asOfs, symbol, tf]
@@ -641,6 +650,7 @@ async function batchFetchHtfBias(
        SELECT direction, confidence, state, score, reason,
               by_time_frame, trading_tf, local_agreement FROM features_htf_bias
        WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1
      ) f ON true`,
     [asOfs, symbol, tf]
@@ -685,6 +695,7 @@ async function batchFetchPricing(
               dynamic_ote_low, dynamic_ote_high, dynamic_ote_mid,
               dynamic_ote_source, dynamic_ote_quality, premium_discount_score FROM features_pricing
        WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1
      ) f ON true`,
     [asOfs, symbol, tf]
@@ -775,6 +786,7 @@ async function batchFetchStructure(
      LEFT JOIN LATERAL (
        SELECT event_type, direction, level, ts FROM features_structure
        WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC
        LIMIT ${BATCH_STRUCTURE_LIMIT}
      ) s ON true`,
@@ -812,6 +824,7 @@ async function batchFetchAtr(
      LEFT JOIN LATERAL (
        SELECT value, period FROM features_atr
        WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC, period DESC LIMIT 1
      ) a ON true`,
     [asOfs, symbol, tf]
@@ -841,6 +854,7 @@ async function batchFetchSession(
      LEFT JOIN LATERAL (
        SELECT session FROM features_session
        WHERE symbol = $2 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
+         AND lineage_state = 'trusted_current'
        ORDER BY ts DESC LIMIT 1
      ) s ON true`,
     [asOfs, symbol]

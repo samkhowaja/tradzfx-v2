@@ -35,6 +35,16 @@ export interface SetupEvaluation {
   warnings: string[];
   evidence: EvidenceItem[];
   featuresUsed: string[];
+  blockedData?: BlockedData;
+}
+
+export interface BlockedData {
+  code: "BLOCKED_DATA";
+  symbol: string;
+  timeframe: TimeFrame;
+  reason: string;
+  inputStartTs?: string;
+  inputEndTs?: string;
 }
 
 export interface EvidenceItem {
@@ -128,6 +138,7 @@ export interface EvaluationContext {
   symbol: string;
   tf: TimeFrame;
   asOf: Date;
+  blockedData?: BlockedData;
   setupFamily: SetupFamily;
   strategyId?: string;
   familyId?: string;

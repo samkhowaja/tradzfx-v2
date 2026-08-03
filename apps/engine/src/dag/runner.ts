@@ -714,6 +714,22 @@ export class DAGRunner {
           row[col] = feature.version;
         } else if (col === "input_hash") {
           row[col] = inputHash;
+        } else if (col === "lineage_state") {
+          row[col] = "trusted_current";
+        } else if (col === "canonical_version") {
+          row[col] = process.env.TM_CANONICAL_VERSION ?? "canonical-v1";
+        } else if (col === "eligibility_model_version") {
+          row[col] = process.env.TM_ELIGIBILITY_MODEL_VERSION ?? "eligibility-v1";
+        } else if (col === "broker_policy_version") {
+          row[col] = process.env.TM_BROKER_POLICY_VERSION ?? "policy-v1";
+        } else if (col === "detector_version") {
+          row[col] = process.env.TM_CANDLE_DETECTOR_VERSION ?? "detector-v3";
+        } else if (col === "validator_version") {
+          row[col] = process.env.TM_CANDLE_VALIDATOR_VERSION ?? "validator-v1";
+        } else if (col === "input_end_ts") {
+          row[col] = sourceMaxTs;
+        } else if (col === "generated_at") {
+          row[col] = new Date();
         } else if (col === "logical_id" && tableName === "features_order_block") {
           row[col] = buildOrderBlockLogicalId(symbol, opts.tf, rawRow);
         } else if (isGeometryTable && (col === "top" || col === "bottom")) {
