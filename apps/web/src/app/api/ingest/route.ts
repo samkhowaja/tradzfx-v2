@@ -220,19 +220,25 @@ export async function POST(request: NextRequest) {
       [symbols, timestamps, opens, highs, lows, closes, volumes, spreads, brokers, digitsArr]
     );
 
+    // Positive eligibility is required. Absence of quarantine evidence is not
+    // validation; new or replayed raw rows stay pending until a worker promotes
+    // them to CLEAN.
+    await pool.query(
+      `INSERT INTO market.candle_eligibility (symbol, broker, timeframe, ts, state)
+       SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[], $4::timestamptz[])
+       ON CONFLICT (symbol, broker, timeframe, ts) DO NOTHING`,
+      [symbols, brokers, Array.from({ length: n }, () => "1m"), timestamps]
+    );
+
     // Do not trigger features/setups while newly ingested bars overlap a
     // blocking quarantine decision for this symbol/broker. Raw storage stays
     // intact; downstream use fails closed.
     const quarantineCheck = await pool.query(
       `SELECT COUNT(*)::int AS count
-         FROM candle_quarantine q
-        WHERE q.symbol = $1
-          AND q.broker = $2
-          AND q.timeframe = '1m'
-          AND q.superseded_at IS NULL
-          AND q.event_time >= $3::timestamptz
-          AND q.event_time <= $4::timestamptz
-          AND (q.approved_at IS NULL OR q.decision <> 'KEEP')`,
+         FROM market.candle_eligibility e
+        WHERE e.symbol = $1 AND e.broker = $2 AND e.timeframe = '1m'
+          AND e.ts >= $3::timestamptz AND e.ts <= $4::timestamptz
+          AND e.state <> 'CLEAN'`,
       [cleanSymbol, broker, rows[0].ts, rows[rows.length - 1].ts]
     );
     const downstreamBlocked = quarantineCheck.rows[0].count > 0;

@@ -1803,22 +1803,10 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
   const t0 = performance.now();
   const unresolved = await pool.query(
     `SELECT COUNT(*)::int AS count
-       FROM candle_quarantine q
-       JOIN LATERAL (
-         SELECT p.broker_id
-           FROM raw.symbol_broker_policy p
-          WHERE p.symbol = q.symbol
-            AND p.effective_from <= q.event_time
-            AND (p.effective_to IS NULL OR q.event_time < p.effective_to)
-          ORDER BY p.priority ASC
-          LIMIT 1
-       ) p ON p.broker_id = q.broker
-      WHERE q.symbol = $1
-        AND q.timeframe = '1m'
-        AND q.superseded_at IS NULL
-        AND q.event_time >= $2
-        AND q.event_time <= $3
-        AND (q.approved_at IS NULL OR q.decision <> 'KEEP')`,
+       FROM market.candle_eligibility e
+      WHERE e.symbol = $1 AND e.timeframe = '1m'
+        AND e.ts >= $2 AND e.ts <= $3
+        AND e.state <> 'CLEAN'`,
     [symbol, from, upper]
   );
   if (unresolved.rows[0].count > 0) {

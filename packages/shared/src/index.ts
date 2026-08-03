@@ -16,6 +16,7 @@ export * from "./utils/timeBucket";
 export * from "./utils/marketCalendar";
 export * from "./marketSessions";
 export * from "./candles/candleSource";
+export * from "./candles/candleEligibility";
 export * from "./candles/canonicalRelations";
 export * from "./lifecycle";
 export * from "./levels/aliveness";

@@ -1,4 +1,4 @@
-import type { Pool, TimeFrame } from "@tm/shared";
+import { validateCandleEligibility, type Pool, type TimeFrame } from "@tm/shared";
 import { DAGRunner } from "../index";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
 
@@ -98,6 +98,27 @@ async function markError(pool: Pool, jobId: number, message: string): Promise<vo
   );
 }
 
+async function validateInputCandles(pool: Pool, symbol: string, endTs: Date, lookbackBars: number): Promise<void> {
+  const { rows } = await pool.query<{ broker: string; ts: Date }>(
+    `SELECT c.broker, c.ts
+       FROM candles_1m c
+       JOIN LATERAL (
+         SELECT 1 FROM raw.symbol_broker_policy p
+          WHERE p.symbol=c.symbol AND p.broker_id=c.broker
+            AND p.effective_from <= c.ts
+            AND (p.effective_to IS NULL OR c.ts < p.effective_to)
+          ORDER BY p.priority ASC,p.effective_from DESC,p.policy_id DESC LIMIT 1
+       ) policy ON true
+      WHERE c.symbol=$1 AND c.ts <= $2
+      ORDER BY c.ts DESC LIMIT $3`,
+    [symbol, endTs, lookbackBars]
+  );
+  for (const row of rows) {
+    const state = await validateCandleEligibility(pool, { symbol, broker: row.broker, timeframe: "1m", ts: row.ts });
+    if (state !== "CLEAN") throw new Error(`candle eligibility ${state}: ${symbol} ${row.broker} ${row.ts.toISOString()}`);
+  }
+}
+
 /**
  * Poll-and-process loop for incremental feature jobs.
  */
@@ -132,6 +153,7 @@ export async function runFeatureWorker(
     idleStreak = 0;
     const start = performance.now();
     try {
+      await validateInputCandles(pool, job.symbol, job.ts, lookbackBars);
       await runner.run({
         symbol: job.symbol,
         tf: job.tf,

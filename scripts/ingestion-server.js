@@ -297,15 +297,30 @@ async function upsertBars(payload) {
     values
   );
 
+  // Positive eligibility gate: raw persistence does not imply usability.
+  // Existing workers must validate and promote rows to CLEAN before triggers.
+  const eligibilityPlaceholders = [];
+  const eligibilityParams = [];
+  let eligibilityIndex = 1;
+  for (const row of rows) {
+    eligibilityPlaceholders.push(`($${eligibilityIndex++}, $${eligibilityIndex++}, '1m', $${eligibilityIndex++})`);
+    eligibilityParams.push(row[0], row[8], row[1]);
+  }
+  await pool.query(
+    `INSERT INTO market.candle_eligibility (symbol, broker, timeframe, ts)
+     VALUES ${eligibilityPlaceholders.join(", ")}
+     ON CONFLICT (symbol, broker, timeframe, ts) DO NOTHING`,
+    eligibilityParams
+  );
+
   const firstTs = rows.reduce((min, row) => row[1] < min ? row[1] : min, rows[0][1]);
   const lastTs = rows.reduce((max, row) => row[1] > max ? row[1] : max, rows[0][1]);
   const quarantine = await pool.query(
     `SELECT COUNT(*)::int AS count
-       FROM candle_quarantine
+       FROM market.candle_eligibility
       WHERE symbol = $1 AND broker = $2 AND timeframe = '1m'
-        AND superseded_at IS NULL
-        AND event_time >= $3 AND event_time <= $4
-        AND (approved_at IS NULL OR decision <> 'KEEP')`,
+        AND ts >= $3 AND ts <= $4
+        AND state <> 'CLEAN'`,
     [symbol, broker, firstTs, lastTs]
   );
 
