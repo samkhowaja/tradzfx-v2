@@ -12,6 +12,8 @@ Compiled 2026-07-13 from `docs/system-failures-analysis.md`. Addresses 16 findin
 | **F-01** structure lookback | ✅ Already done in YAML; registry fix deferred to Phase 1 | 0d | None |
 | F-03 iFVG sparseness | Backfill iFVG for XAUUSD Jul 1-3 window + expand producer sensitivity | 0.5d | Script access |
 | F-16 silent fallback | Add console.warn at seed-time when required condition uses registry default | 0.25d | None |
+| **F-17** FVG noise filter | **✅ IMPLEMENTED** — `minFvgWidthPips: 2` in compiler + `requireFvgStructureBreak` EXISTS join for ALL `signalSource: fvg` specs. Types, validator, compiler updated. All 8 packages build clean. | 0d (done) | None — no per-spec YAML edits needed |
+| **F-18** re-backtest FVG variants | Re-run backtest for `a_plus_orb_fvg_5m`, `smart_risk_ob_ifvg_1m`, `10xroi_v1_*` with new FVG filters active | 2d | F-17 code deployed + specs re-seeded |
 
 ### F-03 backfill
 ```bash
@@ -296,18 +298,20 @@ Effectively: `lookbackBars` becomes optional. Compiler computes the minimum safe
 
 | ID | Issue | Severity | Phase | Effort | ROI | Order |
 |----|-------|----------|-------|--------|-----|-------|
-| F-01 | TF-blind defaults | Critical | P1-A | 2d | 🔥🔥🔥🔥🔥 | 1 |
-| F-07 | Backtester divergence | High | P1-D | 3d | 🔥🔥🔥🔥🔥 | 2 |
-| F-04 | Silent 0-entry | Medium | P1-C | 1d | 🔥🔥🔥🔥 | 3 |
-| F-02 | No session-gap validation | High | P1-B | 1d | 🔥🔥🔥🔥 | 4 |
-| F-03 | iFVG sparseness | High | P0/P1-E | 1d | 🔥🔥🔥 | 5 |
-| F-15 | Stale data clock | Medium | P2-B | 2d | 🔥🔥🔥 | 6 |
-| F-06 | Temporal viz | Medium | P2-A | 2d | 🔥🔥 | 7 |
+| F-17 | **🟢 FVG noise filter** | **Critical** | **✅ P0** | **0d (done)** | 🔥🔥🔥🔥🔥 | 0 |
+| F-18 | Re-backtest FVG variants | High | P0 | 2d | 🔥🔥🔥🔥 | 1 |
+| F-01 | TF-blind defaults | Critical | P1-A | 2d | 🔥🔥🔥🔥🔥 | 2 |
+| F-07 | Backtester divergence | High | P1-D | 3d | 🔥🔥🔥🔥🔥 | 3 |
+| F-04 | Silent 0-entry | Medium | P1-C | 1d | 🔥🔥🔥🔥 | 4 |
+| F-02 | No session-gap validation | High | P1-B | 1d | 🔥🔥🔥🔥 | 5 |
+| F-03 | iFVG sparseness | High | P0/P1-E | 1d | 🔥🔥🔥 | 6 |
+| F-15 | Stale data clock | Medium | P2-B | 2d | 🔥🔥🔥 | 7 |
+| F-06 | Temporal viz | Medium | P2-A | 2d | 🔥🔥 | 8 |
 | F-05 | Registry TF-scale | Medium | Merged | 0d | - | - |
-| F-08 | session_scoped monitor | Low | P2-C | 0.5d | 🔥 | 8 |
-| F-16 | Silent fallback | Low | P0/P1-A | 0.25d | 🔥 | 9 |
+| F-08 | session_scoped monitor | Low | P2-C | 0.5d | 🔥 | 9 |
+| F-16 | Silent fallback | Low | P0/P1-A | 0.25d | 🔥 | 10 |
 
-**Effort total**: ~13 days across all phases. Phase 0: 1d, Phase 1: 7d, Phase 2: 4.5d.
+**Effort total**: ~13 days + 2d (F-18) across all phases. Phase 0: 3d (F-17 done, F-18 pending). Phase 1: 7d, Phase 2: 4.5d.
 
 ---
 

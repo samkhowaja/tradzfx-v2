@@ -222,6 +222,26 @@ signalSourceConfig:
   slowPeriod: 250
 ```
 
+### signalSourceConfig (for `fvg`)
+
+Controls FVG filtering. All fields optional. Defaults are engine-level.
+
+```yaml
+signalSource: fvg
+signalSourceConfig:
+  minFvgWidthPips: 2            # Minimum FVG width in pips. FX≥2, XAUUSD≥5 recommended.
+  requireFvgStructureBreak: true  # Require BOS/CHOCH/MSS near FVG (engine default true).
+  fvgStructureLookback: 4h       # Lookback for structure EXISTS join. Auto-calc from TF:
+                                 # 1m→2h, 5m→4h, 15m→8h, 1h→24h. Override for custom window.
+```
+
+**Behavior:**
+- `minFvgWidthPips` — filters FVGs narrower than threshold. Applied in compiler LATERAL WHERE clause. Mandatory for `signalSource: fvg` (validator enforces).
+- `requireFvgStructureBreak` — default `true` adds `EXISTS(SELECT 1 FROM features_structure WHERE event_type IN ('bos','choch','mss') AND direction = f.direction AND ts BETWEEN f.ts - INTERVAL '{lookback}' AND f.ts)`. Set `false` to disable (consolidation breakouts, pre-structure FVGs). Warns on seed if disabled.
+- `fvgStructureLookback` — overrides auto-calculated lookback. Format: `"4 hours"`, `"12 hours"`, `"24 hours"`. PostgreSQL interval syntax.
+
+**Why structure-break filter:** FVGs without a nearby BOS/CHOCH/MSS are random gaps, not tradeable imbalances. Data shows structure-nearby FVGs are 5.5× wider (EURUSD 1h: 24.6 pips vs 4.4 pips without structure).
+
 ### entryConfig
 
 ```yaml
@@ -891,22 +911,212 @@ From `packages/strategies/src/validate.ts`:
 
 ---
 
-## 15. Live Execution Config
+## 15. Live Execution Config (Per-Spec)
 
-Optional `live:` block at spec top level for runtime settings:
+The optional `live:` block at spec top level controls runtime execution parameters.
+**These are per-spec, not global** — each YAML declares its own values. There is no
+global `structureFreshnessMinutes` or global max positions setting.
 
 ```yaml
 live:
-  maxPositionsPerSymbol: 2
-  maxPositionsTotal: 6
-  maxSpreadPips: 2                  # Overrides spread gate for live execution
-  maxSlippagePoints: 10             # Max slippage in points
-  structureFreshnessMinutes: 30     # Max age of structure events (default 30)
+  maxPositionsPerSymbol: 2          # Max concurrent positions per symbol (default 1)
+  maxPositionsTotal: 6              # Max concurrent positions total (default 3)
+  maxSpreadPips: 2                  # Overrides spread gate max for this spec only
+  maxSlippagePoints: 10             # Max slippage in points (default 5)
+  structureFreshnessMinutes: 30     # Max age of structure events (default 30, 0=disabled)
+  profitLotBaseSize: 0.01           # Base lot for profit-based sizing (default 0.01)
+  profitLotStepUsd: 100             # Profit increment that adds one more base lot
+  thesisDedup:                      # See §15.2 below
+    enabled: true
+    conditionId: htf_zone
+    maxAgeMinutes: 1440
+  executionProfile:                 # See §15.3 below
+    maxSlippagePoints: 15
+    maxRetries: 3
+```
+
+### 15.1 `structureFreshnessMinutes` — Detail
+
+| Property | Type | Default | Scope |
+|----------|------|---------|-------|
+| `structureFreshnessMinutes` | number (minutes) | 30 | Per-spec `live:` block |
+
+**What it does:** Applies an additional WHERE clause on entry-level `features_structure`
+conditions: `pit_<id>.ts >= anchor.ts - 'N minutes'`. This prevents stale structure
+events (BOS/MSS/CHOCH) that happened too long before the anchor from triggering entries.
+A value of `0` disables the filter entirely.
+
+**Interaction with `ttlDirection: forward`:**
+
+When an entry condition (either in `entry[]` or a `steps[]` step that feeds into entry)
+has `ttlDirection: forward` set, the compiler **automatically skips** the
+`structureFreshnessMinutes` filter for that condition. Forward TTL already bounds
+the event window (events must occur after the anchor, within the TTL), so adding
+`structureFreshnessMinutes` would create an unintended `MIN(ttlMinutes, structureFreshnessMinutes)`
+— e.g. a 120-minute forward TTL would be silently capped to 30 minutes, destroying
+valid forward-looking signals.
+
+**Usage guidance:**
+
+| Spec Type | `structureFreshnessMinutes` | Why |
+|-----------|---------------------------|-----|
+| Scalper (1m/5m entry, backward TTL or no TTL) | 15–30 | Structure events older than 15-30m are probably stale for a 1m scalper |
+| Intraday (15m anchor, backward TTL) | 30–60 | Room for structure events within the same session |
+| Swing (1h/4h anchor) | 60–120 or 0 | Wider windows; 0 = rely on lookbackBars alone |
+| Any with `ttlDirection: forward` on entry structure | **Ignored** | Forward TTL is the sole freshness bound |
+| Multiple entry structure conditions (some forward, some backward) | **Applies only to backward ones** | The compiler checks per-condition `ttlDirection` |
+
+**Migration note (SK-24):** Existing specs that set `structureFreshnessMinutes: 30`
+and have entry structure conditions without `ttlDirection: forward` retain the
+30-minute cap. If you add `ttlDirection: forward` to an entry condition, the cap
+is automatically removed — no need to change `structureFreshnessMinutes`.
+
+### 15.2 `thesisDedup` — Thesis-Level Deduplication
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `enabled` | boolean | false | Enable dedup |
+| `conditionId` | string | — | Condition ID whose row identity forms the thesis key |
+| `maxAgeMinutes` | number | 1440 (24h) | Max age of past thesis keys to check |
+
+**What it does:** Ensures one trade per (symbol + UTC date + session window + direction +
+exact feature row identity). The key is derived from the signal's `causal_lineage` at the
+configured `conditionId`. Prevents the same market thesis from producing multiple trades
+even if the exact price geometry differs slightly.
+
+### 15.3 `executionProfile`
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `maxSlippagePoints` | number | 10 | Max acceptable slippage in points |
+| `maxRetries` | number | 3 | Max order retry attempts |
+| `orderType` | 'market' \| 'limit' | 'market' | Preferred order type |
+
+---
+
+## 16. Condition-Level TTL: `ttlMinutes` + `ttlDirection`
+
+These fields are per-condition (on `steps[]` or `entry[]`), not part of the `live:` block.
+They control the lookback window for event features independently of the feature registry's
+default `lookbackBars`.
+
+```yaml
+# On a ProgressiveStep:
+steps:
+  - id: weakness
+    feature: features_structure
+    tf: 5m
+    ttlMinutes: 360
+    ttlDirection: forward       # Default: 'backward'
+    # ...
+
+# On an entry StrategyCondition:
+entry:
+  - id: breakout
+    feature: features_structure
+    tf: 1m
+    ttlMinutes: 120
+    ttlDirection: forward
+    # ...
+```
+
+### `ttlDirection: 'backward'` (default)
+
+| Aspect | Behavior |
+|--------|----------|
+| **Window** | `pit_child.ts >= parent.ts - ttlMinutes` |
+| **Use case** | Event occurred BEFORE the anchor. Standard causality: bias forms, then structure confirms. |
+| **Interaction with `structureFreshnessMinutes`** | `structureFreshnessMinutes` **is applied** (further restricts the window). |
+
+### `ttlDirection: 'forward'`
+
+| Aspect | Behavior |
+|--------|----------|
+| **Window** | `pit_child.ts <= parent.ts + ttlMinutes` |
+| **Use case** | Event occurs AFTER the anchor. Models "price weakness → wait for continuation" or "bias forms → wait for breakout within N minutes". |
+| **Interaction with `structureFreshnessMinutes`** | `structureFreshnessMinutes` **is skipped** (forward TTL is the sole bound). |
+| **Interaction with `sessionGapPaddingMinutes`** | `sessionGapPaddingMinutes` **is also skipped** (would incorrectly extend the forward window). |
+
+### Choosing between TTL and `lookbackBars`
+
+| Mechanism | What it bounds | Unit | When to use |
+|-----------|---------------|------|-------------|
+| `lookbackBars` | How far back to search (in bars of the condition's tf) | Bars | Default. Registry sets sensible values. Override when you need more/less history. |
+| `ttlMinutes` | Absolute wall-clock age of the event relative to anchor | Minutes | Use when bars are misleading (low-volatility periods have fewer bars). Also required for `ttlDirection: forward`. |
+| `structureFreshnessMinutes` | Absolute max age of structure events before anchor | Minutes | Additional safety cap on `features_structure`. Applied ON TOP of backward TTL/lookbackBars. **Skipped for forward TTL.** |
+
+### `structureFreshnessMinutes` vs `ttlMinutes` — Quick Decision Guide
+
+```
+                     ┌─────────────────────────────────────┐
+                     │  Entry uses features_structure?     │
+                     │          (or entry step              │
+                     │     depends on structure step)       │
+                     └──────────┬──────────────────────────┘
+                                │
+                    ┌───────────┴───────────┐
+                    │ YES                   │ NO
+                    ▼                       ▼
+         ┌─────────────────────┐    No action needed.
+         │ ttlDirection        │    structureFreshnessMinutes
+         │ on the structure    │    does not apply.
+         │ condition?          │
+         └────────┬────────────┘
+                  │
+       ┌──────────┴──────────┐
+       │ forward             │ backward or unset
+       ▼                     ▼
+  ┌──────────────┐    ┌──────────────────┐
+  │ TTL is the   │    │ structureFresh-  │
+  │ sole bound.  │    │ nessMinutes is   │
+  │ structure-   │    │ APPLIED on top   │
+  │ Freshness-   │    │ of lookback/TTL. │
+  │ Minutes is   │    │                  │
+  │ SKIPPED.     │    │ Set to 0 to      │
+  │              │    │ disable, or to   │
+  │ Make sure    │    │ N for max age.   │
+  │ ttlMinutes   │    │                  │
+  │ is correct.  │    │ Scalpers: 15-30  │
+  └──────────────┘    │ Intraday: 30-60  │
+                      │ Swing: 60-120/0  │
+                      └──────────────────┘
+```
+
+### Real Example — CCT Rectangle Gold Scalper
+
+```yaml
+steps:
+  - id: dir_structure
+    feature: features_structure
+    tf: 15m
+    # No TTL — uses registry lookbackBars (24 bars = 6h at 15m).
+    # This is the anchor step. structureFreshnessMinutes does not apply.
+
+  - id: weakness
+    dependsOn: [ dir_structure ]
+    feature: features_structure
+    tf: 5m
+    ttlMinutes: 360
+    ttlDirection: forward        # Weakness within 6h AFTER direction forms
+    # structureFreshnessMinutes is SKIPPED because ttlDirection=forward
+
+entry:
+  - id: breakout
+    dependsOn: [ weakness ]
+    feature: features_structure
+    tf: 1m
+    ttlMinutes: 120
+    ttlDirection: forward        # Breakout within 2h AFTER weakness forms
+    # structureFreshnessMinutes is SKIPPED because ttlDirection=forward
+
+live:
+  structureFreshnessMinutes: 30  # Declared but irrelevant — both structure
+                                 # conditions use forward TTL.
 ```
 
 ---
 
-## 16. Timeframe Availability
+## 17. Timeframe Availability
 
 | TimeFrame String | Use Case |
 |-----------------|----------|

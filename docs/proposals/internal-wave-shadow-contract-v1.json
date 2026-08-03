@@ -1,0 +1,44 @@
+{
+  "id": "internal_wave_v2_shadow_v1",
+  "status": "frozen_inactive_shadow",
+  "frozenAt": "2026-07-24T04:37:23.118Z",
+  "historicalCutoff": "2026-07-24T04:27:00.000Z",
+  "symbol": "XAUUSD",
+  "costModel": "excluded_during_setup_validation",
+  "setup": {
+    "liquidityEvent": { "table": "features_liquidity_event_v2", "tf": "5m", "killzones": ["LONDON_KILLZONE", "NY_KILLZONE"] },
+    "direction": { "table": "features_direction_state", "tf": "1h", "policy": "latest_as_of_aligned" },
+    "confirmation": { "table": "features_displacement", "tfs": ["1m", "5m"], "policy": "first_aligned_strictly_after_sweep", "maxDelayMinutes": 30 },
+    "entry": { "candleTf": "1m", "policy": "first_retest_of_confirmation_close_strictly_after_confirmation", "maxDelayMinutes": 60 },
+    "stop": "sweep_extreme",
+    "researchTargetR": 2,
+    "timeoutMinutes": 120,
+    "intrabar": "sl_first"
+  },
+  "confidence": {
+    "independentDelay6To30": 2,
+    "displacementTf5m": 1,
+    "gradedDisplacement": 2,
+    "trendingRegime": 2,
+    "lowVolatilityRegime": 1,
+    "qualifiedMinimum": 2,
+    "preferredMinimum": 3,
+    "outcomeUsed": false
+  },
+  "deduplication": { "sameDirectionGapMinutes": 15, "selection": ["highest_confidence", "highest_body_pct", "earliest_sweep"] },
+  "acceptance": {
+    "minimumResolvedDistinctWaves": 40,
+    "minimumQualifiedDistinctWaves": 20,
+    "qualifiedExpectancyRGreaterThan": 0,
+    "qualifiedProfitFactorGreaterThan": 1,
+    "causalViolationsEqual": 0,
+    "minimumObservationDays": 30
+  },
+  "prohibitions": [
+    "no_rule_changes_before_acceptance_window_completes",
+    "no_live_strategy_wiring",
+    "no_database_writes",
+    "no_historical_rows_at_or_before_cutoff",
+    "no_cost_based_filtering_during_setup_validation"
+  ]
+}

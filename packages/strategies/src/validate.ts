@@ -7,7 +7,7 @@
  * a violation is a spec bug, not a runtime condition.
  */
 
-import { ORB_SESSION_KEYS, getPairCharacteristics } from "@tm/shared";
+import { ORB_SESSION_KEYS, validateStopPips } from "@tm/shared";
 import type { StrategySpec, StrategyCondition, ProgressiveStep } from "@tm/shared";
 import { FEATURE_REGISTRY } from "./featureRegistry";
 
@@ -31,6 +31,7 @@ const KNOWN_GATES = new Set([
   "rateLimit",
   "dailyLoss",
   "dailyWin",
+  "directionAlignment",
 ]);
 
 /** Valid signal sources — matched against the compiler's compileSignalSelect dispatch. */
@@ -41,6 +42,7 @@ const VALID_SIGNAL_SOURCES = new Set([
   "moving_average",
   "fvg",
   "generic",
+  "internal_wave",
 ]);
 
 /** Valid entry types — mirrors RuntimeConfig.
@@ -71,6 +73,17 @@ const SETUP_FAMILIES = new Set([
   "indicator",
 ]);
 
+const CLEAN_FEATURES = new Set([
+  "features_atr", "features_session", "features_spread", "features_zone",
+  "features_displacement", "features_moving_average", "features_candle_pattern",
+]);
+const CLEAN_ZONE_FIELDS = new Set(["top", "bottom", "mid", "type", "ts"]);
+const QUARANTINED_FEATURES = new Set([
+  "features_pivot", "features_structure", "features_sweep", "features_order_block",
+  "features_bias", "features_direction_state", "features_zone_retest", "features_ifvg",
+  "features_pricing", "features_push_pull", "features_liquidity_event_v2",
+]);
+
 /** Tables whose join policy requires an explicit `session` on the condition. */
 function sessionScopedFeatures(): Set<string> {
   const out = new Set<string>();
@@ -87,8 +100,26 @@ function sessionScopedFeatures(): Set<string> {
 export function validateSpec(spec: StrategySpec): string[] {
   const errors: string[] = [];
   const specId = spec.id ?? "<unknown>";
-  const conds = [...(spec.setup ?? []), ...(spec.entry ?? [])];
+  const conds = [...(spec.setup ?? []), ...(spec.steps ?? []), ...(spec.entry ?? [])];
   const scoped = sessionScopedFeatures();
+
+  if (spec.featureContract && !["CLEAN_2026_07", "LEGACY"].includes(spec.featureContract)) {
+    errors.push(`${specId}: unsupported featureContract '${spec.featureContract}'`);
+  }
+  if (spec.featureContract === "CLEAN_2026_07") {
+    for (const cond of conds) {
+      if (QUARANTINED_FEATURES.has(cond.feature) || !CLEAN_FEATURES.has(cond.feature)) {
+        errors.push(`${specId}: CLEAN_2026_07 forbids feature '${cond.feature}'`);
+      }
+      if (cond.feature === "features_zone") {
+        const columns = cond.predicate.match(/\b[a-z_][a-z0-9_]*\b/gi) ?? [];
+        const forbidden = columns.filter((column) =>
+          ["quality_score", "fill_pct", "tapped", "is_fresh", "invalidated_at", "mitigated_at"].includes(column.toLowerCase())
+        );
+        if (forbidden.length) errors.push(`${specId}: CLEAN_2026_07 zone condition '${cond.id}' uses forbidden fields: ${[...new Set(forbidden)].join(", ")}`);
+      }
+    }
+  }
 
   for (const cond of conds) {
     if (scoped.has(cond.feature)) {
@@ -150,11 +181,24 @@ export function validateSpec(spec: StrategySpec): string[] {
   }
 
   // Validate every condition's feature is registered (catches typos like
-  // "features_bais" instead of "features_bias").
+  // "features_bais" instead of "features_bias"), and that the requested
+  // timeframe is contract-supported (e.g. features_opening_range is intraday-only,
+  // features_session_hl is date-bound and invalid at intraday tfs).
   for (const cond of conds) {
     if (cond.feature && !FEATURE_REGISTRY[cond.feature]) {
       errors.push(
         `${specId}: condition '${cond.id}' references unknown feature '${cond.feature}'`
+      );
+      continue;
+    }
+    const contract = FEATURE_REGISTRY[cond.feature];
+    if (
+      contract?.supportedTimeframes &&
+      cond.tf &&
+      !contract.supportedTimeframes.includes(cond.tf)
+    ) {
+      errors.push(
+        `${specId}: condition '${cond.id}' requests ${cond.feature}@${cond.tf} — unsupported timeframe (supported: ${contract.supportedTimeframes.join(", ")})`
       );
     }
   }
@@ -189,11 +233,10 @@ export function validateSpec(spec: StrategySpec): string[] {
     if (slPipsMatch) {
       const slPips = parseFloat(slPipsMatch[1]);
       for (const sym of spec.filters.symbols) {
-        const pc = getPairCharacteristics(sym);
-        const minPips = pc.minStopPips ?? 3;
-        if (slPips < minPips) {
+        const stop = validateStopPips(sym, slPips);
+        if (!stop.valid) {
           errors.push(
-            `${specId}: risk.sl ${slPips}p is below ${sym}'s minStopPips (${minPips}p). ` +
+            `${specId}: risk.sl ${slPips}p is below ${sym}'s minStopPips (${stop.minStopPips}p). ` +
               `Widen stop or remove the symbol from filters.`
           );
         }
@@ -240,6 +283,23 @@ export function validateSpec(spec: StrategySpec): string[] {
   if (signalSource === "fvg" && spec.setupFamily && spec.setupFamily !== "fvg_continuation") {
     errors.push(`${specId}: signalSource 'fvg' must use setupFamily 'fvg_continuation'`);
   }
+  if (signalSource === "fvg" && !spec.signalSourceConfig?.minFvgWidthPips) {
+    errors.push(
+      `${specId}: signalSource 'fvg' requires signalSourceConfig.minFvgWidthPips (minimum FVG width in pips). Recommended: FX ≥2, XAUUSD ≥5.`
+    );
+  }
+
+  // Warn when a FVG spec explicitly disables the structure-break filter.
+  // This is an intentional escape hatch (e.g. consolidation-breakout
+  // strategies where the FVG IS the structure break), but most FVG specs
+  // benefit from the noise reduction.
+  if (signalSource === "fvg" && spec.signalSourceConfig?.requireFvgStructureBreak === false) {
+    console.warn(
+      `${specId}: signalSource 'fvg' has requireFvgStructureBreak=false. ` +
+      `Structure-break EXISTS join disabled. Only set false intentionally ` +
+      `(consolidation breakouts, pre-structure FVGs).`
+    );
+  }
 
   if (signalSource === "orb" && !conds.some((c) => c.feature === "features_opening_range")) {
     errors.push(
@@ -278,7 +338,7 @@ export function validateSpec(spec: StrategySpec): string[] {
  */
 export function validateTemporalCoverage(spec: StrategySpec): string[] {
   const warnings: string[] = [];
-  const conds = [...(spec.setup ?? []), ...(spec.entry ?? [])];
+  const conds = [...(spec.setup ?? []), ...(spec.steps ?? []), ...(spec.entry ?? [])];
 
   for (const cond of conds) {
     const tf = cond.tf ?? "15m";
@@ -490,6 +550,17 @@ export function validateProgressiveSpec(spec: StrategySpec): string[] {
     if (!FEATURE_REGISTRY[step.feature]) {
       errors.push(
         `${specId}: step '${step.id}' references unknown feature '${step.feature}'`
+      );
+      continue;
+    }
+    const contract = FEATURE_REGISTRY[step.feature];
+    if (
+      contract?.supportedTimeframes &&
+      step.tf &&
+      !contract.supportedTimeframes.includes(step.tf)
+    ) {
+      errors.push(
+        `${specId}: step '${step.id}' requests ${step.feature}@${step.tf} — unsupported timeframe (supported: ${contract.supportedTimeframes.join(", ")})`
       );
     }
     if (scoped.has(step.feature)) {

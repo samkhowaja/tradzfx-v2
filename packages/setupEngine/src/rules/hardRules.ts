@@ -128,7 +128,12 @@ export function runHardRules(ctx: EvaluationContext): string[] {
   }
 
   // 2. Family-specific rules.
-  const family = ctx.setupFamily ?? "zone_reversal";
+  // Signal source is authoritative fallback. Older callers and persisted
+  // backtest contexts may omit setupFamily; never apply zone rules to an
+  // indicator signal in that case.
+  const family = ctx.setupFamily === "zone_reversal" && ctx.signalSource === "indicator"
+    ? "indicator"
+    : ctx.setupFamily ?? "zone_reversal";
   let familyBlocks: string[] = [];
   switch (family) {
     case "zone_reversal":

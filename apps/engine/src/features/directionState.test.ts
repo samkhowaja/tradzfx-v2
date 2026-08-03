@@ -75,4 +75,9 @@ describe("reconcileDirection (Direction Arbiter)", () => {
     expect(r.confidence).toBeLessThanOrEqual(1);
     expect(r.confidence).toBeGreaterThanOrEqual(0);
   });
+
+  it("normalizes legacy 0..100 producer confidence", () => {
+    const r = reconcileDirection(bias("bullish", "trending", 70), htf("bullish", "READY", 90));
+    expect(r.confidence).toBeCloseTo(0.9);
+  });
 });

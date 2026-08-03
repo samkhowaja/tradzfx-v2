@@ -1,3 +1,27 @@
+## 2026-07-27 ORB readiness and PIT volatility repair
+
+- Added `infra/migrations/170_volatility_profile_pit_versions.sql`.
+- Added `market_volatility_profile_pit`, leaving protected live profile table unchanged.
+- Updated `scripts/compute-volatility-profile.js` with explicit historical `asOfTs` and causal source bounds.
+- Updated `scripts/backtest-pit-v2.js` to select `market_volatility_profile_pit` rows with `as_of_ts <= signalTs`.
+- Generated daily causal snapshots for 2026-06-20 through 2026-07-20.
+- ORB full-mode rerun changed from 0 executions to 6 executions.
+
+EURUSD 30-day full-mode result:
+
+```text
+Raw signals: 18
+Setup blocked: 11
+Volatility skipped: 1
+Executed: 6
+Wins: 1
+Losses: 5
+Net R: -1.7439
+WR: 16.7%
+```
+
+Remaining issue: `features_opening_range@15m` reports `STALE_STATE` because lifecycle checkpoint remains stale. This is readiness metadata, not missing ORB rows. Historical override remains explicit through `BACKTEST_HISTORICAL_STALE_OK=1`; no future profile data enters PIT lookup.
+
 # TRADZFX-V2 FORENSIC AUDIT REPORT v3
 **Date:** 2026-07-19 | **Auditor:** Automated Analysis Engine
 

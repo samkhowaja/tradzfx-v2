@@ -215,3 +215,41 @@ specs) with singular `filters.session` tolerated for parity. The
 `packages/shared/src/types/strategy.ts` (was missing; only `session` existed).
 
 **Found:** Systematic gap-in-blindness across 15+ specs.
+
+---
+
+## A-14: FVG Noise Filter Missing — sub-1-pip gaps create zero-expectancy signals
+
+**Symptom:** FVG strategies produce 0% win rate on FX pairs (EURUSD, GBPUSD,
+AUDUSD, NZDUSD). 68-71% of 5m FX FVGs are ≤1 pip wide.
+
+**Cause:** Producer uses ATR-relative filter (`ZONE_MIN_SIZE_ATR_PCT=0.2`
+× ATR14). On low-volatility FX pairs, ATR14 p50=12 pips → 0.2×12=2.4 pips
+→ only filters gaps <2.4 pips? No — the ATR filter is a percentage, so a
+gap of ANY size passes as long as it's ≥0.2% of ATR14. 0.2% of 12 pips = 0.024
+pips → effectively no width minimum. Any non-zero gap passes.
+
+**Two-part fix:**
+1. **`minFvgWidthPips`** (per-spec, compiler LATERAL WHERE clause): Pip-based
+minimum width at signal time. `minFvgWidthPips: 2` kills all sub-1-pip noise.
+Mandatory for `signalSource: fvg` (validator errors if unset).
+
+2. **`requireFvgStructureBreak`** (engine-level, auto-added to all FVG specs):
+Direction-matched `EXISTS(SELECT 1 FROM features_structure WHERE event_type IN
+('bos','choch','mss') AND direction = f.direction AND ts BETWEEN f.ts - INTERVAL
+'{tf_auto_lookback}' AND f.ts)`. Kills FVGs without a nearby structure break
+— data confirms structure-nearby FVGs are 5.5× wider (EURUSD 1h: 24.6 pips vs
+4.4 pips without). TF-adaptive lookback: 1m→2h, 5m→4h, 15m→8h, 1h→24h.
+
+**Escape hatch:** `signalSourceConfig.requireFvgStructureBreak: false` for
+consolidation breakouts (warns on seed).
+
+**Impact:**
+| Metric | Before | After |
+|--------|--------|-------|
+| FX 5m FVGs ≥1 pip | 68-71% | 0% (all filtered) |
+| FX 5m FVGs ≥2 pips | 12-32% survive | Same (but all have structure context) |
+| XAUUSD FVGs affected | ~10% | Minimal (already 90% ≥2 pips) |
+| FVG strategy win rate | 0% | Needs re-backtest |
+
+**Found:** 2026-07-24 FVG investigation — 10 pairs, 5 TFs, 170k+ FVG rows analyzed.

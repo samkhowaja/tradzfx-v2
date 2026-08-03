@@ -188,6 +188,17 @@ describe("getCandles (candleSource)", () => {
 });
 
 describe("getRecentCandles (SK-08 count-based fetch)", () => {
+  it("excludes the currently forming edge candle", async () => {
+    const pool = createFakePool([
+      { match: /FROM market\.candles_5m_canonical/, rows: [caggRow(t1, 15), caggRow(t0, 12)] },
+    ]);
+
+    const out = await getRecentCandles(pool, "XAUUSD", "5m", new Date("2026-06-01T10:10:00.000Z"), 3, { allowRealtimeFallback: false });
+
+    expect(out.map((c) => c.ts)).toEqual([t0, t1]);
+    expect(pool.query).toHaveBeenCalledWith(expect.any(String), ["XAUUSD", new Date("2026-06-01T10:05:00.000Z"), 3]);
+  });
+
   const end = new Date("2026-06-01T05:00:00.000Z"); // Mon 05:00
 
   it("returns last-N from the canonical projection with tickCount and no rollup on a complete weekday series", async () => {

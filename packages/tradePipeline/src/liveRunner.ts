@@ -8,14 +8,25 @@
 
 import crypto from "node:crypto";
 import type { Pool, Queryable, SetupEvaluationSnapshot } from "@tm/shared";
-import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig, TimeFrame } from "@tm/shared";
-import { checkSmallAccountGate, CANDLE_TABLE_BY_TF, assertProducerFresh, ACTIVE_ORDER_STATUSES } from "@tm/shared";
+import type { StrategySpec, Signal, DecisionTrace, LiveExecutionConfig, ThesisDedupConfig, TimeFrame } from "@tm/shared";
+import {
+  checkSmallAccountGate,
+  CANDLE_TABLE_BY_TF,
+  assertProducerFresh,
+  ACTIVE_ORDER_STATUSES,
+  classifyReadiness,
+  elapsedTradableMinutes,
+  resolveFreshnessPolicy,
+  summarizeReadiness,
+  type ReadinessStatus,
+  type ReadinessVerdict,
+} from "@tm/shared";
 import {
   getDefaultFreshnessMinutes,
   getDefaultLookbackBars,
   isEventFeature,
   isLevelFeature,
-  extractRequiredFeatures,
+  resolveReadinessRequirements,
 } from "@tm/strategies";
 import {
   notifySignal,
@@ -35,6 +46,7 @@ import { createFamilyPositionGate } from "./gates/familyPositionGate";
 import { createRateLimitGate } from "./gates/rateLimitGate";
 import { createDailyLossGate } from "./gates/dailyLossGate";
 import { createDailyWinGate } from "./gates/dailyWinGate";
+import { createDirectionAlignmentGate } from "./gates/directionAlignmentGate";
 import { appendSignalCandidate } from "./candidateAudit";
 
 /**
@@ -143,6 +155,7 @@ export interface LiveRunOptions {
       entry_zone_pips: number | null;
       trace_run_id: string;
       signal_fingerprint?: string;
+      thesis_fingerprint?: string | null;
     },
     client?: Queryable
   ) => Promise<{ id: string }>;
@@ -248,6 +261,91 @@ function computeSignalFingerprint(signal: SignalWithSource): string {
   return crypto.createHash("sha256").update(payload).digest("hex");
 }
 
+/**
+ * Derive a thesis fingerprint from the signal's causal_lineage for thesis-level
+ * deduplication. The key is: symbol + UTC date + session window (from timeWindows
+ * in the spec) + side + conditionId + feature_table + feature_ts + feature_identity.
+ *
+ * This ensures trades based on the same zone formation/session/direction are
+ * deduplicated even if exact entry/sl/tp differs slightly.
+ */
+function computeThesisFingerprint(
+  signal: SignalWithSource,
+  spec: StrategySpec
+): string | null {
+  const dedupConfig = spec.live?.thesisDedup;
+  if (!dedupConfig?.enabled) return null;
+
+  // Find the condition row in causal_lineage matching the configured conditionId.
+  const lineage: Array<{ conditionId: string; feature: string; tf: string; row: Record<string, unknown> }> =
+    (signal.source?.causal_lineage as any) ?? [];
+
+  const anchor = lineage.find((c) => c.conditionId === dedupConfig.conditionId);
+  if (!anchor?.row) return null;
+  const row = anchor.row;
+
+  // UTC date from the signal's timestamp
+  const d = new Date(signal.ts);
+  const utcDate = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+
+  // Determine session window — match the signal's UTC hour against configured windows.
+  const utcHour = d.getUTCHours();
+  const utcMin = d.getUTCMinutes();
+  const utcTimeStr = `${String(utcHour).padStart(2, "0")}:${String(utcMin).padStart(2, "0")}`;
+  const sessionWindow = dedupConfig.sessionWindows.find((w) => {
+    const [start, end] = w.split("-");
+    return utcTimeStr >= start && utcTimeStr < end;
+  }) ?? "unknown";
+
+  // Feature-specific identity: use (feature_table, row.ts, top, bottom, zone_kind)
+  // for zones — or generic row.ts + primary identity columns.
+  const featureTs = row.ts ? new Date(row.ts as string).toISOString() : "";
+  const top = row.top ?? row.level ?? "";
+  const bottom = row.bottom ?? "";
+  const kind = row.zone_kind ?? row.ob_kind ?? row.event_type ?? anchor.feature;
+
+  // Build deterministic thesis key.
+  const keyParts = [
+    signal.symbol,
+    signal.strategyId,
+    utcDate,
+    sessionWindow,
+    signal.side,
+    dedupConfig.conditionId,
+    anchor.feature,
+    featureTs,
+    String(top),
+    String(bottom),
+    String(kind),
+  ];
+
+  const thesisKey = keyParts.join("|");
+  return crypto.createHash("sha256").update(thesisKey).digest("hex");
+}
+
+/**
+ * Check whether a thesis-level fingerprint already exists in the orders table
+ * for this symbol+strategy. Returns the order if found, null if the thesis
+ * is available (no prior trade on this thesis).
+ */
+async function findThesisDuplicate(
+  pool: Queryable,
+  thesisFingerprint: string,
+  asOf: Date
+): Promise<{ status: string; created_at: Date } | null> {
+  const { rows } = await pool.query(
+    `SELECT status, created_at
+     FROM orders
+     WHERE thesis_fingerprint = $1
+       AND status IN ('pending', 'filled', 'rejected', 'expired', 'closed')
+       AND created_at <= $2::timestamptz
+     ORDER BY created_at ASC
+     LIMIT 1`,
+    [thesisFingerprint, asOf]
+  );
+  return rows[0] ?? null;
+}
+
 function hashSpec(spec: StrategySpec): string {
   return crypto.createHash("sha256").update(JSON.stringify(spec)).digest("hex");
 }
@@ -300,7 +398,8 @@ async function insertLiveSignal(
   pool: Queryable,
   deploymentId: string,
   signal: SignalWithSource,
-  fingerprint: string
+  fingerprint: string,
+  thesisFingerprint?: string | null
 ): Promise<string | null> {
   // SAVEPOINT scoped to this INSERT so a 23505 on the fingerprint dedup index
   // does not poison the outer transaction (audit §3.5.3 / #10).
@@ -310,8 +409,9 @@ async function insertLiveSignal(
       `WITH inserted AS (
          INSERT INTO live_signal (
            deployment_id, symbol, ts, strategy_id, side, entry_type,
-           entry_price, stop_loss, take_profit, confidence, source_json, signal_fingerprint
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+           entry_price, stop_loss, take_profit, confidence, source_json,
+           signal_fingerprint, thesis_fingerprint
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
          ON CONFLICT (deployment_id, symbol, ts, strategy_id, side) DO NOTHING
          RETURNING signal_id
        )
@@ -334,6 +434,7 @@ async function insertLiveSignal(
         signal.confidence ?? null,
         signal.source,
         fingerprint,
+        thesisFingerprint ?? null,
       ],
     );
     const signalId = rows[0]?.signal_id;
@@ -416,6 +517,7 @@ async function insertLiveOrder(
     trade_mode: "live" | "paper";
     expires_at: Date;
     entry_zone_pips: number | null;
+    thesis_fingerprint?: string | null;
   },
   legacyOrderId: string
 ): Promise<string> {
@@ -423,8 +525,8 @@ async function insertLiveOrder(
     `INSERT INTO live_order (
        signal_id, deployment_id, symbol, strategy_id, side, entry_type,
        entry_price, stop_loss, take_profit, lot_size, risk_reward,
-       trade_mode, expires_at, legacy_order_id
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       trade_mode, expires_at, legacy_order_id, thesis_fingerprint
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
      RETURNING order_id`,
     [
       signalId,
@@ -441,6 +543,7 @@ async function insertLiveOrder(
       orderInput.trade_mode,
       orderInput.expires_at,
       legacyOrderId,
+      orderInput.thesis_fingerprint ?? null,
     ],
   );
   return rows[0].order_id;
@@ -641,6 +744,11 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   const fingerprint = computeSignalFingerprint(signal);
   const cooldownMinutes = strategySpec.live?.cooldownMinutes ?? 30;
 
+  // 1d. Thesis-level deduplication: one trade per (symbol + UTC date + session
+  // window + direction + HTF zone/feature identity). Determined from the
+  // signal's causal_lineage; null if thesis dedup is not configured.
+  const thesisFingerprint = computeThesisFingerprint(signal, strategySpec);
+
   // Live execution without immutable deployment provenance is forbidden. Replay
   // evaluation remains deployment-optional because it always rolls back.
   if (!evaluationOnly && !effectiveDeploymentId) {
@@ -684,6 +792,35 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       [symbol]
     );
 
+    // 1c-i. Thesis dedup check — happens before geometry dedup so we reject
+    // with the more specific reason. Rejected candidates do NOT consume the
+    // thesis (only accepted trades do), so a thesis that failed on geometry
+    // can retry later.
+    if (thesisFingerprint) {
+      const thesisDuplicate = await findThesisDuplicate(client, thesisFingerprint, now);
+      if (thesisDuplicate) {
+        const reason = `thesis_dedup: same thesis already traded (${thesisDuplicate.status} at ${thesisDuplicate.created_at.toISOString()})`;
+        throw new PipelineRejectionError({
+          trace: {
+            runId: crypto.randomUUID(),
+            symbol,
+            strategyId: strategySpec.id,
+            ts: now,
+            nodes: [{
+              nodeId: "thesis_dedup",
+              nodeType: "gate",
+              passed: false,
+              reason,
+              latencyMs: 0,
+            }],
+          },
+          signal,
+          orderCreated: false,
+          reason,
+        });
+      }
+    }
+
     const duplicate = await findRecentDuplicate(client, fingerprint, cooldownMinutes, now);
     if (duplicate) {
       const reason = `duplicate_signal: cooldown=${cooldownMinutes}min`;
@@ -715,7 +852,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     // on idx_live_signal_dedup_v2) — the SAVEPOINT rolled back only the INSERT
     // so the outer transaction is clean and we gracefully reject.
     if (effectiveDeploymentId) {
-      liveSignalId = (await insertLiveSignal(client, effectiveDeploymentId, signal, fingerprint)) ?? undefined;
+      liveSignalId = (await insertLiveSignal(client, effectiveDeploymentId, signal, fingerprint, thesisFingerprint)) ?? undefined;
       if (!liveSignalId) {
         throw new PipelineRejectionError({
           trace: {
@@ -753,6 +890,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       rateLimit: createRateLimitGate,
       dailyLoss: createDailyLossGate,
       dailyWin: createDailyWinGate,
+      directionAlignment: createDirectionAlignmentGate,
     };
 
     for (const gateConfig of strategySpec.gates) {
@@ -962,6 +1100,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
       quality
     );
     orderInput.signal_fingerprint = fingerprint;
+    orderInput.thesis_fingerprint = thesisFingerprint;
 
     if (evaluationOnly) {
       result = {
@@ -1102,7 +1241,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     decision_reason: result.reason ?? null,
     feature_snapshot: signal.source ?? null,
     fingerprint,
-    dedup_check_result: result.reason?.startsWith("duplicate_signal") ? "duplicate" : "not_duplicate",
+    dedup_check_result: result.reason?.startsWith("duplicate_signal") || result.reason?.startsWith("thesis_dedup") ? "duplicate" : "not_duplicate",
     engine_version: "liveRunner",
     spec_hash: hashSpec(strategySpec),
     source: "live",
@@ -1164,11 +1303,24 @@ export interface FeatureFreshnessInput {
   tf: TimeFrame;
   featureMaxTs: Date | null;
   now: number;
+  symbol?: string;
+  expectedEngineVersion?: string | null;
+  observedEngineVersion?: string | null;
 }
 
 export interface FeatureFreshnessDecision {
   ok: boolean;
+  status: ReadinessStatus;
+  verdict: ReadinessVerdict;
   reason?: string;
+}
+
+export interface FeatureReadinessResult {
+  ok: boolean;
+  status: ReadinessStatus;
+  verdicts: ReadinessVerdict[];
+  reason?: string;
+  latencyMs: number;
 }
 
 /**
@@ -1180,49 +1332,87 @@ export function evaluateFeatureFreshness({
   tf,
   featureMaxTs,
   now,
+  symbol,
+  expectedEngineVersion,
+  observedEngineVersion,
 }: FeatureFreshnessInput): FeatureFreshnessDecision {
-  // Event features are sparse by design: eligibility tracks market data (0a),
-  // so the guard never blocks on the last-event row.
+  // Event features are sparse by design: eligibility tracks market data (0a).
+  // Missing events are DEGRADED evidence, never a live execution block.
   if (isEventFeature(featureName)) {
-    return { ok: true };
+    const verdict = classifyReadiness({
+      tableExists: true,
+      missingColumns: [],
+      semanticType: "event",
+      rowCount: featureMaxTs ? 1 : 0,
+      expectedEngineVersion,
+      observedEngineVersions: observedEngineVersion ? [observedEngineVersion] : [],
+    });
+    const status = summarizeReadiness([verdict]).status;
+    return { ok: status !== "BLOCKED", status, verdict };
   }
 
   if (isLevelFeature(featureName)) {
-    if (!featureMaxTs) {
-      return {
-        ok: false,
-        reason: `stale_state_feature: ${featureName}@${tf}(level table empty)`,
-      };
-    }
     const lookbackBars = getDefaultLookbackBars(featureName, tf);
     const windowMin = lookbackBars * (TF_MINUTES[tf] ?? 15);
-    const ageMinutes = (now - featureMaxTs.getTime()) / 60000;
-    if (ageMinutes > windowMin) {
+    const ageMinutes = featureMaxTs
+      ? elapsedTradableMinutes(featureMaxTs, new Date(now), symbol)
+      : null;
+    const verdict = classifyReadiness({
+      tableExists: true,
+      missingColumns: [],
+      semanticType: "level",
+      rowCount: featureMaxTs ? 1 : 0,
+      producerLagHours: ageMinutes == null ? null : ageMinutes / 60,
+      producerMaxAgeHours: windowMin / 60,
+      expectedEngineVersion,
+      observedEngineVersions: observedEngineVersion ? [observedEngineVersion] : [],
+    });
+    const status = summarizeReadiness([verdict]).status;
+    if (status === "BLOCKED") {
       return {
         ok: false,
-        reason: `stale_state_feature: ${featureName}@${tf}(level engine ${ageMinutes.toFixed(0)}min > ${windowMin}min)`,
+        status,
+        verdict,
+        reason: featureMaxTs
+          ? `stale_state_feature: ${featureName}@${tf}(level engine ${ageMinutes!.toFixed(0)}min > ${windowMin}min)`
+          : `stale_state_feature: ${featureName}@${tf}(level table empty)`,
       };
     }
-    return { ok: true };
+    return { ok: true, status, verdict };
   }
 
-  // state / distribution: per-tf freshness window from the registry.
-  const maxAge = getDefaultFreshnessMinutes(featureName, tf);
-  if (maxAge === undefined) {
+  // State/distribution freshness follows producer cadence plus grace, with a
+  // two-timeframe-bar floor. This avoids false staleness between scheduled runs.
+  if (getDefaultFreshnessMinutes(featureName, tf) === undefined) {
     // No contracted freshness (feature not in registry) -> pass, don't block.
-    return { ok: true };
+    return { ok: true, status: "READY", verdict: "READY" };
   }
-  if (!featureMaxTs) {
-    return { ok: false, reason: `stale_state_feature: ${featureName}@${tf}(no_data)` };
-  }
-  const ageMinutes = (now - featureMaxTs.getTime()) / 60000;
-  if (ageMinutes > maxAge) {
+  const maxAge = resolveFreshnessPolicy({ tf }).maxAgeMinutes;
+  const ageMinutes = featureMaxTs
+    ? elapsedTradableMinutes(featureMaxTs, new Date(now), symbol)
+    : null;
+  const verdict = classifyReadiness({
+    tableExists: true,
+    missingColumns: [],
+    semanticType: "state",
+    rowCount: featureMaxTs ? 1 : 0,
+    latestAgeHours: ageMinutes == null ? null : ageMinutes / 60,
+    maxFreshnessMinutes: maxAge,
+    expectedEngineVersion,
+    observedEngineVersions: observedEngineVersion ? [observedEngineVersion] : [],
+  });
+  const status = summarizeReadiness([verdict]).status;
+  if (status === "BLOCKED") {
     return {
       ok: false,
-      reason: `stale_state_feature: ${featureName}@${tf}(age ${ageMinutes.toFixed(1)}min > ${maxAge}min)`,
+      status,
+      verdict,
+      reason: featureMaxTs
+        ? `stale_state_feature: ${featureName}@${tf}(age ${ageMinutes!.toFixed(1)}min > ${maxAge}min)`
+        : `stale_state_feature: ${featureName}@${tf}(no_data)`,
     };
   }
-  return { ok: true };
+  return { ok: true, status, verdict };
 }
 
 async function checkFeatureFreshness(
@@ -1231,23 +1421,23 @@ async function checkFeatureFreshness(
   strategySpec: StrategySpec,
   evaluationTs?: Date,
   checkProducerLedger = true
-): Promise<{ ok: boolean; reason?: string; latencyMs: number }> {
+): Promise<FeatureReadinessResult> {
   const start = performance.now();
 
-  // Shared extraction: same (feature@tf) pairs as the pipeline trigger's
-  // feature engine scheduler — single source of truth.
-  const required = extractRequiredFeatures(strategySpec);
+  // Canonical requirement cells carry feature semantics, producer ownership,
+  // and expected engine version for every live dependency.
+  const requirements = resolveReadinessRequirements(strategySpec);
 
   const now = evaluationTs ?? new Date();
   const nowMs = now instanceof Date ? now.getTime() : Date.now();
   const problems: string[] = [];
+  const verdicts: ReadinessVerdict[] = [];
 
   // Batch all per-table MAX(ts) lookups into ONE query instead of N separate
   // round-trips. Feature/tf values are drawn from the registry — controlled
   // code, not user input — so string interpolation is safe.
-  const tableQueries = [...required].map((key) => {
-    const [featureName, tf] = key.split("@");
-    return `SELECT '${featureName}'::text AS feature_name, '${tf}'::text AS tf, MAX(ts) AS max_ts FROM ${featureName} WHERE symbol = $1 AND tf = '${tf}' AND ts <= $2`;
+  const tableQueries = requirements.map(({ feature, tf }) => {
+    return `SELECT '${feature}'::text AS feature_name, '${tf}'::text AS tf, MAX(ts) AS max_ts, (ARRAY_AGG(to_jsonb(source_row)->>'engine_ver' ORDER BY ts DESC))[1] AS engine_ver FROM ${feature} source_row WHERE symbol = $1 AND tf = '${tf}' AND ts <= $2`;
   });
   if (tableQueries.length > 0) {
     try {
@@ -1256,7 +1446,17 @@ async function checkFeatureFreshness(
         const featureName = row.feature_name as string;
         const tf = row.tf as TimeFrame;
         const featureMaxTs = row.max_ts ? new Date(row.max_ts) : null;
-        const decision = evaluateFeatureFreshness({ featureName, tf, featureMaxTs, now: nowMs });
+        const requirement = requirements.find((cell) => cell.feature === featureName && cell.tf === tf);
+        const decision = evaluateFeatureFreshness({
+          featureName,
+          tf,
+          featureMaxTs,
+          now: nowMs,
+          symbol,
+          expectedEngineVersion: row.engine_ver == null ? null : requirement?.engineVersion,
+          observedEngineVersion: row.engine_ver ?? null,
+        });
+        verdicts.push(decision.verdict);
         if (!decision.ok && decision.reason) problems.push(decision.reason);
       }
     } catch (err: any) {
@@ -1275,32 +1475,36 @@ async function checkFeatureFreshness(
   // AND the lifecycle producer (invalidations are refreshed). A missing engine
   // run means no fresh levels were created; a missing lifecycle run means stale
   // levels are not cleaned up — either makes level-based signals unreliable.
-  const LEVEL_PRODUCER_MAX_AGE_MIN = 30;
-  const STATE_PRODUCER_MAX_AGE_MIN = 10;
   const producerAction = (process.env.TM_PRODUCER_STALE_ACTION ?? "warn").toLowerCase();
   const producerProblems: string[] = [];
-  for (const key of checkProducerLedger ? required : []) {
-    const [featureName, tfRaw] = key.split("@");
-    const tf = tfRaw as TimeFrame;
-    if (isEventFeature(featureName)) continue; // sparse: tracked by candle freshness
-    const level = isLevelFeature(featureName);
+  for (const requirement of checkProducerLedger ? requirements : []) {
+    const { feature: featureName, tf, semanticType, lifecycleOwned } = requirement;
+    if (semanticType === "event") continue; // sparse: tracked by candle freshness
+    const level = semanticType === "level";
+    const producerMaxAgeMinutes = resolveFreshnessPolicy({ tf }).maxAgeMinutes;
 
     // Level features: check BOTH engine (row creation) and lifecycle (invalidation).
     if (level) {
-      for (const { producer, label } of [
-        { producer: "engine" as const, label: "engine" },
-        { producer: "lifecycle" as const, label: "lifecycle" },
-      ]) {
+      const producers = lifecycleOwned
+        ? [
+            { producer: "engine" as const, label: "engine" },
+            { producer: "lifecycle" as const, label: "lifecycle" },
+          ]
+        : [{ producer: "engine" as const, label: "engine" }];
+      for (const { producer, label } of producers) {
         try {
           const res = await assertProducerFresh(pool, {
             symbol,
             feature_table: featureName,
             tf,
-            maxAgeMinutes: LEVEL_PRODUCER_MAX_AGE_MIN,
+            maxAgeMinutes: producerMaxAgeMinutes,
             producer,
             crossCheckLifecycle: producer === "lifecycle",
           });
-          if (!res.fresh && res.reason) producerProblems.push(`${label}:${res.reason}`);
+          if (!res.fresh && res.reason) {
+            producerProblems.push(`${label}:${res.reason}`);
+            verdicts.push("PRODUCER_STALE");
+          }
         } catch (err: any) {
           console.warn(
             `[liveRunner] Producer freshness skipped for ${featureName}@${tf} (${producer}): ${err.message}`
@@ -1314,11 +1518,14 @@ async function checkFeatureFreshness(
           symbol,
           feature_table: featureName,
           tf,
-          maxAgeMinutes: STATE_PRODUCER_MAX_AGE_MIN,
+          maxAgeMinutes: producerMaxAgeMinutes,
           producer: "engine",
           crossCheckLifecycle: false,
         });
-        if (!res.fresh && res.reason) producerProblems.push(res.reason);
+        if (!res.fresh && res.reason) {
+          producerProblems.push(res.reason);
+          verdicts.push("PRODUCER_STALE");
+        }
       } catch (err: any) {
         console.warn(
           `[liveRunner] Producer freshness skipped for ${featureName}@${tf}: ${err.message}`
@@ -1336,16 +1543,24 @@ async function checkFeatureFreshness(
   }
 
   const latencyMs = performance.now() - start;
+  const summary = summarizeReadiness(verdicts);
+  const effectiveStatus: ReadinessStatus = problems.length > 0
+    ? "BLOCKED"
+    : producerProblems.length > 0 && producerAction !== "block"
+      ? "DEGRADED"
+      : summary.status;
 
   if (problems.length > 0) {
     return {
       ok: false,
+      status: effectiveStatus,
+      verdicts,
       reason: problems.join("; "),
       latencyMs,
     };
   }
 
-  return { ok: true, latencyMs };
+  return { ok: true, status: effectiveStatus, verdicts, latencyMs };
 }
 
 function featureTf(
@@ -1412,15 +1627,31 @@ async function fetchLatestFeatures(
     }
   }
 
-  // Direction state (Direction Arbiter) — only when the volatility gate opts into
-  // regime-aware relaxation. Miss -> gate treats it as absent (no relax = today's
-  // behavior), so disabled specs pay nothing.
+  // Direction state (Direction Arbiter) — two consumers:
+  //   a) Volatility gate regime-aware relaxation (legacy single TF)
+  //   b) Direction Alignment gate (MTF, configured TFs)
+  // We deduplicate TFs so one TF is never fetched twice.
+  const dsTfs = new Set<string>();
+
+  // a) Volatility gate regimeRelax
   const vgDs = (spec.gates ?? []).find(
     (g: any) => (g.id ?? g.name) === "volatility_gate" || g.name === "volatility"
   ) as any;
   const rr = vgDs?.params?.regimeRelax;
   if (rr?.enabled) {
-    const dsTf = rr.tf ?? featureTf("features_direction_state", spec, "1h");
+    dsTfs.add(rr.tf ?? featureTf("features_direction_state", spec, "1h"));
+  }
+
+  // b) Direction Alignment gate
+  const dag = (spec.gates ?? []).find(
+    (g: any) => (g.id ?? g.name) === "direction_alignment_gate" || g.name === "directionAlignment"
+  ) as any;
+  const dagTfs = dag?.params?.enabled !== false ? dag?.params?.timeframes ?? [] : [];
+  for (const tf of dagTfs) {
+    dsTfs.add(tf);
+  }
+
+  for (const dsTf of dsTfs) {
     try {
       const { rows: dsRows } = await pool.query(
         `SELECT direction, regime, agreement, bias_direction, htf_direction, htf_state, confidence, reason
@@ -1431,7 +1662,7 @@ async function fetchLatestFeatures(
       );
       if (dsRows.length > 0) {
         const r = dsRows[0];
-        features["features_direction_state"] = {
+        const obj = {
           direction: r.direction,
           regime: r.regime,
           agreement: r.agreement === true || r.agreement === "t",
@@ -1441,9 +1672,14 @@ async function fetchLatestFeatures(
           confidence: r.confidence != null ? Number(r.confidence) : undefined,
           reason: r.reason,
         };
+        features[`features_direction_state@${dsTf}`] = obj;
+        // Bare key for vol gate backward compat (single-TF regimeRelax)
+        if (rr?.enabled && dsTf === (rr.tf ?? featureTf("features_direction_state", spec, "1h"))) {
+          features["features_direction_state"] = obj;
+        }
       }
     } catch {
-      // table missing or mocked out: gate treats as no direction_state (no relax)
+      // table missing or mocked out: gate treats as no direction_state (no vote)
     }
   }
 

@@ -28,7 +28,7 @@ import type {
   StructureOutput,
   StructureEvent,
 } from "@tm/shared";
-import { sha256, computeSweepLifecycle } from "@tm/shared";
+import { sha256, computeSweepLifecycle, TF_MS } from "@tm/shared";
 import type { PivotOutput } from "@tm/shared";
 
 export interface SweepInput {
@@ -133,7 +133,9 @@ function buildLevels(input: SweepInput, atr: number): LiquidityLevel[] {
     price: p.price,
     side: p.kind,
     targetType: "swing" as SweepTargetType,
-    formedTs: p.ts,
+    // Pivot price is not knowable until confirmation. Using p.ts leaks the
+    // future pivot into candles between formation and confirmation.
+    formedTs: p.confirmationTs,
   }));
   return [
     ...swings,
@@ -158,7 +160,10 @@ function structureScore(
     if (
       VALID_STRUCTURE_EVENTS.has(e.eventType) &&
       e.ts >= startTs &&
-      e.ts <= sweepTs
+      e.ts <= sweepTs &&
+      // Event occurrence is not knowledge time. A confirmed event can only
+      // contribute after its availability timestamp.
+      (!e.availableAtTs || e.availableAtTs <= sweepTs)
     ) {
       score += 1;
       if (e.direction === sweepDirection) score += 1;
@@ -239,13 +244,15 @@ function detectSweeps(input: SweepInput): SweepOutput["sweeps"] {
 
 export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
   name: "features_sweep",
-  version: "1.4.0",
+  version: "1.5.0",
   dependencies: ["features_pivot", "features_atr", "features_structure"],
   computePolicy: "onEvent",
 
-  compute(input): SweepOutput {
+  compute(input, context): SweepOutput {
     const sweeps = detectSweeps(input);
+    const durationMs = context?.tf ? TF_MS[context.tf] : TF_MS["1m"];
     for (const sweep of sweeps) {
+      sweep.availableAtTs = new Date(sweep.ts.getTime() + durationMs);
       const idx = input.candles.findIndex((c) => c.ts.getTime() === sweep.ts.getTime());
       if (idx >= 0) {
         const lifecycle = computeSweepLifecycle(
@@ -296,6 +303,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
       extreme: s.extreme,
       close: s.close,
       ts: s.ts,
+      available_at_ts: s.availableAtTs ?? null,
       sweep_type: s.sweepType ?? "post_structure",
       target_type: s.targetType ?? null,
       evidence: s.evidence ? JSON.stringify(s.evidence) : null,
@@ -310,6 +318,7 @@ export const sweepFeature: FeatureDefinition<SweepInput, SweepOutput> = {
         extreme: r.extreme as number,
         close: r.close as number,
         ts: new Date(r.ts as string),
+        availableAtTs: r.available_at_ts ? new Date(r.available_at_ts as string) : undefined,
         sweepType: (r.sweep_type as "post_structure" | "inducement") ?? "post_structure",
         targetType: (r.target_type as SweepTargetType) ?? undefined,
         evidence: r.evidence ? JSON.parse(r.evidence as string) : undefined,

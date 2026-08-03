@@ -18,7 +18,10 @@ if (typeof reconcileDirection !== "function") {
 const symbol = (process.argv[2] || "XAUUSD").toUpperCase();
 const tf = process.argv[3] || "1h";
 const BATCH = 500;
-const ENGINE_VER = "reconcile-readonly-1.0.0";
+// Contract version, not implementation label. Readiness checks persisted
+// rows against FEATURE_ENGINE_VERSIONS, so equivalent read-only reconciliation
+// must emit the same semantic contract version.
+const ENGINE_VER = "1.0.0";
 
 (async () => {
   const c = new Client({

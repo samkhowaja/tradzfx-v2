@@ -8,7 +8,7 @@
  * Sessions match DEFAULT_SESSION_WINDOWS (ASIA 0-6 / LONDON 7-11 / OVERLAP 12-15 /
  * NY 16-20 UTC, else OFF_HOURS). An 'ALL' session row is written as a fallback.
  *
- * Usage: node scripts/compute-volatility-profile.js [lookbackDays=60] [tf=5m,15m] [period=5]
+ * Usage: node scripts/compute-volatility-profile.js [lookbackDays=60] [tf=5m,15m] [period=5] [asOfTs]
  */
 require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
 const { Pool } = require("pg");
@@ -17,6 +17,8 @@ const { getPairCharacteristics } = require("../packages/shared/dist/index.js");
 const lookbackDays = Number(process.argv[2] || 60);
 const tfs = (process.argv[3] || "5m,15m").split(",").map((s) => s.trim());
 const period = Number(process.argv[4] || 5);
+const asOfTs = process.argv[5] ? new Date(process.argv[5]) : new Date();
+if (!Number.isFinite(asOfTs.getTime())) throw new Error(`Invalid asOfTs: ${process.argv[5]}`);
 
 const pool = new Pool({
   host: "localhost", port: 5432,
@@ -37,7 +39,8 @@ async function compute(symbol, tf) {
               EXTRACT(HOUR FROM ts AT TIME ZONE 'UTC')::int AS hr, ts
        FROM features_atr
        WHERE symbol = $1 AND tf = $3 AND period = $4
-         AND ts >= NOW() - ($5::int || ' days')::interval
+         AND ts >= $5::timestamptz - ($6::int || ' days')::interval
+         AND ts <= $5::timestamptz
          AND COALESCE(effective_value, value) > 0
      ), labeled AS (
        SELECT pips, ts,
@@ -59,7 +62,7 @@ async function compute(symbol, tf) {
      FROM labeled
      GROUP BY GROUPING SETS ((session), ())
      ORDER BY session NULLS LAST`,
-    [symbol, pipSize, tf, period, lookbackDays]
+    [symbol, pipSize, tf, period, asOfTs, lookbackDays]
   );
   return rows;
 }
@@ -67,16 +70,17 @@ async function compute(symbol, tf) {
 async function upsert(symbol, tf, r) {
   const session = r.session || "ALL";
   await pool.query(
-    `INSERT INTO market_volatility_profile
+    `INSERT INTO market_volatility_profile_pit
        (symbol, tf, period, session, lookback_days, p05, p25, p50, p75, p95, p99,
-        sample_count, sample_start, sample_end, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW())
-     ON CONFLICT (symbol, tf, period, session, lookback_days) DO UPDATE SET
+        sample_count, sample_start, sample_end, as_of_ts, updated_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NOW())
+      ON CONFLICT (symbol, tf, period, session, lookback_days, as_of_ts) DO UPDATE SET
        p05=EXCLUDED.p05, p25=EXCLUDED.p25, p50=EXCLUDED.p50, p75=EXCLUDED.p75,
        p95=EXCLUDED.p95, p99=EXCLUDED.p99, sample_count=EXCLUDED.sample_count,
-       sample_start=EXCLUDED.sample_start, sample_end=EXCLUDED.sample_end, updated_at=NOW()`,
+       sample_start=EXCLUDED.sample_start, sample_end=EXCLUDED.sample_end,
+       updated_at=NOW()`,
     [symbol, tf, period, session, lookbackDays, r.p05, r.p25, r.p50, r.p75, r.p95, r.p99,
-     r.n, r.lo, r.hi]
+     r.n, r.lo, r.hi, asOfTs]
   );
   return session;
 }
@@ -96,6 +100,6 @@ async function upsert(symbol, tf, r) {
       console.log(`[vol-profile] ${symbol} ${tf}: ${sessions.join(",") || "(no samples)"}`);
     }
   }
-  console.log(`[vol-profile] done: ${written} rows (lookback ${lookbackDays}d, tf ${tfs.join(",")}, period ${period})`);
+  console.log(`[vol-profile] done: ${written} rows (lookback ${lookbackDays}d, tf ${tfs.join(",")}, period ${period}, asOf ${asOfTs.toISOString()})`);
   await pool.end();
 })().catch((e) => { console.error("[vol-profile] fatal:", e.message); process.exit(1); });

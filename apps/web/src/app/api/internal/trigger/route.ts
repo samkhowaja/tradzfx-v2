@@ -20,6 +20,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing symbol" }, { status: 400 });
   }
 
+  if (process.env.TM_DISABLE_FEATURE_JOBS === "true") {
+    return NextResponse.json({
+      ok: true,
+      status: "disabled",
+      reason: "TM_DISABLE_FEATURE_JOBS",
+    });
+  }
+
   try {
     const results = await checkAndTriggerAllActive(symbol);
     return NextResponse.json({ ok: true, results });

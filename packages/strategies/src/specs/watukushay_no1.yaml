@@ -119,7 +119,7 @@ overrides:
           enabled: true
           tf: "1h"
           agreement: true
-          regimeIn: ["trending"]
+          regimeIn: ["trending", "ranging"]
           mode: "bypass"
     - id: spread_gate
       name: spread

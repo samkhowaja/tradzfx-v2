@@ -220,20 +220,40 @@ export async function POST(request: NextRequest) {
       [symbols, timestamps, opens, highs, lows, closes, volumes, spreads, brokers, digitsArr]
     );
 
+    // Do not trigger features/setups while newly ingested bars overlap a
+    // blocking quarantine decision for this symbol/broker. Raw storage stays
+    // intact; downstream use fails closed.
+    const quarantineCheck = await pool.query(
+      `SELECT COUNT(*)::int AS count
+         FROM candle_quarantine q
+        WHERE q.symbol = $1
+          AND q.broker = $2
+          AND q.timeframe = '1m'
+          AND q.superseded_at IS NULL
+          AND q.event_time >= $3::timestamptz
+          AND q.event_time <= $4::timestamptz
+          AND (q.approved_at IS NULL OR q.decision <> 'KEEP')`,
+      [cleanSymbol, broker, rows[0].ts, rows[rows.length - 1].ts]
+    );
+    const downstreamBlocked = quarantineCheck.rows[0].count > 0;
+
     // Run the live pipeline. Feature-job enqueue is disabled by default until a
     // worker is intentionally deployed (set TM_DISABLE_FEATURE_JOBS=false to enable).
     // Post-commit: a failure here must NOT turn the already-persisted write into
     // a 500 (the EA would retry and duplicate-load). Report it on the 200 instead.
     let triggerError: string | null = null;
     try {
-      await checkAndTriggerAllActive(cleanSymbol);
-      if (process.env.TM_DISABLE_FEATURE_JOBS === "false") {
+      if (!downstreamBlocked && process.env.TM_DISABLE_FEATURE_JOBS !== "true") {
+        await checkAndTriggerAllActive(cleanSymbol);
+      }
+      if (!downstreamBlocked && process.env.TM_DISABLE_FEATURE_JOBS === "false") {
         await enqueueFeatureJobs(pool, cleanSymbol, rows);
       }
     } catch (err: any) {
       triggerError = err?.message ?? String(err);
       console.error("[ingest] pipeline trigger failed (bars already committed):", triggerError);
     }
+    if (downstreamBlocked) triggerError = "downstream blocked by candle quarantine";
 
     // Run robot strategies (e.g., Ninja Turtle Scalper) asynchronously only when
     // explicitly enabled. They are off by default in V2.

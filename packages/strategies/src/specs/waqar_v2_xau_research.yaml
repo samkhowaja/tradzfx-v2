@@ -1,0 +1,119 @@
+id: waqar_v2_xau_research
+familyId: waqar_v2
+active: true
+name: "Waqar Asim Scalp — XAUUSD Research"
+version: "3.1.0-xau.1"
+description: >
+  Research variant of the Waqar scalper applied to XAUUSD. SL widened
+  to 10 pips to meet XAUUSD minStopPips=10 (pair registry contract).
+  The original 5-pip SL was rejected by validateExecutionGeometry for
+  all 126 raw signals — that IS the "no gold" rule.
+  
+  Thesis dedup enabled. Baseline: 10 pip SL / 30 pip TP (3R), London
+  sessions, 1h zone context + 15m bias + 1m execution.
+  Parameter sweeps (10/15/20 pip SL) to follow.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, OVERLAP ]
+  timeWindows:
+    - { utcStart: "07:00", utcEnd: "08:00" }
+    - { utcStart: "13:00", utcEnd: "14:00" }
+
+setup:
+  - id: htf_zone
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind IN ('demand', 'supply') AND is_fresh = true"
+    required: true
+    groupBy: [ zone_kind ]
+
+  - id: trend_bias
+    feature: features_htf_bias
+    tf: 15m
+    predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
+    required: true
+
+  - id: premium_discount
+    feature: features_pricing
+    tf: 1h
+    predicate: |
+      (features_htf_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))
+      OR
+      (features_htf_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))
+    required: true
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos', 'mss', 'choch') AND direction = features_htf_bias.direction"
+    required: true
+    groupBy: [ direction ]
+    ignoreLifecycle: true
+
+  - id: zone_retest
+    feature: features_zone
+    tf: 1m
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct <= 1.0 AND direction = features_htf_bias.direction"
+    required: false
+    groupBy: [ zone_kind ]
+
+  - id: displacement_confirm
+    feature: features_displacement
+    tf: 1m
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND direction = features_htf_bias.direction"
+    required: false
+
+signalSource: zone
+
+risk:
+  sl: "10 pips"
+  tp: "sl * 3.0"
+  minRR: 3.0
+  timeoutBars: 180
+  maxFillBars: 45
+
+gates:
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP ]
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+live:
+  mode: disabled
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 180
+  thesisDedup:
+    enabled: true
+    conditionId: "htf_zone"
+    tf: 1h
+    sessionWindows: ["07:00-08:00", "13:00-14:00"]
+
+notes:
+  - "Research only — XAUUSD variant of waqar_v2."
+  - "SL widened to 10 pips to meet XAUUSD minStopPips=10."
+  - "Original 5-pip SL 0/126: all rejected by minStopPips validation."
+  - "Spread gate widened to 5.0 pips (XAUUSD median ~2.8)."
+  - "Sweep: 10/15/20 pip SL with proportional 3R TP."

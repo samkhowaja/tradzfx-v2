@@ -84,6 +84,10 @@ function detectOrderBlocks(
 
   for (const event of structure) {
     if (event.eventType !== "bos" && event.eventType !== "mss" && event.eventType !== "choch") continue;
+    // event.ts is occurrence time, not knowledge time. Do not form an order
+    // block from an event until its causal availability has reached snapshot.
+    const snapshotTs = candles[candles.length - 1]?.ts;
+    if (event.availableAtTs && snapshotTs && event.availableAtTs > snapshotTs) continue;
 
     const direction: Direction =
       event.direction === "bullish" || event.direction === "bearish"
@@ -144,7 +148,7 @@ function detectOrderBlocks(
 
 export const orderBlockFeature: FeatureDefinition<OrderBlockInput, OrderBlockOutput> = {
   name: "features_order_block",
-  version: "1.4.1",
+  version: "1.5.0",
   dependencies: ["features_structure"],
 
   compute(input): OrderBlockOutput {

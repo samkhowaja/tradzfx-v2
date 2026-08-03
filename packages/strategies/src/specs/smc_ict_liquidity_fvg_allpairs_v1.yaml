@@ -53,6 +53,7 @@ signalSource: fvg
 signalSourceConfig:
   requireOrbBreakout: false
   orbWindow: { utcStart: "07:00", utcEnd: "21:00" }
+  minFvgWidthPips: 2
 entryConfig:
   type: limit
 risk:

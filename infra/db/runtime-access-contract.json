@@ -87,14 +87,28 @@
     },
     "tradzfx_strategy": {
       "activationReady": false,
-      "entrypoints": [],
-      "schemas": [],
-      "relations": {},
-      "sequences": {},
+      "entrypoints": ["scripts/progressive-dag-shadow-worker.js"],
+      "schemas": ["public"],
+      "relations": {
+        "public.progressive_plan_registry": ["SELECT", "INSERT"],
+        "public.progressive_setup_instance": ["SELECT", "INSERT", "UPDATE"],
+        "public.progressive_setup_event_inbox": ["SELECT", "INSERT", "UPDATE"],
+        "public.progressive_setup_node": ["SELECT", "INSERT", "UPDATE"],
+        "public.progressive_setup_transition": ["SELECT", "INSERT"]
+      },
+      "sequences": {
+        "public.progressive_setup_transition_transition_id_seq": ["USAGE"]
+      },
       "functions": {},
-      "evidence": [],
+      "evidence": [
+        "scripts/progressive-dag-shadow-worker.js",
+        "packages/strategies/src/progressive/repository.ts",
+        "packages/strategies/src/progressive/planRegistry.ts"
+      ],
       "blockers": [
-        "No independently attributed PM2 strategy process exists; strategy writes currently run inside tz-web-v2"
+        "Migration 163 must be applied before grants can reference progressive lifecycle relations",
+        "tradzfx_strategy login credentials and TM_DATABASE_URL_STRATEGY are not provisioned",
+        "Generated exact grant plan requires DBA review before activation"
       ]
     },
     "tradzfx_execution": {

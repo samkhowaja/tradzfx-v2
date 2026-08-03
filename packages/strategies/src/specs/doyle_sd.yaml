@@ -91,6 +91,14 @@ gates:
     params:
       allowed: [ LONDON, OVERLAP, NY ]
 
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["1h", "15m"]
+      require: majority
+      allowNeutral: true
+
   - id: rate_limit
     name: rateLimit
     params:

@@ -12,7 +12,8 @@
   "dependencies": {
     "@tm/shared": "workspace:*",
     "@tm/setup-engine": "workspace:*",
-    "@tm/strategies": "workspace:*"
+    "@tm/strategies": "workspace:*",
+    "@tm/engine": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

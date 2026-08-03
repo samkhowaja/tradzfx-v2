@@ -286,6 +286,8 @@ export function buildOrderInput(
     expires_at: expiresAt,
     entry_zone_pips: entryType === "market" ? null : (live.entryZonePips ?? null),
     trace_run_id: traceRunId,
+    signal_fingerprint: undefined as string | undefined,
+    thesis_fingerprint: undefined as string | null | undefined,
     setupSnapshot,
     executionInstruction: {
       executionStrategy,

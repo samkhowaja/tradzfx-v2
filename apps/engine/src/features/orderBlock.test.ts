@@ -68,6 +68,21 @@ describe("orderBlockFeature", () => {
     expect(out.orderBlocks.length).toBe(0);
   });
 
+  it("skips structure events unavailable at candle snapshot", () => {
+    const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
+    const candles: Candle[] = [
+      makeCandle(new Date(t0.getTime() + 0 * 60000), 2500, 2502, 2500, 2501),
+      makeCandle(new Date(t0.getTime() + 1 * 60000), 2501, 2503, 2501, 2502),
+      makeCandle(new Date(t0.getTime() + 2 * 60000), 2502, 2504, 2502, 2503),
+      makeCandle(new Date(t0.getTime() + 3 * 60000), 2503, 2505, 2500, 2501),
+      makeCandle(new Date(t0.getTime() + 4 * 60000), 2501, 2512, 2501, 2511),
+    ];
+    const events: StructureOutput["events"] = [
+      { eventType: "bos", direction: "bullish", level: 2505, ts: candles[4].ts, availableAtTs: new Date(t0.getTime() + 5 * 60000) },
+    ];
+    expect(orderBlockFeature.compute(input(candles, events)).orderBlocks).toHaveLength(0);
+  });
+
   it("serializes and deserializes order block rows", () => {
     const t0 = new Date(Date.UTC(2026, 0, 1, 12, 0));
     const candles: Candle[] = [

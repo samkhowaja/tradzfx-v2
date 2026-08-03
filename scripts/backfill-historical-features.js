@@ -17,9 +17,12 @@
 
 require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
 
+const fs = require("node:fs");
+const path = require("node:path");
 const { Pool } = require("pg");
-const { DAGRunner, globalDAG, updateLifecycleForSymbol } = require("../apps/engine/dist/index.js");
+const { DAGRunner, globalDAG, getProducerOutputMode, updateLifecycleForSymbol } = require("../apps/engine/dist/index.js");
 const { getCandleTableForTf } = require("../packages/shared/dist/index.js");
+const { verifyBackfillCell } = require("./lib/backfill-readiness.js");
 
 const pool = new Pool({
   host: "localhost",
@@ -114,6 +117,42 @@ async function getRange(symbol) {
   };
 }
 
+async function verifySymbolTf(symbol, tf, requestedFeatures, sourceMinTs, sourceMaxTs) {
+  const cells = [];
+  for (const feature of requestedFeatures) {
+    try {
+      cells.push(await verifyBackfillCell(pool, {
+        feature,
+        symbol,
+        tf,
+        mode: getProducerOutputMode(feature),
+        sourceMinTs,
+        sourceMaxTs,
+      }));
+    } catch (err) {
+      cells.push({
+        feature,
+        symbol,
+        tf,
+        verdict: "CONTRACT_MISMATCH",
+        reason: err.message,
+      });
+    }
+  }
+  return cells;
+}
+
+function writeReadinessManifest(manifest) {
+  const explicit = process.argv.find((arg) => arg.startsWith("--manifest="));
+  const runId = manifest.startedAt.replace(/[:.]/g, "-");
+  const filePath = explicit
+    ? path.resolve(explicit.slice("--manifest=".length))
+    : path.resolve(__dirname, "..", "reports", "backfill-runs", `${runId}.json`);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
+  return filePath;
+}
+
 async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
   const timestamps = await getBarTimestamps(symbol, tf, startTs, endTs);
   if (timestamps.length === 0) {
@@ -121,23 +160,12 @@ async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
     return { processed: 0, errors: 0, seconds: 0 };
   }
 
-  // ── Pre-scan: skip bars that already have features persisted ──────────
-  // Query any dense feature table (atr is a good proxy — every bar has one row)
-  // to find which timestamps are already covered. Drastically speeds up re-runs
-  // after a partial backfill (audit showed ~40% wasted recompute).
-  const skipExisting = !process.argv.includes("--no-skip-existing");
-  let existingSet = null;
-  if (skipExisting) {
-    try {
-      const { rows: existingRows } = await pool.query(
-        `SELECT DISTINCT ts FROM features_atr WHERE symbol = $1 AND tf = $2`,
-        [symbol, tf]
-      );
-      existingSet = new Set(existingRows.map((r) => r.ts instanceof Date ? r.ts.getTime() : new Date(r.ts).getTime()));
-      console.log(`[backfill] ${symbol} ${tf}: ${existingSet.size} existing bars found, ${timestamps.length - existingSet.size} new bars to process`);
-    } catch {
-      existingSet = null;
-    }
+  // PR-1 readiness contract: never use one feature table as a completeness
+  // proxy for the requested DAG. An ATR row proves only ATR persisted; using it
+  // to skip a timestamp can leave every other requested feature permanently
+  // absent. Safe per-feature postflight skipping will replace this optimization.
+  if (!process.argv.includes("--no-skip-existing")) {
+    console.log(`[backfill] ${symbol} ${tf}: whole-DAG skip disabled; verifying every requested feature`);
   }
 
   console.log(`[backfill] ${symbol} ${tf}: ${timestamps.length} total bars | ${timestamps[0].toISOString()} → ${timestamps[timestamps.length - 1].toISOString()}`);
@@ -145,15 +173,10 @@ async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
   const runner = new DAGRunner(pool, globalDAG);
   let processed = 0;
   let errors = 0;
-  let skipped = 0;
   const t0 = performance.now();
 
   for (let i = 0; i < timestamps.length; i++) {
     const ts = timestamps[i];
-    if (existingSet && existingSet.has(ts.getTime())) {
-      skipped++;
-      continue;
-    }
     try {
       if (i % 100 === 0) {
         console.log(`[backfill] ${symbol} ${tf}: starting bar ${i}/${timestamps.length} at ${ts.toISOString()}`);
@@ -174,7 +197,7 @@ async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
       processed++;
       if (processed % 500 === 0) {
         const avg = (performance.now() - t0) / processed;
-        console.log(`[backfill] ${symbol} ${tf}: ${processed}/${timestamps.length} | avg ${avg.toFixed(1)}ms | skipped ${skipped}`);
+        console.log(`[backfill] ${symbol} ${tf}: ${processed}/${timestamps.length} | avg ${avg.toFixed(1)}ms`);
       }
     } catch (err) {
       errors++;
@@ -184,7 +207,7 @@ async function backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs) {
 
   await runner.flush();
   const seconds = (performance.now() - t0) / 1000;
-  console.log(`[backfill] ${symbol} ${tf}: done | ${processed} computed, ${skipped} skipped, ${errors} errors | ${seconds.toFixed(1)}s`);
+  console.log(`[backfill] ${symbol} ${tf}: done | ${processed} computed, ${errors} errors | ${seconds.toFixed(1)}s`);
   return { processed, errors, seconds };
 }
 
@@ -230,6 +253,17 @@ async function main() {
   const startArg = process.argv.find((a) => a.startsWith("--start="));
   const endArg = process.argv.find((a) => a.startsWith("--end="));
   const lifecyclePerTf = process.argv.includes("--lifecycle-per-tf");
+  const verifyOnly = process.argv.includes("--verify-only");
+  const manifest = {
+    schemaVersion: 1,
+    startedAt: new Date().toISOString(),
+    finishedAt: null,
+    symbols,
+    timeframes: tfs,
+    requestedFeatures,
+    cells: [],
+    summary: null,
+  };
 
   const totals = { bars: 0, errors: 0, seconds: 0 };
 
@@ -245,24 +279,60 @@ async function main() {
     console.log(`\n[backfill] === ${symbol} | ${startTs.toISOString()} → ${endTs.toISOString()} ===`);
 
     for (const tf of tfs) {
-      const result = await backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs);
-      totals.bars += result.processed;
-      totals.errors += result.errors;
-      totals.seconds += result.seconds;
+      if (!verifyOnly) {
+        const result = await backfillSymbolTf(symbol, tf, requestedFeatures, startTs, endTs);
+        totals.bars += result.processed;
+        totals.errors += result.errors;
+        totals.seconds += result.seconds;
 
-      if (lifecyclePerTf && result.processed > 0) {
-        await refreshSymbolLifecycle(symbol, endTs, tf);
+        if (lifecyclePerTf && result.processed > 0) {
+          await refreshSymbolLifecycle(symbol, endTs, tf);
+        }
+      } else {
+        console.log(`[backfill] ${symbol} ${tf}: verify-only; no DAG compute or persistence`);
+      }
+
+      const sourceBars = await getBarTimestamps(symbol, tf, startTs, endTs);
+      if (sourceBars.length > 0) {
+        const cells = await verifySymbolTf(
+          symbol,
+          tf,
+          requestedFeatures,
+          sourceBars[0],
+          sourceBars[sourceBars.length - 1]
+        );
+        manifest.cells.push(...cells);
+        const blocked = cells.filter((cell) => cell.verdict !== "READY");
+        totals.errors += blocked.length;
+        console.log(`[backfill] ${symbol} ${tf}: postflight ${cells.length - blocked.length}/${cells.length} READY`);
+        for (const cell of blocked) {
+          console.error(`[backfill] ${symbol} ${tf} ${cell.feature}: ${cell.verdict} (${cell.reason})`);
+        }
       }
     }
   }
 
+  manifest.finishedAt = new Date().toISOString();
+  manifest.summary = {
+    barsProcessed: totals.bars,
+    errors: totals.errors,
+    readyCells: manifest.cells.filter((cell) => cell.verdict === "READY").length,
+    blockedCells: manifest.cells.filter((cell) => cell.verdict !== "READY").length,
+  };
+  const manifestPath = writeReadinessManifest(manifest);
+
   console.log(`\n[backfill] === ALL DONE ===`);
   console.log(`[backfill] Total bars: ${totals.bars} | errors: ${totals.errors} | time: ${totals.seconds.toFixed(1)}s`);
+  console.log(`[backfill] Readiness manifest: ${manifestPath}`);
 
   await pool.end();
+  if (totals.errors > 0) {
+    process.exitCode = 1;
+  }
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("[backfill] Fatal:", err);
-  process.exit(1);
+  await pool.end().catch(() => undefined);
+  process.exitCode = 1;
 });

@@ -7,6 +7,8 @@ import type { TimeFrame, Direction } from "./feature";
 
 export type Side = "buy" | "sell";
 
+export type FeatureContract = "CLEAN_2026_07" | "LEGACY";
+
 export interface StrategySpec {
   id: string;
   /** Explicit strategy family id (replaces suffix-based family inference). */
@@ -25,6 +27,8 @@ export interface StrategySpec {
     | "indicator";
   name: string;
   version: string;
+  /** Causal feature contract. Omitted specs remain legacy for compatibility. */
+  featureContract?: FeatureContract;
   description?: string;
   /** Whether this variant is active for live trading/backtests. */
   active?: boolean;
@@ -55,15 +59,20 @@ export interface StrategySpec {
     }>;
   };
 
-  /** Progressive steps replace flat setup[] for progressive specs. Steps form a DAG via dependsOn. */
+  /** Progressive v1 steps. Retained only for compatibility during DAG-v2 shadow migration. */
   steps?: ProgressiveStep[];
 
-  /** LEGACY: flat condition list. Kept for backward compat. New specs use steps[]. */
+  /** Explicit contract switch. Version 2 uses progressiveSteps and durable DAG lifecycle semantics. */
+  progressiveVersion?: 2;
+  /** Progressive DAG v2 nodes. Never silently inferred from v1 steps[]. */
+  progressiveSteps?: ProgressiveStepV2[];
+
+  /** LEGACY: flat condition list. Kept for backward compat. New specs use progressiveSteps[]. */
   setup: StrategyCondition[];
   entry: StrategyCondition[];
 
   /** How the final signal price levels are derived. Defaults to zone-based S/D logic. */
-  signalSource?: "zone" | "orb" | "indicator" | "moving_average" | "fvg" | "generic";
+  signalSource?: "zone" | "orb" | "indicator" | "moving_average" | "fvg" | "generic" | "internal_wave";
 
   /** Optional entry configuration. Defaults to market orders with no offset. */
   entryConfig?: EntryConfig;
@@ -85,6 +94,26 @@ export interface StrategySpec {
     orbWindow?: { utcStart: string; utcEnd: string };
     /** ORB close time-of-day (UTC) used to fetch the ORB range candle. Defaults to 13:30. */
     orbCloseUtc?: string;
+    /**
+     * Minimum FVG width in pips for signalSource "fvg". FVGs narrower than
+     * this are filtered out. Defaults to 0 (no filter). Recommended values:
+     * FX pairs ≥2, XAUUSD ≥5. See investigation_matrix.md Section 14c.
+     */
+    minFvgWidthPips?: number;
+    /**
+     * Require a BOS/CHOCH/MSS structure break near the FVG. Adds an EXISTS
+     * join on features_structure within fvgStructureLookback. Engine-level
+     * default is true when signalSource="fvg"; set false to disable
+     * (e.g. consolidation-breakout strategies where structure forms at
+     * breakout, not before).
+     */
+    requireFvgStructureBreak?: boolean;
+    /**
+     * Lookback window for the structure-break EXISTS join. Auto-calculated
+     * from FVG TF if not set: 1m→2h, 5m→4h, 15m→8h, 1h→24h. Override for
+     * custom windows e.g. "12 hours".
+     */
+    fvgStructureLookback?: string;
   };
 
   /**
@@ -150,6 +179,11 @@ export interface StrategyCondition {
    *  date + session and requires the signal time to be after range completion,
    *  so stale ranges from prior sessions/days can never match. */
   session?: string;
+  /** Direction of the TTL lookback window relative to the anchor. Default: 'backward'. */
+  ttlDirection?: 'backward' | 'forward';
+  /** Max age of this condition's output in minutes. Rows older than this window relative
+   *  to the anchor timestamp are discarded. Used with ttlDirection to control forward/backward reach. */
+  ttlMinutes?: number;
 }
 
 /**
@@ -171,6 +205,11 @@ export interface ProgressiveStep {
   groupBy?: string[];
   /** Max age of this step's output in minutes. Rows older than this are discarded at query time. */
   ttlMinutes?: number;
+  /** Direction of the TTL window relative to the parent step's timestamp.
+   *  'backward' (default): look for events BEFORE parent.ts (pit_child.ts >= parent.ts - TTL).
+   *  'forward': look for events AFTER parent.ts (pit_child.ts <= parent.ts + TTL).
+   *  Defaults to 'backward' if not set. */
+  ttlDirection?: 'backward' | 'forward';
   /** Top-N per (symbol, groupBy) by rankOrderBy. 0 = no limit. */
   rankLimit?: number;
   /** ORDER BY clause for rankLimit (e.g. "rank_score DESC NULLS LAST, ts DESC"). */
@@ -180,6 +219,47 @@ export interface ProgressiveStep {
   /** Skip lifecycle validity window (like ignoreLifecycle in StrategyCondition). */
   ignoreLifecycle?: boolean;
   /** Required for session-scoped features: which session's object this binds to. */
+  session?: string;
+}
+
+export type ProgressiveTemporalRelation = "as_of" | "after" | "within" | "overlaps";
+export type ProgressiveDependencyMode = "all" | "any" | "quorum";
+export type ProgressiveNodeKind = "context" | "object" | "event" | "confirmation" | "entry";
+export type ProgressiveConsumptionPolicy = "exclusive_setup" | "shared_root" | "reusable";
+export type ProgressiveDirectionMap = "same" | "opposite" | "liquidity_to_trade" | "none";
+
+export interface ProgressiveDependency {
+  stepId: string;
+  relation: ProgressiveTemporalRelation;
+  minDelayBars?: number;
+  maxDelayBars?: number;
+}
+
+export interface ProgressiveRank {
+  limit: number;
+  /** Restricted ranking grammar, validated before plan compilation. */
+  orderBy: string;
+}
+
+/**
+ * Durable progressive DAG v2 node. Runtime compiles this declaration into an
+ * immutable plan; it does not reconstruct the complete setup with one SQL join.
+ */
+export interface ProgressiveStepV2 {
+  id: string;
+  kind: ProgressiveNodeKind;
+  feature: string;
+  tf: TimeFrame;
+  predicate: string;
+  dependencies: ProgressiveDependency[];
+  dependencyMode?: ProgressiveDependencyMode;
+  quorum?: number;
+  ttlBars?: number;
+  rank?: ProgressiveRank;
+  identityColumns?: string[];
+  directionMap?: ProgressiveDirectionMap;
+  consumption?: ProgressiveConsumptionPolicy;
+  terminal?: "entry_ready" | "invalidated";
   session?: string;
 }
 
@@ -291,6 +371,36 @@ export interface LiveExecutionConfig {
   structureFreshnessMinutes?: number;
   /** Per-strategy execution quality profile. */
   executionProfile?: ExecutionProfile;
+  /**
+   * Thesis-level deduplication configuration. When enabled, the live runner
+   * deduplicates across trades that share the same (symbol + UTC date + session
+   * window + direction + feature row identity), keeping only the earliest
+   * accepted trade per unique thesis.
+   */
+  thesisDedup?: ThesisDedupConfig;
+}
+
+/**
+ * Thesis-level deduplication: one trade per (symbol + UTC date + session window +
+ * direction + exact feature row identity). Prevents the same market thesis from
+ * producing multiple trades even if the exact price geometry differs.
+ *
+ * The key is derived from the signal's `causal_lineage` at the configured
+ * `conditionId` (e.g. "htf_zone"). When enabled, the live runner rejects any
+ * signal whose thesis key already exists in the `orders` table — ensuring each
+ * unique thesis produces at most one trade.
+ */
+export interface ThesisDedupConfig {
+  enabled: boolean;
+  /** The conditionId in causal_lineage whose feature row anchors the thesis.
+   *  E.g. "htf_zone" for Waqar's 1h HTF zone anchor. */
+  conditionId: string;
+  /** The timeframe of the anchoring condition (for display/audit). */
+  tf: TimeFrame;
+  /** Session window labels used by this strategy (UTC hour ranges).
+   *  E.g. ["07:00-08:00", "13:00-14:00"] for Waqar BST windows.
+   *  Used to partition thesis keys across different trading windows. */
+  sessionWindows: string[];
 }
 
 // ── Runtime types ───────────────────────────────────────────────────────────

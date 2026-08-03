@@ -75,6 +75,14 @@ test("read and execute-only roles receive no direct writes", () => {
   }
 });
 
-test("empty sequence grants stay explicit until identity evidence exists", () => {
-  for (const role of Object.values(access.roles)) assert.deepEqual(role.sequences, {});
+test("sequence grants stay empty except exact evidenced identities", () => {
+  for (const [name, role] of Object.entries(access.roles)) {
+    if (name === "tradzfx_strategy") {
+      assert.deepEqual(role.sequences, {
+        "public.progressive_setup_transition_transition_id_seq": ["USAGE"],
+      });
+    } else {
+      assert.deepEqual(role.sequences, {});
+    }
+  }
 });

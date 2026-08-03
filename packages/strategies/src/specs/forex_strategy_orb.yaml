@@ -91,6 +91,14 @@ gates:
       maxConcurrentPerSymbol: 1
       maxConcurrentTotal: 4
 
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["1h", "15m"]
+      require: majority
+      allowNeutral: true
+
   - id: session_gate
     name: session
     params:

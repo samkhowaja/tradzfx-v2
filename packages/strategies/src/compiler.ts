@@ -79,6 +79,47 @@ export interface CompiledStrategy {
   signalAtSQL: () => string;
 }
 
+export class CompilerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CompilerError";
+  }
+}
+
+const QUARANTINED_FEATURES = new Set([
+  "features_pivot", "features_structure", "features_sweep", "features_order_block",
+  "features_bias", "features_direction_state", "features_zone_retest", "features_ifvg",
+  "features_pricing", "features_push_pull", "features_liquidity_event_v2",
+]);
+
+const CLEAN_FEATURES = new Set([
+  "features_atr", "features_session", "features_spread", "features_zone",
+  "features_displacement", "features_moving_average", "features_candle_pattern",
+]);
+
+export function extractContaminatedFeatures(spec: StrategySpec): string[] {
+  const conditions = [
+    ...(spec.setup ?? []),
+    ...(spec.entry ?? []),
+    ...(spec.steps ?? []),
+    ...(spec.progressiveSteps ?? []),
+  ] as Array<{ feature?: string }>;
+  return [...new Set(conditions
+    .map((condition) => condition.feature)
+    .filter((feature): feature is string => typeof feature === "string")
+    .filter((feature) => QUARANTINED_FEATURES.has(feature) || !CLEAN_FEATURES.has(feature)))].sort();
+}
+
+function enforceFeatureContract(spec: StrategySpec): void {
+  if (spec.featureContract !== "CLEAN_2026_07") return;
+  const contaminated = extractContaminatedFeatures(spec);
+  if (contaminated.length > 0) {
+    throw new CompilerError(
+      `CLEAN_2026_07 spec "${spec.name}" references contaminated features: ${contaminated.join(", ")}`
+    );
+  }
+}
+
 function validateTimeWindow(w: { utcStart: string; utcEnd: string }): { startMin: number; endMin: number } {
   const TIME_WINDOW_RE = /^\d{2}:\d{2}$/;
   if (!w || typeof w.utcStart !== "string" || typeof w.utcEnd !== "string") {
@@ -171,9 +212,15 @@ export function deriveSignalTf(spec: StrategySpec, opts?: CompileOptions): TimeF
 
 /** Compile a strategy spec to SQL */
 export function compileStrategy(spec: StrategySpec, opts: CompileOptions = {}): CompiledStrategy {
+  enforceFeatureContract(spec);
   const dataClockTable = opts.dataClockTable ?? "";
-  // Auto-detect: progressive specs use steps[] instead of flat setup[]
-  const sql = spec.steps?.length ? compileProgressiveSQL(spec, opts) : compileFullSQL(spec, opts);
+  // Internal wave needs event chronology and structural risk geometry that the
+  // independent-condition compiler cannot represent without temporal leakage.
+  const sql = spec.signalSource === "internal_wave"
+    ? compileInternalWaveSQL(spec, opts)
+    : spec.steps?.length
+      ? compileProgressiveSQL(spec, opts)
+      : compileFullSQL(spec, opts);
 
   /**
    * Generate the live-signal SQL with parameterized placeholders.
@@ -489,9 +536,11 @@ function compileProgressiveSQL(spec: StrategySpec, opts: CompileOptions = {}): s
         ? `\n    AND pit_${id}.direction = ${parentAlias}.direction`
         : "";
 
-      // TTL filter
+      // TTL filter (forward: child after parent, backward: child before parent)
       const ttlFilter = step.ttlMinutes
-        ? `\n    AND pit_${id}.ts >= ${parentAlias}.ts - INTERVAL '${step.ttlMinutes} minutes'`
+        ? step.ttlDirection === "forward"
+          ? `\n    AND pit_${id}.ts <= ${parentAlias}.ts + INTERVAL '${step.ttlMinutes} minutes'`
+          : `\n    AND pit_${id}.ts >= ${parentAlias}.ts - INTERVAL '${step.ttlMinutes} minutes'`
         : "";
 
       ctes.push(`${alias} AS (
@@ -513,7 +562,7 @@ function compileProgressiveSQL(spec: StrategySpec, opts: CompileOptions = {}): s
   const lastAlias = stepAliases.get(lastStepId)!;
   const entryLaterals = entryConds.map((cond) => buildPitLateral(cond, cond.id, lastAlias, spec, mode));
   // Entry is anchored to the last step CTE (lastAlias), which carries direction.
-  const entryBiasAliases = { features_bias: lastAlias, features_htf_bias: lastAlias };
+  const entryBiasAliases = { features_bias: lastAlias, features_htf_bias: lastAlias, __anchor: lastAlias };
   const entryWheres = entryConds.map((cond) => {
     const tableRef = `pit_${cond.id}`;
     const predRaw = translatePredicate(cond.predicate, tableRef, "entry", entryBiasAliases);
@@ -523,12 +572,15 @@ function compileProgressiveSQL(spec: StrategySpec, opts: CompileOptions = {}): s
   });
 
   // Add freshness tolerance for structure events in progressive mode (same as
-  // the flat compiler at line 627 — structure events > structureFreshnessMinutes
+  // the flat compiler below — structure events > structureFreshnessMinutes
   // before the anchor are stale and should not trigger entries).
+  // SKIP for forward TTL: the spec's ttlMinutes already bounds the window
+  // and applying structureFreshnessMinutes creates a stricter MIN(ttl, freshness)
+  // that destroys valid forward-looking signals (e.g. 30m cap on 120m TTL).
   const progressiveStructureFreshnessMin = spec.live?.structureFreshnessMinutes ?? 30;
   if (progressiveStructureFreshnessMin > 0) {
     const structureCond = entryConds.find((c) => c.feature === "features_structure");
-    if (structureCond) {
+    if (structureCond && structureCond.ttlDirection !== "forward") {
       entryWheres.push(
         `(pit_${structureCond.id}.ts >= ${lastAlias}.ts - interval '${progressiveStructureFreshnessMin} minutes')`
       );
@@ -547,14 +599,23 @@ function compileProgressiveSQL(spec: StrategySpec, opts: CompileOptions = {}): s
   const progressiveSignalDirectionProjection = progressiveSignalDirectionCond
     ? `, pit_${progressiveSignalDirectionCond.id}.direction as signal_direction`
     : ", NULL::text as signal_direction";
+  const progressiveLineageItems = entryConds.map((cond) =>
+    `jsonb_build_object('conditionId', '${cond.id}', 'feature', '${cond.feature}', 'tf', '${cond.tf}', 'row', to_jsonb(pit_${cond.id}))`
+  );
+  const progressiveLineageProjection = progressiveLineageItems.length
+    ? `, jsonb_build_array(${progressiveLineageItems.join(", ")}) as causal_lineage`
+    : ", '[]'::jsonb as causal_lineage";
 
+  const progressiveResolvedDirection = progressiveSignalDirectionCond
+    ? `COALESCE(pit_${progressiveSignalDirectionCond.id}.direction, ${lastAlias}.direction)`
+    : `${lastAlias}.direction`;
   const entrySection = entryLaterals.length
     ? `
-SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, ${lastAlias}.direction as bias_direction${progressiveSignalDirectionProjection}
+SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, ${lastAlias}.direction as bias_direction${progressiveSignalDirectionProjection}, ${progressiveResolvedDirection} as resolved_direction${progressiveLineageProjection}
 FROM ${lastAlias}${entryLaterals.length ? "\n," + entryLaterals.join(",\n") : ""}${entryWheres.length > 0 ? `
 WHERE ${entryWheres.join("\n  AND ")}` : ""}`
     : `
-SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, direction as bias_direction${progressiveSignalDirectionProjection} FROM ${lastAlias}`;
+SELECT DISTINCT ON (${lastAlias}.symbol, ${lastAlias}.ts) ${lastAlias}.symbol, ${lastAlias}.ts, direction as bias_direction${progressiveSignalDirectionProjection}, ${progressiveResolvedDirection} as resolved_direction${progressiveLineageProjection} FROM ${lastAlias}`;
 
   // Signal SELECT — same as flat compiler, reads from entry_signals
   const tfMap = resolveTimeframes(spec);
@@ -621,7 +682,8 @@ function buildProgressivePitLateral(
   const pushdownSql = rawPushdowns.length
     ? "\n      " + rawPushdowns.map((f) => `AND ${f.column} = ${f.literal}`).join("\n      ")
     : "";
-  const tieBreaker = contract?.tieBreaker ?? "ts DESC";
+  const isForward = step.ttlDirection === "forward";
+  const tieBreaker = contract?.tieBreaker ?? (isForward ? "ts ASC" : "ts DESC");
   const orderBy = tieBreaker ? `ORDER BY ${distinctOn}, ${tieBreaker}` : `ORDER BY ${distinctOn}, ts DESC`;
 
   // Build policy WHERE using registry. When a step has a ttlMinutes, the LATERAL
@@ -637,7 +699,11 @@ function buildProgressivePitLateral(
     return parseInt(m[1], 10) * (m[2].toLowerCase().startsWith("h") ? 60 : 1);
   })();
   const effectiveLookback = step.ttlMinutes && step.ttlMinutes < lookbackMinutes ? `${step.ttlMinutes} minutes` : lookback;
-  const policyWhere = `
+  const policyWhere = isForward
+    ? `
+      AND ${step.feature}.ts >= ${asOfRef}.ts
+      AND ${step.feature}.ts <= ${asOfRef}.ts + INTERVAL '${effectiveLookback}'`
+    : `
       AND ${step.feature}.ts <= ${asOfRef}.ts
       AND ${step.feature}.ts >= ${asOfRef}.ts - INTERVAL '${effectiveLookback}'`;
 
@@ -700,17 +766,20 @@ function compileFullSQL(spec: StrategySpec, opts: CompileOptions = {}): string {
   // Build entry WHERE
   const entryWheres = entryConds.map((cond) => {
     const tableRef = `pit_${cond.id}`;
-    const predRaw = translatePredicate(cond.predicate, tableRef, "entry");
+    const predRaw = translatePredicate(cond.predicate, tableRef, "entry", { __anchor: "s" });
     const pred = mode === "pit" ? stripPitLeaks(predRaw) : predRaw;
     const freshness = buildFreshnessPredicate(cond, tableRef, "s.ts");
     return `(${pred} ${freshness})`;
   });
 
-  // Add freshness tolerance for structure events (within last 30 minutes)
+  // Add freshness tolerance for structure events (within last N minutes).
+  // SKIP for forward TTL: the spec's ttlMinutes already bounds the window
+  // and structureFreshnessMinutes would create a strict MIN(ttl, freshness)
+  // that destroys valid forward-looking signals.
   const structureFreshnessMin = spec.live?.structureFreshnessMinutes ?? 30;
   if (structureFreshnessMin > 0) {
     const structureCond = entryConds.find((c) => c.feature === "features_structure");
-    if (structureCond) {
+    if (structureCond && structureCond.ttlDirection !== "forward") {
       entryWheres.push(
         `(pit_${structureCond.id}.ts >= s.ts - interval '${structureFreshnessMin} minutes')`
       );
@@ -753,10 +822,11 @@ WHERE tf = '${biasTf}'
   // features_direction_state stores direction as 'buy'/'sell'; the signal
   // select's side CASE expects 'bullish'/'bearish'. Normalize when the bias
   // anchor is direction_state so side resolves correctly.
-  const biasDirectionProjection =
+  const biasDirectionExpr =
     biasTable === "features_direction_state"
-      ? `CASE WHEN b.direction = 'buy' THEN 'bullish' WHEN b.direction = 'sell' THEN 'bearish' ELSE NULL END as bias_direction`
-      : `b.direction as bias_direction`;
+      ? `CASE WHEN b.direction IN ('buy', 'bullish') THEN 'bullish' WHEN b.direction IN ('sell', 'bearish') THEN 'bearish' ELSE NULL END`
+      : `b.direction`;
+  const biasDirectionProjection = `${biasDirectionExpr} as bias_direction`;
 
   // For generic signal source, project the direction from the first non-bias
   // setup condition that emits a direction column (e.g. features_push_pull)
@@ -769,13 +839,29 @@ WHERE tf = '${biasTf}'
     ? `, pit_${signalDirectionCond.id}.direction as signal_direction`
     : ", NULL::text as signal_direction";
 
+  // Preserve exact PIT-selected feature rows. to_jsonb(record) avoids assuming a
+  // shared primary-key shape across heterogeneous feature tables and carries
+  // producer metadata (engine_ver/input_hash) whenever the source row has it.
+  const conditionLineage = (cond: StrategyCondition, alias: string) =>
+    `jsonb_build_object('conditionId', '${cond.id}', 'feature', '${cond.feature}', 'tf', '${cond.tf}', 'row', to_jsonb(${alias}))`;
+  const setupLineageItems = setupConds.map((cond) =>
+    conditionLineage(cond, cond === biasCond ? "b" : `pit_${cond.id}`)
+  );
+  const setupLineageProjection = setupLineageItems.length
+    ? `, jsonb_build_array(${setupLineageItems.join(", ")}) as causal_lineage`
+    : ", '[]'::jsonb as causal_lineage";
+  const entryLineageItems = entryConds.map((cond) => conditionLineage(cond, `pit_${cond.id}`));
+  const entryLineageProjection = entryLineageItems.length
+    ? `, s.causal_lineage || jsonb_build_array(${entryLineageItems.join(", ")}) as causal_lineage`
+    : ", s.causal_lineage";
+
   const setupSection = `
-SELECT b.symbol, b.ts, ${biasDirectionProjection}${signalDirectionProjection}
+SELECT b.symbol, b.ts, ${biasDirectionProjection}${signalDirectionProjection}, COALESCE(${signalDirectionCond ? `pit_${signalDirectionCond.id}.direction` : "NULL::text"}, ${biasDirectionExpr}) as resolved_direction${setupLineageProjection}
 FROM bias_candidates b${setupLateralSection}
 WHERE ${setupWheres.join("\n  AND ")}`;
 
   const entrySection = `
-SELECT DISTINCT ON (s.symbol, s.ts) s.symbol, s.ts, s.bias_direction${signalDirectionProjection ? ", s.signal_direction" : ""}
+SELECT DISTINCT ON (s.symbol, s.ts) s.symbol, s.ts, s.bias_direction${signalDirectionProjection ? ", s.signal_direction" : ""}, COALESCE(s.signal_direction, s.bias_direction) as resolved_direction${entryLineageProjection}
 FROM setup_candidates s${entryLateralSection}${entryWheres.length > 0 ? `
 WHERE ${entryWheres.join("\n  AND ")}` : ""}`;
 
@@ -985,10 +1071,7 @@ export function extractAtrTimeframes(expr: string): TimeFrame[] {
  */
 export function extractRequiredFeatures(spec: StrategySpec): Set<string> {
   const required = new Set<string>();
-  for (const item of spec.setup ?? []) {
-    if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
-  }
-  for (const item of spec.entry ?? []) {
+  for (const item of [...(spec.setup ?? []), ...(spec.steps ?? []), ...(spec.entry ?? [])]) {
     if (item.feature && item.tf) required.add(`${item.feature}@${item.tf}`);
   }
   // Core features consumed by gates.
@@ -1059,6 +1142,96 @@ function buildAtrSelectColumns(atrTfs: TimeFrame[]): string {
     .join("\n");
 }
 
+function compileInternalWaveSQL(spec: StrategySpec, opts: CompileOptions): string {
+  const symbolSql = opts.symbol
+    ? `AND le.symbol = '${opts.symbol.replace(/'/g, "''")}'`
+    : "";
+  const windowSql = opts.mode === "pit" && opts.from && opts.to
+    ? `AND le.known_at >= '${opts.from.toISOString()}'::timestamptz\n      AND le.known_at <= '${opts.to.toISOString()}'::timestamptz`
+    : opts.asOfParameter
+      ? `AND le.known_at <= $${opts.asOfParameter}::timestamptz\n      AND le.known_at >= $${opts.asOfParameter}::timestamptz - INTERVAL '${opts.lookbackHours ?? 24} hours'`
+      : opts.dataClockTable
+        ? `AND le.known_at >= (SELECT MAX(ts) FROM ${opts.dataClockTable}) - INTERVAL '${opts.lookbackHours ?? 24} hours'`
+        : `AND le.known_at >= NOW() - INTERVAL '${opts.lookbackHours ?? 24} hours'`;
+
+  return `
+WITH sweeps AS (
+  SELECT le.*,
+    CASE WHEN le.direction = 'bullish' THEN 'buy' ELSE 'sell' END AS side
+  FROM features_liquidity_event_v2 le
+  WHERE le.tf = '5m'
+    AND le.direction IN ('bullish', 'bearish')
+    AND le.killzone_ids ?| ARRAY['LONDON_KILLZONE','NY_KILLZONE']
+    ${symbolSql}
+    ${windowSql}
+), aligned AS (
+  SELECT sw.*, ds.regime, ds.agreement
+  FROM sweeps sw
+  JOIN LATERAL (
+    SELECT d.direction, d.regime, d.agreement
+    FROM features_direction_state d
+    WHERE d.symbol = sw.symbol AND d.tf = '1h' AND d.ts <= sw.known_at
+    ORDER BY d.ts DESC LIMIT 1
+  ) ds ON (sw.direction = 'bullish' AND ds.direction IN ('buy','bullish'))
+       OR (sw.direction = 'bearish' AND ds.direction IN ('sell','bearish'))
+), confirmed AS (
+  SELECT a.*, d.ts AS confirmation_ts, mc.c AS confirmation_price
+  FROM aligned a
+  JOIN LATERAL (
+    SELECT x.ts, x.tf
+    FROM features_displacement x
+    WHERE x.symbol = a.symbol
+      AND x.tf IN ('1m','5m')
+      AND x.ts > a.known_at
+      AND x.ts <= a.known_at + INTERVAL '30 minutes'
+      AND x.direction = a.direction
+    ORDER BY x.ts ASC, CASE x.tf WHEN '5m' THEN 0 ELSE 1 END
+    LIMIT 1
+  ) d ON TRUE
+  JOIN LATERAL (
+    SELECT c.c
+    FROM market.candles_1m_canonical c
+    WHERE c.symbol = a.symbol AND c.ts <= d.ts
+    ORDER BY c.ts DESC LIMIT 1
+  ) mc ON TRUE
+), retested AS (
+  SELECT c.*, fill.ts AS entry_ts
+  FROM confirmed c
+  JOIN LATERAL (
+    SELECT b.ts
+    FROM market.candles_1m_canonical b
+    WHERE b.symbol = c.symbol
+      AND b.ts > c.confirmation_ts
+      AND b.ts <= c.confirmation_ts + INTERVAL '60 minutes'
+      AND b.l <= c.confirmation_price AND b.h >= c.confirmation_price
+    ORDER BY b.ts ASC LIMIT 1
+  ) fill ON TRUE
+)
+SELECT
+  symbol,
+  entry_ts AS ts,
+  direction AS bias_direction,
+  NULL::text AS signal_direction,
+  side,
+  confirmation_price AS entry_price,
+  extreme AS stop_loss,
+  CASE
+    WHEN direction = 'bullish' THEN confirmation_price + 2.0 * (confirmation_price - extreme)
+    ELSE confirmation_price - 2.0 * (extreme - confirmation_price)
+  END AS take_profit,
+  event_id AS signal_event_id,
+  level_id AS signal_level_id,
+  known_at AS sweep_known_at,
+  confirmation_ts,
+  regime,
+  agreement
+FROM retested
+WHERE (direction = 'bullish' AND extreme < confirmation_price)
+   OR (direction = 'bearish' AND extreme > confirmation_price)
+ORDER BY ts DESC
+`;
+}
+
 function buildSignalSelect(
   spec: StrategySpec,
   signalSource: StrategySpec["signalSource"],
@@ -1116,12 +1289,50 @@ function buildFvgSignalSelect(
   // Registry-bounded lookback (96 bars default, or the spec's lookbackBars)
   // instead of the raw tf-tier default: zones are dense and the entry
   // LATERALs already use the same bound.
-  const fvgCond = [...spec.setup, ...spec.entry].find(
+  const fvgCond = [...(spec.setup ?? []), ...(spec.steps ?? []), ...spec.entry].find(
     (c) => c.feature === "features_zone" && isFvgZoneCondition(c)
   );
   const fvgLookback = fvgCond
     ? buildLookbackInterval(fvgCond, spec)
     : buildLookbackIntervalForTf(fvgTf);
+  const minFvgWidthPips = ssc.minFvgWidthPips;
+
+  // Canonical candles contain no precision/digits column. Use same
+  // symbol-aware pip contract as riskCompiler. Keep expression correlated to
+  // FVG alias, which is valid inside FVG lateral WHERE.
+  const pipSizeSql = `CASE
+    WHEN f.symbol LIKE '%XAU%' OR f.symbol LIKE '%GOLD%' THEN 0.1
+    WHEN f.symbol LIKE '%JPY%' THEN 0.01
+    WHEN f.symbol LIKE '%NAS100%' OR f.symbol LIKE '%NDX%' OR f.symbol LIKE '%US30%'
+      OR f.symbol LIKE '%DJI%' OR f.symbol LIKE '%DE40%' OR f.symbol LIKE '%DAX%'
+      OR f.symbol LIKE '%UK100%' OR f.symbol LIKE '%FTSE%' THEN 1.0
+    ELSE 0.0001
+  END`;
+  const widthFilterSql = minFvgWidthPips
+    ? `AND (f.top - f.bottom) >= ${Number(minFvgWidthPips)} * ${pipSizeSql}`
+    : "";
+
+  // Structure-break EXISTS join. Default true for signalSource="fvg".
+  // Auto-calculate lookback from FVG TF if not explicitly set.
+  const requireFvgStructure = ssc.requireFvgStructureBreak ?? true;
+  const fvgStructureLookback = ssc.fvgStructureLookback ?? (
+    fvgTf === "1m" ? "2 hours"
+    : fvgTf === "5m" ? "4 hours"
+    : fvgTf === "15m" ? "8 hours"
+    : fvgTf === "1h" ? "24 hours"
+    : "6 hours"
+  );
+  const fvgStructureSql = requireFvgStructure ? `
+      AND EXISTS (
+        SELECT 1 FROM features_structure s
+        WHERE s.symbol = e.symbol
+          AND s.tf = '${fvgTf}'
+          AND s.ts BETWEEN f.ts - INTERVAL '${fvgStructureLookback}' AND f.ts
+          AND s.event_type IN ('bos', 'choch', 'mss')
+          AND s.invalidated_at IS NULL
+          AND s.direction = CASE WHEN e.resolved_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+      )` : "";
+
   return `
 SELECT DISTINCT ON (symbol, date_trunc('day', ts AT TIME ZONE 'UTC'))
   *
@@ -1156,7 +1367,9 @@ ${buildAtrSelectColumns(atrTfs)}
       AND f.ts <= e.ts
       AND f.ts >= e.ts - INTERVAL '${fvgLookback}'
       AND (f.invalidated_at IS NULL OR f.invalidated_at > e.ts)
-      AND f.direction = CASE WHEN e.bias_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+      AND f.direction = CASE WHEN e.resolved_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+      ${widthFilterSql}
+      ${fvgStructureSql}
     ORDER BY
       (f.top - f.bottom) DESC,
       f.ts DESC
@@ -1207,11 +1420,11 @@ function buildZoneSignalSelect(
   let pricingFilter: string;
   if (pricingCond?.predicate) {
     pricingFilter = translatePredicate(pricingCond.predicate, "p", "setup")
-      .replace(/b\.direction/g, "e.bias_direction");
+      .replace(/b\.direction/g, "e.resolved_direction");
   } else {
     pricingFilter = `CASE
-      WHEN e.bias_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
-      WHEN e.bias_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium')
+      WHEN e.resolved_direction = 'bullish' THEN p.position IN ('discount', 'deep_discount')
+      WHEN e.resolved_direction = 'bearish' THEN p.position IN ('premium', 'deep_premium')
     END`;
   }
 
@@ -1233,6 +1446,10 @@ SELECT
   e.symbol,
   e.ts,
   e.bias_direction,
+  e.causal_lineage || jsonb_build_array(
+    jsonb_build_object('conditionId', 'signal_pricing', 'feature', 'features_pricing', 'tf', '${pricingTf}', 'row', to_jsonb(p)),
+    jsonb_build_object('conditionId', 'signal_zone', 'feature', 'features_zone', 'tf', '${zoneTf}', 'row', to_jsonb(z))
+  ) as causal_lineage,
   z.ts as zone_ts,
   z.top as zone_top,
   z.bottom as zone_bottom,
@@ -1240,8 +1457,8 @@ SELECT
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN e.bias_direction = 'bullish' THEN 'buy'
-    WHEN e.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.resolved_direction = 'bullish' THEN 'buy'
+    WHEN e.resolved_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
@@ -1250,7 +1467,7 @@ ${buildAtrSelectColumns(atrTfs)}
   ${entryTypeColumn}` : ""}
 FROM entry_signals e
 JOIN LATERAL (
-  SELECT position, pip_size, fib_position, in_ote, ote_low, ote_high
+  SELECT *
   FROM features_pricing p2
   WHERE p2.symbol = e.symbol AND p2.tf = '${pricingTf}'
     AND p2.ts <= e.ts
@@ -1268,10 +1485,10 @@ JOIN LATERAL (
     AND z.ts >= e.ts - INTERVAL '${buildLookbackIntervalForTf(zoneTf)}'
     AND (z.mitigated_at IS NULL OR z.mitigated_at > e.ts)
     AND (z.invalidated_at IS NULL OR z.invalidated_at > e.ts)
-    AND z.direction = CASE WHEN e.bias_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
+    AND z.direction = CASE WHEN e.resolved_direction = 'bullish' THEN 'bullish' ELSE 'bearish' END
   ORDER BY
-    CASE WHEN e.bias_direction = 'bullish' THEN z.bottom END DESC NULLS LAST,
-    CASE WHEN e.bias_direction = 'bearish' THEN z.top END ASC NULLS LAST,
+    CASE WHEN e.resolved_direction = 'bullish' THEN z.bottom END DESC NULLS LAST,
+    CASE WHEN e.resolved_direction = 'bearish' THEN z.top END ASC NULLS LAST,
     z.rank_score DESC NULLS LAST,
     z.strength_score DESC NULLS LAST,
     z.quality_score DESC NULLS LAST,
@@ -1298,7 +1515,7 @@ function buildOrbSignalSelect(
   // trades. The join pins the range to the signal's UTC date + session +
   // tf-derived range length and requires completion (o.ts <= e.ts) — stale
   // ranges from prior sessions/days can never match (V4 BUG-11).
-  const orbCond = [...spec.setup, ...spec.entry].find(
+  const orbCond = [...(spec.setup ?? []), ...(spec.steps ?? []), ...spec.entry].find(
     (c) => c.feature === "features_opening_range"
   );
   if (!orbCond) {
@@ -1319,8 +1536,8 @@ FROM (
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN e.bias_direction = 'bullish' THEN 'buy'
-    WHEN e.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.resolved_direction = 'bullish' THEN 'buy'
+    WHEN e.resolved_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
@@ -1357,8 +1574,8 @@ SELECT
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN e.bias_direction = 'bullish' THEN 'buy'
-    WHEN e.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.resolved_direction = 'bullish' THEN 'buy'
+    WHEN e.resolved_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
@@ -1403,8 +1620,8 @@ SELECT
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN COALESCE(e.signal_direction, e.bias_direction) = 'bullish' THEN 'buy'
-    WHEN COALESCE(e.signal_direction, e.bias_direction) = 'bearish' THEN 'sell'
+    WHEN e.resolved_direction = 'bullish' THEN 'buy'
+    WHEN e.resolved_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
@@ -1446,8 +1663,8 @@ SELECT
   p.position as pricing_position,
 ${buildAtrSelectColumns(atrTfs)}
   CASE
-    WHEN e.bias_direction = 'bullish' THEN 'buy'
-    WHEN e.bias_direction = 'bearish' THEN 'sell'
+    WHEN e.resolved_direction = 'bullish' THEN 'buy'
+    WHEN e.resolved_direction = 'bearish' THEN 'sell'
     ELSE NULL
   END as side,
   ${entrySql} as entry_price,
@@ -1493,17 +1710,22 @@ function translatePredicate(
   // express multi-timeframe confluence.
   const biasAlias = biasAliases["features_bias"] ?? (context === "setup" ? "b" : "s");
   const htfBiasAlias = biasAliases["features_htf_bias"] ?? (context === "setup" ? "b" : "s");
+  const directionStateAlias = biasAliases["features_direction_state"] ?? (context === "setup" ? "b" : "s");
   // The entry CTE (setup_candidates) exposes the bias as "bias_direction",
   // while raw feature tables and LATERAL aliases expose it as "direction".
   const biasDirectionCol = biasAlias === "s" ? "bias_direction" : "direction";
   const htfBiasDirectionCol = htfBiasAlias === "s" ? "bias_direction" : "direction";
+  const directionStateDirectionCol = directionStateAlias === "s" ? "bias_direction" : "direction";
+  const anchorAlias = biasAliases.__anchor ?? (context === "setup" ? "b" : "s");
 
   let sql = predicate
     .replace(/features_bias\.direction/g, "__BIAS_DIR__")
     .replace(/features_bias\b/g, "__BIAS_TABLE__")
     .replace(/features_htf_bias\.direction/g, "__HTF_BIAS_DIR__")
     .replace(/features_htf_bias\.state/g, "__HTF_BIAS_STATE__")
-    .replace(/features_htf_bias\b/g, "__HTF_BIAS_TABLE__");
+    .replace(/features_htf_bias\b/g, "__HTF_BIAS_TABLE__")
+    .replace(/features_direction_state\.direction/g, "__DIRECTION_STATE_DIR__")
+    .replace(/features_direction_state\b/g, "__DIRECTION_STATE_TABLE__");
 
   // Use word boundaries so period/fast_period/etc don't overlap.
   // Bare-column map. `score` MUST run before strength_score/quality_score (its
@@ -1527,7 +1749,12 @@ function translatePredicate(
     .replace(/\bgrade\b/g, `${tableRef}.grade`)
     .replace(/\bob_kind\b/g, `${tableRef}.ob_kind`)
     .replace(/\bdegree\b/g, `${tableRef}.degree`)
-    .replace(/\bage_bars\b/g, `${tableRef}.age_bars`)
+    // Stored age_bars is producer-snapshot age. Strategy age predicates need
+    // age at signal anchor, so derive it from causal timestamps instead.
+    .replace(
+      /\bage_bars\b/g,
+      `GREATEST(0, FLOOR(EXTRACT(EPOCH FROM (${anchorAlias}.ts - ${tableRef}.ts)) / CASE ${tableRef}.tf WHEN '1m' THEN 60 WHEN '5m' THEN 300 WHEN '15m' THEN 900 WHEN '1h' THEN 3600 WHEN '4h' THEN 14400 WHEN '1d' THEN 86400 ELSE 60 END))`
+    )
     .replace(/\bformation_ts\b/g, `${tableRef}.formation_ts`)
     .replace(/\bindicator_name\b/g, `${tableRef}.indicator_name`)
     .replace(/\bpattern_name\b/g, `${tableRef}.pattern_name`)
@@ -1579,12 +1806,27 @@ function translatePredicate(
     .replace(/\bclose\b/g, `${tableRef}.close`)
     .replace(/\bdate\b/g, `${tableRef}.date`);
 
+  // Entry context (alias="s") must use resolved_direction so that
+  // features_bias.direction picks up signal_direction when bias=neutral.
+  // Setup context reads the raw bias direction from the FROM table — there is
+  // no signal_direction there, so the bare column is correct.
+  const biasDirEntry = `COALESCE(${biasAlias}.signal_direction, ${biasAlias}.bias_direction)`;
+  const htfBiasDirEntry = `COALESCE(${htfBiasAlias}.signal_direction, ${htfBiasAlias}.bias_direction)`;
+  const directionStateDirEntry = `COALESCE(${directionStateAlias}.signal_direction, ${directionStateAlias}.bias_direction)`;
+
   sql = sql
-    .replace(/__BIAS_DIR__/g, `${biasAlias}.${biasDirectionCol}`)
-    .replace(/__HTF_BIAS_DIR__/g, `${htfBiasAlias}.${htfBiasDirectionCol}`)
+    .replace(/__BIAS_DIR__/g, biasAlias === "s" ? biasDirEntry : `${biasAlias}.${biasDirectionCol}`)
+    .replace(/__HTF_BIAS_DIR__/g, htfBiasAlias === "s" ? htfBiasDirEntry : `${htfBiasAlias}.${htfBiasDirectionCol}`)
     .replace(/__HTF_BIAS_STATE__/g, `${htfBiasAlias}.state`)
     .replace(/__BIAS_TABLE__/g, biasAlias)
-    .replace(/__HTF_BIAS_TABLE__/g, htfBiasAlias);
+    .replace(/__HTF_BIAS_TABLE__/g, htfBiasAlias)
+    // Direction-state stores buy/sell. Cross-feature direction columns use
+    // bullish/bearish, so normalize at compiler boundary.
+    .replace(
+      /__DIRECTION_STATE_DIR__/g,
+      `(CASE WHEN ${directionStateAlias === "s" ? directionStateDirEntry : `${directionStateAlias}.${directionStateDirectionCol}`} IN ('buy', 'bullish') THEN 'bullish' WHEN ${directionStateAlias === "s" ? directionStateDirEntry : `${directionStateAlias}.${directionStateDirectionCol}`} IN ('sell', 'bearish') THEN 'bearish' ELSE 'neutral' END)`
+    )
+    .replace(/__DIRECTION_STATE_TABLE__/g, directionStateAlias);
 
   return sql;
 }

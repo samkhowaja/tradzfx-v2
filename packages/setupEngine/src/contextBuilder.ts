@@ -4,6 +4,7 @@ import {
   getPairCharacteristics,
   getGateMaxSpreadPips,
   getRegistryPipSize,
+  getLevelMaxAgeDays,
   SPREAD_SANITY_MULTIPLIER,
 } from "@tm/shared";
 
@@ -280,14 +281,15 @@ async function fetchZones(
   asOf: Date
 ): Promise<ZoneFeature[]> {
   try {
+    const maxAgeDays = getLevelMaxAgeDays("zone", tf);
     const { rows } = await pool.query(
       `SELECT zone_kind, direction, top, bottom, fill_pct, tapped,
               first_touch_at, mitigated_at, invalidated_at, touch_count, retest_count
-       FROM features_zone
-       WHERE symbol = $1 AND tf = $2 AND ts <= $3
-         AND (invalidated_at IS NULL OR invalidated_at > $3)
-       ORDER BY ts DESC`,
-      [symbol, tf, asOf]
+       FROM public.canonical_zones_as_of($1, $2, $3, make_interval(days => $4))
+       WHERE (mitigated_at IS NULL OR mitigated_at > $3)
+       ORDER BY ts DESC
+       LIMIT 50`,
+      [symbol, tf, asOf, maxAgeDays ?? 30]
     );
     return rows.map((r) => ({
       id: `${r.zone_kind}-${r.direction ?? ""}-${r.top}-${r.bottom}`,
@@ -717,6 +719,7 @@ async function batchFetchZones(
   asOfs: Date[]
 ): Promise<Map<string, ZoneFeature[]>> {
   if (!asOfs.length) return new Map();
+  const maxAgeDays = getLevelMaxAgeDays("zone", tf);
   const { rows } = await pool.query(
     `WITH buckets AS (SELECT UNNEST($1::timestamptz[]) AS as_of)
      SELECT b.as_of, z.zone_kind, z.direction, z.top, z.bottom, z.fill_pct, z.tapped,
@@ -725,14 +728,12 @@ async function batchFetchZones(
      LEFT JOIN LATERAL (
        SELECT zone_kind, direction, top, bottom, fill_pct, tapped,
               first_touch_at, mitigated_at, invalidated_at, touch_count, retest_count
-       FROM features_zone
-       WHERE symbol = $2 AND tf = $3 AND ts <= b.as_of AND ts >= b.as_of - interval '${BATCH_FEATURE_LOOKBACK}'
-         AND (invalidated_at IS NULL OR invalidated_at > b.as_of)
-         AND (mitigated_at IS NULL OR mitigated_at > b.as_of)
+       FROM public.canonical_zones_as_of($2, $3, b.as_of, make_interval(days => $4))
+       WHERE (mitigated_at IS NULL OR mitigated_at > b.as_of)
        ORDER BY ts DESC
        LIMIT ${BATCH_ZONE_LIMIT}
      ) z ON true`,
-    [asOfs, symbol, tf]
+    [asOfs, symbol, tf, maxAgeDays ?? 30]
   );
   const grouped = groupRowsByAsOf(rows);
   const map = new Map<string, ZoneFeature[]>();

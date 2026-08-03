@@ -205,6 +205,9 @@ importers:
 
   packages/tradePipeline:
     dependencies:
+      '@tm/engine':
+        specifier: workspace:*
+        version: link:../../apps/engine
       '@tm/setup-engine':
         specifier: workspace:*
         version: link:../setupEngine

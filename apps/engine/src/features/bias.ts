@@ -44,6 +44,10 @@ const WEIGHTS: Record<keyof RegimeBiasFactorScores, number> = {
   volatility: 0,
 };
 
+// Scores below this threshold are evidence noise, not actionable direction.
+// Keep confidence on the existing 0..100 producer contract.
+const DIRECTION_DEADBAND = 10;
+
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
 }
@@ -137,7 +141,7 @@ function classifyRegime(
   const bearish = recent.filter((e) => e.direction === "bearish").length;
   if (recent.length >= 3 && bullish > 0 && bearish > 0) return "ranging";
 
-  return "trending";
+  return "ranging";
 }
 
 function computeAtrPercentile(candles: Candle[], atr14: number): number {
@@ -183,13 +187,22 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
     };
   }
 
-  const atr14 = getAtr14(features_atr);
+  // Dependency outputs may be undefined when an upstream producer failed or has
+  // no rows for this symbol/tf — degrade to neutral inputs instead of crashing
+  // the whole DAG run (`undefined.map` class, see GBPUSD/AUDUSD 2026-07-22).
+  const atr14 = features_atr ? getAtr14(features_atr) : 0;
+  const htfBias: HtfBiasOutput = features_htf_bias ?? { direction: "neutral", confidence: 0, score: 0 };
+  const pivots: PivotOutput["pivots"] = features_pivot?.pivots ?? [];
+  const currentCandle = candles[candles.length - 1];
+  const structureEvents = (features_structure?.events ?? []).filter(
+    (event) => !event.availableAtTs || event.availableAtTs.getTime() <= currentCandle.ts.getTime()
+  );
   const atrPercentile = computeAtrPercentile(candles, atr14);
 
   const scores: RegimeBiasFactorScores = {
-    htfAlignment: htfAlignmentScore(features_htf_bias),
-    hhhl: hhhlScore(features_pivot.pivots),
-    structure: structureScore(features_structure.events),
+    htfAlignment: htfAlignmentScore(htfBias),
+    hhhl: hhhlScore(pivots),
+    structure: structureScore(structureEvents),
     // Deprecated factors retained at 0 for backward compatibility.
     emaSlope: 0,
     volume: 0,
@@ -208,15 +221,16 @@ function detectRegimeBias(input: BiasInput): RegimeBiasOutput {
 
   const confidence = Math.max(0, Math.min(100, Math.abs(net)));
   let direction: Direction = "neutral";
-  if (net > 0) direction = "bullish";
-  else if (net < 0) direction = "bearish";
+  if (net >= DIRECTION_DEADBAND) direction = "bullish";
+  else if (net <= -DIRECTION_DEADBAND) direction = "bearish";
+  else direction = "neutral";
 
   const regime = classifyRegime(
     atrPercentile,
     scores.htfAlignment,
     scores.structure,
     scores.hhhl,
-    features_structure.events
+    structureEvents
   );
 
   const factors = Object.entries(scores)
@@ -254,19 +268,20 @@ export const biasFeature: FeatureDefinition<BiasInput, RegimeBiasOutput> = {
 
   hashInput(input): string {
     return sha256(
-      input.candles
+      (input.candles ?? [])
         .map((c) => `${c.ts.toISOString()}:${c.o}:${c.h}:${c.l}:${c.c}:${c.v ?? 0}`)
         .join("|") +
         "|" +
-        input.features_structure.events
+        (input.features_structure?.events ?? [])
+          .filter((event) => !event.availableAtTs || event.availableAtTs.getTime() <= input.candles[input.candles.length - 1].ts.getTime())
           .map((e) => `${e.ts.toISOString()}:${e.eventType}:${e.direction}:${e.level}`)
           .join("|") +
         "|" +
-        `${input.features_htf_bias.direction}:${input.features_htf_bias.confidence}:${input.features_htf_bias.score}` +
+        `${input.features_htf_bias?.direction ?? "neutral"}:${input.features_htf_bias?.confidence ?? 0}:${input.features_htf_bias?.score ?? 0}` +
         "|" +
-        input.features_atr.values.map((v) => `${v.period}=${v.value.toFixed(6)}`).join("|") +
+        (input.features_atr?.values ?? []).map((v) => `${v.period}=${v.value.toFixed(6)}`).join("|") +
         "|" +
-        input.features_pivot.pivots
+        (input.features_pivot?.pivots ?? [])
           .map((p) => `${p.ts.toISOString()}:${p.kind}:${p.price}`)
           .join("|")
     );

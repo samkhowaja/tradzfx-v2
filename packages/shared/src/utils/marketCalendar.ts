@@ -111,6 +111,22 @@ export function expectedTradableBars(tf: TimeFrame, from: Date, to: Date, symbol
   return tradableBarStarts(tf, from, to, symbol).length;
 }
 
+/**
+ * Elapsed tradable minutes in (from, to]. Closed weekends and configured daily
+ * breaks contribute zero, preventing wall-clock freshness false positives.
+ */
+export function elapsedTradableMinutes(from: Date, to: Date, symbol?: string): number {
+  if (to.getTime() <= from.getTime()) return 0;
+  let cursor = Math.floor(from.getTime() / 60_000) * 60_000 + 60_000;
+  const end = to.getTime();
+  let minutes = 0;
+  while (cursor <= end) {
+    if (isTradableInstant(new Date(cursor), symbol)) minutes++;
+    cursor += 60_000;
+  }
+  return minutes;
+}
+
 export interface GapInfo {
   hasGaps: boolean;
   gapCount: number;

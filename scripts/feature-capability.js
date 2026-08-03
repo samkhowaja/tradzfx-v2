@@ -1,4 +1,12 @@
-const { FEATURE_REGISTRY } = require("../packages/strategies/dist/index.js");
+const {
+  FEATURE_REGISTRY,
+  FEATURE_ENGINE_VERSIONS,
+} = require("../packages/strategies/dist/index.js");
+const {
+  classifyReadiness,
+  resolveFreshnessPolicy,
+  summarizeReadiness,
+} = require("../packages/shared/dist/index.js");
 
 const DEFAULT_TFS = ["1m", "5m", "15m", "1h", "4h", "1d"];
 const LIFECYCLE_TABLES = new Set(["features_zone", "features_ifvg", "features_order_block"]);
@@ -26,41 +34,37 @@ function fmtIso(v) {
   return v ? new Date(v).toISOString() : null;
 }
 
-function freshnessMinutes(contract, tf) {
-  return contract.defaultFreshnessMinutesByTf?.[tf] ?? null;
+function freshnessMinutes(contract, tf, opts = {}) {
+  if (!tf) return null;
+  // Session-scoped opening ranges remain valid after session completion. Do
+  // not apply generic 15m producer freshness to this static session object.
+  if (contract?.table === "features_opening_range") return 1440;
+  const contractFreshness = contract?.defaultFreshnessMinutesByTf?.[tf];
+  if (contractFreshness != null) return contractFreshness;
+  return resolveFreshnessPolicy({
+    tf,
+    producerCadenceMinutes: opts.producerCadenceMinutes,
+    graceMinutes: opts.freshnessGraceMinutes,
+  }).maxAgeMinutes;
 }
 
 function classifyVerdict(row) {
-  if (!row.tableExists) return "MISSING_TABLE";
-  if (row.missingColumns.length > 0) return "CONTRACT_MISMATCH";
-
-  const sem = row.semanticType;
-  if (row.rows90d === 0) {
-    if (sem === "event") return "SPARSE_EVENT_EMPTY";
-    return "EMPTY_DENSE";
-  }
-
-  if (row.lifecycleAgeHours != null && row.lifecycleAgeHours > row.lifecycleMaxAgeHours) {
-    return "BLOCKED_LIFECYCLE";
-  }
-
-  if ((sem === "state" || sem === "distribution") && row.latestAgeHours != null) {
-    const maxAgeHours = row.maxFreshnessMinutes != null ? row.maxFreshnessMinutes / 60 : null;
-    if (maxAgeHours != null && row.latestAgeHours > maxAgeHours) return "STALE_STATE";
-  }
-
-  // Producer freshness follows the data clock, not wall clock. During weekends
-  // or historical checks, a producer can be many wall hours old while still
-  // covering the governed candle edge. Legacy ledger rows without source_max_ts
-  // retain the finished_at fallback.
-  const producerLagHours = row.producerLagHours ?? row.producerAgeHours;
-  if (producerLagHours != null && producerLagHours > row.producerMaxAgeHours) {
-    return sem === "event" ? "PRODUCER_STALE_EVENT" : "PRODUCER_STALE";
-  }
-
-  if (sem === "event") return "READY_EVENT";
-  if (sem === "level") return "READY_LEVEL";
-  return "READY";
+  return classifyReadiness({
+    tableExists: row.tableExists,
+    missingColumns: row.missingColumns,
+    semanticType: row.semanticType,
+    rowCount: row.rows90d,
+    lifecycleAgeHours: row.lifecycleAgeHours,
+    lifecycleMaxAgeHours: row.lifecycleMaxAgeHours,
+    latestAgeHours: row.latestAgeHours,
+    maxFreshnessMinutes: row.maxFreshnessMinutes,
+    producerLagHours: row.producerLagHours,
+    producerAgeHours: row.producerAgeHours,
+    producerMaxAgeHours: row.producerMaxAgeHours,
+    producerSucceeded: row.producerSucceeded,
+    expectedEngineVersion: row.expectedEngineVersion,
+    observedEngineVersions: row.observedEngineVersions,
+  });
 }
 
 async function tableInfo(pool, table) {
@@ -79,14 +83,17 @@ async function getSymbols(pool, explicit) {
   return rows.map((r) => r.symbol);
 }
 
-async function featureStats(pool, table, hasTf, symbol, tf, from, to) {
+async function featureStats(pool, table, hasTf, hasEngineVer, symbol, tf, from, to) {
   assertIdent(table);
   const where = hasTf
     ? "symbol = $1 AND tf = $2 AND ts >= $3 AND ts <= $4"
     : "symbol = $1 AND ts >= $3 AND ts <= $4";
   const params = hasTf ? [symbol, tf, from, to] : [symbol, null, from, to];
+  const versionSelect = hasEngineVer
+    ? ", ARRAY_REMOVE(ARRAY_AGG(DISTINCT engine_ver), NULL) AS engine_versions"
+    : ", ARRAY[]::text[] AS engine_versions";
   const { rows } = await pool.query(
-    `SELECT COUNT(*)::int AS rows_90d, MAX(ts) AS latest_ts
+    `SELECT COUNT(*)::int AS rows_90d, MAX(ts) AS latest_ts${versionSelect}
      FROM ${table}
      WHERE ${where}`,
     params
@@ -94,6 +101,7 @@ async function featureStats(pool, table, hasTf, symbol, tf, from, to) {
   return {
     rows90d: Number(rows[0]?.rows_90d ?? 0),
     latestTs: rows[0]?.latest_ts ?? null,
+    engineVersions: rows[0]?.engine_versions ?? [],
   };
 }
 
@@ -165,6 +173,7 @@ async function collectCapabilityMatrix(pool, opts = {}) {
   const from = opts.from ?? new Date(to.getTime() - (opts.days ?? 90) * 24 * 60 * 60 * 1000);
   const symbols = await getSymbols(pool, opts.symbols);
   const tfs = opts.tfs?.length ? opts.tfs : DEFAULT_TFS;
+  const requestedFeatures = opts.features?.length ? new Set(opts.features) : null;
   const producerMaxAgeHours = opts.producerMaxAgeHours ?? 2;
   const lifecycleMaxAgeHours = opts.lifecycleMaxAgeHours ?? 2;
   const rows = [];
@@ -172,6 +181,7 @@ async function collectCapabilityMatrix(pool, opts = {}) {
   const dataEdges = new Map();
 
   for (const [featureName, contract] of Object.entries(FEATURE_REGISTRY)) {
+    if (requestedFeatures && !requestedFeatures.has(featureName)) continue;
     const table = contract.table ?? featureName;
     if (!tableColumns.has(table)) tableColumns.set(table, await tableInfo(pool, table));
     const columns = tableColumns.get(table);
@@ -187,11 +197,11 @@ async function collectCapabilityMatrix(pool, opts = {}) {
         const edgeKey = `${symbol}:${tf ?? "1m"}`;
         if (!dataEdges.has(edgeKey)) dataEdges.set(edgeKey, await dataEdge(pool, symbol, to, tf ?? "1m"));
         const edge = dataEdges.get(edgeKey);
-        let stats = { rows90d: 0, latestTs: null };
+        let stats = { rows90d: 0, latestTs: null, engineVersions: [] };
         let producer = null;
         let lifecycle = null;
         if (tableExists && missingColumns.length === 0) {
-          stats = await featureStats(pool, table, hasTf, symbol, tf, from, to);
+          stats = await featureStats(pool, table, hasTf, columns.has("engine_ver"), symbol, tf, from, to);
           producer = await producerStats(pool, table, symbol, tf);
           lifecycle = await lifecycleStats(pool, table, symbol, tf, edge);
         }
@@ -213,7 +223,7 @@ async function collectCapabilityMatrix(pool, opts = {}) {
           rows90d: stats.rows90d,
           latestTs: fmtIso(stats.latestTs),
           latestAgeHours: latestAgeHours == null ? null : Number(latestAgeHours.toFixed(2)),
-          maxFreshnessMinutes: tf ? freshnessMinutes(contract, tf) : null,
+          maxFreshnessMinutes: tf ? freshnessMinutes(contract, tf, opts) : null,
           producerStatus: producer?.status ?? null,
           producerFinishedAt: fmtIso(producer?.finished_at),
           producerSourceMaxTs: fmtIso(producer?.source_max_ts),
@@ -221,6 +231,9 @@ async function collectCapabilityMatrix(pool, opts = {}) {
           producerAgeHours: producerAgeHours == null ? null : Number(producerAgeHours.toFixed(2)),
           producerLagHours: producerLagHours == null ? null : Number(producerLagHours.toFixed(2)),
           producerMaxAgeHours,
+          producerSucceeded: producer == null ? null : producer.status === "done",
+          expectedEngineVersion: columns.has("engine_ver") ? (FEATURE_ENGINE_VERSIONS[featureName] ?? null) : null,
+          observedEngineVersions: stats.engineVersions,
           lifecycleLastProcessedTs: fmtIso(lifecycle?.lastProcessedTs),
           lifecycleAgeHours: lifecycle?.ageHours == null ? null : Number(lifecycle.ageHours.toFixed(2)),
           lifecycleMaxAgeHours,
@@ -249,8 +262,14 @@ function summarize(matrix) {
   return counts;
 }
 
+function readinessStatus(matrix) {
+  return summarizeReadiness(matrix.rows.map((row) => row.verdict));
+}
+
 module.exports = {
   collectCapabilityMatrix,
   summarize,
+  readinessStatus,
   classifyVerdict,
+  freshnessMinutes,
 };

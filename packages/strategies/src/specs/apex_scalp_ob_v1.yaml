@@ -1,0 +1,40 @@
+id: apex_scalp_ob_v1
+familyId: apex_scalp
+active: true
+name: "Apex Scalp: Order Block Retest (limit entry)"
+version: "1.0.0"
+description: >
+  The video's setup #3: order block retest — first return to an unmitigated,
+  age-bounded order block in bias direction; entry on the 1m structure break.
+  Limit entry at the OB edge.
+overrides:
+  steps:
+    - id: trend_bias
+      feature: features_bias
+      tf: 15m
+      predicate: direction != 'neutral'
+      required: true
+
+    - id: order_block
+      feature: features_order_block
+      tf: 5m
+      # features_order_block has ob_kind ('bullish'/'bearish'), NOT a direction
+      # column — autoAlignDirection:false and align via ob_kind against the chain.
+      predicate: is_fresh = true AND ob_kind = features_bias.direction
+      required: true
+      dependsOn: [trend_bias]
+      autoAlignDirection: false
+      ttlMinutes: 240
+
+  signalSource: zone
+
+  entryConfig:
+    type: limit
+    zonePips: 0
+
+  risk:
+    sl: "10 pips"
+    tp: "sl * 2.0"
+    minRR: 2
+    timeoutBars: 0
+    maxFillBars: 30

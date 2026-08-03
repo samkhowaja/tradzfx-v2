@@ -11,13 +11,24 @@ import type {
   Candle,
   TimeFrame,
 } from "@tm/shared";
-import { getCandleTableForTf, filterWeekdayCandles, isWeekendTimestamp, recordProducerRun, getRecentCandles, getRegistryPipSize } from "@tm/shared";
+import { getCandleTableForTf, filterWeekdayCandles, isTradableInstant, recordProducerRun, getRecentCandles, getRegistryPipSize } from "@tm/shared";
 
 import { FeatureDAG, globalDAG } from "./graph";
 import { FeatureCache } from "./cache";
 import { evaluateProducerInvariant, getProducerOutputMode } from "./producerInvariant";
 import { updateLifecycleForSymbol } from "../lifecycleUpdater";
 import { recordZoneOutcomes } from "../features/zone";
+
+/** Empty output shapes handed to features when a dependency has no rows — keeps
+ * producers from crashing on undefined dep access (the `undefined.map` class). */
+const DEP_EMPTY_OUTPUT: Record<string, unknown> = {
+  features_atr: { values: [] },
+  features_pivot: { pivots: [] },
+  features_structure: { events: [] },
+  features_sweep: { sweeps: [] },
+  features_bias: { direction: "neutral", confidence: 0, score: 0 },
+  features_htf_bias: { direction: "neutral", confidence: 0, score: 0 },
+};
 
 export interface RunOptions {
   symbol: string;
@@ -173,6 +184,14 @@ export function computePersistOutcome(
     status: "done",
     error_message: null,
   };
+}
+
+export function assertPersistSucceeded(tableName: string, outcome: PersistOutcome): void {
+  if (outcome.status === "error") {
+    throw new Error(
+      `${tableName} persistence failed: ${outcome.error_message ?? "unknown error"}`
+    );
+  }
 }
 
 export async function resolveDensePostflightAnchor(
@@ -529,7 +548,10 @@ export class DAGRunner {
         continue;
       }
       const loaded = await this.loadPersistedDep(dep, opts.symbol, opts.tf, opts.endTs);
-      input[dep] = loaded;
+      // Never hand a feature an undefined dependency: producers dereference dep
+      // outputs with `.map()`/property access and crash the whole DAG run
+      // (`undefined.map` class, e.g. liquidityPools@1d on sparse history).
+      input[dep] = loaded ?? DEP_EMPTY_OUTPUT[dep];
     }
 
     // Add raw candles for all features (compute + hashInput need them)
@@ -703,7 +725,14 @@ export class DAGRunner {
           row[col] = (rawRow as Record<string, unknown>)[col];
         }
       }
-      if (!allowWeekend && isWeekendTimestamp(row.ts as Date)) {
+      // Feature timestamps represent candle completion/knowledge boundaries.
+      // Accept a boundary when either the instant itself or the immediately
+      // preceding market instant is tradable. This preserves Sunday-open rows
+      // and Friday/daily-maintenance close evidence without admitting rows
+      // wholly inside a closed interval.
+      const rowTs = row.ts as Date;
+      const closesTradableInterval = isTradableInstant(new Date(rowTs.getTime() - 1), symbol);
+      if (!allowWeekend && !isTradableInstant(rowTs, symbol) && !closesTradableInterval) {
         continue;
       }
       rows.push(row);
@@ -845,6 +874,10 @@ export class DAGRunner {
         invariant_reason: invariant.reason,
       },
     });
+    // Persistence failure is never an optional invariant. Backfills may skip the
+    // dense edge assertion while reconstructing history, but they must still
+    // fail when an attempted batch did not reach the database.
+    assertPersistSucceeded(tableName, outcome);
     if (!invariant.passed && !skipInvariant) {
       throw new Error(`${tableName} producer invariant failed: ${invariant.reason}`);
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computePersistOutcome } from "./runner";
+import { assertPersistSucceeded, computePersistOutcome } from "./runner";
 
 /**
  * SK-62: a producer run must tell the truth about rows that did not persist.
@@ -46,5 +46,19 @@ describe("computePersistOutcome (SK-62 rows_rejected)", () => {
     expect(o.rows_inserted).toBe(0);
     expect(o.rows_rejected).toBe(10);
     expect(o.error_message).toContain("check constraint");
+  });
+});
+
+describe("assertPersistSucceeded (PR-1 backfill truth)", () => {
+  it("accepts a successful persist outcome", () => {
+    const outcome = computePersistOutcome(10, 10, 10, null);
+    expect(() => assertPersistSucceeded("features_atr", outcome)).not.toThrow();
+  });
+
+  it("throws for a rejected batch even when caller skips edge invariants", () => {
+    const outcome = computePersistOutcome(10, 10, null, "constraint failure");
+    expect(() => assertPersistSucceeded("features_bias", outcome)).toThrow(
+      "features_bias persistence failed: constraint failure"
+    );
   });
 });

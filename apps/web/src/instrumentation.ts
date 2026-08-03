@@ -44,6 +44,11 @@ async function runSchedulerTick() {
 }
 
 export async function register() {
+  if (process.env.TM_DISABLE_FEATURE_JOBS === "true") {
+    console.log("[instrumentation] Feature jobs disabled via TM_DISABLE_FEATURE_JOBS");
+    return;
+  }
+
   if (!SCHEDULER_ENABLED) {
     console.log("[scheduler] Engine scheduler is disabled");
     return;

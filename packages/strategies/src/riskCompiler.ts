@@ -86,13 +86,13 @@ export function buildBaseEntryPriceSql(
   switch (signalSource) {
     case "orb":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN o.high
-      WHEN ${a}.bias_direction = 'bearish' THEN o.low
+      WHEN ${a}.resolved_direction = 'bullish' THEN o.high
+      WHEN ${a}.resolved_direction = 'bearish' THEN o.low
     END`;
     case "indicator":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN p.ote_low
-      WHEN ${a}.bias_direction = 'bearish' THEN p.ote_high
+      WHEN ${a}.resolved_direction = 'bullish' THEN p.ote_low
+      WHEN ${a}.resolved_direction = 'bearish' THEN p.ote_high
     END`;
     case "moving_average":
       return "fast_ma.value";
@@ -100,14 +100,14 @@ export function buildBaseEntryPriceSql(
       return `((f.top + f.bottom) / 2.0)`;
     case "generic":
       return `CASE
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN p.ote_low
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN p.ote_high
+      WHEN ${a}.resolved_direction = 'bullish' THEN p.ote_low
+      WHEN ${a}.resolved_direction = 'bearish' THEN p.ote_high
     END`;
     case "zone":
     default:
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN z.bottom
-      WHEN ${a}.bias_direction = 'bearish' THEN z.top
+      WHEN ${a}.resolved_direction = 'bullish' THEN z.bottom
+      WHEN ${a}.resolved_direction = 'bearish' THEN z.top
     END`;
   }
 }
@@ -136,14 +136,14 @@ export function buildEntryPriceSql(
   const a = getSignalAlias(ctx);
   if (cfg.type === "limit") {
     return `CASE
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${base}) - ${offset}
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${base}) + ${offset}
+      WHEN ${a}.resolved_direction = 'bullish' THEN (${base}) - ${offset}
+      WHEN ${a}.resolved_direction = 'bearish' THEN (${base}) + ${offset}
     END`;
   }
 
   return `CASE
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${base}) + ${offset}
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${base}) - ${offset}
+    WHEN ${a}.resolved_direction = 'bullish' THEN (${base}) + ${offset}
+    WHEN ${a}.resolved_direction = 'bearish' THEN (${base}) - ${offset}
   END`;
 }
 
@@ -260,28 +260,28 @@ function buildCompositeCase(
   switch (base) {
     case "nearest_profit_pivot":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     case "nearest_loss_pivot":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
     END`;
     case "opposing_zone_profit":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     case "opposing_zone_profit_beyond_min_rr":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     case "opposing_order_block_beyond_min_rr":
       return `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
-      WHEN ${a}.bias_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN ${buildLevelSubquery(withTf(components[0], tf), spec, signalSource, ctx)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN ${buildLevelSubquery(withTf(components[1], tf), spec, signalSource, ctx)}
     END`;
     default:
       return token;
@@ -307,8 +307,8 @@ export function tokenizeRiskExpr(
     .replace(/\bfvg_top\b/gi, "f.top")
     .replace(/\bfvg_bottom\b/gi, "f.bottom")
     .replace(/\bfvg_c1_stop\b/gi, `CASE
-      WHEN ${a}.bias_direction = 'bullish' THEN fvg_c1.l
-      WHEN ${a}.bias_direction = 'bearish' THEN fvg_c1.h
+      WHEN ${a}.resolved_direction = 'bullish' THEN fvg_c1.l
+      WHEN ${a}.resolved_direction = 'bearish' THEN fvg_c1.h
     END`)
     .replace(/\bfvg_c1_high\b/gi, "fvg_c1.h")
     .replace(/\bfvg_c1_low\b/gi, "fvg_c1.l")
@@ -358,8 +358,8 @@ function fallbackTpSql(
     ? `ABS((${entrySql}) - (${slSql}))`
     : `(${tokenizeRiskExpr(slExpr, spec, signalSource, ctx)})`;
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
-    WHEN ${a}.bias_direction = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
+    WHEN ${a}.resolved_direction = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
+    WHEN ${a}.resolved_direction = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
   END`;
 }
 
@@ -383,8 +383,8 @@ function guardSlByMinDistance(
   // For bearish trades the SL must be at least minSl above entry.
   // COALESCE handles price-level subqueries that return NULL.
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN LEAST(COALESCE((${rawSl}), (${entrySql}) - (${minSl})), (${entrySql}) - (${minSl}))
-    WHEN ${a}.bias_direction = 'bearish' THEN GREATEST(COALESCE((${rawSl}), (${entrySql}) + (${minSl})), (${entrySql}) + (${minSl}))
+    WHEN ${a}.resolved_direction = 'bullish' THEN LEAST(COALESCE((${rawSl}), (${entrySql}) - (${minSl})), (${entrySql}) - (${minSl}))
+    WHEN ${a}.resolved_direction = 'bearish' THEN GREATEST(COALESCE((${rawSl}), (${entrySql}) + (${minSl})), (${entrySql}) + (${minSl}))
   END`;
 }
 
@@ -403,8 +403,8 @@ export function buildSlSql(
   const rawSl = isPriceExpression(slExpr)
     ? raw
     : `CASE
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) - (${raw})
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) + (${raw})
+    WHEN ${a}.resolved_direction = 'bullish' THEN (${entrySql}) - (${raw})
+    WHEN ${a}.resolved_direction = 'bearish' THEN (${entrySql}) + (${raw})
   END`;
 
   return guardSlByMinDistance(rawSl, spec, signalSource, ctx);
@@ -434,8 +434,8 @@ function applyTpOffset(
   const a = getSignalAlias(ctx);
   const pipSql = buildPipSizeSql(entrySql, ctx);
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' THEN (${raw}) + (${offsetPips} * (${pipSql}))
-    WHEN ${a}.bias_direction = 'bearish' THEN (${raw}) - (${offsetPips} * (${pipSql}))
+    WHEN ${a}.resolved_direction = 'bullish' THEN (${raw}) + (${offsetPips} * (${pipSql}))
+    WHEN ${a}.resolved_direction = 'bearish' THEN (${raw}) - (${offsetPips} * (${pipSql}))
   END`;
 }
 
@@ -451,8 +451,8 @@ function guardTpByMinRR(
   const minRR = spec.risk.minRR ?? 3.0;
   const fallback = fallbackTpSql(spec, signalSource, ctx);
   return `CASE
-    WHEN ${a}.bias_direction = 'bullish' AND (${levelExpr}) >= (${entrySql}) + (${slDistance}) * ${minRR.toFixed(2)} THEN (${levelExpr})
-    WHEN ${a}.bias_direction = 'bearish' AND (${levelExpr}) <= (${entrySql}) - (${slDistance}) * ${minRR.toFixed(2)} THEN (${levelExpr})
+    WHEN ${a}.resolved_direction = 'bullish' AND (${levelExpr}) >= (${entrySql}) + (${slDistance}) * ${minRR.toFixed(2)} THEN (${levelExpr})
+    WHEN ${a}.resolved_direction = 'bearish' AND (${levelExpr}) <= (${entrySql}) - (${slDistance}) * ${minRR.toFixed(2)} THEN (${levelExpr})
     ELSE ${fallback}
   END`;
 }
@@ -475,8 +475,8 @@ export function buildTpSql(
     if (op === "/") ratio = 1 / ratio;
     const distance = buildSlDistanceSql(spec, signalSource, ctx);
     return `CASE
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
-      WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
+      WHEN ${a}.resolved_direction = 'bullish' THEN (${entrySql}) + (${distance}) * ${ratio.toFixed(2)}
+      WHEN ${a}.resolved_direction = 'bearish' THEN (${entrySql}) - (${distance}) * ${ratio.toFixed(2)}
     END`;
   }
 
@@ -489,7 +489,7 @@ export function buildTpSql(
   }
 
   return `CASE
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bullish' THEN (${entrySql}) + (${raw})
-    WHEN COALESCE(${a}.signal_direction, ${a}.bias_direction) = 'bearish' THEN (${entrySql}) - (${raw})
+    WHEN ${a}.resolved_direction = 'bullish' THEN (${entrySql}) + (${raw})
+    WHEN ${a}.resolved_direction = 'bearish' THEN (${entrySql}) - (${raw})
   END`;
 }

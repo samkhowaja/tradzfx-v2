@@ -1,0 +1,41 @@
+id: apex_scalp_orb_v1
+familyId: apex_scalp
+active: true
+name: "Apex Scalp: NY Opening Range Breakout (limit entry)"
+version: "1.0.0"
+description: >
+  The video's signature setup (#2): first 5m candle of the NY session marks the
+  opening range; a 5m close beyond it is the continuation signal; entry on the
+  1m structure break in bias direction. Limit entry at the range edge (validated
+  mechanic: zero drift, honest unfilled rate).
+overrides:
+  steps:
+    - id: trend_bias
+      feature: features_bias
+      tf: 15m
+      predicate: direction != 'neutral'
+      required: true
+
+    - id: opening_range
+      feature: features_opening_range
+      tf: 5m
+      session: ny
+      predicate: range_minutes <= 30
+      required: true
+      dependsOn: [trend_bias]
+      autoAlignDirection: false    # features_opening_range has NO direction column
+      ttlMinutes: 240
+
+  signalSource: orb
+
+  entryConfig:
+    type: limit
+    zonePips: 0
+
+  risk:
+    sl: "orb_midpoint"
+    minSlDistancePips: 10   # floor the midpoint stop at 10 pips (tiny 5m ranges → sub-minimum stops)
+    tp: "sl * 2.0"
+    minRR: 2
+    timeoutBars: 0
+    maxFillBars: 30

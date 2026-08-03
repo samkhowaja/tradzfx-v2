@@ -12,6 +12,7 @@ import { recordProducerRun } from "@tm/shared";
 export interface LifecycleUpdateResult {
   tableName: string;
   rowsUpdated: number;
+  alreadyRunning?: boolean;
 }
 
 export interface UpdateLifecycleOptions {
@@ -54,12 +55,22 @@ export async function updateLifecycleForSymbol(
   const limit = opts.limit ?? 1000;
   const tf = opts.tf ?? null;
   const ignoreCheckpoint = opts.ignoreCheckpoint ?? false;
+  const client = await pool.connect();
   try {
-    const { rows } = await pool.query<LifecycleUpdateResult>(
+    await client.query("BEGIN");
+    const { rows: lockRows } = await client.query<{ locked: boolean }>(
+      "SELECT pg_try_advisory_xact_lock(hashtext($1)) AS locked",
+      [`lifecycle:${symbol}`]
+    );
+    if (!lockRows[0]?.locked) {
+      await client.query("ROLLBACK");
+      return [{ tableName: "*", rowsUpdated: 0, alreadyRunning: true }];
+    }
+    const { rows } = await client.query<LifecycleUpdateResult>(
       `SELECT * FROM refresh_lifecycle_for_symbol($1, $2, make_interval(days => $3), $4, $5, $6)`,
       [symbol, asOf, lookbackDays, limit, tf, ignoreCheckpoint]
     );
-    // P0-C (skeleton SK-56): ledger one producer run per refreshed table.
+    await client.query("COMMIT");
     for (const r of rows) {
       try {
         await recordProducerRun(pool, {
@@ -70,7 +81,7 @@ export async function updateLifecycleForSymbol(
           rows_updated: r.rowsUpdated,
           watermark_ts: asOf,
           status: "done",
-          quality_json: { lookbackDays, limit, ignoreCheckpoint },
+          quality_json: { owner: "inline", lookbackDays, limit, ignoreCheckpoint },
         });
       } catch {
         /* ledger is best-effort */
@@ -78,6 +89,7 @@ export async function updateLifecycleForSymbol(
     }
     return rows;
   } catch (err: any) {
+    try { await client.query("ROLLBACK"); } catch { /* preserve original failure */ }
     try {
       await recordProducerRun(pool, {
         producer: "lifecycle",
@@ -92,6 +104,8 @@ export async function updateLifecycleForSymbol(
       /* ledger is best-effort */
     }
     throw err;
+  } finally {
+    client.release();
   }
 }
 

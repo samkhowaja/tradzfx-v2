@@ -1,0 +1,106 @@
+id: internal_wave_v2_xau_research
+familyId: internal_wave_v2
+setupFamily: liquidity_sweep
+active: false
+experimental: true
+name: "Internal Wave V2 — XAUUSD Research"
+version: "0.1.0"
+description: >
+  Causal internal-liquidity-wave research variant. A London/NY 5m liquidity
+  sweep must align with latest known 1h direction. First aligned 1m/5m
+  displacement within 30 minutes confirms setup. First subsequent 1m retest
+  of displacement close within 60 minutes enters. Stop rests at sweep extreme;
+  target is fixed 2R. Research only; live execution disabled.
+
+filters:
+  symbols: [ XAUUSD ]
+  sessions: [ LONDON, OVERLAP, NY ]
+
+warmupBars: 200
+
+# Conditions document producer dependencies and feed readiness checks. Exact
+# event chronology is compiled by signalSource=internal_wave, not independent
+# latest-as-of joins.
+setup:
+  - id: direction_state
+    feature: features_direction_state
+    tf: 1h
+    predicate: "direction IN ('buy','sell','bullish','bearish')"
+    required: true
+    lookbackBars: 48
+
+  - id: liquidity_sweep
+    feature: features_liquidity_event_v2
+    tf: 5m
+    predicate: "event_type = 'sweep' AND direction IN ('bullish','bearish')"
+    required: true
+    groupBy: [ direction, event_type, source_tf ]
+    lookbackBars: 120
+
+entry:
+  - id: displacement_confirmation
+    feature: features_displacement
+    tf: 5m
+    predicate: "direction IN ('bullish','bearish')"
+    required: true
+    groupBy: [ direction ]
+    lookbackBars: 6
+
+signalSource: internal_wave
+entryConfig:
+  type: limit
+
+risk:
+  sl: "sweep_extreme"
+  tp: "sl * 2.0"
+  minRR: 2.0
+  timeoutBars: 120
+  maxFillBars: 60
+  minSlDistancePips: 10
+
+gates:
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP, NY ]
+
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 5.0
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 1
+
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["4h", "1h"]
+      require: majority
+      allowNeutral: true
+
+live:
+  mode: disabled
+  lotSize: 0.01
+  riskPerTradePct: 0.5
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 5
+  maxSpreadPips: 5.0
+  maxSlippagePoints: 20
+  entryZonePips: 0
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 1
+  cooldownMinutes: 15
+  structureFreshnessMinutes: 0
+
+notes:
+  - "Frozen research contract; no live wiring."
+  - "No parent 15m structure filter: diagnostic funnel showed that filter removed nearly all setups."
+  - "SL is exact 5m sweep extreme. TP is fixed 2R."
+  - "Confirmation must be strictly after sweep; retest must be strictly after confirmation."
+  - "120 timeoutBars are 1m bars, matching 120-minute research timeout."

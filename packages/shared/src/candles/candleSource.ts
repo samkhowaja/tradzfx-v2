@@ -385,7 +385,7 @@ export async function recordCandleCoverage(
 /**
  * Count-based, gap-tolerant recent-candle fetch (SK-08 hot path).
  *
- * Returns the most recent `count` bars with ts <= endTs (ASC). Uses the cagg
+ * Returns the most recent `count` completed bars with ts + tf duration <= endTs (ASC). Uses the cagg
  * fast path and only falls back to a deterministic 1m rollup when the returned
  * series is incomplete *against the FX 24/5 calendar* (a missing tradable bar
  * between consecutive rows, or the cagg lagging behind endTs). On healthy data
@@ -403,6 +403,7 @@ export async function getRecentCandles(
   assertValidTf(tf);
   if (count <= 0) return [];
   const broker = explicitBroker(opts);
+  const completedEndTs = new Date(endTs.getTime() - TF_MS[tf]);
   const table = broker ? RAW_CANDLE_TABLE_BY_TF[tf] : getCandleTableForTf(tf);
   const tickCol = tf === "1m" ? "" : ", tick_count";
   const { rows } = broker
@@ -411,14 +412,14 @@ export async function getRecentCandles(
          FROM ${table}
          WHERE symbol = $1 AND broker = $2 AND ts <= $3
          ORDER BY ts DESC LIMIT $4`,
-        [symbol, broker, endTs, count]
+        [symbol, broker, completedEndTs, count]
       )
     : await pool.query(
         `SELECT symbol, ts, o, h, l, c, v${tickCol}
          FROM ${table}
          WHERE symbol = $1 AND ts <= $2
          ORDER BY ts DESC LIMIT $3`,
-        [symbol, endTs, count]
+        [symbol, completedEndTs, count]
       );
   const cagg = rows.map(mapCandleRow).reverse(); // ASC
 
@@ -448,11 +449,10 @@ export async function getRecentCandles(
   if (!incomplete) return cagg;
 
   // Fallback: rollup the span covered by this lookback and take the last `count`.
-  // queryRollup is end-inclusive; endTs is a bar OPEN (bucket start), so extend the
-  // upper bound to the end of endTs's bucket or the final bucket collapses to a single
-  // 1m row (partial edge bar). floorToTf(endTs)+tfMs-1ms captures the full last bucket.
+  // queryRollup is end-inclusive. Exclude current edge bucket by ending one
+  // millisecond before endTs; completedEndTs is the last allowed bucket start.
   const tfMs = TF_MS[tf];
-  const rollupEnd = new Date(floorToTf(endTs, tf).getTime() + tfMs - 1);
+  const rollupEnd = new Date(completedEndTs.getTime() + tfMs - 1);
   const rollup = await queryRollup(pool, symbol, broker, tf, cagg[0].ts, rollupEnd);
   return rollup.slice(-count);
 }

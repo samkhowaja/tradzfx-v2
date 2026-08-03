@@ -17,6 +17,7 @@
 
 import type { MarketContext } from "@tm/shared";
 import { getRegistryPipSize } from "@tm/shared";
+import { VOLATILITY_DEFAULT_PERCENTILE, VOLATILITY_PERCENTILE_KEYS } from "@tm/engine";
 
 export interface VolatilityGateConfig {
   /** ATR5 threshold in pips; compared against symbol-specific pip size */
@@ -145,7 +146,7 @@ export function createVolatilityGate(rawConfig: VolatilityGateConfig) {
     !!config.sessionMaxAtrPercentile ||
     !!config.sessionMinAtrPercentile;
   if (!hasAnyAtrConfig) {
-    config.maxAtrPercentile = 0.95;
+    config.maxAtrPercentile = VOLATILITY_DEFAULT_PERCENTILE;
   }
   validateVolatilityPercentiles(config);
   return async (ctx: MarketContext): Promise<{ passed: boolean; reason?: string }> => {

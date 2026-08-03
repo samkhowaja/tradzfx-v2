@@ -40,6 +40,9 @@ describe("trackOutcome", () => {
     const result = trackOutcome("long", { top: 101, bottom: 99 }, 98, 103, future);
     expect(result.outcome).toBe("timeout");
     expect(result.outcomeR).toBe(0);
+    expect(result.plannedR).toBe(0);
+    expect(result.realizedR).toBe(0);
+    expect(result.exitPrice).toBeNull();
   });
 
   it("reduces win R when spread and slippage are applied", () => {
@@ -54,6 +57,10 @@ describe("trackOutcome", () => {
     });
     expect(raw.outcomeR).toBe(1.5);
     expect(withCosts.outcomeR).toBeLessThan(raw.outcomeR);
+    expect(withCosts.realizedR).toBe(withCosts.outcomeR);
+    expect(withCosts.plannedRisk).toBe(2);
+    expect(withCosts.realizedRisk).toBeGreaterThan(withCosts.plannedRisk!);
+    expect(withCosts.plannedR).not.toBe(withCosts.realizedR);
     expect(withCosts.effectiveEntry).toBeGreaterThan(raw.effectiveEntry!);
   });
 

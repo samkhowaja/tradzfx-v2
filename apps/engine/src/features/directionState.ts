@@ -21,6 +21,9 @@
  *   regime = bias.regime, forced to 'ranging' when !agreement (disagreement = choppy)
  *   confidence = agreement ? max(bias, htf) : min(bias, htf)   (0..1)
  *
+ * Producers historically used both 0..1 and 0..100. Normalize at this
+ * boundary so old rows cannot saturate the arbiter at 1.0.
+ *
  * `ts` is the evaluation anchor (last candle / endTs) — this is a STATE feature
  * (latest_as_of), unlike level features whose ts is the formation time.
  */
@@ -54,6 +57,13 @@ const NEUTRAL: DirectionStateOutput = {
   reason: "insufficient inputs (bias/htf_bias missing)",
 };
 
+function confidence01(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  const normalized = n > 1 ? n / 100 : n;
+  return Math.min(1, Math.max(0, normalized));
+}
+
 /** Pure reconcile — exported for unit tests. */
 export function reconcileDirection(
   bias: RegimeBiasOutput | undefined,
@@ -83,8 +93,8 @@ export function reconcileDirection(
   }
 
   const regime: DirectionRegime = agreement ? bias.regime : "ranging";
-  const bc = Number(bias.confidence) || 0;
-  const hc = Number(htf.confidence) || 0;
+  const bc = confidence01(bias.confidence);
+  const hc = confidence01(htf.confidence);
   const confidence = agreement ? Math.max(bc, hc) : Math.min(bc, hc);
 
   return {
@@ -94,7 +104,7 @@ export function reconcileDirection(
     biasDirection: bd,
     htfDirection: hd,
     htfState,
-    confidence: Math.min(1, Math.max(0, confidence)),
+    confidence,
     reason,
   };
 }

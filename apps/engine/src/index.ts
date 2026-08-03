@@ -22,6 +22,7 @@ import { displacementFeature } from "./features/displacement";
 import { indicatorFeature } from "./features/indicator";
 import { sessionHlFeature } from "./features/sessionHl";
 import { openingRangeFeature } from "./features/openingRange";
+import { sessionRangeV2Feature } from "./features/sessionRangeV2";
 import { candlePatternFeature } from "./features/candlePattern";
 import { zoneRetestFeature } from "./features/zoneRetest";
 import { movingAverageFeature } from "./features/movingAverage";
@@ -37,6 +38,7 @@ import { htfBiasFeature } from "./features/htfBias";
 import { directionStateFeature } from "./features/directionState";
 import { spreadFeature } from "./features/spread";
 import { pushPullFeature } from "./features/pushPull";
+import { liquidityLevelV2Feature, liquidityEventV2Feature } from "./features/liquidityV2";
 
 globalDAG.register(atrFeature);
 globalDAG.register(volatilityNormalizedFeature);
@@ -51,6 +53,7 @@ globalDAG.register(displacementFeature);
 globalDAG.register(indicatorFeature);
 globalDAG.register(sessionHlFeature);
 globalDAG.register(openingRangeFeature);
+globalDAG.register(sessionRangeV2Feature);
 globalDAG.register(candlePatternFeature);
 globalDAG.register(zoneRetestFeature);
 globalDAG.register(movingAverageFeature);
@@ -66,8 +69,11 @@ globalDAG.register(htfBiasFeature);
 globalDAG.register(directionStateFeature);
 globalDAG.register(spreadFeature);
 globalDAG.register(pushPullFeature);
+globalDAG.register(liquidityLevelV2Feature);
+globalDAG.register(liquidityEventV2Feature);
 
 export { globalDAG, DAGRunner };
+export { getProducerOutputMode, evaluateProducerInvariant } from "./dag/producerInvariant";
 export { updateLifecycleForSymbol, updateLifecycleForAllSymbols } from "./lifecycleUpdater";
 export { runFeatureWorker, type FeatureWorkerOptions } from "./worker/featureWorker";
 export * from "./featureProfiles";
@@ -84,6 +90,7 @@ export * from "./features/displacement";
 export * from "./features/indicator";
 export * from "./features/sessionHl";
 export * from "./features/openingRange";
+export * from "./features/sessionRangeV2";
 export * from "./features/candlePattern";
 export * from "./features/zoneRetest";
 export * from "./features/movingAverage";
@@ -99,6 +106,8 @@ export * from "./features/htfBias";
 export * from "./features/directionState";
 export * from "./features/spread";
 export * from "./features/pushPull";
+export * from "./features/liquidityV2";
+export * from "./params";
 
 // CLI entry point
 async function main() {

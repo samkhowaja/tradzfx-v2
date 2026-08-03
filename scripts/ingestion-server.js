@@ -297,7 +297,25 @@ async function upsertBars(payload) {
     values
   );
 
-  return { accepted: normalized.length, rowCount: rowCount ?? 0, symbol, broker };
+  const firstTs = rows.reduce((min, row) => row[1] < min ? row[1] : min, rows[0][1]);
+  const lastTs = rows.reduce((max, row) => row[1] > max ? row[1] : max, rows[0][1]);
+  const quarantine = await pool.query(
+    `SELECT COUNT(*)::int AS count
+       FROM candle_quarantine
+      WHERE symbol = $1 AND broker = $2 AND timeframe = '1m'
+        AND superseded_at IS NULL
+        AND event_time >= $3 AND event_time <= $4
+        AND (approved_at IS NULL OR decision <> 'KEEP')`,
+    [symbol, broker, firstTs, lastTs]
+  );
+
+  return {
+    accepted: normalized.length,
+    rowCount: rowCount ?? 0,
+    symbol,
+    broker,
+    downstreamBlocked: quarantine.rows[0].count > 0,
+  };
 }
 
 async function upsertHeartbeat(body, apiKey) {
@@ -463,9 +481,16 @@ async function handleRequest(req, res) {
         return;
       }
       // Fire-and-forget pipeline trigger. The EA already retries; we must not block.
-      forwardTrigger(result.symbol).catch((err) =>
-        log("warn", "pipeline trigger forward failed", { symbol: result.symbol, error: err.message })
-      );
+      if (!result.downstreamBlocked) {
+        forwardTrigger(result.symbol).catch((err) =>
+          log("warn", "pipeline trigger forward failed", { symbol: result.symbol, error: err.message })
+        );
+      } else {
+        log("warn", "pipeline trigger blocked by candle quarantine", {
+          symbol: result.symbol,
+          broker: result.broker,
+        });
+      }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true, ...result, barsAccepted: result.accepted }));
       log("info", "ingested bars", { symbol: result.symbol, accepted: result.accepted, rows: result.rowCount });
@@ -509,7 +534,7 @@ async function drainTick() {
     }
     // Best-effort pipeline kick per drained symbol (once, not per batch).
     for (const sym of drainedSymbols) {
-      forwardTrigger(sym).catch(() => {});
+      if (!r.downstreamBlocked) forwardTrigger(sym).catch(() => {});
     }
   } catch (err) {
     log("warn", "spool drain skipped, db unreachable", { error: err.message });

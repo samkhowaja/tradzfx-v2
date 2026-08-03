@@ -1,0 +1,41 @@
+id: apex_scalp
+familyId: apex_scalp
+active: true
+name: "Apex Scalp — direction → setup → 1m entry (A+ setups only)"
+version: "1.0.0"
+description: >
+  Progressive implementation of the 3-step system from
+  https://www.youtube.com/watch?v=hzC8caHg-Yg ("This 5 Minute Scalping
+  Strategy Is Boring, But It Beats Most Trading Strategies", archived at
+  data/video-strategy-hzC8caHg-Yg/).
+  Step 1 direction: 15m bias (trend vs range; the video's EMA-9/21 trend gauge
+  is subsumed by the bias feature's structure+regime logic).
+  Step 2 setup: variant-level (ORB breakout / order block retest; PDH-PDL
+  pending features_session_hl repair).
+  Step 3 entry: 1m structure break in bias direction (fresh trigger, TTL-bounded).
+
+filters:
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY ]
+
+steps:
+  - id: trend_bias
+    feature: features_bias
+    tf: 15m
+    predicate: direction != 'neutral'
+    required: true
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 1m
+    predicate: event_type IN ('bos','choch','mss') AND direction = features_bias.direction
+    required: true
+
+live:
+  structureFreshnessMinutes: 30
+
+risk:
+  sl: "10 pips"
+  tp: "sl * 2.0"
+  minRR: 2
+  timeoutBars: 0

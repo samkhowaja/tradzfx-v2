@@ -450,6 +450,11 @@ export async function checkAndTriggerPipeline(
  * The V2 feature engine is run once, then each active strategy is evaluated.
  */
 export async function checkAndTriggerAllActive(symbol: string): Promise<TriggerResult[]> {
+  if (process.env.TM_DISABLE_FEATURE_JOBS === "true") {
+    console.log("[pipelineTrigger] Skipped: TM_DISABLE_FEATURE_JOBS=true");
+    return [{ symbol, triggered: false, reason: "feature_jobs_disabled" }];
+  }
+
   const pool = getPool();
 
   // Get canonical latest candle ts (only to confirm data exists, not as pipeline anchor).

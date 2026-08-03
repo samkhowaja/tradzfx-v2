@@ -93,6 +93,8 @@ export interface CreateOrderInput {
   };
   /** Deterministic fingerprint for signal deduplication. */
   signal_fingerprint?: string;
+  /** Thesis-level deduplication fingerprint (symbol + date + session + direction + feature row). */
+  thesis_fingerprint?: string | null;
 }
 
 async function checkTerminalHeartbeat(db: Queryable): Promise<void> {
@@ -135,8 +137,8 @@ export async function createOrder(
       id, symbol, strategy_id, variant_id, family_id, side, entry_type, entry_price, stop_loss, take_profit,
       lot_size, risk_reward, status, trade_mode, expires_at, entry_zone_pips,
       trace_run_id, execution_strategy, limit_price, max_entry_drift_pips,
-      min_effective_rr, time_in_force, signal_fingerprint, created_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+      min_effective_rr, time_in_force, signal_fingerprint, thesis_fingerprint, created_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
     RETURNING *`,
     [
       id,
@@ -162,6 +164,7 @@ export async function createOrder(
       instr?.minEffectiveRR ?? 1.0,
       instr?.timeInForce ?? "GTC",
       input.signal_fingerprint ?? null,
+      input.thesis_fingerprint ?? null,
       now,
     ]
   );

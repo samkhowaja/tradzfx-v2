@@ -1,0 +1,119 @@
+id: waqar_v2_live_paper
+familyId: waqar_v2
+active: true
+name: "Waqar Asim Scalp — Live Paper (thesis dedup)"
+version: "3.1.0-paper.1"
+description: >
+  Paper deployment of the Waqar scalper with thesis-level deduplication.
+  Uses UTC equivalents of authored 08:00-09:00 and 14:00-15:00 Europe/London
+  wall-clock windows during BST. Thesis dedup ensures one trade per
+  (symbol + UTC date + session window + direction + HTF zone identity),
+  matching the locked research artifact (44 trades, +57.33R, 65.9% WR).
+
+  PROMOTION PATH: paper → 24-48h monitor → live activation via mode toggle.
+
+filters:
+  symbols: [ EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY ]
+  sessions: [ LONDON, OVERLAP ]
+  timeWindows:
+    - { utcStart: "07:00", utcEnd: "08:00" }
+    - { utcStart: "13:00", utcEnd: "14:00" }
+
+setup:
+  - id: htf_zone
+    feature: features_zone
+    tf: 1h
+    predicate: "zone_kind IN ('demand', 'supply') AND is_fresh = true"
+    required: true
+    groupBy: [ zone_kind ]
+
+  - id: trend_bias
+    feature: features_htf_bias
+    tf: 15m
+    predicate: "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')"
+    required: true
+
+  - id: premium_discount
+    feature: features_pricing
+    tf: 1h
+    predicate: |
+      (features_htf_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))
+      OR
+      (features_htf_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))
+    required: true
+
+entry:
+  - id: structure_break
+    feature: features_structure
+    tf: 1m
+    predicate: "event_type IN ('bos', 'mss', 'choch') AND direction = features_htf_bias.direction"
+    required: true
+    groupBy: [ direction ]
+    ignoreLifecycle: true
+
+  - id: zone_retest
+    feature: features_zone
+    tf: 1m
+    predicate: "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct <= 1.0 AND direction = features_htf_bias.direction"
+    required: false
+    groupBy: [ zone_kind ]
+
+  - id: displacement_confirm
+    feature: features_displacement
+    tf: 1m
+    predicate: "grade IN ('MEDIUM', 'HIGH') AND direction = features_htf_bias.direction"
+    required: false
+
+signalSource: zone
+
+risk:
+  sl: "5 pips"
+  tp: "sl * 3.0"
+  minRR: 3.0
+  timeoutBars: 180
+  maxFillBars: 45
+
+gates:
+  - id: spread_gate
+    name: spread
+    params:
+      maxSpreadPips: 3.0
+
+  - id: session_gate
+    name: session
+    params:
+      allowed: [ LONDON, OVERLAP ]
+
+  - id: portfolio_heat
+    name: portfolioHeat
+    params:
+      maxConcurrentPerSymbol: 1
+      maxConcurrentTotal: 2
+
+live:
+  mode: paper
+  lotSize: 0.01
+  riskPerTradePct: 1.0
+  accountBalance: 10000
+  accountCurrency: USD
+  signalTtlMinutes: 15
+  maxSpreadPips: 3.0
+  maxSlippagePoints: 20
+  entryZonePips: null
+  maxPositionsPerSymbol: 1
+  maxPositionsTotal: 2
+  cooldownMinutes: 30
+  structureFreshnessMinutes: 180
+  thesisDedup:
+    enabled: true
+    conditionId: "htf_zone"
+    tf: 1h
+    sessionWindows: ["07:00-08:00", "13:00-14:00"]
+
+notes:
+  - "Paper deployment of Waqar scalper with thesis-level dedup."
+  - "07:00-08:00 and 13:00-14:00 UTC equal authored London windows during BST."
+  - "Not valid across GMT/BST transitions; compiler remains fixed-UTC."
+  - "Locked artifact: 44 trades, 65.9% WR, +57.33R (90d PIT backtest)."
+  - "TO PROMOTE LIVE: set live.mode to 'live' and verify deployment readiness."
+  - "Do NOT use promote-top3-live.js; deploy via targeted activation script."

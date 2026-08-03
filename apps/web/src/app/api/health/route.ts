@@ -5,11 +5,16 @@
  */
 
 import { NextResponse } from "next/server";
-import { getPool, getPoolStats } from "@tm/shared";
+import {
+  getPool,
+  getPoolStats,
+  summarizeReadiness,
+  type ReadinessStatus,
+  type ReadinessVerdict,
+} from "@tm/shared";
+import { evaluateHealthFreshness } from "@/lib/healthReadiness";
 
 const DB_TIMEOUT_MS = 2_000;
-const MAX_CANDLE_AGE_MINUTES = 15;
-const MAX_FEATURE_AGE_MINUTES = 15;
 
 type DbSessionCount = {
   applicationName: string;
@@ -78,6 +83,9 @@ export async function GET() {
     candleAgeMinutes: number | null;
     latestFeatureAt: string | null;
     featureAgeMinutes: number | null;
+    readinessStatus: ReadinessStatus;
+    candleVerdict: ReadinessVerdict;
+    featureVerdict: ReadinessVerdict;
   };
 
   let symbols: SymbolHealth[] = [];
@@ -105,24 +113,26 @@ export async function GET() {
         DB_TIMEOUT_MS,
         "freshness_query"
       );
-      const now = Date.now();
+      const now = new Date();
       symbols = rows.map((r: any) => {
         const latestCandle = r.latest_candle_ts ? new Date(r.latest_candle_ts) : null;
         const latestFeature = r.latest_feature_at ? new Date(r.latest_feature_at) : null;
-        const candleAge = latestCandle ? (now - latestCandle.getTime()) / 60_000 : null;
-        const featureAge = latestFeature ? (now - latestFeature.getTime()) / 60_000 : null;
-        if (candleAge !== null && candleAge > MAX_CANDLE_AGE_MINUTES) {
-          staleCandles.push(r.symbol);
-        }
-        if (featureAge !== null && featureAge > MAX_FEATURE_AGE_MINUTES) {
-          staleFeatures.push(r.symbol);
-        }
+        const readiness = evaluateHealthFreshness({
+          symbol: r.symbol,
+          latestCandle,
+          latestFeature,
+        }, now);
+        if (readiness.candleVerdict !== "READY") staleCandles.push(r.symbol);
+        if (readiness.featureVerdict !== "READY") staleFeatures.push(r.symbol);
         return {
           symbol: r.symbol,
           latestCandleAt: latestCandle?.toISOString() ?? null,
-          candleAgeMinutes: candleAge !== null ? Math.round(candleAge * 10) / 10 : null,
+          candleAgeMinutes: readiness.candleAgeMinutes,
           latestFeatureAt: latestFeature?.toISOString() ?? null,
-          featureAgeMinutes: featureAge !== null ? Math.round(featureAge * 10) / 10 : null,
+          featureAgeMinutes: readiness.featureAgeMinutes,
+          readinessStatus: readiness.status,
+          candleVerdict: readiness.candleVerdict,
+          featureVerdict: readiness.featureVerdict,
         };
       });
     } catch (err: any) {
@@ -145,12 +155,15 @@ export async function GET() {
     }
   }
 
-  const overallOk = dbOk && staleCandles.length === 0 && staleFeatures.length === 0;
-  const status = overallOk ? 200 : 503;
+  const readiness = summarizeReadiness(symbols.flatMap((symbol) => [
+    symbol.candleVerdict,
+    symbol.featureVerdict,
+  ]));
+  const status = dbOk ? 200 : 503;
 
   return NextResponse.json(
     {
-      status: overallOk ? "ok" : "degraded",
+      status: dbOk ? (readiness.status === "READY" ? "ok" : "degraded") : "unavailable",
       service: "tz-web-v2",
       timestamp: new Date().toISOString(),
       database: {
@@ -165,8 +178,7 @@ export async function GET() {
         lastIngestAt,
       },
       freshness: {
-        maxCandleAgeMinutes: MAX_CANDLE_AGE_MINUTES,
-        maxFeatureAgeMinutes: MAX_FEATURE_AGE_MINUTES,
+        readiness,
         symbols,
         staleCandles,
         staleFeatures,

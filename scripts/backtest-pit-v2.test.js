@@ -16,6 +16,10 @@ const {
   computeStats,
   evaluatePortfolioHeat,
   dedupeTrades,
+  partitionDriftRejections,
+  invalidOutcomeReason,
+  validateStageAccounting,
+  mergeStageCounts,
   prefetchCandles,
   validateTimeWindow,
   assertAllowedFeature,
@@ -349,7 +353,7 @@ describe("applyGates with synthetic trades", () => {
     const noGates = await applyGates(trades, { id: "s", live: {}, gates: [] });
     assert.strictEqual(noGates.executed.length, 0);
     assert.strictEqual(noGates.invalid, 1);
-    assert.deepStrictEqual(noGates.invalidReasons, { unknown_invalid_outcome: 1 });
+    assert.deepStrictEqual(noGates.invalidReasons, { INTERNAL_UNCLASSIFIED_OUTCOME: 1 });
 
     const withGate = await applyGates(trades, {
       id: "s",
@@ -358,7 +362,7 @@ describe("applyGates with synthetic trades", () => {
     });
     assert.strictEqual(withGate.executed.length, 0);
     assert.strictEqual(withGate.invalid, 1);
-    assert.deepStrictEqual(withGate.invalidReasons, { unknown_invalid_outcome: 1 });
+    assert.deepStrictEqual(withGate.invalidReasons, { INTERNAL_UNCLASSIFIED_OUTCOME: 1 });
   });
 
   it("aggregates explicit invalid reason codes", async () => {
@@ -524,6 +528,7 @@ describe("prefetchCandles", () => {
     const captured = { args: null };
     const fakePool = {
       query: async (sql, params) => {
+        if (sql.includes("FROM candle_quarantine")) return { rows: [{ count: 0 }] };
         captured.args = { sql, params };
         return { rows: [] };
       },
@@ -538,6 +543,19 @@ describe("prefetchCandles", () => {
     // Forward simulation is capped at the stated backtest end date to avoid
     // future-data leakage. Unresolved trades are reported as timeout/no-result.
     assert.strictEqual(captured.args.params[2].toISOString(), to.toISOString());
+  });
+
+  it("fails closed for approved EXCLUDE decisions", async () => {
+    const fakePool = {
+      query: async (sql) => {
+        if (sql.includes("FROM candle_quarantine")) return { rows: [{ count: 1 }] };
+        throw new Error("candle query must not run after quarantine failure");
+      },
+    };
+    await assert.rejects(
+      () => prefetchCandles(fakePool, "EURUSD", date("2026-01-01T00:00:00Z"), date("2026-01-01T12:00:00Z"), 24),
+      /Canonical candle interval unresolved for EURUSD; backtest aborted/
+    );
   });
 });
 
@@ -610,6 +628,21 @@ describe("capability preflight policy", () => {
     assert.ok(!targets.some((t) => t.table === "features_session" && t.tf === "1m"));
   });
 
+  it("uses shared readiness severity sets", () => {
+    const {
+      READINESS_BLOCKING_VERDICTS,
+      READINESS_DEGRADED_VERDICTS,
+    } = require("../packages/shared/dist/index.js");
+    assert.deepStrictEqual(
+      [...CAPABILITY_BLOCKING_VERDICTS].sort(),
+      [...READINESS_BLOCKING_VERDICTS].sort()
+    );
+    assert.deepStrictEqual(
+      [...CAPABILITY_DEGRADED_VERDICTS].sort(),
+      [...READINESS_DEGRADED_VERDICTS].sort()
+    );
+  });
+
   it("blocks unsafe dense surfaces and degrades sparse event emptiness", () => {
     assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("MISSING_TABLE"));
     assert.ok(CAPABILITY_BLOCKING_VERDICTS.has("EMPTY_DENSE"));
@@ -653,6 +686,101 @@ describe("simulateTrade geometry validation", () => {
     const candles = [candle(1, 1.1000, 1.1000, 1.1000, 1.1000)];
     const out = simulateTrade(signal, candles, { timeoutBars: 10, commissionPips: 0 });
     assert.strictEqual(out.outcome, "invalid");
+  });
+});
+
+describe("drift rejection partitioning", () => {
+  it("removes drift rejections before trade dedupe and gate evaluation", () => {
+    const rejection = (side, ts) => ({
+      symbol: "EURUSD",
+      side,
+      ts: new Date(ts),
+      outcome: "rejected",
+      rejectionCode: "ENTRY_DRIFT_EXCEEDED",
+      driftPips: 5,
+    });
+    const acceptedTrade = {
+      symbol: "EURUSD",
+      side: "buy",
+      ts: new Date("2026-01-01T10:02:00Z"),
+      outcome: "win",
+      entry: 1.1,
+      sl: 1.0995,
+      tp: 1.1015,
+      holdBars: 5,
+    };
+
+    const partitioned = partitionDriftRejections([
+      rejection("buy", "2026-01-01T10:00:00Z"),
+      rejection("buy", "2026-01-01T10:01:00Z"),
+      acceptedTrade,
+    ]);
+
+    assert.strictEqual(partitioned.rejected.length, 2);
+    assert.deepStrictEqual(partitioned.accepted, [acceptedTrade]);
+    assert.strictEqual(
+      dedupeTrades(partitioned.accepted, new Date("2026-01-01T12:00:00Z")).length,
+      1
+    );
+  });
+
+  it("uses explicit rejection codes before internal fallback", () => {
+    assert.strictEqual(
+      invalidOutcomeReason({ outcome: "rejected", rejectionCode: "ENTRY_DRIFT_EXCEEDED" }),
+      "ENTRY_DRIFT_EXCEEDED"
+    );
+    assert.strictEqual(
+      invalidOutcomeReason({ outcome: "invalid" }),
+      "INTERNAL_UNCLASSIFIED_OUTCOME"
+    );
+  });
+});
+
+describe("stage accounting", () => {
+  function validCounts(overrides = {}) {
+    return {
+      rawSignals: 20,
+      warmupSkipped: 2,
+      invalidGeometry: 1,
+      setupInvalidGeometry: 1,
+      setupBlocked: 2,
+      simulated: 14,
+      driftRejected: 3,
+      driftRejectionReasons: { ENTRY_DRIFT_EXCEEDED: 3 },
+      deduped: 2,
+      gateSkipped: 1,
+      gateSkipReasons: { spread: 1 },
+      invalidOutcomes: 1,
+      invalidOutcomeReasons: { market_fill_outside_bracket: 1 },
+      timeouts: 1,
+      heatDropped: 1,
+      executed: 5,
+      ...overrides,
+    };
+  }
+
+  it("accepts a balanced candidate ledger", () => {
+    assert.strictEqual(validateStageAccounting(validCounts()), true);
+  });
+
+  it("rejects simulation and terminal count mismatches", () => {
+    assert.throws(
+      () => validateStageAccounting(validCounts({ executed: 4 })),
+      /terminal stages 13 != simulated 14/
+    );
+    assert.throws(
+      () => validateStageAccounting(validCounts({ rawSignals: 21 })),
+      /simulation candidates 15 != simulated 14/
+    );
+  });
+
+  it("merges all terminal stages and reason maps", () => {
+    const merged = mergeStageCounts([validCounts(), validCounts()]);
+    assert.strictEqual(merged.driftRejected, 6);
+    assert.strictEqual(merged.invalidOutcomes, 2);
+    assert.strictEqual(merged.timeouts, 2);
+    assert.deepStrictEqual(merged.driftRejectionReasons, { ENTRY_DRIFT_EXCEEDED: 6 });
+    assert.deepStrictEqual(merged.invalidOutcomeReasons, { market_fill_outside_bracket: 2 });
   });
 });
 

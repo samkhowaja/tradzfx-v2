@@ -10,8 +10,32 @@ export async function gradeRiskQuality(ctx: EvaluationContext): Promise<GraderRe
   const spreadPips = ctx.spreadPips;
   const zone = ctx.entryZone;
 
-  if (!price || !zone) {
+  if (!price) {
     return { score: 0, reasons: ["No price or entry zone"], stopLoss: null, takeProfit: null, riskReward: null };
+  }
+
+  // Indicator/MA setups use authored ATR risk when no structural zone exists.
+  // Missing SMC zone must not erase risk grading for non-zone strategies.
+  if (!zone && (ctx.setupFamily === "indicator" || ctx.setupFamily === "trend_pullback")) {
+    const fallbackDistance = atr > 0 ? atr : price * 0.001;
+    const side = ctx.direction as "long" | "short";
+    const stopLoss = side === "long" ? price - fallbackDistance : price + fallbackDistance;
+    const takeProfit = side === "long"
+      ? price + fallbackDistance * ctx.minRR
+      : price - fallbackDistance * ctx.minRR;
+    const riskPips = Math.abs(price - stopLoss) / getRegistryPipSize(ctx.symbol);
+    return {
+      score: ctx.minRR >= 1 ? 55 : 35,
+      reasons: [`Indicator/MA ATR fallback risk; authored RR ${ctx.minRR}:1`],
+      stopLoss,
+      takeProfit,
+      riskReward: ctx.minRR,
+      stopPips: riskPips,
+    };
+  }
+
+  if (!zone) {
+    return { score: 0, reasons: ["No entry zone"], stopLoss: null, takeProfit: null, riskReward: null };
   }
 
   const pipSize = getRegistryPipSize(ctx.symbol);

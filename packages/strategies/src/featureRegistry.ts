@@ -91,6 +91,21 @@ export interface FeatureContract {
   tieBreaker?: string;
   /** Columns that must exist in the table for the contract to be satisfied */
   requiredColumns: string[];
+  /**
+   * Timeframes this feature is semantically valid on. When set, requesting the
+   * feature at any other timeframe is contract-invalid: verification emits
+   * NOT_APPLICABLE (not a coverage failure) and spec validation rejects it.
+   * Examples: features_session_hl is date-bound (only 1h/4h/1d are meaningful);
+   * features_opening_range is intraday-only (5m/15m).
+   * When undefined, all timeframes are supported.
+   */
+  supportedTimeframes?: readonly TimeFrame[];
+  /**
+   * Minimum producer `engine_ver` required for verification to trust stored
+   * rows. Rows/ledger evidence older than this version predate the accepted
+   * semantics and verdict BLOCKED_VERSION instead of READY.
+   */
+  minimumProducerVersion?: string;
 }
 
 const FRESHNESS_STATE: Record<TimeFrame, number> = {
@@ -177,6 +192,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
       "4h": 14,
       "1d": 10,
     },
+    // 1.2.0 = winsorized suspect-candle handling + bucket-aligned anchors.
+    minimumProducerVersion: "1.2.0",
     equalityGroupByDefaults: ["period"],
     requiredColumns: ["symbol", "ts", "tf", "period", "value"],
   }),
@@ -228,6 +245,40 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     requiredColumns: ["symbol", "ts", "tf", "spread"],
   }),
 
+  features_session_range_v2: contract({
+    table: "features_session_range_v2",
+    semanticType: "state",
+    joinPolicy: "candidate_set",
+    defaultLookbackBars: 288,
+    supportedTimeframes: ["1m", "5m", "15m"],
+    equalityGroupByDefaults: ["session_id", "range_kind"],
+    tieBreaker: "as_of_ts DESC",
+    requiredColumns: ["symbol", "tf", "ts", "session_id", "policy_version", "trading_date", "range_kind", "as_of_ts", "is_complete"],
+    minimumProducerVersion: "1.0.0-shadow.1",
+  }),
+
+  features_liquidity_level_v2: contract({
+    table: "features_liquidity_level_v2",
+    semanticType: "level",
+    joinPolicy: "candidate_set",
+    defaultLookbackBars: 480,
+    equalityGroupByDefaults: ["side", "scope", "class", "source_tf"],
+    tieBreaker: "strength_score DESC NULLS LAST, known_at DESC, level_id DESC",
+    requiredColumns: ["level_id", "symbol", "tf", "ts", "price", "side", "scope", "class", "source_tf", "context_tf", "formed_at", "known_at", "valid_from"],
+    minimumProducerVersion: "1.0.0-shadow.3",
+  }),
+
+  features_liquidity_event_v2: contract({
+    table: "features_liquidity_event_v2",
+    semanticType: "event",
+    joinPolicy: "candidate_set",
+    defaultLookbackBars: 120,
+    equalityGroupByDefaults: ["direction", "event_type", "source_tf"],
+    tieBreaker: "known_at DESC, event_id DESC",
+    requiredColumns: ["event_id", "level_id", "symbol", "tf", "ts", "event_type", "direction", "source_tf", "occurred_at", "known_at", "killzone_ids", "policy_versions"],
+    minimumProducerVersion: "1.0.0-shadow.3",
+  }),
+
   features_zone: contract({
     table: "features_zone",
     semanticType: "level",
@@ -249,6 +300,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
       "symbol", "ts", "tf", "zone_kind", "direction", "top", "bottom",
       "invalidated_at", "mitigated_at",
     ],
+    // 2.2.0 = single-formation emission with ladder-free zone identity.
+    minimumProducerVersion: "2.2.0",
   }),
 
   features_ifvg: contract({
@@ -276,6 +329,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     // features_ifvg has strength_score but no quality_score column.
     tieBreaker: "strength_score DESC NULLS LAST, ts DESC",
     requiredColumns: ["symbol", "ts", "tf", "direction", "top", "bottom", "invalidated_at"],
+    // 1.4.1 = ts set to formation time (lifecycle/CHECK semantics), not anchor.
+    minimumProducerVersion: "1.4.1",
   }),
 
   features_direction_state: contract({
@@ -486,7 +541,31 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     },
     defaultLookbackBars: 1,
     equalityGroupByDefaults: ["range_minutes", "session"],
+    // Opening range is intraday session-scoped by definition — meaningless at
+    // 1h/4h/1d (a "range" that spans a full session is just the session itself).
+    supportedTimeframes: ["5m", "15m"],
     requiredColumns: ["symbol", "ts", "tf", "date", "range_minutes", "session", "high", "low", "midpoint"],
+  }),
+
+  features_session_hl: contract({
+    table: "features_session_hl",
+    semanticType: "state",
+    joinPolicy: "latest_as_of",
+    // Session high/low is date-bound (keyed by (date, session), same row
+    // regardless of tf — see sessionHl.ts "same day = same hash regardless of
+    // tf"). Requesting it at intraday tfs is semantically meaningless.
+    supportedTimeframes: ["1h", "4h", "1d"],
+    defaultFreshnessMinutesByTf: {
+      "1m": 1440,
+      "5m": 1440,
+      "15m": 1440,
+      "1h": 1440,
+      "4h": 1440,
+      "1d": 1440,
+    },
+    defaultLookbackBars: 2,
+    equalityGroupByDefaults: ["date", "session"],
+    requiredColumns: ["symbol", "ts", "tf", "date", "session", "high", "low"],
   }),
 
   features_indicator: contract({
@@ -538,6 +617,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     // lifecycle columns (point-in-time levels).
     validityColumns: { createdAt: "ts" },
     requiredColumns: ["symbol", "ts", "tf", "kind", "price", "confidence"],
+    // 1.2.0 = per-timeframe confirmation lookbacks (1m=3 … 1d=20).
+    minimumProducerVersion: "1.2.0",
   }),
 
   features_liquidity_pools: contract({
@@ -556,6 +637,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureContract> = {
     // Table has kind/label/price/distance/strength/interval/recent_sweep_matched/side;
     // no `direction` and no lifecycle columns. Specs predicate on recent_sweep_matched.
     validityColumns: { createdAt: "ts" },
+    // Multiple pools per anchor by design (one row per kind/side level).
+    equalityGroupByDefaults: ["kind", "side"],
     requiredColumns: ["symbol", "ts", "tf", "price", "strength", "recent_sweep_matched"],
   }),
 

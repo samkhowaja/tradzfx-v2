@@ -9,6 +9,13 @@
 import type { TimeFrame } from "../types/feature";
 import type { KillzoneId, SymbolClass } from "../utils/time";
 import { getPipInfo } from "./pipMath";
+const PAIR_DEFAULTS = {
+  MIN_STOP_PIPS: 3,
+  BASE_SPREAD_PIPS: 2.0,
+  COMMISSION_PIPS_PER_LOT: 0,
+  GATE_SPREAD_MULTIPLIER: 4,
+  SPREAD_SANITY_MULTIPLIER: 10,
+} as const;
 
 export type { TimeFrame, KillzoneId, SymbolClass };
 
@@ -71,9 +78,10 @@ export interface PairCharacteristics {
  * Shared by the spread producer (sample filtering), the setup engine, and the
  * PIT backtester so all consumers apply the same sanity ceiling.
  */
-export const SPREAD_SANITY_MULTIPLIER = 10;
+export const SPREAD_SANITY_MULTIPLIER = PAIR_DEFAULTS.SPREAD_SANITY_MULTIPLIER;
 
-function classifySymbol(symbol: string): SymbolClass {
+/** Canonical asset-class resolver shared by pair policy and market calendars. */
+export function classifySymbol(symbol: string): SymbolClass {
   const s = (symbol ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
   if (/^(BTC|ETH|XRP|LTC|BCH|ADA|DOT|DOGE|SOL|AVAX|LINK)/i.test(s)) return "CRYPTO";
@@ -478,7 +486,7 @@ const PAIR_REGISTRY: Record<string, Omit<PairCharacteristics, "symbol" | "symbol
 const DEFAULT_CHARACTERISTICS: Omit<PairCharacteristics, "symbol" | "symbolClass"> = {
   tickSize: 0.00001,
   pipSize: 0.0001,
-  baseSpreadPips: 2.0,
+  baseSpreadPips: PAIR_DEFAULTS.BASE_SPREAD_PIPS,
   slippageK: 0.1,
   slippageMinPips: 0.3,
   slippageMaxPips: 5.0,
@@ -488,7 +496,7 @@ const DEFAULT_CHARACTERISTICS: Omit<PairCharacteristics, "symbol" | "symbolClass
   eqToleranceTicks: 5,
   poiTolerancePips: 4,
   preferredKillzones: ["LONDON_KILLZONE", "NY_KILLZONE"],
-  commissionPipsPerLot: 0.7,
+  commissionPipsPerLot: PAIR_DEFAULTS.COMMISSION_PIPS_PER_LOT,
 };
 
 /**
@@ -518,8 +526,8 @@ export function getPairCharacteristics(symbol: string): PairCharacteristics {
     symbolClass,
     // Fill in the class-aware default when the pair entry doesn't specify one.
     ...entry,
-    gateSpreadMultiplier: entry.gateSpreadMultiplier ?? CLASS_GATE_SPREAD_MULTIPLIER[symbolClass] ?? 4,
-    minStopPips: entry.minStopPips ?? 3,
+    gateSpreadMultiplier: entry.gateSpreadMultiplier ?? CLASS_GATE_SPREAD_MULTIPLIER[symbolClass] ?? PAIR_DEFAULTS.GATE_SPREAD_MULTIPLIER,
+    minStopPips: entry.minStopPips ?? PAIR_DEFAULTS.MIN_STOP_PIPS,
   };
 }
 

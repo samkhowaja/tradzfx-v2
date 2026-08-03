@@ -25,7 +25,7 @@ overrides:
         utcEnd: 15:59
   setup:
     - id: bias
-      feature: features_bias
+      feature: features_direction_state
       tf: 15m
       predicate: direction != 'neutral'
       required: true
@@ -45,7 +45,7 @@ overrides:
     - id: htf_sweep
       feature: features_sweep
       tf: 15m
-      predicate: direction = features_bias.direction
+      predicate: direction = features_direction_state.direction
       required: false
       weight: 3
     - id: pricing_filter
@@ -58,13 +58,13 @@ overrides:
     - id: ltf_ifvg
       feature: features_ifvg
       tf: 5m
-      predicate: direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true AND age_bars < 10
+      predicate: direction = features_direction_state.direction AND fill_pct >= 0.5 AND is_fresh = true AND age_bars < 10
       required: true
       weight: 10
     - id: ltf_structure
       feature: features_structure
       tf: 5m
-      predicate: event_type IN ('bos', 'mss', 'choch') AND direction = features_bias.direction
+      predicate: event_type IN ('bos', 'mss', 'choch') AND direction = features_direction_state.direction
       required: false
       weight: 5
   entryConfig:

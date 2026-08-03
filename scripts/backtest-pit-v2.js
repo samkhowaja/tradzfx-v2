@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Point-in-Time backtest runner for all V2 strategy specs.
  *
  * Supports signalSource: zone | orb | indicator | moving_average | fvg.
@@ -15,12 +15,14 @@ const { Pool } = require("pg");
 const { randomUUID, createHash } = require("crypto");
 const {
   loadStrategyFromDB,
+  loadStrategyFromYaml,
   compileStrategy,
   FEATURE_REGISTRY,
   deriveSignalTf,
 } = require("../packages/strategies/dist/index.js");
 const { collectCapabilityMatrix } = require("./feature-capability.js");
 const { appendCandidate, drainSpool } = require("./candidate-audit-spool.js");
+const { canonicalJson, sha256, startImmutableRun } = require("./lib/immutable-run-store.js");
 
 // ATR timeframe handling: the risk compiler emits atr(<tf>) references. We
 // join every distinct timeframe referenced in risk expressions (and any
@@ -54,7 +56,17 @@ function extractAtrTimeframes(...exprs) {
 // bindAtrReferences, buildAtrJoins, buildAtrSelectColumns, buildPitSlSql,
 // buildPitTpSql) — they were only used by buildPITSignalSelect which is
 // deleted below. The compiler path handles all signal SQL natively.
-const { getSession, getPairCharacteristics, getSessionSpread, getSessionSlippage, TF_MS, SPREAD_SANITY_MULTIPLIER } = require("../packages/shared/dist/index.js");
+const {
+  ENTRY_DRIFT_REJECTION_CODE,
+  evaluateEntryDrift,
+  getSession,
+  getPairCharacteristics,
+  getSessionSpread,
+  getSessionSlippage,
+  TF_MS,
+  SPREAD_SANITY_MULTIPLIER,
+  validateExecutionGeometry,
+} = require("../packages/shared/dist/index.js");
 const {
   createSessionGate,
   createRateLimitGate,
@@ -68,6 +80,7 @@ const { evaluateSetup, evaluateSetupBatch } = require("../packages/setupEngine/d
 
 const MIN_WARMUP_CANDLES = 50; // Reduced from 200 to allow early-window signals; strategies can override via spec.warmupBars
 const DEBUG_MODE = process.argv.includes("--debug");
+const INCLUDE_ASIA_SESSION = process.argv.includes("--include-asia");
 // TIER 3: Legacy PIT_USE_COMPILER_SQL=0 fork removed. The compiler path
 // (compileStrategy with mode:"pit") is the single SQL-generation path.
 // All signal SQL now runs through compileStrategy, which uses riskCompiler
@@ -94,7 +107,7 @@ const SETUP_PROFILES = new Set(["strict", "lenient", "skip"]);
 // Setup-engine version baked into the persistent context hash so a grader or
 // setup-engine bug fix invalidates cached setup_evaluations (see §3.2.8).
 // Bump this any time the setup-engine evaluation logic changes.
-const SETUP_ENGINE_VERSION = "1.0.0";
+const SETUP_ENGINE_VERSION = "1.0.3";
 
 function extractNumericPeriods(text) {
   const out = [];
@@ -275,6 +288,7 @@ const ALLOWED_FEATURES = new Set([
   "features_divergence",
   "features_spread",
   "features_displacement",
+  "features_liquidity_event_v2",
   "features_zone_retest",
   "features_candle_pattern",
   "features_time_of_day_edge",
@@ -320,6 +334,7 @@ const ALLOWED_GROUP_BY = {
   features_correlation: ["reference_symbol", "period"],
   features_divergence: ["divergence_type", "indicator_name", "period", "consecutive_count"],
   features_displacement: ["event_type", "direction", "degree", "grade", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
+  features_liquidity_event_v2: ["direction", "event_type", "source_tf"],
   features_zone_retest: ["zone_kind", "direction", "wick_into_zone", "close_inside_zone", "engulfing_at_zone", "grade", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
   features_candle_pattern: ["pattern_name", "direction", "age_bars", "formation_ts", "strength_score", "consecutive_count"],
   features_time_of_day_edge: ["value", "session", "direction", "age_bars", "formation_ts", "strength_score"],
@@ -486,6 +501,7 @@ function collectCoverageTargets(spec) {
   else if (signalSource === "moving_average") addFeature("features_moving_average", tfs.movingAverageTf);
   else if (signalSource === "fvg") addFeature("features_zone", tfs.fvgTf);
   else if (signalSource === "generic") { /* no implicit tables — spec declares explicit features only */ }
+  else if (signalSource === "internal_wave") { /* no implicit tables — internal wave is self-contained */ }
   else addFeature("features_zone", tfs.zoneTf);
 
   // Pricing is always consulted for entry price.
@@ -542,7 +558,7 @@ async function checkCoverage(pool, spec, symbol, from, to) {
       // FX 24/5: ~1200 tradable minutes per day (Sun 21:00 → Fri 21:00 UTC).
       // Event features are sparse — no density expectation.
       const tfMin = target.tf ? (TF_MINUTES_COV[target.tf] ?? 15) : null;
-      const isSparse = isEventFeature(target.table) || isLevelFeature(target.table) || isSessionScopedFeature(target.table);
+      const isSparse = isSporadicFeature(target.table) || isSessionScopedFeature(target.table);
       let expectedRows = null;
       let densityRatio = null;
       let insufficientDensity = false;
@@ -584,45 +600,28 @@ async function checkCoverage(pool, spec, symbol, from, to) {
  */
 const LIFECYCLE_LEVEL_TABLES = ["features_zone", "features_ifvg", "features_order_block"];
 
-// Sparse event features: 0 rows in a window is normal (they fire rarely), so a
-// missing required event table is DEGRADED (warn), not BLOCKED. Dense features
-// (level/state/distribution) and candles must be present over the window.
-// Derived from the feature registry's semanticType so new event features are
+// Sporadic feature types: state and event features emit only on state changes
+// or occurrences, so 0 rows / low density is normal. Level features (zones/blocks)
+// are also sparse. Dense features (distribution) and candles must be present.
+// Derived from the feature registry's semanticType so new features are
 // automatically classified correctly — no hardcoded set to maintain. (RC-6 / #11)
-const EVENT_FEATURE_TABLES = new Set(
-  Object.entries(FEATURE_REGISTRY)
-    .filter(([, c]) => c.semanticType === "event")
-    .map(([name]) => name)
-);
-const isEventFeature = (table) => EVENT_FEATURE_TABLES.has(table);
+const SPORADIC_SEMANTIC_TYPES = new Set(["event", "state", "level"]);
+const isSporadicFeature = (table) => {
+  const contract = FEATURE_REGISTRY[table];
+  return contract && SPORADIC_SEMANTIC_TYPES.has(contract.semanticType);
+};
+const isSessionScopedFeature = (table) => {
+  const contract = FEATURE_REGISTRY[table];
+  return contract?.joinPolicy === "session_scoped";
+};
 
-const LEVEL_FEATURE_TABLES = new Set(
-  Object.entries(FEATURE_REGISTRY)
-    .filter(([, c]) => c.semanticType === "level")
-    .map(([name]) => name)
-);
-const isLevelFeature = (table) => LEVEL_FEATURE_TABLES.has(table);
+const {
+  READINESS_BLOCKING_VERDICTS,
+  READINESS_DEGRADED_VERDICTS,
+} = require("../packages/shared/dist/index.js");
 
-const SESSION_SCOPED_TABLES = new Set(
-  Object.entries(FEATURE_REGISTRY)
-    .filter(([, c]) => c.joinPolicy === "session_scoped")
-    .map(([name]) => name)
-);
-const isSessionScopedFeature = (table) => SESSION_SCOPED_TABLES.has(table);
-
-const CAPABILITY_BLOCKING_VERDICTS = new Set([
-  "MISSING_TABLE",
-  "CONTRACT_MISMATCH",
-  "EMPTY_DENSE",
-  "BLOCKED_LIFECYCLE",
-  "STALE_STATE",
-  "PRODUCER_STALE",
-]);
-
-const CAPABILITY_DEGRADED_VERDICTS = new Set([
-  "SPARSE_EVENT_EMPTY",
-  "PRODUCER_STALE_EVENT",
-]);
+const CAPABILITY_BLOCKING_VERDICTS = new Set(READINESS_BLOCKING_VERDICTS);
+const CAPABILITY_DEGRADED_VERDICTS = new Set(READINESS_DEGRADED_VERDICTS);
 
 function requiredFeatureTargets(spec) {
   return collectCoverageTargets(spec).filter((t) => !t.isCandle && t.required);
@@ -634,7 +633,9 @@ function capabilityKey(table, tf) {
 
 async function checkRequiredCapabilities(pool, spec, symbol, from, to) {
   const targets = requiredFeatureTargets(spec);
-  if (targets.length === 0) return { rows: [], blocked: [], degraded: [] };
+  if (targets.length === 0) {
+    return { status: "READY", rows: [], blocked: [], degraded: [] };
+  }
   const targetTfs = [...new Set(targets.map((t) => t.tf).filter(Boolean))];
   const matrix = await collectCapabilityMatrix(pool, {
     symbols: [symbol],
@@ -646,7 +647,8 @@ async function checkRequiredCapabilities(pool, spec, symbol, from, to) {
   const rows = matrix.rows.filter((r) => wanted.has(capabilityKey(r.table, r.tf)));
   const blocked = rows.filter((r) => CAPABILITY_BLOCKING_VERDICTS.has(r.verdict));
   const degraded = rows.filter((r) => CAPABILITY_DEGRADED_VERDICTS.has(r.verdict));
-  return { rows, blocked, degraded };
+  const status = blocked.length > 0 ? "BLOCKED" : degraded.length > 0 ? "DEGRADED" : "READY";
+  return { status, rows, blocked, degraded };
 }
 
 async function checkLifecycleCorruption(pool, spec, symbol) {
@@ -852,25 +854,16 @@ function findCandleIndexAfter(candles, ts) {
   return lo;
 }
 
-function isValidSignalGeometry(signal, pipSize, minStopPips) {
-  const side = signal.side;
-  const entry = parseFloat(signal.entry_price);
-  const sl = parseFloat(signal.stop_loss);
-  const tp = parseFloat(signal.take_profit);
-  if (!Number.isFinite(entry) || !Number.isFinite(sl) || !Number.isFinite(tp)) {
-    return false;
-  }
-  if (side === "buy") {
-    if (!(sl < entry && tp > entry)) return false;
-    if (minStopPips > 0 && pipSize > 0 && (entry - sl) / pipSize < minStopPips) return false;
-    return true;
-  }
-  if (side === "sell") {
-    if (!(sl > entry && tp < entry)) return false;
-    if (minStopPips > 0 && pipSize > 0 && (sl - entry) / pipSize < minStopPips) return false;
-    return true;
-  }
-  return false;
+function isValidSignalGeometry(signal, _pipSize, minStopPips) {
+  if (signal.side !== "buy" && signal.side !== "sell") return false;
+  return validateExecutionGeometry({
+    symbol: signal.symbol,
+    side: signal.side,
+    entry: parseFloat(signal.entry_price),
+    stopLoss: parseFloat(signal.stop_loss),
+    takeProfit: parseFloat(signal.take_profit),
+    minStopPips,
+  }).valid;
 }
 
 /**
@@ -892,6 +885,7 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
     intrabarMode = "close",
     signalTf,
     pipSize = 0.0001,
+    breakevenAtR,
   } = options;
   const effectiveSignalTs = signalTf
     ? new Date(signal.ts.getTime() + (TF_MS[signalTf] ?? TF_MS["15m"]))
@@ -900,7 +894,7 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
   if (!future.length) return { outcome: "timeout", r: 0, rRealized: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null, driftPips: 0, realizedRisk: null };
   const side = signal.side;
   const authoredEntry = parseFloat(signal.entry_price);
-  const sl = parseFloat(signal.stop_loss);
+  let sl = parseFloat(signal.stop_loss);
   const tp = parseFloat(signal.take_profit);
   const plannedRisk = side === "buy" ? authoredEntry - sl : sl - authoredEntry;
   if (!(plannedRisk > 0)) return { outcome: "invalid", invalidReason: "planned_risk_nonpositive", r: 0, rRealized: 0, holdBars: 0, closePrice: null, effectiveEntry: null, maxAdverse: null, maxFavorable: null, driftPips: 0, realizedRisk: null };
@@ -916,7 +910,7 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
     const gapR = computeOutcomeR(side, effectiveEntry, gapExit, plannedRisk);
     const gapRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, gapExit, realizedRisk) : gapR;
     return {
-      outcome: "loss", r: gapR, rRealized: gapRRealized, holdBars: 1, closePrice: gapExit,
+      outcome: "loss", r: gapRRealized, rRealized: gapR, holdBars: 1, closePrice: gapExit,
       effectiveEntry, maxAdverse: effectiveEntry, maxFavorable: effectiveEntry,
       invalidReason: "gap_through", driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null,
     };
@@ -934,6 +928,12 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
       if (high > maxAdverse) maxAdverse = high;
       if (low < maxFavorable) maxFavorable = low;
     }
+    // Break-even: once MFE reaches breakevenAtR (in realized-risk units), move
+    // the stop to the fill price. A scratch close then books ~0R, not -1R.
+    if (breakevenAtR && realizedRisk > 0 && sl !== effectiveEntry) {
+      const mfeR = (side === "buy" ? maxFavorable - effectiveEntry : effectiveEntry - maxFavorable) / realizedRisk;
+      if (mfeR >= breakevenAtR) sl = effectiveEntry;
+    }
     const slHit = side === "buy" ? low <= sl : high >= sl;
     const tpHit = side === "buy" ? high >= tp : low <= tp;
     if (!slHit && !tpHit) continue;
@@ -941,17 +941,21 @@ function simulateBidCandleMarketTrade(signal, candles, options) {
       ? resolveIntrabar(side, effectiveEntry, sl, tp, high, low, close, intrabarMode, `${tsStr}:${side}:${i}`)
       : tpHit ? "win" : "loss";
     const closePrice = expected === "win" ? tp : sl;
-    const r = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
-    const rRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : r;
-    return { outcome: r >= 0 ? expected : "loss", r, rRealized, holdBars: i + 1, closePrice, effectiveEntry, maxAdverse, maxFavorable, driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null };
+    const r = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
+    const rPlanned = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
+    return { outcome: r >= 0 ? expected : "loss", r, rRealized: rPlanned, holdBars: i + 1, closePrice, effectiveEntry, maxAdverse, maxFavorable, driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null };
   }
-  // Timeout: close at the last candle's close price so the trade contributes
-  // to win/loss/R stats instead of being excluded as a no-decision (#3.2.5).
+  // Window-end timeout remains unresolved. Mark-to-market values stay explicit
+  // and never enter resolved win/loss/R statistics.
   const lastCandle = future[future.length - 1];
   const closePrice = Number(lastCandle.c);
-  const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
-  const timeoutRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : timeoutR;
-  return { outcome: timeoutR >= 0 ? "win" : "loss", r: timeoutR, rRealized: timeoutRRealized, holdBars: future.length, closePrice, effectiveEntry, maxAdverse, maxFavorable, driftPips, realizedRisk: realizedRisk > 0 ? realizedRisk : null };
+  const markToMarketPlannedR = computeOutcomeR(side, effectiveEntry, closePrice, plannedRisk);
+  const markToMarketRealizedR = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : markToMarketPlannedR;
+  return {
+    outcome: "timeout", r: 0, rRealized: 0, holdBars: future.length,
+    closePrice: null, effectiveEntry, maxAdverse, maxFavorable, driftPips,
+    plannedRisk, realizedRisk: realizedRisk > 0 ? realizedRisk : null,
+  };
 }
 
 function simulateTrade(signal, candles, options = {}) {
@@ -973,6 +977,7 @@ function simulateTrade(signal, candles, options = {}) {
       intrabarMode,
       signalTf,
       pipSize,
+      breakevenAtR: options.breakevenAtR,
     });
   }
 
@@ -1172,23 +1177,27 @@ function simulateTrade(signal, candles, options = {}) {
     }
   }
 
-  // Trade was still open at the end of the lookback window.
-  // Close at the last candle's close price so it contributes to win/loss/R
-  // stats instead of being excluded as a no-decision (#3.2.5).
+  // Trade still open at window end. Keep mark-to-market evidence separate;
+  // unresolved trade never enters resolved win/loss/R statistics.
   const lastCandle = future[future.length - 1];
   const closePrice = Number(lastCandle.c);
-  const timeoutR = computeOutcomeR(side, effectiveEntry, closePrice, risk);
-  const timeoutRRealized = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : timeoutR;
+  const markToMarketPlannedR = computeOutcomeR(side, effectiveEntry, closePrice, risk);
+  const markToMarketRealizedR = realizedRisk > 0 ? computeOutcomeR(side, effectiveEntry, closePrice, realizedRisk) : markToMarketPlannedR;
   return {
-    outcome: timeoutR >= 0 ? "win" : "loss",
-    r: timeoutR,
-    rRealized: timeoutRRealized,
+    outcome: "timeout",
+    r: 0,
+    rRealized: 0,
+    plannedR: 0,
+    realizedR: 0,
+    markToMarketPlannedR,
+    markToMarketRealizedR,
     holdBars: future.length,
-    closePrice,
+    closePrice: null,
     effectiveEntry,
     maxAdverse,
     maxFavorable,
     driftPips,
+    plannedRisk: risk,
     realizedRisk: realizedRisk > 0 ? realizedRisk : null,
   };
 }
@@ -1380,7 +1389,14 @@ function buildGateEvaluators(gates, spec = {}) {
   return (gates ?? []).map((g) => {
     switch (g.name) {
       case "session":
-        return { name: g.name, fn: createSessionGate(g.params) };
+        return {
+          name: g.name,
+          fn: createSessionGate(
+            INCLUDE_ASIA_SESSION
+              ? { ...g.params, allowed: [...new Set([...(g.params?.allowed ?? []), "ASIA"])] }
+              : g.params
+          ),
+        };
       case "rateLimit":
         return { name: g.name, fn: createRateLimitGate(g.params) };
       case "dailyLoss":
@@ -1487,16 +1503,16 @@ async function getVolProfile(symbol, tf, period, session, signalTs) {
   if (_volProfileCache.has(key)) return _volProfileCache.get(key);
   try {
     const asOfClause = signalTs instanceof Date && Number.isFinite(signalTs.getTime())
-      ? `AND sample_end <= $5`
+      ? `AND as_of_ts <= $5`
       : ``;
     const params = signalTs instanceof Date && Number.isFinite(signalTs.getTime())
       ? [symbol, tf, period, session, signalTs]
       : [symbol, tf, period, session];
     const { rows } = await pool.query(
-      `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile
+      `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile_pit
        WHERE symbol = $1 AND tf = $2 AND period = $3 AND session = $4
        ${asOfClause}
-       ORDER BY lookback_days DESC LIMIT 1`,
+      ORDER BY as_of_ts DESC, lookback_days DESC LIMIT 1`,
       params
     );
     let row = rows[0];
@@ -1506,10 +1522,10 @@ async function getVolProfile(symbol, tf, period, session, signalTs) {
         ? [symbol, tf, period, signalTs]
         : [symbol, tf, period];
       const { rows: allRows } = await pool.query(
-        `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile
+        `SELECT p05, p25, p50, p75, p95, p99 FROM market_volatility_profile_pit
          WHERE symbol = $1 AND tf = $2 AND period = $3 AND session = 'ALL'
-         ${asOfClause}
-         ORDER BY lookback_days DESC LIMIT 1`,
+         ${signalTs instanceof Date && Number.isFinite(signalTs.getTime()) ? "AND as_of_ts <= $4" : ""}
+         ORDER BY as_of_ts DESC, lookback_days DESC LIMIT 1`,
         allParams
       );
       row = allRows[0];
@@ -1603,6 +1619,63 @@ function dedupeTrades(trades, windowEndTs) {
   return out;
 }
 
+function partitionDriftRejections(trades) {
+  const accepted = [];
+  const rejected = [];
+  for (const trade of trades) {
+    if (trade.outcome === "rejected" && trade.rejectionCode === ENTRY_DRIFT_REJECTION_CODE) {
+      rejected.push(trade);
+    } else {
+      accepted.push(trade);
+    }
+  }
+  return { accepted, rejected };
+}
+
+function invalidOutcomeReason(trade) {
+  return trade.invalidReason || trade.rejectionCode || "INTERNAL_UNCLASSIFIED_OUTCOME";
+}
+
+function validateStageAccounting(stageCounts) {
+  const sc = stageCounts;
+  const errors = [];
+  const simulationCandidates = sc.rawSignals
+    - sc.warmupSkipped
+    - sc.invalidGeometry
+    - sc.setupInvalidGeometry
+    - sc.setupBlocked;
+  if (simulationCandidates !== sc.simulated) {
+    errors.push(`simulation candidates ${simulationCandidates} != simulated ${sc.simulated}`);
+  }
+
+  const terminalTotal = sc.driftRejected
+    + sc.deduped
+    + sc.gateSkipped
+    + sc.invalidOutcomes
+    + sc.timeouts
+    + sc.heatDropped
+    + sc.executed;
+  if (terminalTotal !== sc.simulated) {
+    errors.push(`terminal stages ${terminalTotal} != simulated ${sc.simulated}`);
+  }
+
+  const sumReasons = (reasons) => Object.values(reasons ?? {}).reduce((sum, count) => sum + count, 0);
+  if (sumReasons(sc.driftRejectionReasons) !== sc.driftRejected) {
+    errors.push("drift rejection reasons do not equal driftRejected");
+  }
+  if (sumReasons(sc.gateSkipReasons) < sc.gateSkipped) {
+    errors.push("gate skip reasons are fewer than gateSkipped");
+  }
+  if (sumReasons(sc.invalidOutcomeReasons) !== sc.invalidOutcomes) {
+    errors.push("invalid outcome reasons do not equal invalidOutcomes");
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Stage accounting invariant failed: ${errors.join("; ")}`);
+  }
+  return true;
+}
+
 async function applyGates(trades, spec, options = {}) {
   const { research = false } = options;
   const gateEvaluators = buildGateEvaluators(spec.gates, spec);
@@ -1611,11 +1684,11 @@ async function applyGates(trades, spec, options = {}) {
     const timeouts = trades.filter((t) => t.outcome === "timeout").length;
     const invalidTrades = trades.filter((t) => t.outcome !== "win" && t.outcome !== "loss" && t.outcome !== "timeout");
     const invalidReasons = invalidTrades.reduce((counts, t) => {
-      const reason = t.invalidReason || "unknown_invalid_outcome";
+      const reason = invalidOutcomeReason(t);
       counts[reason] = (counts[reason] || 0) + 1;
       return counts;
     }, {});
-    return { executed: decisive, skipped: 0, reasons: {}, timeouts, invalid: invalidTrades.length, invalidReasons, quarantined: 0, atrQuarantined: 0 };
+    return { executed: decisive, skipped: 0, reasons: {}, timeouts, invalid: invalidTrades.length, invalidReasons, quarantined: 0, atrQuarantined: 0 }; 
   }
 
   const sorted = trades.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
@@ -1671,7 +1744,8 @@ async function applyGates(trades, spec, options = {}) {
     if (block) {
       // Always record the would-be rejection (so research shows the gate
       // distribution); only drop the candidate when not in research mode.
-      reasons[block.name] = (reasons[block.name] ?? 0) + 1;
+      const reasonKey = block.reason ? `${block.name}: ${block.reason}` : block.name;
+      reasons[reasonKey] = (reasons[reasonKey] ?? 0) + 1;
       if (!research) {
         skipped++;
         continue;
@@ -1686,7 +1760,7 @@ async function applyGates(trades, spec, options = {}) {
     }
     if (t.outcome !== "win" && t.outcome !== "loss") {
       invalid++;
-      const reason = t.invalidReason || "unknown_invalid_outcome";
+      const reason = invalidOutcomeReason(t);
       invalidReasons[reason] = (invalidReasons[reason] || 0) + 1;
       continue;
     }
@@ -1727,6 +1801,31 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
   // rather than letting a bad tick silently drive a simulated outcome.
   const upper = to;
   const t0 = performance.now();
+  const unresolved = await pool.query(
+    `SELECT COUNT(*)::int AS count
+       FROM candle_quarantine q
+       JOIN LATERAL (
+         SELECT p.broker_id
+           FROM raw.symbol_broker_policy p
+          WHERE p.symbol = q.symbol
+            AND p.effective_from <= q.event_time
+            AND (p.effective_to IS NULL OR q.event_time < p.effective_to)
+          ORDER BY p.priority ASC
+          LIMIT 1
+       ) p ON p.broker_id = q.broker
+      WHERE q.symbol = $1
+        AND q.timeframe = '1m'
+        AND q.superseded_at IS NULL
+        AND q.event_time >= $2
+        AND q.event_time <= $3
+        AND (q.approved_at IS NULL OR q.decision <> 'KEEP')`,
+    [symbol, from, upper]
+  );
+  if (unresolved.rows[0].count > 0) {
+    throw new Error(
+      `Canonical candle interval unresolved for ${symbol}; backtest aborted (${unresolved.rows[0].count} quarantined candles)`
+    );
+  }
   const { rows } = await pool.query(
     `SELECT c.ts, c.o, c.h, c.l, c.c, c.spread AS spread_pips,
             (cq.is_suspect IS TRUE) AS suspect
@@ -1780,6 +1879,7 @@ async function main() {
   const modeArg = process.argv.find((a) => a.startsWith("--mode="));
   const setupProfileArg = process.argv.find((a) => a.startsWith("--setup-profile="));
   const driftGateArg = process.argv.find((a) => a.startsWith("--drift-gate="));
+  const specFileArg = process.argv.find((a) => a.startsWith("--spec-file="));
   const args = process.argv.slice(2).filter(
     (a) =>
       a !== "--json" &&
@@ -1790,15 +1890,47 @@ async function main() {
       !a.startsWith("--intrabar=") &&
       !a.startsWith("--mode=") &&
       !a.startsWith("--setup-profile=") &&
-      !a.startsWith("--drift-gate=")
+      !a.startsWith("--drift-gate=") &&
+      !a.startsWith("--spec-file=") &&
+      !a.startsWith("--parent-audit-id=")
   );
   const symbolArg = args[0] || "EURUSD";
   const days = parseInt(args[1] || "7", 10);
   const strategyId = args[2] || "doyle_sd";
+  const parentAuditId = process.argv.find((a) => a.startsWith("--parent-audit-id="))?.slice("--parent-audit-id=".length) || null;
+  const immutableRun = startImmutableRun({
+    arguments: process.argv.slice(2),
+    parentAuditId,
+    metadata: { specId: strategyId, symbol: symbolArg },
+  });
+  const originalLog = console.log;
+  const originalError = console.error;
+  console.log = (...values) => {
+    immutableRun.appendStdout(values.map(String).join(" "));
+    originalLog(...values);
+  };
+  console.error = (...values) => {
+    immutableRun.appendStderr(values.map(String).join(" "));
+    originalError(...values);
+  };
+  let immutableRunFinalized = false;
+  let finalSummary = null;
 
-  const spec = await loadStrategyFromDB(pool, strategyId);
+  let spec;
+  if (specFileArg) {
+    const path = require("path");
+    const specPath = path.resolve(specFileArg.slice("--spec-file=".length));
+    spec = loadStrategyFromYaml(specPath);
+    if (spec.id !== strategyId) {
+      console.error(`[backtest-pit-v2] --spec-file id "${spec.id}" does not match requested strategy "${strategyId}"`);
+      process.exit(1);
+    }
+    console.error(`[backtest-pit-v2] Research spec file: ${specPath}`);
+  } else {
+    spec = await loadStrategyFromDB(pool, strategyId);
+  }
   if (!spec) {
-    console.error(`[backtest-pit-v2] Strategy "${strategyId}" not found or not active. Run: node scripts/seed-strategy-specs.js`);
+    console.error(`[backtest-pit-v2] Strategy "${strategyId}" not found. Run: node scripts/seed-strategy-specs.js`);
     process.exit(1);
   }
 
@@ -1849,7 +1981,7 @@ async function main() {
     console.error(`[backtest-pit-v2] Unknown drift-gate mode "${driftGateMode}". Use: report | live`);
     process.exit(1);
   }
-  const maxEntryDriftPips = spec.liveExecution?.maxEntryDriftPips ?? 2.0;
+  const maxEntryDriftPips = spec.live?.executionProfile?.maxEntryDriftPips ?? 2.0;
   const symbols = symbolArg === "ALL" ? spec.filters.symbols : [symbolArg];
 
   let to;
@@ -1882,6 +2014,14 @@ async function main() {
     process.exit(1);
   }
   const setupFamily = inferSetupFamily(spec);
+  immutableRun.setMetadata({
+    specHash: sha256(canonicalJson(spec)),
+    window: { from: from.toISOString(), to: to.toISOString() },
+    mode: modeLabel,
+    setupProfile,
+    intrabarMode,
+    dataEdge: to.toISOString(),
+  });
 
   console.log(`[backtest-pit-v2] Strategy: ${strategyId} | signalSource: ${spec.signalSource || "zone"}`);
   console.log(`[backtest-pit-v2] Mode: ${modeLabel} | setupProfile: ${setupProfile} | setupFamily: ${setupFamily} | intrabar: ${intrabarMode}`);
@@ -1936,7 +2076,7 @@ async function main() {
       if (!c.required) continue;
       if (c.rows === 0) {
         if (c.isCandle) { blockedReasons.push(`missing_${c.table}`); continue; }
-        if (isEventFeature(c.table)) degradedReasons.push(`sparse_empty_${c.table}@${c.tf}`);
+        if (isSporadicFeature(c.table)) degradedReasons.push(`sparse_empty_${c.table}@${c.tf}`);
         else blockedReasons.push(`missing_${c.table}@${c.tf}`);
       } else if (c.insufficientDensity) {
         // Has some rows but far below expected density — block for dense features.
@@ -1949,6 +2089,14 @@ async function main() {
       }
     }
     for (const row of capability.blocked) {
+      // Session-scoped opening ranges are static after session completion.
+      // Their latest row may be older than the backtest edge by design; the
+      // join pins date/session/ts for PIT safety, so generic state freshness
+      // must not block historical evaluation.
+      if (row.table === "features_opening_range" && row.verdict === "STALE_STATE") {
+        degradedReasons.push(`capability_${row.verdict}_${row.table}${row.tf ? `@${row.tf}` : ""}`);
+        continue;
+      }
       // Research mode: STALE_STATE and PRODUCER_STALE warn but don't block.
       if (isResearch && (row.verdict === "STALE_STATE" || row.verdict === "PRODUCER_STALE")) {
         degradedReasons.push(`capability_${row.verdict}_${row.table}${row.tf ? `@${row.tf}` : ""}`);
@@ -2298,6 +2446,9 @@ async function main() {
                 evidence: cached.evidence,
                 warnings: cached.warnings ?? [],
                 blockReasons: cached.block_reasons ?? [],
+                // Older rows may contain an empty block_reasons array. Keep
+                // cache diagnostics honest, but do not alter grade semantics.
+                cacheSource: "persistent",
               };
               setupResults.set(eligibleIdx, result);
               seenHashes.set(hash, { result, eligibleIdx });
@@ -2403,7 +2554,8 @@ async function main() {
       const setupEval = setupResults.get(i);
       if (direction && setupEval && setupEval.grade === "BLOCK") {
         setupBlocked++;
-        const reason = setupEval.blockReasons?.join(", ") || "setup grade BLOCK";
+        const reason = setupEval.blockReasons?.join(", ")
+          || `setup grade BLOCK (confidence=${setupEval.confidence ?? "unknown"})`;
         setupBlockReasons[reason] = (setupBlockReasons[reason] ?? 0) + 1;
         continue;
       }
@@ -2434,14 +2586,31 @@ async function main() {
         // Zero execution costs — calc aggregate costs post-hoc from raw signal data.
         pipSize,
         signalTf: deriveSignalTf(spec),
+        breakevenAtR: Number.isFinite(spec.risk?.breakevenAtR) ? spec.risk.breakevenAtR : undefined,
       };
       const out = simulateTrade(sig, candles, simOptions);
-      // Drift gate: live-mode rejects fills whose drift exceeds the spec's
-      // max_entry_drift_pips (mirroring orderExecutor.ts:293). Report mode
-      // books but flags the drift in stats.
-      if (driftGateMode === "live" && (out.driftPips ?? 0) > maxEntryDriftPips) {
-        // Track as rejected, not simulated — same category as invalid geometry
-        // because the fill occurred outside acceptable execution bounds.
+      // Live mode applies same canonical drift threshold and rejection code as
+      // qualityEngine. Report mode books trade and retains drift evidence.
+      const drift = evaluateEntryDrift(
+        sig.symbol,
+        parseFloat(sig.entry_price),
+        out.effectiveEntry ?? parseFloat(sig.entry_price),
+        maxEntryDriftPips
+      );
+      if (driftGateMode === "live" && !drift.accepted) {
+        rawTrades.push({
+          symbol: sig.symbol,
+          side: sig.side,
+          ts: sig.ts,
+          causalLineage: sig.causal_lineage ?? [],
+          outcome: "rejected",
+          executed: false,
+          rejectionCode: ENTRY_DRIFT_REJECTION_CODE,
+          driftPips: drift.driftPips,
+          maxEntryDriftPips,
+          r: 0,
+          rRealized: 0,
+        });
         continue;
       }
       rawTrades.push({
@@ -2451,16 +2620,26 @@ async function main() {
         sl: parseFloat(sig.stop_loss),
         tp: parseFloat(sig.take_profit),
         ts: sig.ts,
+        causalLineage: sig.causal_lineage ?? [],
         entryType: sig.entry_type ?? "market",
         atr_5: sig.atr_5,
         spread_pips: sessionSpread,
         ...out,
+        executed: out.outcome === "win" || out.outcome === "loss",
+        plannedR: out.r,
+        realizedR: out.rRealized ?? out.r,
       });
     }
     const tSimEnd = performance.now();
 
-    const uniqueTrades = dedupeTrades(rawTrades, to);
-    const dedupedCount = rawTrades.length - uniqueTrades.length;
+    // Drift rejections are terminal execution-policy decisions, not simulated
+    // trades. Remove them before fingerprint dedupe and gate evaluation so they
+    // cannot collapse into same-side undefined-price fingerprints or surface as
+    // invalid trade outcomes.
+    const { accepted: driftAcceptedTrades, rejected: driftRejectedTrades } = partitionDriftRejections(rawTrades);
+    const driftRejectedCount = driftRejectedTrades.length;
+    const uniqueTrades = dedupeTrades(driftAcceptedTrades, to);
+    const dedupedCount = driftAcceptedTrades.length - uniqueTrades.length;
 
     const { executed, skipped, reasons, timeouts, invalid, invalidReasons, quarantined, atrQuarantined } = await applyGates(uniqueTrades, spec, { research: isCounterfactual });
     const heatMarked = isCounterfactual
@@ -2469,11 +2648,11 @@ async function main() {
     const stats = computeStats(heatMarked, timeouts);
     allTrades.push(...heatMarked.map((t) => ({ ...t, symbol })));
 
-    console.log(`${symbol}: ${signals.length} raw signals (${warmupSkipped} skipped for warmup, ${geometrySkipped} invalid compiler geometry, ${setupInvalidGeometry} invalid setup geometry, ${setupBlocked} setup-engine BLOCK, ${dedupedCount} deduped) | signal query ${queryMs.toFixed(0)}ms | prefetch ${(tPrefetch - tSignals).toFixed(0)}ms | setup-engine ${setupEngineMs > 0 ? setupEngineMs.toFixed(0) : 'N/A'}ms | simulate ${(tSimEnd - tPrefetch).toFixed(0)}ms`);
+    console.log(`${symbol}: ${signals.length} raw signals (${warmupSkipped} skipped for warmup, ${geometrySkipped} invalid compiler geometry, ${setupInvalidGeometry} invalid setup geometry, ${setupBlocked} setup-engine BLOCK, ${driftRejectedCount} drift rejected, ${dedupedCount} deduped) | signal query ${queryMs.toFixed(0)}ms | prefetch ${(tPrefetch - tSignals).toFixed(0)}ms | setup-engine ${setupEngineMs > 0 ? setupEngineMs.toFixed(0) : 'N/A'}ms | simulate ${(tSimEnd - tPrefetch).toFixed(0)}ms`);
     if (setupEvalsPersisted > 0) {
       console.log(`  Setup evaluations: ${setupEvalsPersisted} persisted, ${actuallyEvaluated} evaluated, ${contextDedupSkipped} context-hash skips`);
     }
-    console.log(`  Executed: ${stats.total} | Invalid outcomes: ${invalid} | Timeouts: ${timeouts} | Skipped: ${skipped} | Heat dropped: ${stats.heatDropped}${quarantined > 0 ? ` | Spread quarantined: ${quarantined}` : ""}${atrQuarantined > 0 ? ` | ATR quarantined: ${atrQuarantined}` : ""}`);
+    console.log(`  Executed: ${stats.total} | Drift rejected: ${driftRejectedCount} | Invalid outcomes: ${invalid} | Timeouts: ${timeouts} | Skipped: ${skipped} | Heat dropped: ${stats.heatDropped}${quarantined > 0 ? ` | Spread quarantined: ${quarantined}` : ""}${atrQuarantined > 0 ? ` | ATR quarantined: ${atrQuarantined}` : ""}`);
     if (Object.keys(reasons).length > 0) {
       console.log(`  Gate skips: ${Object.entries(reasons).map(([k, v]) => `${k}=${v}`).join(", ")}`);
     }
@@ -2492,6 +2671,11 @@ async function main() {
       setupBlocked,
       setupBlockReasons,
       simulated: rawTrades.length,
+      driftRejected: driftRejectedCount,
+      driftRejectionReasons: driftRejectedTrades.reduce((counts, trade) => {
+        counts[trade.rejectionCode] = (counts[trade.rejectionCode] || 0) + 1;
+        return counts;
+      }, {}),
       deduped: dedupedCount,
       gateSkipped: skipped,
       gateSkipReasons: reasons,
@@ -2503,6 +2687,7 @@ async function main() {
       candlesQuarantined,
       executed: stats.total,
     };
+    validateStageAccounting(stageCounts);
 
     const result = {
       spec: strategyId,
@@ -2514,6 +2699,8 @@ async function main() {
       days,
       rawSignals: signals.length,
       setupBlocked,
+      driftRejected: driftRejectedCount,
+      driftRejectionReasons: stageCounts.driftRejectionReasons,
       deduped: dedupedCount,
       executed: stats.total,
       skipped,
@@ -2547,7 +2734,16 @@ async function main() {
             symbol: t.symbol,
             side: t.side,
             ts: t.ts instanceof Date ? t.ts.toISOString() : t.ts,
-            closeTs: new Date(new Date(t.ts).getTime() + (t.holdBars ?? 0) * 60000).toISOString(),
+            // holdBars count from executable fill, not signal timestamp. Market
+            // orders become executable after the signal timeframe closes.
+            // Reporting from t.ts made 5m ORB trades appear to close before
+            // their simulated fill and obscured timing/drift investigations.
+            closeTs: new Date(
+              new Date(t.ts).getTime()
+              + (t.entryType === "market" ? (TF_MS[signalTf] ?? 0) : 0)
+              + (t.holdBars ?? 0) * 60000
+            ).toISOString(),
+            causalLineage: t.causalLineage ?? [],
             entry: t.entry,
             effectiveEntry: t.effectiveEntry,
             stopLoss: t.sl,
@@ -2605,11 +2801,14 @@ async function main() {
       queryMs: perSymbolResults.reduce((s, r) => s + r.queryMs, 0),
       trades: includeTrades ? perSymbolResults.flatMap((r) => r.trades || []) : undefined,
     };
+    finalSummary = aggregate;
     if (!jsonMode) {
       console.log(`\nAGGREGATE: Trades=${agg.total} WR=${(agg.winRate * 100).toFixed(1)}% NetR=${agg.netR.toFixed(2)} RealizedR=${agg.netRRealized.toFixed(2)} AvgDrift=${agg.avgDriftPips.toFixed(2)}p`);
     } else {
       stdoutLog(JSON.stringify(aggregate));
     }
+  } else {
+    finalSummary = perSymbolResults[0] || null;
   }
 
   let runId;
@@ -2622,6 +2821,17 @@ async function main() {
     }
   }
 
+  const blocked = Object.values(perSymbolDataQuality).some((quality) => quality.status === "BLOCKED_SYSTEM_QUALITY");
+  immutableRun.finalize({
+    status: blocked ? "BLOCKED" : "SUCCEEDED",
+    exitCode: blocked ? 1 : 0,
+    summary: finalSummary,
+    trades: allTrades,
+    readinessManifestHash: sha256(canonicalJson(perSymbolDataQuality)),
+  });
+  immutableRunFinalized = true;
+  console.log = originalLog;
+  console.error = originalError;
   await pool.end();
 }
 
@@ -2639,8 +2849,7 @@ async function persistTrades(trades, spec, strategyId, from, to, tf) {
     await client.query("BEGIN");
     await client.query(
       `INSERT INTO backtest_runs (id, symbol, tf, start_ts, end_ts, sample_count, variant_id, family_id, strategy_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       ON CONFLICT (id) DO UPDATE SET sample_count = EXCLUDED.sample_count`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [runId, "ALL", tf, from, to, trades.length, variantId, familyId, strategyId]
     );
 
@@ -2660,19 +2869,20 @@ async function persistTrades(trades, spec, strategyId, from, to, tf) {
       const sl = parseFloat(t.sl);
       const tp = parseFloat(t.tp);
       const effectiveEntry = t.effectiveEntry != null ? parseFloat(t.effectiveEntry) : entry;
-      const risk = Math.abs(effectiveEntry - sl);
-      const rr = risk > 0 ? Math.abs((tp - entry) / risk) : null;
+      const plannedRisk = Math.abs(entry - sl);
+      const realizedRisk = t.realizedRisk != null ? Math.abs(t.realizedRisk) : Math.abs(effectiveEntry - sl);
+      const rr = plannedRisk > 0 ? Math.abs((tp - entry) / plannedRisk) : null;
       const exitTs = new Date(new Date(t.ts).getTime() + (t.holdBars ?? 0) * 60_000).toISOString();
 
       let maxAdverseR = null;
       let maxFavorableR = null;
-      if (risk > 0 && t.maxAdverse != null && t.maxFavorable != null) {
+      if (realizedRisk > 0 && t.maxAdverse != null && t.maxFavorable != null) {
         if (t.side === "buy") {
-          maxAdverseR = (effectiveEntry - parseFloat(t.maxAdverse)) / risk;
-          maxFavorableR = (parseFloat(t.maxFavorable) - effectiveEntry) / risk;
+          maxAdverseR = (effectiveEntry - parseFloat(t.maxAdverse)) / realizedRisk;
+          maxFavorableR = (parseFloat(t.maxFavorable) - effectiveEntry) / realizedRisk;
         } else {
-          maxAdverseR = (parseFloat(t.maxAdverse) - effectiveEntry) / risk;
-          maxFavorableR = (effectiveEntry - parseFloat(t.maxFavorable)) / risk;
+          maxAdverseR = (parseFloat(t.maxAdverse) - effectiveEntry) / realizedRisk;
+          maxFavorableR = (effectiveEntry - parseFloat(t.maxFavorable)) / realizedRisk;
         }
       }
 
@@ -2710,15 +2920,10 @@ async function persistTrades(trades, spec, strategyId, from, to, tf) {
       );
     }
 
-    // Delete any prior rows for the same run before inserting — backtest_results
-    // has no natural unique key (BIGSERIAL id), so re-runs would otherwise
-    // double-count every trade in the API (CRITICAL, §3.2.6).
+    // Run IDs are globally unique and immutable. Existing run rows are never
+    // updated or deleted; collision means provenance failure.
     await client.query(
-      `DELETE FROM backtest_results WHERE run_id = $1`,
-      [runId]
-    );
-    await client.query(
-      `INSERT INTO backtest_results (${columns.join(", ")}) VALUES ${placeholders.join(", ")} ON CONFLICT DO NOTHING`,
+      `INSERT INTO backtest_results (${columns.join(", ")}) VALUES ${placeholders.join(", ")}`,
       values
     );
     await client.query("COMMIT");
@@ -2815,9 +3020,14 @@ function mergeStageCounts(countsArray) {
     setupBlocked: 0,
     setupBlockReasons: {},
     simulated: 0,
+    driftRejected: 0,
+    driftRejectionReasons: {},
     deduped: 0,
     gateSkipped: 0,
     gateSkipReasons: {},
+    invalidOutcomes: 0,
+    invalidOutcomeReasons: {},
+    timeouts: 0,
     heatDropped: 0,
     spreadQuarantined: 0,
     candlesQuarantined: 0,
@@ -2834,11 +3044,20 @@ function mergeStageCounts(countsArray) {
       out.setupBlockReasons[k] = (out.setupBlockReasons[k] || 0) + v;
     }
     out.simulated += sc.simulated ?? 0;
+    out.driftRejected += sc.driftRejected ?? 0;
+    for (const [k, v] of Object.entries(sc.driftRejectionReasons ?? {})) {
+      out.driftRejectionReasons[k] = (out.driftRejectionReasons[k] || 0) + v;
+    }
     out.deduped += sc.deduped ?? 0;
     out.gateSkipped += sc.gateSkipped ?? 0;
     for (const [k, v] of Object.entries(sc.gateSkipReasons ?? {})) {
       out.gateSkipReasons[k] = (out.gateSkipReasons[k] || 0) + v;
     }
+    out.invalidOutcomes += sc.invalidOutcomes ?? 0;
+    for (const [k, v] of Object.entries(sc.invalidOutcomeReasons ?? {})) {
+      out.invalidOutcomeReasons[k] = (out.invalidOutcomeReasons[k] || 0) + v;
+    }
+    out.timeouts += sc.timeouts ?? 0;
     out.heatDropped += sc.heatDropped ?? 0;
     out.spreadQuarantined += sc.spreadQuarantined ?? 0;
     out.candlesQuarantined += sc.candlesQuarantined ?? 0;
@@ -2859,6 +3078,10 @@ module.exports = {
   computeStats,
   evaluatePortfolioHeat,
   dedupeTrades,
+  partitionDriftRejections,
+  invalidOutcomeReason,
+  validateStageAccounting,
+  mergeStageCounts,
   prefetchCandles,
   validateTimeWindow,
   assertAllowedFeature,
@@ -2872,6 +3095,7 @@ module.exports = {
   collectCoverageTargets,
   requiredFeatureTargets,
   capabilityKey,
+  checkRequiredCapabilities,
   CAPABILITY_BLOCKING_VERDICTS,
   CAPABILITY_DEGRADED_VERDICTS,
 };

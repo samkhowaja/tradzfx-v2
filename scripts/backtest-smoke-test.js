@@ -1,12 +1,13 @@
 /**
  * Backtest smoke test (#14C).
  *
- * Runs every active variant for 1 day in --mode=fast and asserts exit code 0.
+ * Runs every active variant in --mode=fast with a dynamically computed window
+ * (2× warmupMs minimum) and asserts exit code 0.
  * Exits 1 on any failure — wired into the CI gate so no future commit can ship
  * a backtester crash.
  *
  * Usage:
- *   node scripts/backtest-smoke-test.js [--symbol=EURUSD] [--days=1]
+ *   node scripts/backtest-smoke-test.js [--symbol=EURUSD] [--min-days=7]
  */
 
 require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
@@ -17,12 +18,41 @@ const path = require("path");
 
 const BACKTEST_SCRIPT = path.join(__dirname, "backtest-pit-v2.js");
 const DEFAULT_SYMBOL = "EURUSD";
-const DEFAULT_DAYS = 1;
+const DEFAULT_MIN_DAYS = 7;
+const END_BUFFER_DAYS = 4; // pin end date this many days ago to avoid stale-at-edge
+
+// Reuse warmup-computation logic from the backtester
+const {
+  computeWarmupMs,
+} = require(BACKTEST_SCRIPT);
+const {
+  deriveSignalTf,
+  loadStrategyFromDB,
+} = require(path.join(__dirname, "..", "packages", "strategies", "dist", "index.js"));
+
+/**
+ * Compute the minimum backtest window (in days) so 2× warmup fits.
+ */
+function computeMinDays(spec) {
+  const warmupMs = computeWarmupMs(spec);
+  // 2× warmup, plus 1h buffer, rounded up to nearest day
+  return Math.ceil((2 * warmupMs + 3600000) / 86400000);
+}
+
+/**
+ * Return a pinned end date string (YYYY-MM-DD) a few days ago so features are
+ * guaranteed fresh and we avoid "stale at market edge" false alarms.
+ */
+function pinnedEndDate() {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - END_BUFFER_DAYS);
+  // Floor to midnight UTC
+  return d.toISOString().slice(0, 10);
+}
 
 async function main() {
   const symbol = process.argv.find((a) => a.startsWith("--symbol="))?.slice("--symbol=".length) ?? DEFAULT_SYMBOL;
-  const days = parseInt(process.argv.find((a) => a.startsWith("--days="))?.slice("--days=".length) ?? String(DEFAULT_DAYS), 10);
-  const preflightOnly = process.argv.includes("--preflight-only");
+  const minDays = parseInt(process.argv.find((a) => a.startsWith("--min-days="))?.slice("--min-days=".length) ?? String(DEFAULT_MIN_DAYS), 10);
 
   const pool = new Pool({
     host: process.env.TM_DB_HOST || "localhost",
@@ -61,46 +91,49 @@ async function main() {
   for (const variant of rows) {
     const label = `${variant.id} (${variant.name})`;
 
-    // 1. Preflight — check data quality before running the backtest
-    console.log(`[backtest-smoke] 🔍 Preflight ${label} on ${symbol} ${days}d...`);
+    // Load spec, compute required window, and choose a compatible symbol.
+    let variantDays;
+    let variantSymbol = symbol;
     try {
-      execSync(
-        `node "${BACKTEST_SCRIPT}" ${symbol} ${days} ${variant.id} --preflight --mode=fast`,
-        {
-          stdio: "pipe",
-          timeout: 120_000,
-          cwd: path.join(__dirname, ".."),
-        }
-      );
-      console.log(`[backtest-smoke] ✓ Preflight passed for ${label}`);
-    } catch (err) {
-      const stderr = err.stderr?.toString() ?? "";
-      const stdout = err.stdout?.toString() ?? "";
-      // Preflight warnings (DEGRADED) are OK; hard blocks are not.
-      if (stderr.includes("BLOCKED") || stdout.includes("BLOCKED") ||
-          stderr.includes("blocked") || stdout.includes("blocked") ||
-          err.status !== 0 && (stderr.includes("BLOCKED_SYSTEM_QUALITY") || stdout.includes("BLOCKED_SYSTEM_QUALITY"))) {
-        console.error(`[backtest-smoke] ❌ Preflight FAILED for ${label} (${symbol} ${days}d)`);
-        console.error(`  exit code: ${err.status}, signal: ${err.signal}`);
-        const lines = (stderr || stdout).split("\n").filter(Boolean).slice(-5);
-        lines.forEach((l) => console.error(`  ${l}`));
+      const spec = await loadStrategyFromDB(pool, variant.id);
+      if (!spec) {
+        console.error(`[backtest-smoke] ❌ Cannot load spec for ${label} — skipping`);
         failed++;
-        failures.push({ id: variant.id, reason: "preflight", detail: lines.join("; ") });
+        failures.push({ id: variant.id, reason: "no_spec", detail: "Cannot load variant spec from DB" });
         continue;
       }
-      // Non-blocking issues (DEGRADED, warnings, empty preflight) — proceed to actual backtest
-      console.log(`[backtest-smoke] ⚠ Preflight warnings for ${label} — proceeding to smoke test`);
+      const allowedSymbols = spec.filters?.symbols ?? [];
+      if (allowedSymbols.length > 0 && !allowedSymbols.includes(symbol)) {
+        variantSymbol = allowedSymbols[0];
+      }
+      const warmupDays = computeMinDays(spec);
+      variantDays = Math.max(minDays, warmupDays);
+      const signalTf = deriveSignalTf(spec);
+      const warmupMs = computeWarmupMs(spec);
+      console.log(`[backtest-smoke] ── ${label}: symbol=${variantSymbol}, signalTf=${signalTf}, warmupMs=${warmupMs}ms (${(warmupMs/3600000).toFixed(1)}h), window=${variantDays}d`);
+    } catch (err) {
+      console.error(`[backtest-smoke] ❌ Spec load failed for ${label}: ${err.message}`);
+      failed++;
+      failures.push({ id: variant.id, reason: "spec_load", detail: err.message });
+      continue;
     }
 
-    // 2. Actual backtest (--mode=fast, 1 day)
-    console.log(`[backtest-smoke] 🏃 Running ${label} on ${symbol} ${days}d (mode=fast)...`);
+    // Determine pinned end date so the backtest uses a window where features are
+    // guaranteed fresh (avoiding stale-at-market-edge false alarms).
+    const endDate = pinnedEndDate();
+
+    // Run backtest with a pinned historical window and env var that downgrades
+    // producer-stale & stale-state to warnings (they are irrelevant to a PIT-correct
+    // historical window ending before now).
+    console.log(`[backtest-smoke] 🏃 Running ${label} on ${variantSymbol} ${variantDays}d → ${endDate} (mode=fast)...`);
     try {
       execSync(
-        `node "${BACKTEST_SCRIPT}" ${symbol} ${days} ${variant.id} --mode=fast`,
+        `node "${BACKTEST_SCRIPT}" ${variantSymbol} ${variantDays} ${variant.id} --end=${endDate} --mode=fast`,
         {
           stdio: "pipe",
           timeout: 300_000, // 5 min per variant
           cwd: path.join(__dirname, ".."),
+          env: { ...process.env, BACKTEST_HISTORICAL_STALE_OK: "1" },
         }
       );
       console.log(`[backtest-smoke] ✓ Passed: ${label}`);

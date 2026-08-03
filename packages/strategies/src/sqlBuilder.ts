@@ -7,8 +7,8 @@
  * and PIT modes and across all feature types.
  */
 
-import type { StrategyCondition, TimeFrame, OrbSessionKey, StrategySpec } from "@tm/shared";
-import { ORB_SESSION_KEYS } from "@tm/shared";
+import type { StrategyCondition, TimeFrame, OrbSessionKey, StrategySpec, LevelKind } from "@tm/shared";
+import { ORB_SESSION_KEYS, getLevelMaxAgeDays } from "@tm/shared";
 
 /**
  * Session window boundaries (UTC hours, inclusive start, exclusive end).
@@ -164,6 +164,13 @@ function formatInterval(minutes: number): string {
  * The padding is additive and conservative: it never shrinks the window.
  */
 export function buildLookbackInterval(cond: StrategyCondition, spec?: StrategySpec): string {
+  // For forward TTL direction, use ttlMinutes as the lookback bound directly
+  // (the window is parent.ts to parent.ts + ttlMinutes). No session-gap padding
+  // needed — forward TTL searches into the future, not backward across gaps.
+  if (cond.ttlDirection === "forward" && cond.ttlMinutes && cond.ttlMinutes > 0) {
+    return formatInterval(cond.ttlMinutes);
+  }
+
   const bars = cond.lookbackBars;
   const tf = cond.tf;
   let minutes: number;
@@ -216,12 +223,23 @@ export function buildFreshnessPredicate(
     const mitigatedCol = contract.validityColumns?.mitigatedAt;
     const invalidatedCol = contract.validityColumns?.invalidatedAt;
     const parts: string[] = [];
+    const levelKind: LevelKind | undefined = cond.feature === "features_ifvg"
+      ? "ifvg"
+      : cond.feature === "features_order_block"
+        ? "order_block"
+        : cond.feature === "features_zone"
+          ? "zone"
+          : undefined;
+    const maxAgeDays = levelKind ? getLevelMaxAgeDays(levelKind, cond.tf) : undefined;
 
     if (!isFvg && mitigatedCol) {
       parts.push(`(${tableRef}.${mitigatedCol} IS NULL OR ${tableRef}.${mitigatedCol} > ${asOfRef})`);
     }
     if (invalidatedCol) {
       parts.push(`(${tableRef}.${invalidatedCol} IS NULL OR ${tableRef}.${invalidatedCol} > ${asOfRef})`);
+    }
+    if (maxAgeDays !== undefined) {
+      parts.push(`${tableRef}.ts >= ${asOfRef} - INTERVAL '${maxAgeDays} days'`);
     }
 
     return parts.length ? `AND ${parts.join("\n        AND ")}` : "";
@@ -263,7 +281,8 @@ function buildPushdownSql(cond: StrategyCondition, mode?: "live" | "pit"): strin
 function buildOrderBy(contract: FeatureContract, cond: StrategyCondition): string {
   const groupCols = cond.groupBy ?? contract.equalityGroupByDefaults ?? [];
   const distinctOn = ["symbol", ...groupCols].join(", ");
-  const tieBreaker = contract.tieBreaker;
+  const isForward = cond.ttlDirection === "forward";
+  const tieBreaker = isForward ? "ts ASC" : (contract.tieBreaker ?? "ts DESC");
   return tieBreaker ? `ORDER BY ${distinctOn}, ${tieBreaker}` : `ORDER BY ${distinctOn}, ts DESC`;
 }
 
@@ -282,24 +301,42 @@ function buildJoinPolicyWhere(
     ? `AND ${tableRef}.ts <= ${asOfRef}.ts - ${confirmationLag}`
     : `AND ${tableRef}.ts <= ${asOfRef}.ts`;
 
+  const isForward = cond.ttlDirection === "forward";
+
   switch (policy) {
     case "latest_as_of":
-      return `
+      return isForward
+        ? `
+      AND ${tableRef}.ts >= ${asOfRef}.ts
+      AND ${tableRef}.ts <= ${asOfRef}.ts + INTERVAL '${lookback}'`
+        : `
       ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "active_window":
-      return `
+      return isForward
+        ? `
+      AND ${tableRef}.ts >= ${asOfRef}.ts
+      AND ${tableRef}.ts <= ${asOfRef}.ts + INTERVAL '${lookback}'`
+        : `
       ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "candidate_set":
-      return `
+      return isForward
+        ? `
+      AND ${tableRef}.ts >= ${asOfRef}.ts
+      AND ${tableRef}.ts <= ${asOfRef}.ts + INTERVAL '${lookback}'`
+        : `
       ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
     case "sample_distribution":
-      return `
+      return isForward
+        ? `
+      AND ${tableRef}.ts >= ${asOfRef}.ts
+      AND ${tableRef}.ts <= ${asOfRef}.ts + INTERVAL '${lookback}'`
+        : `
       ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
 
@@ -307,7 +344,11 @@ function buildJoinPolicyWhere(
       return buildOrbSessionScopedJoin(cond, tableRef, asOfRef);
 
     default:
-      return `
+      return isForward
+        ? `
+      AND ${tableRef}.ts >= ${asOfRef}.ts
+      AND ${tableRef}.ts <= ${asOfRef}.ts + INTERVAL '${lookback}'`
+        : `
       ${upperBound}
       AND ${tableRef}.ts >= ${asOfRef}.ts - INTERVAL '${lookback}'`;
   }

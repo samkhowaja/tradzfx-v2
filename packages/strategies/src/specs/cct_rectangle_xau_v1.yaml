@@ -1,0 +1,72 @@
+id: cct_rectangle_xau_v1
+familyId: cct_rectangle
+active: false
+name: "CCT Rectangle — XAUUSD (YouTube CBFqrJYBjE0)"
+version: "1.1.0-research"
+description: >
+  Scalping-timeframe implementation of Waqar Asim's CCT Rectangle Setup from
+  "The Only 1 Minute Scalping Strategy You'll Ever Need" (CBFqrJYBjE0).
+
+  3 progressive structure steps:
+    Step 1 (15m): directional BOS/MSS/CHOCH establishes intraday bias.
+    Step 2 (5m): opposite-direction BOS/MSS/CHOCH identifies weakness and
+      defines the rectangle context.
+    Step 3 (1m): original-direction BOS/MSS/CHOCH confirms continuation.
+
+  The prior 4h candle-pattern anchor generated only 55 candidates in 90 days,
+  which modeled a swing setup rather than a gold scalper. This 15m/5m/1m
+  hierarchy preserves higher-to-lower-timeframe causality while providing an
+  intraday opportunity set. Research only — inactive.
+
+signalSource: generic
+
+filters:
+  symbols: [ XAUUSD ]
+
+steps:
+  - id: dir_structure
+    feature: features_structure
+    tf: 15m
+    predicate: >
+      event_type IN ('bos','mss','choch')
+    required: true
+
+  - id: weakness
+    dependsOn: [ dir_structure ]
+    feature: features_structure
+    tf: 5m
+    predicate: >
+      event_type IN ('bos','mss','choch')
+      AND direction != features_bias.direction
+    autoAlignDirection: false
+    ttlMinutes: 360
+    ttlDirection: forward
+    required: true
+
+entry:
+  - id: breakout
+    dependsOn: [ weakness ]
+    feature: features_structure
+    tf: 1m
+    predicate: >
+      event_type IN ('bos','mss','choch')
+      AND direction = features_bias.direction
+    ttlMinutes: 120
+    ttlDirection: forward
+    required: true
+
+live:
+  structureFreshnessMinutes: 30
+
+risk:
+  sl: "atr(5m) * 1.5"
+  tp: "sl * 4.0"
+  minRR: 3.0
+  timeoutBars: 0
+
+notes:
+  - "Research only — not activated for live trading."
+  - "Based on Waqar Asim YouTube video CBFqrJYBjE0."
+  - "15m structure replaces sparse 4h candle patterns as intraday direction anchor."
+  - "5m counter-structure models weakness within 6h; 1m continuation confirms within 2h."
+  - "Forward TTL is the sole freshness bound for weakness and breakout events."

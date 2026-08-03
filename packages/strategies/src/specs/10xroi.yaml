@@ -11,7 +11,7 @@ filters:
   symbols: [ XAUUSD ]
   sessions: [ ASIA, LONDON, OVERLAP, NY ]
 
-warmupBars: 240
+warmupBars: 200
 
 setup:
   - id: daily_bias
@@ -72,6 +72,14 @@ gates:
     name: rateLimit
     params:
       maxSignalsPerHour: 1
+
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["4h", "1h"]
+      require: majority
+      allowNeutral: true
       maxSignalsPerDay: 2
 
 live:

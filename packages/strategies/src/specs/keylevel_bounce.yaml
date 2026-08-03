@@ -43,11 +43,6 @@ entry:
     tf: 15m
     predicate: event_type IN ('bos', 'mss')
     required: true
-  - id: zone_retest
-    feature: features_zone
-    tf: 15m
-    predicate: zone_kind IN ('demand', 'supply') AND fill_pct < 0.95
-    required: true
 risk:
   sl: 50 pips
   tp: sl * 3.0
@@ -67,6 +62,14 @@ gates:
     params:
       maxConcurrentPerSymbol: 1
       maxConcurrentTotal: 3
+
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["1h", "15m"]
+      require: majority
+      allowNeutral: true
 live:
   mode: paper
   structureFreshnessMinutes: 120

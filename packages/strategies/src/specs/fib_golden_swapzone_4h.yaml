@@ -95,6 +95,14 @@ gates:
     params:
       maxAtr5Pips: 65
 
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["1d", "4h", "1h"]
+      require: all
+      allowNeutral: true
+
   - id: portfolio_heat
     name: portfolioHeat
     params:

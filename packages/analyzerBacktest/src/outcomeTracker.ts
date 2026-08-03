@@ -11,7 +11,12 @@ export interface Candle {
 
 export interface TrackedOutcome {
   outcome: "win" | "loss" | "open" | "missed" | "timeout";
+  /** Compatibility alias for realizedR. */
   outcomeR: number;
+  plannedR: number;
+  realizedR: number;
+  plannedRisk: number | null;
+  realizedRisk: number | null;
   exitPrice: number | null;
   exitTs: string | null;
   barsHeld: number;
@@ -103,6 +108,10 @@ export function trackOutcome(
     return {
       outcome: "missed",
       outcomeR: 0,
+      plannedR: 0,
+      realizedR: 0,
+      plannedRisk: null,
+      realizedRisk: null,
       exitPrice: null,
       exitTs: null,
       barsHeld: 0,
@@ -126,12 +135,17 @@ export function trackOutcome(
     ? rawEntryPrice + entryAdjustment
     : rawEntryPrice - entryAdjustment;
 
+  const plannedRisk = Math.abs(rawEntryPrice - stopLoss);
   const risk = Math.abs(effectiveEntry - stopLoss);
 
   if (risk <= 0 || !Number.isFinite(risk)) {
     return {
       outcome: "missed",
       outcomeR: 0,
+      plannedR: 0,
+      realizedR: 0,
+      plannedRisk: Number.isFinite(plannedRisk) ? plannedRisk : null,
+      realizedRisk: null,
       exitPrice: null,
       exitTs: null,
       barsHeld: 0,
@@ -146,6 +160,10 @@ export function trackOutcome(
     return {
       outcome: "missed",
       outcomeR: 0,
+      plannedR: 0,
+      realizedR: 0,
+      plannedRisk,
+      realizedRisk: risk,
       exitPrice: null,
       exitTs: null,
       barsHeld: 0,
@@ -154,7 +172,6 @@ export function trackOutcome(
       maxFavorableR: 0,
     };
   }
-  const targetR = reward / risk;
 
   let maxAdverseR = 0;
   let maxFavorableR = 0;
@@ -184,6 +201,11 @@ export function trackOutcome(
       const delta = direction === "long" ? effectiveExit - effectiveEntry : effectiveEntry - effectiveExit;
       return delta / risk;
     }
+    function plannedRFromExit(effectiveExit: number): number {
+      if (!(plannedRisk > 0)) return 0;
+      const delta = direction === "long" ? effectiveExit - effectiveEntry : effectiveEntry - effectiveExit;
+      return delta / plannedRisk;
+    }
 
     if (slHit && tpHit) {
       const first = resolveIntrabar(direction, stopLoss, takeProfit, candle, intrabarMode);
@@ -195,6 +217,10 @@ export function trackOutcome(
       return {
         outcome: r >= 0 ? "win" : "loss",
         outcomeR: r,
+        plannedR: plannedRFromExit(effectiveExit),
+        realizedR: r,
+        plannedRisk,
+        realizedRisk: risk,
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,
@@ -206,9 +232,14 @@ export function trackOutcome(
 
     if (slHit) {
       const effectiveExit = direction === "long" ? stopLoss - exitAdjustment : stopLoss + exitAdjustment;
+      const realizedR = outcomeRFromExit(effectiveExit);
       return {
         outcome: "loss",
-        outcomeR: outcomeRFromExit(effectiveExit),
+        outcomeR: realizedR,
+        plannedR: plannedRFromExit(effectiveExit),
+        realizedR,
+        plannedRisk,
+        realizedRisk: risk,
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,
@@ -220,9 +251,14 @@ export function trackOutcome(
 
     if (tpHit) {
       const effectiveExit = direction === "long" ? takeProfit - exitAdjustment : takeProfit + exitAdjustment;
+      const realizedR = outcomeRFromExit(effectiveExit);
       return {
         outcome: "win",
-        outcomeR: outcomeRFromExit(effectiveExit),
+        outcomeR: realizedR,
+        plannedR: plannedRFromExit(effectiveExit),
+        realizedR,
+        plannedRisk,
+        realizedRisk: risk,
         exitPrice: effectiveExit,
         exitTs: candle.ts,
         barsHeld: i + 1,
@@ -238,6 +274,10 @@ export function trackOutcome(
   return {
     outcome: "timeout",
     outcomeR: 0,
+    plannedR: 0,
+    realizedR: 0,
+    plannedRisk,
+    realizedRisk: risk,
     exitPrice: null,
     exitTs: null,
     barsHeld: futureCandles.length,

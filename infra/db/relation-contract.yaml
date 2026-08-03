@@ -1,9 +1,9 @@
 version: 1
 scope:
   schemas: [public, ops]
-  expectedRelationCount: 80
+  expectedRelationCount: 89
   generatedFrom: DATABASE_RELATION_PURPOSE_ACCESS_AUDIT_2026-07-17
-  reviewedAt: 2026-07-17
+  reviewedAt: 2026-07-23
   policy:
     unknownRelation: error
     missingCanonicalRelation: error
@@ -47,9 +47,13 @@ relations:
   public.features_ifvg: { kind: table, domain: market, classification: event-feature, grain: one inverse-FVG event per immutable source lineage, status: canonical, ownerRole: tradzfx_engine, pitPolicy: lifecycle-as-of-anchor, retention: feature-history }
   public.features_indicator: { kind: table, domain: market, classification: state-feature, grain: one generic indicator parameterization per symbol/tf/anchor, status: provisional, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
   public.features_keltner: { kind: table, domain: market, classification: state-feature, grain: one Keltner parameterization per symbol/tf/anchor, status: canonical, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
+  public.features_liquidity_event_v2: { kind: table, domain: market, classification: event-feature, grain: one immutable typed event per exact liquidity level and knowledge timestamp, status: provisional, ownerRole: tradzfx_engine, pitPolicy: immutable-event-known-at, retention: feature-history }
+  public.features_liquidity_level_v2: { kind: table, domain: market, classification: event-feature, grain: one deterministic typed liquidity level per immutable source lineage, status: provisional, ownerRole: tradzfx_engine, pitPolicy: level-lifecycle-as-of-anchor, retention: feature-history }
   public.features_liquidity_pools: { kind: table, domain: market, classification: event-feature, grain: one liquidity-pool event per immutable source lineage, status: canonical, ownerRole: tradzfx_engine, pitPolicy: lifecycle-as-of-anchor, retention: feature-history }
   public.features_moving_average: { kind: table, domain: market, classification: state-feature, grain: one moving-average parameterization per symbol/tf/anchor, status: canonical, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
   public.features_opening_range: { kind: table, domain: market, classification: session-feature, grain: one opening-range state per symbol/session/date/profile, status: canonical, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
+  public.features_session_range_v2: { kind: table, domain: market, classification: session-feature, grain: one evolving or final range state per symbol/tf/session/date/as-of timestamp, status: provisional, ownerRole: tradzfx_engine, pitPolicy: range-state-as-of, retention: feature-history }
+  public.market_window_occurrences: { kind: table, domain: market, classification: calendar, grain: one resolved market-window policy occurrence per date and symbol class, status: provisional, ownerRole: tradzfx_engine, pitPolicy: versioned-calendar-policy, retention: long-term }
   public.features_order_block: { kind: table, domain: market, classification: event-feature, grain: one order-block event per immutable source lineage, status: canonical, ownerRole: tradzfx_engine, pitPolicy: lifecycle-as-of-anchor, retention: feature-history }
   public.features_pivot: { kind: table, domain: market, classification: event-feature, grain: one pivot event per symbol/tf/source anchor/discriminator, status: canonical, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
   public.features_pricing: { kind: table, domain: market, classification: state-feature, grain: one pricing state per symbol/tf/anchor/profile, status: canonical, ownerRole: tradzfx_engine, pitPolicy: anchor-bounded, retention: feature-history }
@@ -80,6 +84,11 @@ relations:
   public.pipeline_trigger_state: { kind: table, domain: ops, classification: state, grain: one trigger checkpoint per pipeline key, status: canonical, ownerRole: tradzfx_engine, pitPolicy: operational-only, retention: current-state }
   public.position_commands: { kind: table, domain: execution, classification: queue, grain: one idempotent position-management command, status: canonical, ownerRole: tradzfx_execution, pitPolicy: event-lineage, retention: long-term }
   public.processed_ea_events: { kind: table, domain: execution, classification: ledger, grain: one idempotently received EA event, status: canonical, ownerRole: tradzfx_execution, pitPolicy: immutable-event, retention: long-term }
+  public.progressive_plan_registry: { kind: table, domain: strategy, classification: configuration-ledger, grain: one immutable compiled progressive plan hash, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: immutable-snapshot, retention: permanent }
+  public.progressive_setup_event_inbox: { kind: table, domain: strategy, classification: event-ledger, grain: one immutable normalized lifecycle event, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: immutable-event, retention: long-term }
+  public.progressive_setup_instance: { kind: table, domain: strategy, classification: authority, grain: one durable progressive setup instance, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: event-derived-current-state, retention: long-term }
+  public.progressive_setup_node: { kind: table, domain: strategy, classification: projection, grain: one node state per progressive setup instance, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: event-derived-current-state, retention: long-term }
+  public.progressive_setup_transition: { kind: table, domain: strategy, classification: audit, grain: one immutable setup lifecycle transition, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: immutable-event, retention: long-term }
   public.risk_state: { kind: table, domain: execution, classification: state, grain: one current risk state per governed scope, status: canonical, ownerRole: tradzfx_execution, pitPolicy: current-plus-audit, retention: current-plus-history }
   public.schema_migrations: { kind: table, domain: ops, classification: ledger, grain: one applied migration, status: canonical, ownerRole: tradzfx_migrator, pitPolicy: operational-only, retention: permanent }
   public.setup_evaluations: { kind: table, domain: strategy, classification: audit, grain: one setup evaluation per candidate/context, status: canonical, ownerRole: tradzfx_strategy, pitPolicy: immutable-decision, retention: long-term }

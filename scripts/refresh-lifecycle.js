@@ -17,6 +17,11 @@
 
 require("dotenv").config({ path: ".env.local" });
 const { Pool } = require("pg");
+const { evaluateLifecycleProgress } = require("./lib/lifecycle-convergence.js");
+
+const OWNER = "tz-refresh-lifecycle";
+const MAX_ITERATIONS = parseInt(process.env.TM_LIFECYCLE_MAX_ITERATIONS || "100", 10);
+const DEADLINE_MS = parseInt(process.env.TM_LIFECYCLE_DEADLINE_MS || "900000", 10);
 
 // Maintenance jobs (lifecycle rebuild) can legitimately run for minutes per
 // call. The app-level TM_DB_STATEMENT_TIMEOUT (60s in .env.local) protects the
@@ -62,6 +67,18 @@ const skipTables = new Set(
 
 const enabledTables = ALL_TABLES.filter((t) => !skipTables.has(t.name));
 
+// These producer functions advance a checkpoint/update bookkeeping row on
+// every call. Repeating them cannot drain lifecycle work and can keep the
+// outer loop alive until MAX_ITERATIONS. Run them once per symbol/pass.
+const SINGLE_PASS_TABLES = new Set([
+  "features_atr",
+  "features_spread",
+  "features_candle_pattern",
+  "features_pricing",
+  "features_displacement",
+  "features_opening_range",
+]);
+
 const pool = new Pool({
   host: process.env.TM_DB_HOST || "localhost",
   port: parseInt(process.env.TM_DB_PORT || "5432", 10),
@@ -69,7 +86,9 @@ const pool = new Pool({
   user: process.env.TM_DB_USER || "postgres",
   password: process.env.TM_DB_PASSWORD,
   application_name: process.env.TM_DB_APPLICATION_NAME || "tradzfx-lifecycle",
-  max: parseInt(process.env.TM_DB_POOL_MAX || "5", 10),
+  // Lifecycle refresh is maintenance work. One client prevents this runner
+  // from amplifying lock contention while the web/engine pools are active.
+  max: parseInt(process.env.TM_DB_POOL_MAX || "1", 10),
   connectionTimeoutMillis: parseInt(process.env.TM_DB_CONNECTION_TIMEOUT || "5000", 10),
   idleTimeoutMillis: parseInt(process.env.TM_DB_IDLE_TIMEOUT || "30000", 10),
   // node-postgres `options` uses the libpq startup-parameter form (-c key=val);
@@ -78,76 +97,112 @@ const pool = new Pool({
   options: `-c statement_timeout=${STATEMENT_TIMEOUT}`,
 });
 
+async function readCheckpoints(client, symbol) {
+  const { rows } = await client.query(
+    `SELECT table_name, last_processed_ts
+       FROM lifecycle_refresh_state
+      WHERE symbol = $1`,
+    [symbol]
+  );
+  return Object.fromEntries(rows.map((row) => [row.table_name, row.last_processed_ts]));
+}
+
 async function refreshSymbol(symbol, lookbackDays, limit) {
-  const { rows: tsRows } = await pool.query(
-    `SELECT MAX(ts) AS max_ts FROM market.candles_1m_canonical WHERE symbol = $1`,
-    [symbol]
-  );
-  const maxTs = tsRows[0]?.max_ts;
-  if (!maxTs) {
-    console.log(`[refresh-lifecycle] ${symbol}: no candles, skipping`);
-    return 0;
-  }
+  const client = await pool.connect();
+  // Shared key with inline updater: canonical and best-effort owners cannot overlap.
+  const lockKey = `lifecycle:${symbol}`;
+  try {
+    const { rows: lockRows } = await client.query(
+      "SELECT pg_try_advisory_lock(hashtext($1)) AS locked",
+      [lockKey]
+    );
+    if (!lockRows[0]?.locked) {
+      console.log(`[refresh-lifecycle] ${symbol}: already_running`);
+      return { symbol, status: "already_running", rowsUpdated: 0 };
+    }
 
-  // Reset per-table incremental state so the full lookback window is re-scanned.
-  await pool.query(
-    `DELETE FROM lifecycle_refresh_state WHERE symbol = $1`,
-    [symbol]
-  );
+    const { rows: tsRows } = await client.query(
+      `SELECT MAX(ts) AS max_ts FROM market.candles_1m_canonical WHERE symbol = $1`,
+      [symbol]
+    );
+    const maxTs = tsRows[0]?.max_ts;
+    if (!maxTs) {
+      console.log(`[refresh-lifecycle] ${symbol}: no candles, skipping`);
+      return { symbol, status: "no_data", rowsUpdated: 0 };
+    }
 
-  console.log(
-    `[refresh-lifecycle] Refreshing ${symbol} as-of ${maxTs} (last ${lookbackDays} days, limit ${limit})...`
-  );
-  const start = performance.now();
-  let grandTotal = 0;
-  let iteration = 0;
-  while (true) {
-    iteration++;
-    // PARALLEL: each table refresh is independent — different DB functions,
-    // different WHERE clauses, no transaction overlap. Promise.all cuts wall
-    // time from sum(table times) to max(table time). (Audit item #11)
-    const tableTasks = enabledTables.map(async (t) => {
+    const before = await readCheckpoints(client, symbol);
+    console.log(
+      `[refresh-lifecycle] Refreshing ${symbol} as-of ${maxTs} (last ${lookbackDays} days, limit ${limit})...`
+    );
+    const startedAt = Date.now();
+    let grandTotal = 0;
+    let iteration = 0;
+    let hitBound = false;
+    let failures = [];
+    const repeatableTables = enabledTables.filter((table) => !SINGLE_PASS_TABLES.has(table.name));
+    const refreshTable = async (t) => {
       try {
-        let n = 0;
-        if (t.name === "features_zone") {
-          const { rows } = await pool.query(
-            `SELECT ${t.fn}($1, $2::timestamptz, make_interval(days => $3), $4, NULL, false) AS rows_updated`,
-            [symbol, maxTs, lookbackDays, limit]
-          );
-          n = Number(rows[0]?.rows_updated ?? 0);
-        } else {
-          const { rows } = await pool.query(
-            `SELECT ${t.fn}($1, $2::timestamptz, make_interval(days => $3), $4) AS rows_updated`,
-            [symbol, maxTs, lookbackDays, limit]
-          );
-          n = Number(rows[0]?.rows_updated ?? 0);
-        }
-        // Best-effort ledger write.
-        try {
-          await pool.query(
-            `INSERT INTO feature_producer_runs
-               (producer, feature_table, symbol, rows_updated, finished_at, status, watermark_ts, quality_json)
-             VALUES ('lifecycle', $1, $2, $3, NOW(), 'done', $4, $5)`,
-            [t.name, symbol, n, maxTs, JSON.stringify({ lookbackDays, limit, iteration })]
-          );
-        } catch { /* ledger is best-effort */ }
-        return { name: t.name, n };
+        const args = [symbol, maxTs, lookbackDays, limit];
+        const sql = t.name === "features_zone"
+          ? `SELECT ${t.fn}($1, $2::timestamptz, make_interval(days => $3), $4, NULL, false) AS rows_updated`
+          : `SELECT ${t.fn}($1, $2::timestamptz, make_interval(days => $3), $4) AS rows_updated`;
+        const { rows } = await client.query(sql, args);
+        return { name: t.name, n: Number(rows[0]?.rows_updated ?? 0) };
       } catch (err) {
-        console.error(`[refresh-lifecycle] ${symbol}/${t.name} failed:`, err.message);
+        failures.push({ table: t.name, error: err.message });
         return { name: t.name, n: 0 };
       }
-    });
+    };
+    const firstPass = [];
+    for (const table of enabledTables) {
+      firstPass.push(await refreshTable(table));
+    }
+    grandTotal += firstPass.reduce((sum, result) => sum + result.n, 0);
+    console.log(`  iteration 1: ${firstPass.map((r) => `${r.name}=${r.n}`).join(", ")}`);
+    while (true) {
+      iteration++;
+      if (iteration > MAX_ITERATIONS || Date.now() - startedAt >= DEADLINE_MS) {
+        hitBound = true;
+        break;
+      }
+      const results = [];
+      for (const table of repeatableTables) {
+        results.push(await refreshTable(table));
+      }
+      const total = results.reduce((sum, result) => sum + result.n, 0);
+      grandTotal += total;
+      console.log(`  iteration ${iteration}: ${results.map((r) => `${r.name}=${r.n}`).join(", ")}`);
+      if (failures.length > 0 || total === 0) break;
+    }
 
-    const results = await Promise.all(tableTasks);
-    const total = results.reduce((sum, r) => sum + r.n, 0);
-    const parts = results.map((r) => `${r.name}=${r.n}`);
-    grandTotal += total;
-    console.log(`  iteration ${iteration}: ${parts.join(", ")}`);
-    if (total === 0) break;
+    const after = await readCheckpoints(client, symbol);
+    const perTable = enabledTables.map((table) => {
+      const progress = evaluateLifecycleProgress({
+        before: before[table.name],
+        after: after[table.name],
+        rowsUpdated: grandTotal,
+        eligibleWork: { exists: grandTotal > 0, asOf: maxTs },
+        hitBound,
+      });
+      return { table: table.name, before: before[table.name] ?? null, after: after[table.name] ?? null, ...progress };
+    });
+    const noProgress = perTable.some((item) => item.verdict === "NO_PROGRESS");
+    const status = failures.length > 0 || noProgress ? "error" : "done";
+    const quality = { owner: OWNER, lookbackDays, limit, iteration, hitBound, failures, checkpoints: perTable };
+    await client.query(
+      `INSERT INTO feature_producer_runs
+         (producer, feature_table, symbol, rows_updated, finished_at, status, error_message, watermark_ts, quality_json)
+       VALUES ('lifecycle', '*', $1, $2, NOW(), $3, $4, $5, $6)`,
+      [symbol, grandTotal, status, failures.length ? JSON.stringify(failures) : noProgress ? "NO_PROGRESS" : null, maxTs, quality]
+    );
+    if (status === "error") throw new Error(`Lifecycle ${symbol} failed: ${failures.length ? "table failure" : "NO_PROGRESS"}`);
+    console.log(`[refresh-lifecycle] ${symbol} ${hitBound ? "partial" : "done"}, total ${grandTotal} rows updated`);
+    return { symbol, status: hitBound ? "partial" : "done", rowsUpdated: grandTotal };
+  } finally {
+    try { await client.query("SELECT pg_advisory_unlock(hashtext($1))", [lockKey]); } catch { /* connection cleanup releases lock */ }
+    client.release();
   }
-  const elapsed = performance.now() - start;
-  console.log(`[refresh-lifecycle] ${symbol} done in ${elapsed.toFixed(0)}ms, total ${grandTotal} rows updated`);
-  return grandTotal;
 }
 
 async function main() {
@@ -166,16 +221,20 @@ async function main() {
         WHERE enabled = true
         ORDER BY symbol`
     );
-    // Parallel per-symbol refresh (independent DB calls, separate pools).
-    // Wall time = max(symbol time), not sum. (Audit item #11)
-    const results = await Promise.all(
-      rows.map(({ symbol }) => refreshSymbol(symbol, lookbackDays, limit))
-    );
-    const grandTotal = results.reduce((s, v) => s + v, 0);
-    console.log(`[refresh-lifecycle] ALL done. Grand total: ${grandTotal} rows updated`);
+    // Process symbols sequentially. Parallel refreshes acquire independent
+    // clients and call lifecycle functions that update shared state/candles;
+    // concurrent symbols previously caused deadlocks and pool exhaustion.
+    const results = [];
+    for (const { symbol } of rows) {
+      results.push(await refreshSymbol(symbol, lookbackDays, limit));
+    }
+    const grandTotal = results.reduce((sum, result) => sum + result.rowsUpdated, 0);
+    const partial = results.filter((result) => result.status === "partial").length;
+    const skipped = results.filter((result) => result.status === "already_running").length;
+    console.log(`[refresh-lifecycle] ALL done. Grand total: ${grandTotal} rows updated; partial=${partial}; already_running=${skipped}`);
   } else {
-    const total = await refreshSymbol(target, lookbackDays, limit);
-    console.log(`[refresh-lifecycle] ${target} total: ${total} rows updated`);
+    const result = await refreshSymbol(target, lookbackDays, limit);
+    console.log(`[refresh-lifecycle] ${target}: status=${result.status}, total=${result.rowsUpdated} rows updated`);
   }
 
   await pool.end();

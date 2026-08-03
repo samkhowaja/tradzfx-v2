@@ -282,9 +282,10 @@ export const liquidityPoolsFeature: FeatureDefinition<LiquidityPoolsInput, Liqui
   },
 
   hashInput(input): string {
-    const last = input.candles[input.candles.length - 1];
+    const candles = input.candles ?? [];
+    const last = candles[candles.length - 1];
     if (!last) return sha256("empty");
-    const sweepHash = input.features_sweep?.sweeps
+    const sweepHash = (input.features_sweep?.sweeps ?? [])
       .map((s) => `${s.ts.toISOString()}:${s.direction}:${s.level}:${s.extreme}`)
       .join("|") ?? "";
     return sha256(`${last.symbol}:${last.ts.toISOString()}|${sweepHash}`);

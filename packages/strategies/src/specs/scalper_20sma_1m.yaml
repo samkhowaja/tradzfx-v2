@@ -49,12 +49,12 @@ entryConfig:
 signalSource: zone
 
 risk:
-  sl: "atr(1m) * 0.8"
-  tp: "opposing_zone_profit_5m"
-  minRR: 2.0
+  sl: "atr(1m) * 2.0"
+  tp: "nearest_profit_pivot_5m"
+  minRR: 1.5
   timeoutBars: 60
   maxFillBars: 15
-  minSlDistancePips: 2.0
+  minSlDistancePips: 5.0
 
 gates:
   - id: session_gate

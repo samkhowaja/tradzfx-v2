@@ -23,8 +23,23 @@ import type {
   ZoneOutcomeStats,
   CanonicalMarketLevel,
 } from "@tm/shared";
+import { detectRawFvgs } from "@tm/shared";
 import { sha256, computeZoneLifecycle, countZoneTouches } from "@tm/shared";
 import { recordZoneOutcome } from "@tm/shared";
+import {
+  ZONE_MIN_BODY_PCT,
+  ZONE_MIN_VOLUME_RATIO,
+  ZONE_PIVOT_MAX_AGE_BARS,
+  ZONE_USE_LEARNED_QUALITY,
+  ZONE_MIN_SIZE_ATR_PCT,
+  ZONE_MAX_SIZE_ATR_MULTIPLIER,
+  ZONE_MIN_QUALITY_SCORE,
+  ZONE_MAX_PER_BAR,
+  ZONE_BUFFER_ATR_MULTIPLIER,
+} from "../params";
+
+const MIN_ZONE_SIZE_ATR_PCT = ZONE_MIN_SIZE_ATR_PCT;
+const MAX_ZONE_SIZE_ATR_MULTIPLIER = ZONE_MAX_SIZE_ATR_MULTIPLIER;
 
 export interface ZoneInput {
   candles: Candle[];
@@ -35,16 +50,6 @@ export interface ZoneInput {
   /** Optional learned outcome stats (keyed by zone kind). When present and ZONE_USE_LEARNED_QUALITY is true they replace the heuristic quality score. */
   zoneOutcomeStats?: Record<string, ZoneOutcomeStats>;
 }
-
-const MIN_BODY_PCT = 0.7;
-const MIN_VOLUME_RATIO = 1.5;
-const MAX_AGE_BARS = 10; // pivot must be within this many bars
-const USE_LEARNED_QUALITY = process.env.ZONE_USE_LEARNED_QUALITY === "true";
-const MIN_ZONE_SIZE_ATR_PCT = Number(process.env.ZONE_MIN_SIZE_ATR_PCT ?? "0.05");
-const MAX_ZONE_SIZE_ATR_MULTIPLIER = Number(process.env.ZONE_MAX_SIZE_ATR_MULTIPLIER ?? "30");
-const ZONE_MIN_QUALITY_SCORE = Number(process.env.ZONE_MIN_QUALITY_SCORE ?? "0.15");
-const ZONE_MAX_PER_BAR = Number(process.env.ZONE_MAX_PER_BAR ?? "5");
-const ZONE_BUFFER_ATR_MULTIPLIER = Number(process.env.ZONE_BUFFER_ATR_MULTIPLIER ?? "0.5");
 
 function getAtr14(atr: AtrOutput): number {
   return atr.values.find((v) => v.period === 14)?.value ?? 0;
@@ -65,6 +70,21 @@ function zoneBuffer(atr14: number): number {
 function averageVolume(candles: Candle[]): number {
   if (candles.length === 0) return 0;
   return candles.reduce((s, c) => s + (c.v ?? 0), 0) / candles.length;
+}
+
+function atrAt(candles: Candle[], index: number, period = 14): number {
+  if (index < period) return 0;
+  let total = 0;
+  for (let i = index - period + 1; i <= index; i++) {
+    const previousClose = candles[i - 1]?.c ?? candles[i].o;
+    total += Math.max(candles[i].h - candles[i].l, Math.abs(candles[i].h - previousClose), Math.abs(candles[i].l - previousClose));
+  }
+  return total / period;
+}
+
+function causalPercentile(value: number, prior: number[]): number | undefined {
+  if (prior.length < 10) return undefined;
+  return prior.filter((item) => item <= value).length / prior.length;
 }
 
 function isZoneSizeMeaningful(
@@ -200,7 +220,7 @@ function computeZoneQuality(
 
   // Learned quality from historical zone outcomes (only when explicitly enabled).
   let learnedQuality: number | null = null;
-  if (USE_LEARNED_QUALITY && outcomeStats) {
+  if (ZONE_USE_LEARNED_QUALITY && outcomeStats) {
     learnedQuality = Math.max(0, Math.min(1, (outcomeStats.expectancy + 1) / 2));
   }
 
@@ -238,16 +258,21 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
   const atr14 = getAtr14(features_atr);
   const currentPrice = candles[candles.length - 1].c;
   const barDuration = barMs(candles);
-  const structureDir = latestStructureDirection(features_structure.events);
+  const currentCandle = candles[candles.length - 1];
+  const structureEvents = features_structure.events.filter(
+    (event) => !event.availableAtTs || event.availableAtTs.getTime() <= currentCandle.ts.getTime()
+  );
+  const structureDir = latestStructureDirection(structureEvents);
+  const priorFvgGaps: number[] = [];
 
-  // Detect FVGs: 3-candle pattern where candle 1 and 3 don't overlap
-  for (let i = 2; i < candles.length; i++) {
+  // Detect raw FVG geometry in shared code. Filtering and lifecycle remain local.
+  for (const rawFvg of detectRawFvgs(candles)) {
+    const i = rawFvg.formationIndex;
     const c1 = candles[i - 2];
     const c2 = candles[i - 1];
     const c3 = candles[i];
-
-    const bullishFvg = c1.h < c3.l;
-    const bearishFvg = c1.l > c3.h;
+    const bullishFvg = rawFvg.direction === "bullish";
+    const bearishFvg = rawFvg.direction === "bearish";
 
     if (bullishFvg) {
       const direction: Direction = "bullish";
@@ -267,6 +292,19 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         // Internal flag used by computeZoneQuality; not serialized by name.
         fvgAligned: htfAligned || structureAligned,
       } as any;
+      const formationAtr = atrAt(candles, i);
+      const middleRange = c2.h - c2.l;
+      const middleBody = Math.abs(c2.c - c2.o);
+      const gapSize = rawFvg.top - rawFvg.bottom;
+      zone.gapSize = gapSize;
+      zone.gapAtrRatio = formationAtr > 0 ? gapSize / formationAtr : undefined;
+      zone.middleBodyRatio = middleRange > 0 ? middleBody / middleRange : 0;
+      zone.middleBodyAtr = formationAtr > 0 ? middleBody / formationAtr : undefined;
+      const averageBody = candles.slice(Math.max(0, i - 20), i).reduce((sum, c) => sum + Math.abs(c.c - c.o), 0) / Math.max(1, Math.min(20, i));
+      zone.middleBodyVsAverage = averageBody > 0 ? middleBody / averageBody : undefined;
+      zone.directionAligned = c2.c > c2.o;
+      zone.gapPercentile = causalPercentile(gapSize, priorFvgGaps);
+      priorFvgGaps.push(gapSize);
       const lifecycle = computeZoneLifecycle(
         { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction },
         candles,
@@ -298,6 +336,19 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
         ts: c3.ts,
         fvgAligned: htfAligned || structureAligned,
       } as any;
+      const formationAtr = atrAt(candles, i);
+      const middleRange = c2.h - c2.l;
+      const middleBody = Math.abs(c2.c - c2.o);
+      const gapSize = rawFvg.top - rawFvg.bottom;
+      zone.gapSize = gapSize;
+      zone.gapAtrRatio = formationAtr > 0 ? gapSize / formationAtr : undefined;
+      zone.middleBodyRatio = middleRange > 0 ? middleBody / middleRange : 0;
+      zone.middleBodyAtr = formationAtr > 0 ? middleBody / formationAtr : undefined;
+      const averageBody = candles.slice(Math.max(0, i - 20), i).reduce((sum, c) => sum + Math.abs(c.c - c.o), 0) / Math.max(1, Math.min(20, i));
+      zone.middleBodyVsAverage = averageBody > 0 ? middleBody / averageBody : undefined;
+      zone.directionAligned = c2.c < c2.o;
+      zone.gapPercentile = causalPercentile(gapSize, priorFvgGaps);
+      priorFvgGaps.push(gapSize);
       const lifecycle = computeZoneLifecycle(
         { zoneKind: "fvg", top: zone.top, bottom: zone.bottom, ts: zone.ts, direction },
         candles,
@@ -325,14 +376,14 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
     const range = candle.h - candle.l;
     const bodyPct = range > 0 ? body / range : 0;
 
-    if (bodyPct < MIN_BODY_PCT) continue;
+    if (bodyPct < ZONE_MIN_BODY_PCT) continue;
 
     const avgVol = averageVolume(candles.slice(Math.max(0, i - 20), i));
-    if (avgVol > 0 && (candle.v ?? 0) < avgVol * MIN_VOLUME_RATIO) continue;
+    if (avgVol > 0 && (candle.v ?? 0) < avgVol * ZONE_MIN_VOLUME_RATIO) continue;
 
     // Strong bullish candle after a low pivot = demand zone
     if (candle.c > candle.o) {
-      const nearbyLow = findNearestPivot(features_pivot.pivots, "low", candle.ts, MAX_AGE_BARS, barDuration);
+      const nearbyLow = findNearestPivot(features_pivot.pivots, "low", candle.ts, ZONE_PIVOT_MAX_AGE_BARS, barDuration);
       if (!nearbyLow) continue; // require a nearby low pivot
 
       // Bound the zone by the impulse-candle body plus a small ATR buffer
@@ -368,7 +419,7 @@ function detectZones(input: ZoneInput): ZoneOutput["zones"] {
 
     // Strong bearish candle after a high pivot = supply zone
     if (candle.c < candle.o) {
-      const nearbyHigh = findNearestPivot(features_pivot.pivots, "high", candle.ts, MAX_AGE_BARS, barDuration);
+      const nearbyHigh = findNearestPivot(features_pivot.pivots, "high", candle.ts, ZONE_PIVOT_MAX_AGE_BARS, barDuration);
       if (!nearbyHigh) continue;
 
       const body = candleBody(candle);
@@ -436,7 +487,7 @@ export async function recordZoneOutcomes(
 
 export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
   name: "features_zone",
-  version: "2.2.0",
+  version: "2.3.0",
   dependencies: ["features_pivot", "features_atr", "features_htf_bias", "features_structure"],
 
   compute(input): ZoneOutput {
@@ -456,7 +507,9 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         currentPrice,
         atr14,
         input.features_htf_bias,
-        input.features_structure.events,
+        input.features_structure.events.filter(
+          (event) => !event.availableAtTs || event.availableAtTs.getTime() <= zone.ts.getTime()
+        ),
         statsByKind[zone.zoneKind]
       );
     }
@@ -474,7 +527,7 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
 
   hashInput(input): string {
     let statsHash = "";
-    if (USE_LEARNED_QUALITY && input.zoneOutcomeStats) {
+    if (ZONE_USE_LEARNED_QUALITY && input.zoneOutcomeStats) {
       statsHash =
         "|stats=" +
         Object.entries(input.zoneOutcomeStats)
@@ -497,7 +550,9 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         "|" +
         `${input.features_htf_bias.direction}:${input.features_htf_bias.confidence}:${input.features_htf_bias.score}` +
         "|" +
-        input.features_structure.events
+        input.features_structure.events.filter(
+          (event) => !event.availableAtTs || event.availableAtTs.getTime() <= input.candles[input.candles.length - 1].ts.getTime()
+        )
           .map((e) => `${e.ts.toISOString()}:${e.eventType}:${e.direction}`)
           .join("|") +
         statsHash
@@ -512,6 +567,7 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
             `${z.ts.toISOString()}:${z.zoneKind}:${z.direction ?? ""}:${z.top}:${z.bottom}:` +
             `${z.rankScore ?? 0}:${z.qualityScore ?? 0}:${z.outcome ?? ""}:` +
             `${z.touchCount ?? 0}:${z.retestCount ?? 0}`
+            + `:${z.gapSize ?? 0}:${z.gapAtrRatio ?? 0}:${z.middleBodyRatio ?? 0}:${z.gapPercentile ?? 0}`
         )
         .join("|")
     );
@@ -536,6 +592,13 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
       outcome: z.outcome ?? null,
       touch_count: z.touchCount ?? 0,
       retest_count: z.retestCount ?? 0,
+      gap_size: z.gapSize ?? null,
+      gap_atr_ratio: z.gapAtrRatio ?? null,
+      middle_body_ratio: z.middleBodyRatio ?? null,
+      middle_body_atr: z.middleBodyAtr ?? null,
+      middle_body_vs_average: z.middleBodyVsAverage ?? null,
+      direction_aligned: z.directionAligned ?? null,
+      gap_percentile: z.gapPercentile ?? null,
     }));
   },
 
@@ -562,6 +625,13 @@ export const zoneFeature: FeatureDefinition<ZoneInput, ZoneOutput> = {
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
         touchCount: (r.touch_count as number | undefined) ?? 0,
         retestCount: (r.retest_count as number | undefined) ?? 0,
+        gapSize: r.gap_size as number | undefined,
+        gapAtrRatio: r.gap_atr_ratio as number | undefined,
+        middleBodyRatio: r.middle_body_ratio as number | undefined,
+        middleBodyAtr: r.middle_body_atr as number | undefined,
+        middleBodyVsAverage: r.middle_body_vs_average as number | undefined,
+        directionAligned: r.direction_aligned as boolean | undefined,
+        gapPercentile: r.gap_percentile as number | undefined,
       })),
     };
   },

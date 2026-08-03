@@ -16,7 +16,7 @@
  */
 
 import type { Candle, FeatureDefinition, PivotOutput, TimeFrame } from "@tm/shared";
-import { sha256 } from "@tm/shared";
+import { sha256, TF_MS } from "@tm/shared";
 
 export interface PivotInput {
   candles: Candle[];
@@ -45,7 +45,8 @@ function lookbackFor(tf: TimeFrame | undefined): number {
 
 function findPivots(
   candles: Candle[],
-  lookback: number = DEFAULT_LOOKBACK
+  lookback: number = DEFAULT_LOOKBACK,
+  tfMs: number
 ): PivotOutput["pivots"] {
   const pivots: PivotOutput["pivots"] = [];
 
@@ -66,6 +67,7 @@ function findPivots(
         price: candle.h,
         confidence: 1.0,
         ts: candle.ts,
+        confirmationTs: new Date(candles[i + lookback].ts.getTime() + (tfMs ?? 0)),
       });
     }
 
@@ -83,6 +85,7 @@ function findPivots(
         price: candle.l,
         confidence: 1.0,
         ts: candle.ts,
+        confirmationTs: new Date(candles[i + lookback].ts.getTime() + (tfMs ?? 0)),
       });
     }
   }
@@ -92,13 +95,15 @@ function findPivots(
 
 export const pivotFeature: FeatureDefinition<PivotInput, PivotOutput> = {
   name: "features_pivot",
-  version: "1.2.0",
+  version: "1.3.0",
   dependencies: [],
 
   compute(input, context): PivotOutput {
     const tf = context?.tf as TimeFrame | undefined;
     const lookback = lookbackFor(tf);
-    return { pivots: findPivots(input.candles, lookback) };
+    const tfMs = tf ? TF_MS[tf] : undefined;
+    if (!tfMs) throw new Error("Pivot feature requires valid timeframe context");
+    return { pivots: findPivots(input.candles, lookback, tfMs) };
   },
 
   hashInput(input): string {
@@ -111,7 +116,7 @@ export const pivotFeature: FeatureDefinition<PivotInput, PivotOutput> = {
 
   hashOutput(output): string {
     return sha256(
-      output.pivots.map((p) => `${p.ts.toISOString()}:${p.kind}:${p.price}`).join("|")
+      output.pivots.map((p) => `${p.ts.toISOString()}:${p.kind}:${p.price}:${p.confirmationTs.toISOString()}`).join("|")
     );
   },
 
@@ -121,6 +126,7 @@ export const pivotFeature: FeatureDefinition<PivotInput, PivotOutput> = {
       price: p.price,
       confidence: p.confidence,
       ts: p.ts,
+      confirmation_ts: p.confirmationTs,
     }));
   },
 
@@ -131,6 +137,7 @@ export const pivotFeature: FeatureDefinition<PivotInput, PivotOutput> = {
         price: r.price as number,
         confidence: r.confidence as number,
         ts: new Date(r.ts as string),
+        confirmationTs: new Date((r.confirmation_ts ?? r.confirmationTs) as string),
       })),
     };
   },

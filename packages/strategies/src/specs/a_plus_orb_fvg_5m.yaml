@@ -33,6 +33,8 @@ entry:
     groupBy: [direction]
 
 signalSource: fvg
+signalSourceConfig:
+  minFvgWidthPips: 2
 
 entryConfig:
   type: limit
@@ -51,6 +53,14 @@ gates:
     params:
       maxConcurrentPerSymbol: 1
       maxConcurrentTotal: 9
+
+  - id: direction_alignment_gate
+    name: directionAlignment
+    params:
+      enabled: true
+      timeframes: ["1h", "15m"]
+      require: majority
+      allowNeutral: true
 
 live:
   mode: paper

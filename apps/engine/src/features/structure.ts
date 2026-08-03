@@ -22,7 +22,9 @@ import type {
   HtfBiasOutput,
 } from "@tm/shared";
 import { sha256, computeStructureLifecycle } from "@tm/shared";
+import { TF_MS } from "@tm/shared";
 import type { PivotOutput } from "@tm/shared";
+import { detectCausal, type CausalEvent, type CausalPivot } from "./causalPrototype";
 
 export interface StructureInput {
   candles: Candle[];
@@ -32,6 +34,16 @@ export interface StructureInput {
 }
 
 const CONFIRMATION_WINDOW_BARS = 5;
+
+interface RawBreakEvent {
+  eventType: "bos" | "choch" | "mss";
+  direction: Direction;
+  level: number;
+  ts: Date;
+  breakCandle: Candle;
+  opposingSweepTs?: Date;
+  availableAtTs: Date;
+}
 
 function findFirstCandle(
   candles: Candle[],
@@ -80,159 +92,79 @@ function isHtfAligned(eventDirection: Direction, htf: HtfBiasOutput): boolean {
   return htf.direction === eventDirection;
 }
 
-interface RawBreakEvent {
-  eventType: "bos" | "choch" | "mss";
-  direction: Direction;
-  level: number;
-  ts: Date;
-  breakCandle: Candle;
-  opposingSweepTs?: Date;
+export interface CausalStructureResult {
+  events: CausalEvent[];
+  pivots: CausalPivot[];
 }
 
-function detectBreakEvents(
-  candles: Candle[],
-  pivots: PivotOutput["pivots"]
-): RawBreakEvent[] {
-  const events: RawBreakEvent[] = [];
-  if (pivots.length < 2) return events;
+/**
+ * Phase 3 adapter. Kept outside production path until parity review completes.
+ * Converts engine feature contracts to deterministic causal prototype inputs.
+ */
+export function detectCausalStructure(
+  input: StructureInput,
+  context: { symbol?: string; tf: keyof typeof TF_MS; endTs: Date; trace?: Parameters<typeof detectCausal>[0]["trace"] }
+): CausalStructureResult {
+  const tfMs = TF_MS[context.tf];
+  const pivots = input.features_pivot.pivots.map((pivot, index) => ({
+    levelId: `${pivot.ts.getTime()}|${pivot.kind}|${pivot.price}|${index}`,
+    kind: pivot.kind,
+    price: pivot.price,
+    centerTs: pivot.ts,
+    availableAt: pivot.confirmationTs ?? pivot.ts,
+    confirmationTs: pivot.confirmationTs,
+  }));
+  const candles = input.candles.map(({ ts, h, l, c }) => ({ ts, h, l, c }));
+  return {
+    pivots,
+    events: detectCausal({
+      symbol: context.symbol ?? input.candles[0]?.symbol ?? "unknown",
+      tf: context.tf,
+      tfMs,
+      anchorTs: context.endTs,
+      candles,
+      pivots,
+      trace: context.trace,
+    }).events,
+  };
+}
 
-  const sorted = [...pivots].sort((a, b) => a.ts.getTime() - b.ts.getTime());
-
-  let lastHigh = sorted.find((p) => p.kind === "high");
-  let lastLow = sorted.find((p) => p.kind === "low");
-  if (!lastHigh || !lastLow) return events;
-
-  let trend: Direction | undefined;
-  let lastChoChTs = new Date(0);
-  let lastMssTs = new Date(0);
-
-  for (let i = 1; i < sorted.length; i++) {
-    const pivot = sorted[i];
-
-    if (pivot.kind === "high" && lastHigh && pivot.price > lastHigh.price) {
-      const breakCandle = findFirstCandle(
-        candles,
-        lastHigh.ts,
-        pivot.ts,
-        (c) => c.c > lastHigh!.price
-      );
-
-      if (breakCandle) {
-        const sweptLow = findFirstCandle(
-          candles,
-          lastLow.ts,
-          breakCandle.ts,
-          (c) => c.l < lastLow!.price
-        );
-
-        if (sweptLow && breakCandle.ts.getTime() > lastChoChTs.getTime()) {
-          events.push({
-            eventType: "choch",
-            direction: "bullish",
-            level: lastHigh.price,
-            ts: breakCandle.ts,
-            breakCandle,
-            opposingSweepTs: sweptLow.ts,
-          });
-          trend = "bullish";
-          lastChoChTs = breakCandle.ts;
-        } else if (trend === "bullish" || trend === undefined) {
-          events.push({
-            eventType: "bos",
-            direction: "bullish",
-            level: lastHigh.price,
-            ts: breakCandle.ts,
-            breakCandle,
-          });
-          if (!trend) trend = "bullish";
-        }
-      }
-
-      const sweptLowForMss = findFirstCandle(
-        candles,
-        lastLow.ts,
-        pivot.ts,
-        (c) => c.l < lastLow!.price
-      );
-      if (sweptLowForMss && pivot.ts.getTime() > lastMssTs.getTime()) {
-        events.push({
-          eventType: "mss",
-          direction: "bullish",
-          level: lastLow.price,
-          ts: pivot.ts,
-          breakCandle: candles.find((c) => c.ts.getTime() === pivot.ts.getTime()) ?? pivot as unknown as Candle,
-          opposingSweepTs: sweptLowForMss.ts,
-        });
-        lastMssTs = pivot.ts;
-        if (!trend) trend = "bullish";
-      }
-
-      lastHigh = pivot;
-    }
-
-    if (pivot.kind === "low" && lastLow && pivot.price < lastLow.price) {
-      const breakCandle = findFirstCandle(
-        candles,
-        lastLow.ts,
-        pivot.ts,
-        (c) => c.c < lastLow!.price
-      );
-
-      if (breakCandle) {
-        const sweptHigh = findFirstCandle(
-          candles,
-          lastHigh.ts,
-          breakCandle.ts,
-          (c) => c.h > lastHigh!.price
-        );
-
-        if (sweptHigh && breakCandle.ts.getTime() > lastChoChTs.getTime()) {
-          events.push({
-            eventType: "choch",
-            direction: "bearish",
-            level: lastLow.price,
-            ts: breakCandle.ts,
-            breakCandle,
-            opposingSweepTs: sweptHigh.ts,
-          });
-          trend = "bearish";
-          lastChoChTs = breakCandle.ts;
-        } else if (trend === "bearish" || trend === undefined) {
-          events.push({
-            eventType: "bos",
-            direction: "bearish",
-            level: lastLow.price,
-            ts: breakCandle.ts,
-            breakCandle,
-          });
-          if (!trend) trend = "bearish";
-        }
-      }
-
-      const sweptHighForMss = findFirstCandle(
-        candles,
-        lastHigh.ts,
-        pivot.ts,
-        (c) => c.h > lastHigh!.price
-      );
-      if (sweptHighForMss && pivot.ts.getTime() > lastMssTs.getTime()) {
-        events.push({
-          eventType: "mss",
-          direction: "bearish",
-          level: lastHigh.price,
-          ts: pivot.ts,
-          breakCandle: candles.find((c) => c.ts.getTime() === pivot.ts.getTime()) ?? pivot as unknown as Candle,
-          opposingSweepTs: sweptHighForMss.ts,
-        });
-        lastMssTs = pivot.ts;
-        if (!trend) trend = "bearish";
-      }
-
-      lastLow = pivot;
-    }
+/**
+ * Opt-in production-shaped causal output. Default compute path stays legacy
+ * until downstream parity and persistence review complete.
+ */
+export function detectCausalStructureOutput(
+  input: StructureInput,
+  context: { symbol?: string; tf: keyof typeof TF_MS; endTs: Date }
+): StructureOutput {
+  const result = detectCausalStructure(input, context);
+  const candles = input.candles.filter((c) => c.ts.getTime() + TF_MS[context.tf] <= context.endTs.getTime());
+  const atr14 = getAtr14(input.features_atr);
+  const events = result.events.filter((event): event is CausalEvent & { eventType: "bos" | "choch" | "mss" } => event.eventType === "bos" || event.eventType === "choch" || event.eventType === "mss").map((event) => {
+    const breakCandle = candles.find((c) => c.ts.getTime() === event.eventTs.getTime());
+    if (!breakCandle) return undefined;
+    return enrichEvent({
+      eventType: event.eventType,
+      direction: event.direction,
+      level: event.level,
+      ts: event.eventTs,
+      breakCandle,
+      availableAtTs: event.availableAt,
+    }, candles, atr14, input.features_htf_bias);
+  }).filter((event): event is StructureOutput["events"][number] => !!event);
+  for (const event of events) {
+    event.sourceLevelId = result.events.find((candidate) => candidate.eventTs.getTime() === event.ts.getTime() && candidate.level === event.level)?.levelId;
+    const causal = result.events.find((candidate) => candidate.eventTs.getTime() === event.ts.getTime() && candidate.level === event.level);
+    event.sourceLevelKind = causal?.sourceKind;
+    event.sourceLevelConfirmationTs = causal?.sourceConfirmationTs;
+    event.sweptLevelId = causal?.sweptLevelId;
+    event.sweptLevelPrice = causal?.sweptLevel;
+    event.sweptLevelKind = causal?.sweptKind;
+    event.isCisd = false;
+    const index = input.candles.findIndex((c) => c.ts.getTime() === event.ts.getTime());
+    if (index >= 0) event.invalidatedAt = computeStructureLifecycle({ direction: event.direction, level: event.level }, input.candles, index).invalidatedAt;
   }
-
-  return events;
+  return { events };
 }
 
 function enrichEvent(
@@ -265,6 +197,7 @@ function enrichEvent(
     direction: raw.direction,
     level: raw.level,
     ts: raw.ts,
+    availableAtTs: raw.availableAtTs,
     strength,
     confirmed,
     confirmationTs,
@@ -273,42 +206,20 @@ function enrichEvent(
   };
 }
 
-function detectStructure(input: StructureInput): StructureOutput["events"] {
-  const { candles, features_pivot } = input;
-  const raw = detectBreakEvents(candles, features_pivot.pivots);
-  if (raw.length === 0) return [];
-
-  const atr14 = getAtr14(input.features_atr);
-  const all = raw
-    .map((r) => enrichEvent(r, candles, atr14, input.features_htf_bias))
-    .sort((a, b) => a.ts.getTime() - b.ts.getTime());
-
-  // Failure events and CISD window have been removed in v2.1 to keep the
-  // feature pure and deterministic; isCisd stays false for consumers.
-
-  for (const event of all) {
-    event.isCisd = false;
-    const idx = candles.findIndex((c) => c.ts.getTime() === event.ts.getTime());
-    if (idx >= 0) {
-      const lifecycle = computeStructureLifecycle(
-        { direction: event.direction, level: event.level },
-        candles,
-        idx
-      );
-      event.invalidatedAt = lifecycle.invalidatedAt;
-    }
-  }
-
-  return all;
+function detectStructure(input: StructureInput, anchorTs: Date | undefined, tf: keyof typeof TF_MS): StructureOutput["events"] {
+  const endTs = anchorTs ?? new Date(Math.max(...input.candles.map((c) => c.ts.getTime() + TF_MS[tf])));
+  return detectCausalStructureOutput(input, { symbol: input.candles[0]?.symbol, tf, endTs }).events;
 }
 
 export const structureFeature: FeatureDefinition<StructureInput, StructureOutput> = {
   name: "features_structure",
-  version: "2.1.0",
+  version: "2.2.0",
   dependencies: ["features_pivot", "features_atr", "features_htf_bias"],
 
-  compute(input): StructureOutput {
-    const events = detectStructure(input);
+  compute(input, context): StructureOutput {
+    const tf = context?.tf as keyof typeof TF_MS | undefined;
+    if (!tf) return { events: [] };
+    const events = detectStructure(input, context?.endTs, tf);
     return { events };
   },
 
@@ -334,8 +245,11 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
         .map(
           (e) =>
             `${e.ts.toISOString()}:${e.eventType}:${e.direction}:${e.level}:` +
+            `${e.availableAtTs?.toISOString() ?? ""}:` +
             `${e.strength ?? ""}:${e.confirmed ?? ""}:${e.confirmationTs?.toISOString() ?? ""}:` +
             `${e.htfAligned ?? ""}`
+            + `:${e.sourceLevelId ?? ""}:${e.sourceLevelKind ?? ""}:${e.sourceLevelConfirmationTs?.toISOString() ?? ""}`
+            + `:${e.sweptLevelId ?? ""}:${e.sweptLevelPrice ?? ""}:${e.sweptLevelKind ?? ""}`
         )
         .join("|")
     );
@@ -347,12 +261,19 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
       direction: e.direction,
       level: e.level,
       ts: e.ts,
+      available_at_ts: e.availableAtTs ?? null,
       strength: e.strength ?? null,
       confirmed: e.confirmed ?? false,
       confirmation_ts: e.confirmationTs ?? null,
       opposing_sweep_ts: e.opposingSweepTs ?? null,
       is_cisd: e.isCisd ?? false,
       htf_aligned: e.htfAligned ?? false,
+      source_level_id: e.sourceLevelId ?? null,
+      source_level_kind: e.sourceLevelKind ?? null,
+      source_level_confirmation_ts: e.sourceLevelConfirmationTs ?? null,
+      swept_level_id: e.sweptLevelId ?? null,
+      swept_level_price: e.sweptLevelPrice ?? null,
+      swept_level_kind: e.sweptLevelKind ?? null,
     }));
   },
 
@@ -363,6 +284,7 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
         direction: r.direction as Direction,
         level: r.level as number,
         ts: new Date(r.ts as string),
+        availableAtTs: r.available_at_ts ? new Date(r.available_at_ts as string) : undefined,
         strength: (r.strength as StructureEvent["strength"]) ?? undefined,
         confirmed: (r.confirmed as boolean) ?? undefined,
         confirmationTs: r.confirmation_ts ? new Date(r.confirmation_ts as string) : undefined,
@@ -370,6 +292,12 @@ export const structureFeature: FeatureDefinition<StructureInput, StructureOutput
         isCisd: (r.is_cisd as boolean) ?? undefined,
         htfAligned: (r.htf_aligned as boolean) ?? undefined,
         invalidatedAt: r.invalidated_at ? new Date(r.invalidated_at as string) : undefined,
+        sourceLevelId: r.source_level_id ? r.source_level_id as string : undefined,
+        sourceLevelKind: r.source_level_kind ? r.source_level_kind as "high" | "low" : undefined,
+        sourceLevelConfirmationTs: r.source_level_confirmation_ts ? new Date(r.source_level_confirmation_ts as string) : undefined,
+        sweptLevelId: r.swept_level_id ? r.swept_level_id as string : undefined,
+        sweptLevelPrice: r.swept_level_price == null ? undefined : r.swept_level_price as number,
+        sweptLevelKind: r.swept_level_kind ? r.swept_level_kind as "high" | "low" : undefined,
       })),
     };
   },

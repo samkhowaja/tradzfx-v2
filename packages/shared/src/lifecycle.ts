@@ -7,6 +7,14 @@ export interface EventLifecycle {
   fillPct?: number;
 }
 
+/**
+ * Mitigation fill threshold for zones (demand/supply/FVG) and iFVGs.
+ * Price must penetrate this fraction of the zone depth to be "mitigated".
+ * Centralised here so `computeZoneLifecycle` and `computeIfvgLifecycle` agree.
+ * Engine code mirrors this value in packages/engine/src/params/lifecycle.ts.
+ */
+export const MITIGATION_FILL_PCT = 0.5;
+
 function isDirection(d: Direction): d is "bullish" | "bearish" {
   return d === "bullish" || d === "bearish";
 }
@@ -238,13 +246,14 @@ export function computeZoneLifecycle(
 
   // Only mark as mitigated if price has penetrated >=50% of zone depth (significant fill)
   // or if invalidated (close beyond far side). First touch alone is NOT mitigation.
+  // See packages/engine/src/params/lifecycle.ts for param catalog.
   const mitigatedAt = findBandFillThreshold(
     candles,
     fromIndex,
     zone.top,
     zone.bottom,
     direction,
-    0.5
+    MITIGATION_FILL_PCT
   ) ?? invalidatedAt;
 
   return { firstTouchAt, mitigatedAt, invalidatedAt, fillPct };
@@ -287,14 +296,14 @@ export function computeIfvgLifecycle(
     ifvg.direction
   );
 
-  // Mitigation = fill ≥ 50 % into the gap (original FVG filled).
+  // Mitigation = fill ≥ MITIGATION_FILL_PCT into the gap (original FVG filled).
   const mitigatedAt = findBandFillThreshold(
     candles,
     fromIndex,
     ifvg.top,
     ifvg.bottom,
     ifvg.direction,
-    0.5
+    MITIGATION_FILL_PCT
   );
 
   // Invalidation = level breach in iFVG direction (NOT opposite direction).

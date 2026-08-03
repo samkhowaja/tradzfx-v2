@@ -275,6 +275,22 @@ async function importFile(filePath, symbol, offsetMinutes, broker, { insertMissi
         console.warn(
           `[backfill-candles] ${symbol}: flagged ${suspects.length} magnitude-suspect bar(s) in candle_quality`
         );
+
+        await client.query(
+          `INSERT INTO candle_quarantine
+             (symbol, broker, timeframe, event_time, raw_source_key, flags,
+              severity, detector_version, detector_params, decision)
+           SELECT $1, $2, '1m', x.ts, $1 || ':' || $2 || ':' || x.ts::text,
+                  ARRAY['MAGNITUDE_SUSPECT'], 'HIGH', 'backfill-v1',
+                  jsonb_build_object('reason', x.reason), 'UNKNOWN'
+             FROM jsonb_to_recordset($3::jsonb) AS x(ts timestamptz, reason text)
+           ON CONFLICT (symbol, broker, timeframe, event_time, detector_version)
+           DO NOTHING`,
+          [symbol, broker, JSON.stringify(suspects)]
+        );
+        console.warn(
+          `[backfill-candles] ${symbol}: quarantined ${suspects.length} suspect bar(s); canonical/downstream use blocked pending approval`
+        );
       } catch (qErr) {
         console.warn(
           `[backfill-candles] ${symbol}: candle_quality flagging failed (best-effort): ${qErr.message}`

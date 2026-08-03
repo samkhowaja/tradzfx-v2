@@ -7,7 +7,7 @@
  */
 
 import type { Pool, Queryable, Signal, StrategySpec, ExecutionProfile } from "@tm/shared";
-import { getRegistryPipSize } from "@tm/shared";
+import { evaluateEntryDrift, getRegistryPipSize } from "@tm/shared";
 
 export interface QualityDecision {
   action: "market" | "limit" | "reject";
@@ -116,7 +116,13 @@ export async function evaluateExecutionQuality(
   }
 
   const { currentPrice, spreadPips, atr } = snapshot;
-  const entryDriftPips = priceDiffToPips(signal.symbol, Math.abs(currentPrice - signal.entryPrice));
+  const drift = evaluateEntryDrift(
+    signal.symbol,
+    signal.entryPrice,
+    currentPrice,
+    profile.maxEntryDriftPips
+  );
+  const entryDriftPips = drift.driftPips;
   const effectiveRR = computeEffectiveRR(
     signal.side,
     currentPrice,
@@ -126,10 +132,10 @@ export async function evaluateExecutionQuality(
 
   // Pure market strategy: only take it if drift and RR are acceptable at current price.
   if (profile.entryStrategy === "market") {
-    if (entryDriftPips > profile.maxEntryDriftPips) {
+    if (!drift.accepted) {
       return {
         action: "reject",
-        reason: `entry_drift: ${entryDriftPips.toFixed(1)} pips > max ${profile.maxEntryDriftPips}`,
+        reason: `${drift.code}: entry_drift ${entryDriftPips.toFixed(1)} pips > max ${profile.maxEntryDriftPips}`,
         executionStrategy: "market",
       };
     }

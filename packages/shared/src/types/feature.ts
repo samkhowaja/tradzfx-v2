@@ -165,6 +165,7 @@ export interface PivotOutput {
     price: number;
     confidence: number;
     ts: Date;
+    confirmationTs: Date;
   }>;
 }
 
@@ -182,6 +183,7 @@ export interface StructureEvent {
   direction: Direction;
   level: number;
   ts: Date;
+  availableAtTs?: Date;
   strength?: StructureStrength;
   confirmed?: boolean;
   confirmationTs?: Date;
@@ -189,6 +191,12 @@ export interface StructureEvent {
   isCisd?: boolean;
   htfAligned?: boolean;
   invalidatedAt?: Date;
+  sourceLevelId?: string;
+  sourceLevelKind?: "high" | "low";
+  sourceLevelConfirmationTs?: Date;
+  sweptLevelId?: string;
+  sweptLevelPrice?: number;
+  sweptLevelKind?: "high" | "low";
 }
 
 export interface StructureOutput {
@@ -209,6 +217,7 @@ export interface SweepOutput {
     extreme: number;
     close: number;
     ts: Date;
+    availableAtTs?: Date;
     sweepType?: "post_structure" | "inducement";
     /** Classification of the liquidity level that was swept (P3a). */
     targetType?: SweepTargetType;
@@ -241,6 +250,14 @@ export interface ZoneOutput {
     touchCount?: number;
     /** Candle interactions after the first touch; retest candidates have retestCount > 0. */
     retestCount?: number;
+    /** Raw FVG measurements. Populated for FVG zones; absent for other zone kinds. */
+    gapSize?: number;
+    gapAtrRatio?: number;
+    middleBodyRatio?: number;
+    middleBodyAtr?: number;
+    middleBodyVsAverage?: number;
+    directionAligned?: boolean;
+    gapPercentile?: number;
   }>;
 }
 

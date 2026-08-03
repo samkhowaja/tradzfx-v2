@@ -25,13 +25,13 @@ function validateApiKey(req: NextRequest): boolean {
 }
 
 const VALID_TFS: Record<string, string> = {
-  "1m": "public.candles_1m",
-  "5m": "public.candles_5m",
-  "15m": "public.candles_15m",
-  "1h": "public.candles_1h",
-  "4h": "public.candles_4h",
-  "1d_utc": "public.candles_1d_utc",
-  "1d_ny": "public.candles_1d_ny",
+  "1m": "market.candles_1m_canonical",
+  "5m": "market.candles_5m_canonical",
+  "15m": "market.candles_15m_canonical",
+  "1h": "market.candles_1h_canonical",
+  "4h": "market.candles_4h_canonical",
+  "1d_utc": "market.candles_1d_utc_canonical",
+  "1d_ny": "market.candles_1d_ny_canonical",
 };
 
 export async function GET(req: NextRequest) {

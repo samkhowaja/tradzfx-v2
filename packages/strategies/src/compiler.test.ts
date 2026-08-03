@@ -40,6 +40,13 @@ function baseSpec(overrides: Partial<StrategySpec> = {}): StrategySpec {
 }
 
 describe("compileStrategy", () => {
+  it("rejects contaminated features under CLEAN_2026_07 before SQL generation", () => {
+    const spec = baseSpec({ featureContract: "CLEAN_2026_07" });
+    expect(() => compileStrategy(spec)).toThrow(
+      'CLEAN_2026_07 spec "Test" references contaminated features: features_bias, features_structure'
+    );
+  });
+
   it("generates parameterized historical signal SQL without wall-clock leakage", () => {
     const compiled = compileStrategy(baseSpec(), {
       mode: "pit",
@@ -53,6 +60,23 @@ describe("compileStrategy", () => {
     expect(sql).not.toContain("NOW()");
     expect(sql).not.toContain("SELECT MAX(ts) AS max_ts");
     expect(compiled.sql).toContain("ts <= $3::timestamptz");
+  });
+
+  it("projects exact causal feature rows through zone signals", () => {
+    const sql = compileStrategy(baseSpec(), { mode: "pit", asOfParameter: 3 }).signalAtSQL();
+
+    expect(sql).toContain("as causal_lineage");
+    expect(sql).toContain("'conditionId', 'bias'");
+    expect(sql).toContain("'feature', 'features_bias'");
+    expect(sql).toContain("'conditionId', 'structure'");
+    expect(sql).toContain("'feature', 'features_structure'");
+    expect(sql).toContain("'conditionId', 'signal_pricing'");
+    expect(sql).toContain("'conditionId', 'signal_zone'");
+    expect(sql).toContain("'row', to_jsonb(b)");
+    expect(sql).toContain("'row', to_jsonb(pit_structure)");
+    expect(sql).toContain("'row', to_jsonb(p)");
+    expect(sql).toContain("'row', to_jsonb(z)");
+    expect(sql).toMatch(/SELECT \*\s+FROM features_pricing p2/);
   });
 
   it("uses custom risk.sl and risk.tp formulas", () => {
@@ -70,6 +94,29 @@ describe("compileStrategy", () => {
     // ATR binds via COALESCE(effective_value, value) (winsorized ATR, P0-A / SK-64).
     expect(sql).toMatch(/COALESCE\(a_15m\.effective_value,\s*a_15m\.value\)\s*\*\s*2\.0/);
     expect(sql).toMatch(/COALESCE\(a_15m\.effective_value,\s*a_15m\.value\)[\s\S]{0,40}?\*\s*2\.50/);
+  });
+
+  it("compiles internal-wave chronology and sweep-extreme risk geometry", () => {
+    const spec = baseSpec({
+      signalSource: "internal_wave",
+      filters: { symbols: ["XAUUSD"] },
+      risk: { sl: "sweep_extreme", tp: "sl * 2.0", minRR: 2, timeoutBars: 120 },
+    });
+    const sql = compileStrategy(spec, {
+      mode: "pit",
+      symbol: "XAUUSD",
+      from: new Date("2026-01-01T00:00:00Z"),
+      to: new Date("2026-01-02T00:00:00Z"),
+    }).sql;
+
+    expect(sql).toContain("FROM features_liquidity_event_v2 le");
+    expect(sql).toContain("x.ts > a.known_at");
+    expect(sql).toContain("x.ts <= a.known_at + INTERVAL '30 minutes'");
+    expect(sql).toContain("b.ts > c.confirmation_ts");
+    expect(sql).toContain("b.ts <= c.confirmation_ts + INTERVAL '60 minutes'");
+    expect(sql).toContain("extreme AS stop_loss");
+    expect(sql).toContain("confirmation_price + 2.0 * (confirmation_price - extreme)");
+    expect(sql).not.toContain("NOW()");
   });
 
   it("emits entry_type and offset entry_price for limit orders", () => {
@@ -580,6 +627,26 @@ describe("compileProgressiveSQL", () => {
     expect(sql).toMatch(/entry_signals AS [\s\S]*?FROM st_zone/);
     // LATERAL for entry condition anchored to st_zone
     expect(sql).toMatch(/features_structure[\s\S]*?st_zone\.ts/);
+  });
+
+  it("does not override forward structure TTL with live freshness", () => {
+    const spec = progressiveSpec({
+      entry: [
+        {
+          id: "structure",
+          feature: "features_structure",
+          tf: "1m",
+          predicate: "event_type IN ('bos','mss')",
+          required: true,
+          ttlMinutes: 120,
+          ttlDirection: "forward",
+        },
+      ],
+      live: { structureFreshnessMinutes: 30 },
+    });
+    const { sql } = compileStrategy(spec);
+    expect(sql).toContain("features_structure.ts <= st_zone.ts + INTERVAL '2 hours'");
+    expect(sql).not.toContain("st_zone.ts + interval '30 minutes'");
   });
 
   it("supports 3-step chain (bias -> zone -> ifvg) with direction alignment", () => {

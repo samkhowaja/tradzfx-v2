@@ -13,13 +13,30 @@ function makeInput(
 ): SweepInput {
   return {
     candles,
-    features_pivot: { pivots },
+    features_pivot: {
+      pivots: pivots.map((pivot) => ({
+        ...pivot,
+        confirmationTs: pivot.confirmationTs ?? pivot.ts,
+      })),
+    },
     features_atr: { values: [{ period: 14, value: 1.0 }] } as AtrOutput,
     features_structure: { events: structureEvents },
   };
 }
 
 describe("sweepFeature (v1.4.0 level-based)", () => {
+  it("assigns availability at sweep candle completion", () => {
+    const candles = [
+      makeCandle("2026-01-01T00:00:00Z", 100, 100.5, 99.5, 100),
+      makeCandle("2026-01-01T00:01:00Z", 100, 100.4, 99.6, 100.1),
+      makeCandle("2026-01-01T00:02:00Z", 100, 100.2, 98.5, 100),
+    ];
+    const pivots = [{ kind: "low" as const, price: 99.5, ts: candles[0].ts, confidence: 1 }];
+    const output = sweepFeature.compute(makeInput(candles, pivots), { symbol: "EURUSD", tf: "5m", endTs: candles[2].ts });
+    expect(output.sweeps).toHaveLength(1);
+    expect(output.sweeps[0].availableAtTs).toEqual(new Date(candles[2].ts.getTime() + 300_000));
+  });
+
   it("detects a bullish swing sweep with same-bar close-back", () => {
     const candles = [
       makeCandle("2026-01-01T00:00:00Z", 100, 100.5, 99.5, 100), // pivot low 99.5

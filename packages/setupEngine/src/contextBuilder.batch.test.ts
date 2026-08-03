@@ -59,8 +59,10 @@ function makeFakePool(asOfs: Date[]): Queryable {
           dynamic_ote_quality: 0.9,
           premium_discount_score: 0.6,
         }));
-      } else if (sql.includes("FROM features_zone")) {
-        // One demand zone per bucket, sitting just below price (within 1.5 ATR).
+      } else if (sql.includes("FROM public.canonical_zones_as_of")) {
+        // One canonical demand zone per bucket, sitting just below price
+        // (within 1.5 ATR). Query must carry shared max-age parameter.
+        expect(params[3]).toBeTypeOf("number");
         rows = perBucket(() => ({
           zone_kind: "demand",
           direction: "long",

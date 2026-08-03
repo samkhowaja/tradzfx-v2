@@ -7,6 +7,7 @@ export * from "./gates/familyPositionGate";
 export * from "./gates/rateLimitGate";
 export * from "./gates/dailyLossGate";
 export * from "./gates/dailyWinGate";
+export * from "./gates/directionAlignmentGate";
 export * from "./orderExecutor";
 export * from "./liveRunner";
 export * from "./replayComparison";

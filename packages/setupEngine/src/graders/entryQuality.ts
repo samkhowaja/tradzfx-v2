@@ -20,6 +20,16 @@ export function gradeEntryQuality(ctx: EvaluationContext): GraderResult {
   const zones = ctx.zones;
   const pricing = ctx.pricing;
 
+  // Indicator and MA signals are validated by their signal predicates, not by
+  // an SMC zone. Do not score missing zone as a failed entry for these families.
+  if ((ctx.setupFamily === "indicator" || ctx.setupFamily === "trend_pullback") && price) {
+    return {
+      score: 50,
+      reasons: ["Entry validated by indicator/pullback signal; zone not required"],
+      entryZone: null,
+    };
+  }
+
   if (!price) {
     return { score: 0, reasons: ["No latest price"], entryZone: null };
   }

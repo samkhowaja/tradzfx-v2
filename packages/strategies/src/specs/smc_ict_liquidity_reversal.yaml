@@ -37,6 +37,7 @@ steps:
     required: true
     dependsOn: [liquidity_sweep]
     ttlMinutes: 30
+entry: []
 risk:
   sl: "atr(5m) * 1.2"
   tp: "sl * 2.5"

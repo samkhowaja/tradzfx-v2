@@ -36,59 +36,27 @@
  */
 
 import type { Candle, FeatureDefinition, IfvgOutput, Direction, TimeFrame } from "@tm/shared";
-import { sha256, computeIfvgLifecycle } from "@tm/shared";
+import { sha256, computeIfvgLifecycle, detectRawFvgs } from "@tm/shared";
+import type { RawFvg } from "@tm/shared";
+import {
+  IFVG_MIN_FILL_PCT,
+  IFVG_MIN_CONFIRMATIONS,
+  IFVG_TF_MAX_AGE_BARS,
+} from "../params";
 
 export interface IfvgInput {
   candles: Candle[];
 }
 
-interface RawFvg {
-  direction: Direction;
-  top: number;
-  bottom: number;
-  formationIndex: number;
-}
-
-const MIN_FILL_PCT = Number(process.env.IFVG_MIN_FILL_PCT ?? "0.5");
-const MAX_AGE_BARS = Number(process.env.IFVG_MAX_AGE_BARS ?? "50");
-const MIN_CONFIRMATIONS = Number(process.env.IFVG_MIN_CONFIRMATIONS ?? "1");
-
-/**
- * Per-TF iFVG max age in bars.  Lower TFs need a wider window because each
- * bar represents less time; higher TFs need a tighter window because each
- * bar already covers a long period and an old iFVG is no longer relevant.
- */
-const TF_MAX_AGE_BARS: Record<TimeFrame, number> = {
-  "1m": 120,
-  "5m": 80,
-  "15m": 50,
-  "1h": 30,
-  "4h": 20,
-  "1d": 10,
-};
-
+const TF_MAX_AGE_BARS: Record<TimeFrame, number> = IFVG_TF_MAX_AGE_BARS;
+const IFVG_MAX_AGE_BARS_ENV = Number(process.env.IFVG_MAX_AGE_BARS ?? "50");
 const DEFAULT_MAX_AGE_BARS = 50;
 
 function maxAgeFor(tf: TimeFrame | undefined): number {
   // Env override always wins so operators can tune without redeploying.
-  if (process.env.IFVG_MAX_AGE_BARS) return MAX_AGE_BARS;
+  if (process.env.IFVG_MAX_AGE_BARS) return IFVG_MAX_AGE_BARS_ENV;
   if (!tf) return DEFAULT_MAX_AGE_BARS;
   return TF_MAX_AGE_BARS[tf] ?? DEFAULT_MAX_AGE_BARS;
-}
-
-function detectFVGs(candles: Candle[]): RawFvg[] {
-  const fvgs: RawFvg[] = [];
-  for (let i = 2; i < candles.length; i++) {
-    const c1 = candles[i - 2];
-    const c3 = candles[i];
-    if (c1.h < c3.l) {
-      fvgs.push({ direction: "bullish", top: c3.l, bottom: c1.h, formationIndex: i });
-    }
-    if (c1.l > c3.h) {
-      fvgs.push({ direction: "bearish", top: c1.l, bottom: c3.h, formationIndex: i });
-    }
-  }
-  return fvgs;
 }
 
 function computeFillPct(fvg: RawFvg, candles: Candle[], fromIndex: number): number {
@@ -120,7 +88,7 @@ function countConfirmations(fvg: RawFvg, candles: Candle[], fromIndex: number): 
       fvg.direction === "bullish" ? c.c > fvg.top : c.c < fvg.bottom;
     if (outside && bodyPct >= 0.5) {
       consecutive++;
-      if (consecutive >= MIN_CONFIRMATIONS) {
+      if (consecutive >= IFVG_MIN_CONFIRMATIONS) {
         return consecutive;
       }
     } else {
@@ -144,7 +112,7 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
     if (candles.length < 5) return { ifvgs };
 
     const last = candles[candles.length - 1];
-    const fvgs = detectFVGs(candles);
+    const fvgs = detectRawFvgs(candles);
     const maxAge = maxAgeFor(ctx?.tf);
 
     for (const fvg of fvgs) {
@@ -152,10 +120,10 @@ export const ifvgFeature: FeatureDefinition<IfvgInput, IfvgOutput> = {
       if (ageBars < 0 || ageBars > maxAge) continue;
 
       const fillPct = computeFillPct(fvg, candles, fvg.formationIndex + 1);
-      if (fillPct < MIN_FILL_PCT) continue;
+      if (fillPct < IFVG_MIN_FILL_PCT) continue;
 
       const confirmationCount = countConfirmations(fvg, candles, fvg.formationIndex + 1);
-      if (confirmationCount < MIN_CONFIRMATIONS) continue;
+      if (confirmationCount < IFVG_MIN_CONFIRMATIONS) continue;
 
       const strengthScore = Math.min(
         1,
