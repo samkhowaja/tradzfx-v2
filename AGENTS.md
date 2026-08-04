@@ -30,6 +30,12 @@
 
 ### Spread unit contract (candles_1m.spread, features_spread)
 
+### Broker identity contract
+
+- `platform=mt5` runs on broker server `1x Trade Ltd.`. `MT5` is not broker identity.
+- `platform=mt4` runs on broker `OANDA Corporation`.
+- Store terminal platform and broker server separately. Do not label MT5 candles with broker `MT5`.
+
 - `candles_1m.spread` is **pips**, always. MT5 reports spread in points; every
   writer MUST convert: pip = 10 points for 5/3/2-digit quoting, pip = 1 point
   for 4-digit quoting (e.g. USDSEK). Canonical conversion:

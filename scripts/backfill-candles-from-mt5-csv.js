@@ -34,7 +34,8 @@ function parseArgs(argv = process.argv.slice(2)) {
   const out = {
     dir: null,
     tzOffsetMinutes: 0,
-    broker: "MT5",
+    // MT5 terminal connects to 1x Trade server. MT5 is platform, not broker.
+    broker: "1x Trade Ltd.",
     insertMissingOnly: false,
     symbols: null,
     filenameContains: null,

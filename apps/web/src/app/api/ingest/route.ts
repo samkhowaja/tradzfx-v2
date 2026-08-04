@@ -31,6 +31,10 @@ interface V2Bar {
   spread?: number;
 }
 
+function normalizeBrokerName(broker: string | undefined): string {
+  return broker?.trim() === "MT5" ? "1x Trade Ltd." : broker?.trim() || "default";
+}
+
 interface V1Bar {
   ts: number;
   o: number;
@@ -165,7 +169,7 @@ export async function POST(request: NextRequest) {
 
     // Normalize symbol
     const cleanSymbol = symbol.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-    const broker = payload.source?.broker ?? "default";
+    const broker = normalizeBrokerName(payload.source?.broker);
     const digits =
       typeof payload.source?.digits === "number"
         ? Math.max(0, Math.min(10, Math.round(payload.source.digits)))

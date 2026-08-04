@@ -130,6 +130,13 @@ function normalizeSymbol(symbol) {
   return String(symbol).replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 }
 
+// MT5 identifies terminal platform, not broker. Current MT5 terminal uses
+// 1x Trade server; MT4 terminal uses OANDA. Keep platform and broker separate.
+function normalizeBrokerName(broker) {
+  const value = String(broker ?? "default").trim();
+  return value === "MT5" ? "1x Trade Ltd." : value;
+}
+
 // FX Weekend Calendar Guard: Check if a symbol is FX and timestamp is within tradable hours
 // FX tradable window: Sunday 21:00 UTC → Friday 21:00 UTC
 function isFxSymbol(symbol) {
@@ -260,7 +267,7 @@ async function upsertBars(payload) {
     }
   }
 
-  const broker = String(payload.source?.broker ?? "default").replace(/'/g, "").slice(0, 64);
+  const broker = normalizeBrokerName(payload.source?.broker).replace(/'/g, "").slice(0, 64);
   const digits =
     typeof payload.source?.digits === "number"
       ? Math.max(0, Math.min(10, Math.round(payload.source.digits)))
