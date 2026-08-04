@@ -43,6 +43,8 @@
     "db:seed": "node scripts/seed-strategy-specs.js",
     "db:seed:check": "node scripts/seed-strategy-specs.js --check",
     "db:alignment": "node scripts/check-temporal-alignment.js --all-specs",
+    "calendar:parity": "tsx scripts/calendar-gap-parity.ts",
+    "trusted-windows:evaluate": "node scripts/evaluate-trusted-window-detector.js",
     "backtest:smoke": "node scripts/backtest-smoke-test.js",
     "promote-live": "node scripts/promote-top3-live.js",
     "engine": "pnpm --filter @tm/engine dev",

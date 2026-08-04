@@ -6,6 +6,11 @@ const symbols = (process.argv.find((x) => x.startsWith('--symbols='))?.split('='
 const timeframe = process.argv.find((x) => x.startsWith('--timeframe='))?.split('=')[1] || '1m';
 const detectorVersion = process.argv.find((x) => x.startsWith('--detector='))?.split('=')[1] || 'candle-detector-v3-robust';
 const write = process.argv.includes('--write');
+const parityConfirmed = process.argv.includes('--parity-confirmed');
+if (write && !parityConfirmed) {
+  console.error('Refusing --write: run pnpm exec tsx scripts/calendar-gap-parity.ts, verify passed=true, then add --parity-confirmed.');
+  process.exit(2);
+}
 const pool = new Pool({ host: process.env.TM_DB_HOST || 'localhost', port: +(process.env.TM_DB_PORT || 5432), database: process.env.TM_DB_NAME || 'tradzfx_v2', user: 'postgres', password: process.env.TM_DB_PASSWORD });
 
 async function main() {
@@ -52,7 +57,8 @@ async function main() {
     if (write) for (const row of rows) {
       await client.query(`INSERT INTO market.trusted_windows
         (symbol, timeframe, window_start, window_end, detector_version, canonical_version, eligibility_version, broker_policy_version, status, gate_summary, evidence_refs, created_by)
-        VALUES ($1,$2,$3,$4,$5,'canonical-v1','eligibility-v1','broker-policy-v1','candidate',$6,'[]'::jsonb,'discover-trusted-windows.js')`,
+        VALUES ($1,$2,$3,$4,$5,'canonical-v1','eligibility-v1','broker-policy-v1','candidate',$6,'[]'::jsonb,'discover-trusted-windows.js')
+        ON CONFLICT (symbol, timeframe, window_start, window_end, detector_version) WHERE status = 'candidate' DO NOTHING`,
         [row.symbol, timeframe, row.window_start, row.window_end, detectorVersion, JSON.stringify({ effectiveBroker: row.effective_broker_identity, canonicalRows: row.rows, unresolvedBlockers: row.unresolved_blockers, unexpectedBreaks: row.unexpected_breaks, expectedClosures: row.expected_closures, gapClasses: row.gap_classes, continuityGate: row.unexpected_breaks === 0 ? 'passed' : 'blocked', promotion: 'manual_required' })]);
     }
   } finally { client.release(); await pool.end(); }

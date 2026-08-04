@@ -234,13 +234,13 @@ test("candle export uses only its exact schema-qualified relation allowlist", ()
     .sort();
 
   assert.deepEqual(relations, [
-    "public.candles_15m",
-    "public.candles_1d_ny",
-    "public.candles_1d_utc",
-    "public.candles_1h",
-    "public.candles_1m",
-    "public.candles_4h",
-    "public.candles_5m",
+    "market.candles_15m_canonical",
+    "market.candles_1d_ny_canonical",
+    "market.candles_1d_utc_canonical",
+    "market.candles_1h_canonical",
+    "market.candles_1m_canonical",
+    "market.candles_4h_canonical",
+    "market.candles_5m_canonical",
   ]);
 });
 

@@ -133,6 +133,25 @@ export interface GapInfo {
   largestGapMinutes: number;
 }
 
+export type CandleGapClass = "NONE" | "EXPECTED_WEEKEND" | "EXPECTED_DAILY_BREAK" | "UNEXPECTED";
+
+/** Classify continuity gap using same midpoint policy as canonical DB classifier. */
+export function classifyCandleGap(
+  symbol: string,
+  _brokerIdentity: string | null,
+  previousTs: Date | null,
+  currentTs: Date | null
+): CandleGapClass {
+  if (!previousTs || !currentTs || currentTs.getTime() <= previousTs.getTime()) return "NONE";
+  if (currentTs.getTime() - previousTs.getTime() <= 60_000) return "NONE";
+  const midpoint = new Date((previousTs.getTime() + currentTs.getTime()) / 2);
+  const dow = midpoint.getUTCDay();
+  const hour = midpoint.getUTCHours();
+  if (dow === 6 || (dow === 0 && hour < 21) || (dow === 5 && hour >= 21)) return "EXPECTED_WEEKEND";
+  if (symbol.toUpperCase() === "XAUUSD" && hour === 21) return "EXPECTED_DAILY_BREAK";
+  return "UNEXPECTED";
+}
+
 /**
  * Calendar-aware gap report: count tradable buckets in [from, to] that have no
  * matching row, plus the longest run of consecutive missing tradable bars.
