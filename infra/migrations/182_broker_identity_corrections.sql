@@ -47,8 +47,8 @@ COMMENT ON TABLE raw.broker_identity_correction IS
 -- for traceability. Explicit raw broker reads remain raw/audit reads.
 CREATE OR REPLACE VIEW market.candles_1m_canonical AS
 SELECT c.symbol, c.ts, c.o, c.h, c.l, c.c, c.v, c.spread, c.broker, c.digits,
-       raw.effective_broker_identity(c.broker) AS effective_broker_identity,
-       p.policy_id
+    p.policy_id,
+    raw.effective_broker_identity(c.broker) AS effective_broker_identity
 FROM candles_1m c
 JOIN LATERAL (
     SELECT policy_id, broker_id
