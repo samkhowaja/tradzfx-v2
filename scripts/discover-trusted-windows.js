@@ -19,16 +19,8 @@ async function main() {
       SELECT s.*, CASE
         WHEN s.prev_ts IS NULL THEN 'window_start'
         WHEN s.effective_broker_identity IS NULL THEN 'broker_identity_unresolved'
-        WHEN s.ts - s.prev_ts <= interval '2 hours' THEN NULL
-        WHEN NOT (
-          extract(dow from (s.prev_ts + (s.ts - s.prev_ts) / 2)) IN (0, 6)
-          OR (extract(dow from (s.prev_ts + (s.ts - s.prev_ts) / 2)) = 0
-              AND extract(hour from (s.prev_ts + (s.ts - s.prev_ts) / 2)) < 21)
-          OR (extract(dow from (s.prev_ts + (s.ts - s.prev_ts) / 2)) = 5
-              AND extract(hour from (s.prev_ts + (s.ts - s.prev_ts) / 2)) >= 21)
-          OR (s.symbol = 'XAUUSD'
-              AND extract(hour from (s.prev_ts + (s.ts - s.prev_ts) / 2)) = 21)
-        ) THEN 'unexpected_continuity_break'
+        WHEN market.classify_candle_gap(s.symbol, s.effective_broker_identity, s.prev_ts, s.ts) = 'NONE' THEN NULL
+        WHEN market.classify_candle_gap(s.symbol, s.effective_broker_identity, s.prev_ts, s.ts) = 'UNEXPECTED' THEN 'unexpected_continuity_break'
         ELSE 'expected_calendar_closure'
       END AS gap_class
       FROM source s
