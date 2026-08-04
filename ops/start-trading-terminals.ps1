@@ -9,6 +9,7 @@
 #>
 param(
     [int]$StartupDelaySec = 20,
+    [int]$ServerWaitSec = 180,
     [string]$Mt5Path = $env:MT5_TERMINAL_PATH,
     [string]$Mt4Path = $env:MT4_TERMINAL_PATH
 )
@@ -45,7 +46,36 @@ function Assert-TerminalIfMissing([string]$Label, [string]$Name, [string]$Path) 
     Write-TerminalLog "$Label started; PID: $($proc.Id)"
 }
 
+function Wait-ForServer([string]$Url, [string]$Label, [int]$TimeoutSec) {
+    $deadline = (Get-Date).AddSeconds($TimeoutSec)
+    do {
+        try {
+            $response = Invoke-WebRequest -Uri $Url -Method GET -TimeoutSec 5 -UseBasicParsing
+            $body = $null
+            try { $body = $response.Content | ConvertFrom-Json } catch { }
+            $webDbReady = $null -ne $body -and $null -ne $body.database -and $body.database.connected -eq $true
+            $ingestDbReady = $null -ne $body -and $body.db -eq $true
+            if (($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) -or $webDbReady -or $ingestDbReady) {
+                Write-TerminalLog "$Label reachable: HTTP $($response.StatusCode)"
+                return $true
+            }
+        } catch {
+            Write-TerminalLog "$Label not ready: $($_.Exception.Message)"
+        }
+        Start-Sleep -Seconds 5
+    } while ((Get-Date) -lt $deadline)
+    Write-TerminalLog "ERROR: timed out waiting for $Label ($Url)"
+    return $false
+}
+
 Write-TerminalLog "Startup check scheduled after ${StartupDelaySec}s delay"
 Start-Sleep -Seconds $StartupDelaySec
+
+# MT5 must start after both HTTP services. PM2 resurrect order is not a
+# readiness guarantee; starting EA first causes WebRequest error 401/404 or
+# connection failure while Next.js/nginx is still binding ports.
+if (-not (Wait-ForServer "http://127.0.0.1:3004/health" "tz-ingestion" $ServerWaitSec)) { exit 1 }
+if (-not (Wait-ForServer "http://127.0.0.1:3003/api/health" "tz-web-v2" $ServerWaitSec)) { exit 1 }
+
 Assert-TerminalIfMissing "MT5" "terminal64" $Mt5Path
 Assert-TerminalIfMissing "MT4" "terminal" $Mt4Path
