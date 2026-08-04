@@ -528,7 +528,7 @@ describe("prefetchCandles", () => {
     const captured = { args: null };
     const fakePool = {
       query: async (sql, params) => {
-        if (sql.includes("FROM candle_quarantine")) return { rows: [{ count: 0 }] };
+        if (sql.includes("FROM market.candle_eligibility")) return { rows: [{ count: 0 }] };
         captured.args = { sql, params };
         return { rows: [] };
       },
@@ -548,7 +548,7 @@ describe("prefetchCandles", () => {
   it("fails closed for approved EXCLUDE decisions", async () => {
     const fakePool = {
       query: async (sql) => {
-        if (sql.includes("FROM candle_quarantine")) return { rows: [{ count: 1 }] };
+        if (sql.includes("FROM market.candle_eligibility")) return { rows: [{ count: 1 }] };
         throw new Error("candle query must not run after quarantine failure");
       },
     };

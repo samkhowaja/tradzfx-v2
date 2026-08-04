@@ -1744,8 +1744,10 @@ async function applyGates(trades, spec, options = {}) {
     if (block) {
       // Always record the would-be rejection (so research shows the gate
       // distribution); only drop the candidate when not in research mode.
-      const reasonKey = block.reason ? `${block.name}: ${block.reason}` : block.name;
-      reasons[reasonKey] = (reasons[reasonKey] ?? 0) + 1;
+      // Keep aggregate results keyed by stable gate name. Detailed rejection
+      // text remains available through the gate result/logging path; callers
+      // must not parse human-readable reasons for metrics.
+      reasons[block.name] = (reasons[block.name] ?? 0) + 1;
       if (!research) {
         skipped++;
         continue;
