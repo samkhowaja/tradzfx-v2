@@ -35,6 +35,9 @@
 - `platform=mt5` runs on broker server `1x Trade Ltd.`. `MT5` is not broker identity.
 - `platform=mt4` runs on broker `OANDA Corporation`.
 - Store terminal platform and broker server separately. Do not label MT5 candles with broker `MT5`.
+- Historical raw rows with `broker='MT5'` remain immutable evidence. Migration `182_broker_identity_corrections.sql`
+  records this legacy label and `raw.effective_broker_identity()` maps it to `1x Trade Ltd.` for canonical reads.
+  Historical `broker='MT4'` maps to `OANDA Corporation` under same evidence ledger. Never blind-update raw rows.
 
 - `candles_1m.spread` is **pips**, always. MT5 reports spread in points; every
   writer MUST convert: pip = 10 points for 5/3/2-digit quoting, pip = 1 point

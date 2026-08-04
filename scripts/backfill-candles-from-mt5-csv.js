@@ -8,7 +8,7 @@
  *
  * Usage:
  *   export TM_DB_PASSWORD=...
- *   node backfill-candles-from-mt5-csv.js <csv-directory> [--tz-offset-minutes=180] [--broker=MT5]
+ *   node backfill-candles-from-mt5-csv.js <csv-directory> [--tz-offset-minutes=180] [--broker="1x Trade Ltd."]
  *     [--insert-missing-only] [--symbols=AUDUSD,EURUSD] [--filename-contains=20260717172600]
  *
  * Example (MT5 terminal timestamps are UTC+3):

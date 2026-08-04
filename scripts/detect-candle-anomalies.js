@@ -47,31 +47,33 @@ async function main() {
   try {
     const { rows } = await client.query(`
       WITH x AS (
-        SELECT symbol, broker, ts, o, h, l, c, spread,
-               lag(c) OVER (PARTITION BY symbol, broker ORDER BY ts) prev_c,
-               lag(ts) OVER (PARTITION BY symbol, broker ORDER BY ts) prev_ts
+         SELECT symbol, broker, ts, o, h, l, c, spread,
+           lag(c) OVER (PARTITION BY symbol, raw.effective_broker_identity(broker) ORDER BY ts) prev_c,
+           lag(ts) OVER (PARTITION BY symbol, raw.effective_broker_identity(broker) ORDER BY ts) prev_ts
         FROM candles_1m
       ), returns_base AS (
           SELECT x.*, abs(c-prev_c) / NULLIF(abs(prev_c),0) AS abs_return
           FROM x
       ), baselines AS (
-        SELECT symbol, broker,
+        SELECT symbol, raw.effective_broker_identity(broker) AS effective_broker,
                percentile_cont(0.5) WITHIN GROUP (ORDER BY abs_return) AS median_return
         FROM returns_base
         WHERE abs_return IS NOT NULL
-        GROUP BY symbol, broker
+        GROUP BY symbol, raw.effective_broker_identity(broker)
       ), deviations AS (
         SELECT r.symbol, r.broker,
                percentile_cont(0.5) WITHIN GROUP
                  (ORDER BY abs(r.abs_return - b.median_return)) AS mad_return
         FROM returns_base r
-        JOIN baselines b USING (symbol, broker)
+        JOIN baselines b ON b.symbol = r.symbol
+          AND b.effective_broker = raw.effective_broker_identity(r.broker)
         WHERE r.abs_return IS NOT NULL
         GROUP BY r.symbol, r.broker
       ), returns AS (
         SELECT r.*, b.median_return, d.mad_return
         FROM returns_base r
-        LEFT JOIN baselines b USING (symbol, broker)
+        LEFT JOIN baselines b ON b.symbol = r.symbol
+          AND b.effective_broker = raw.effective_broker_identity(r.broker)
         LEFT JOIN deviations d USING (symbol, broker)
       ), evidence AS (
         SELECT *, ARRAY_REMOVE(ARRAY[
