@@ -225,7 +225,9 @@ export async function POST(request: NextRequest) {
     // them to CLEAN.
     await pool.query(
       `INSERT INTO market.candle_eligibility (symbol, broker, timeframe, ts, state)
-       SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[], $4::timestamptz[])
+       SELECT symbol, broker, timeframe, ts, 'PERSISTED'
+       FROM UNNEST($1::text[], $2::text[], $3::text[], $4::timestamptz[])
+         AS input(symbol, broker, timeframe, ts)
        ON CONFLICT (symbol, broker, timeframe, ts) DO NOTHING`,
       [symbols, brokers, Array.from({ length: n }, () => "1m"), timestamps]
     );

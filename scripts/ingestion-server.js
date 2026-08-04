@@ -307,8 +307,8 @@ async function upsertBars(payload) {
     eligibilityParams.push(row[0], row[8], row[1]);
   }
   await pool.query(
-    `INSERT INTO market.candle_eligibility (symbol, broker, timeframe, ts)
-     VALUES ${eligibilityPlaceholders.join(", ")}
+    `INSERT INTO market.candle_eligibility (symbol, broker, timeframe, ts, state)
+     VALUES ${eligibilityPlaceholders.map((p) => p.replace(/\)$/, ", 'PERSISTED')")).join(", ")}
      ON CONFLICT (symbol, broker, timeframe, ts) DO NOTHING`,
     eligibilityParams
   );
