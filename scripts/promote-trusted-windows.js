@@ -60,7 +60,11 @@ async function main() {
   const targetStatus = demote ? "trusted" : "candidate";
   clauses.push(`status = '${targetStatus}'`);
   const where = `WHERE ${clauses.join(" AND ")}`;
+  // SELECT: filters at $1..; UPDATE: $1=reviewer (,$2=canonical) then filters at $2../$3..
   const selectWhere = where.replace(/\$(\d+)/g, (_, n) => `$${Number(n) - 1}`);
+  const demoteWhere = where.replace(/\$(\d+)/g, (_, n) => `$${Number(n) - 1}`);
+  const promoteWhere = where; // promote: $1 reviewer, $2 canonical, filters already $2.. → shift by +1
+  const promoteWhereFixed = promoteWhere.replace(/\$(\d+)/g, (_, n) => `$${Number(n) + 1}`);
 
   const { rows } = await pool.query(
     `SELECT window_id, symbol, timeframe, window_start, window_end, detector_version, status,
@@ -106,14 +110,14 @@ async function main() {
       res = await client.query(
         `UPDATE market.trusted_windows
          SET status = 'candidate', superseded_at = now(), superseded_by = $1
-         ${where}`,
+         ${demoteWhere}`,
         [reviewer, ...params]
       );
     } else {
       res = await client.query(
         `UPDATE market.trusted_windows
          SET status = 'trusted', promoted_at = now(), promoted_by = $1, canonical_version = $2
-         ${where}`,
+         ${promoteWhereFixed}`,
         [reviewer, CANONICAL_VERSION, ...params]
       );
     }
