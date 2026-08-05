@@ -1852,6 +1852,14 @@ const includeTrades = process.argv.includes("--trades");
 const persistMode = process.argv.includes("--persist");
 const debugMode = process.argv.includes("--debug");
 const preflightMode = process.argv.includes("--preflight");
+// Trusted-window gate: ON by default (fail-closed). Escape hatch for research only:
+//   --trusted=off  (run over uncertified history; logged loudly)
+const trustedArg = process.argv.find((a) => a.startsWith("--trusted="));
+const trustedMode = trustedArg ? trustedArg.slice("--trusted=".length) : "require";
+if (!["require", "off"].includes(trustedMode)) {
+  console.error(`[backtest-pit-v2] Unknown --trusted mode "${trustedMode}". Use: require | off`);
+  process.exit(1);
+}
 const stdoutLog = console.log;
 if (jsonMode) {
   console.log = (...args) => console.error(...args);
@@ -1861,6 +1869,7 @@ async function main() {
   const jsonMode = process.argv.includes("--json");
   const debugMode = process.argv.includes("--debug");
   const preflightMode = process.argv.includes("--preflight");
+  const trustedMode = process.argv.find((a) => a.startsWith("--trusted="))?.slice("--trusted=".length) ?? "require";
   const endArg = process.argv.find((a) => a.startsWith("--end="));
   const startArg = process.argv.find((a) => a.startsWith("--start="));
   const endDate = endArg ? new Date(endArg.slice("--end=".length)) : null;
@@ -1882,6 +1891,7 @@ async function main() {
       !a.startsWith("--setup-profile=") &&
       !a.startsWith("--drift-gate=") &&
       !a.startsWith("--spec-file=") &&
+      !a.startsWith("--trusted=") &&
       !a.startsWith("--parent-audit-id=")
   );
   const symbolArg = args[0] || "EURUSD";
@@ -2002,6 +2012,54 @@ async function main() {
       `Extend window or reduce lookbacks. Exiting.`
     );
     process.exit(1);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Trusted-window gate (fail-closed by default; --trusted=off for research)
+  // Every symbol's [from,to] interval must be fully covered by status='trusted'
+  // windows in market.trusted_windows (written by certify-trusted-windows.js and
+  // promoted via promote-trusted-windows.js). Matches on timeframe='1m'.
+  // ---------------------------------------------------------------------------
+  if (trustedMode === "require") {
+    const { rows: trusted } = await pool.query(
+      `SELECT symbol, window_start, window_end, detector_version
+       FROM market.trusted_windows
+       WHERE status = 'trusted' AND symbol = ANY($1) AND timeframe = '1m'
+       ORDER BY symbol, window_start`,
+      [symbols]
+    );
+    const covered = (sym) => {
+      const ws = trusted.filter((w) => w.symbol === sym);
+      let cursor = from.getTime();
+      const end = to.getTime();
+      for (const w of ws) {
+        const s = new Date(w.window_start).getTime();
+        const e = new Date(w.window_end).getTime();
+        if (s > cursor) break; // gap before next window
+        if (e > cursor) cursor = e;
+        if (cursor >= end) return true;
+      }
+      return cursor >= end;
+    };
+    const blocked = symbols.filter((s) => !covered(s));
+    if (blocked.length > 0) {
+      console.error(
+        `[backtest-pit-v2] FATAL: trusted-window gate BLOCKED ${blocked.join(", ")} — no status='trusted' window fully covers ` +
+        `${from.toISOString().slice(0, 10)} → ${to.toISOString().slice(0, 10)}.`
+      );
+      console.error(
+        `[backtest-pit-v2] Certify + promote a window first: node scripts/certify-trusted-windows.js --write; ` +
+        `node scripts/promote-trusted-windows.js --symbol=<SYM> --reviewer=<name> --apply. ` +
+        `Research escape hatch: --trusted=off (NOT for gating evidence).`
+      );
+      process.exit(1);
+    }
+    const detVersions = [...new Set(trusted.map((w) => w.detector_version))];
+    console.log(`[backtest-pit-v2] Trusted-window gate: PASS (${trusted.length} trusted window(s), detectors: ${detVersions.join(", ")})`);
+    immutableRun.setMetadata({ trustedGate: { mode: "require", windows: trusted.length, detectors: detVersions } });
+  } else {
+    console.log(`[backtest-pit-v2] WARNING: trusted-window gate OFF (--trusted=off) — results are research-only, not gating evidence.`);
+    immutableRun.setMetadata({ trustedGate: { mode: "off" } });
   }
   const setupFamily = inferSetupFamily(spec);
   immutableRun.setMetadata({

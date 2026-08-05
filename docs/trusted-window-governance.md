@@ -163,3 +163,33 @@ four priority symbols now certify under v5.2.
 Backtests and setup generation must run only inside `status='trusted'`
 windows; candidate windows are not yet eligible. Feature backfill (MAs, ATR,
 pivots, structure — not zones/OB/FVG) happens last, after trusted promotion.
+
+## Promotion (candidate → trusted)
+
+`scripts/promote-trusted-windows.js` — manual, audited, dry-run by default:
+
+```bash
+node scripts/promote-trusted-windows.js                                    # list candidates
+node scripts/promote-trusted-windows.js --symbol=XAUUSD --reviewer=<name> --apply
+node scripts/promote-trusted-windows.js --ids=46,48,51,54,55 --reviewer=<name> --apply
+node scripts/promote-trusted-windows.js --demote --ids=46 --reviewer=<name> --apply
+```
+
+- `--apply` requires `--reviewer=<name>` (audit trail → `promoted_by`,
+  `promoted_at`; demote → `superseded_by`, `superseded_at`).
+- Promotion stamps `canonical_version` (`canonical-m186-exclude-skip@<date>`)
+  on the row for lineage.
+- Single transaction; filters: `--ids`, `--symbol`, or `--all`.
+
+## Backtest trusted-window gate
+
+`scripts/backtest-pit-v2.js` enforces the gate **by default** (fail-closed):
+
+- Every symbol's `[from,to]` interval must be fully covered by
+  `status='trusted'` windows (timeframe `1m`) in `market.trusted_windows`;
+  contiguous/adjacent windows chain (coverage cursor).
+- On block: exit 1 with remediation instructions. Gate result +
+  detector versions recorded in the immutable run metadata (`trustedGate`).
+- Escape hatch `--trusted=off` for research only; logs a loud warning and
+  marks the run metadata `trustedGate.mode='off'` — such runs are NOT
+  gating evidence.
