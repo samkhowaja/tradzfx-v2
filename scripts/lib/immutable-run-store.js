@@ -94,6 +94,7 @@ function startImmutableRun(options = {}) {
         setupProfile: state.metadata.setupProfile || null,
         intrabarMode: state.metadata.intrabarMode || null,
         dataEdge: state.metadata.dataEdge || null,
+        trustedGate: state.metadata.trustedGate || null,
         readinessManifestHash,
         arguments: state.metadata.arguments,
         error: error ? String(error.stack || error.message || error) : null,

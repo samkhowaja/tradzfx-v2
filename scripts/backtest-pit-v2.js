@@ -2021,22 +2021,29 @@ async function main() {
   // promoted via promote-trusted-windows.js). Matches on timeframe='1m'.
   // ---------------------------------------------------------------------------
   if (trustedMode === "require") {
-    const { rows: trusted } = await pool.query(
-      `SELECT symbol, window_start, window_end, detector_version
+    const { rows: trustedAll } = await pool.query(
+      `SELECT window_id, symbol, window_start, window_end, detector_version, canonical_version
        FROM market.trusted_windows
        WHERE status = 'trusted' AND symbol = ANY($1) AND timeframe = '1m'
        ORDER BY symbol, window_start`,
       [symbols]
     );
+    // Greedy coverage chain per symbol; record the exact window_ids used so the
+    // run is pinned to this trusted set (later promotions/demotions cannot
+    // silently change what this run meant).
+    const usedIds = new Set();
     const covered = (sym) => {
-      const ws = trusted.filter((w) => w.symbol === sym);
+      const ws = trustedAll.filter((w) => w.symbol === sym);
       let cursor = from.getTime();
       const end = to.getTime();
       for (const w of ws) {
         const s = new Date(w.window_start).getTime();
         const e = new Date(w.window_end).getTime();
         if (s > cursor) break; // gap before next window
-        if (e > cursor) cursor = e;
+        if (e > cursor) {
+          cursor = e;
+          usedIds.add(Number(w.window_id));
+        }
         if (cursor >= end) return true;
       }
       return cursor >= end;
@@ -2054,9 +2061,25 @@ async function main() {
       );
       process.exit(1);
     }
-    const detVersions = [...new Set(trusted.map((w) => w.detector_version))];
-    console.log(`[backtest-pit-v2] Trusted-window gate: PASS (${trusted.length} trusted window(s), detectors: ${detVersions.join(", ")})`);
-    immutableRun.setMetadata({ trustedGate: { mode: "require", windows: trusted.length, detectors: detVersions } });
+    const used = trustedAll.filter((w) => usedIds.has(Number(w.window_id)));
+    const windowIds = [...usedIds].sort((a, b) => a - b);
+    const detVersions = [...new Set(used.map((w) => w.detector_version))];
+    const canonicalVersions = [...new Set(used.map((w) => w.canonical_version).filter(Boolean))];
+    const windowSetHash = sha256(canonicalJson({ windowIds, detectors: detVersions, canonicalVersions }));
+    console.log(
+      `[backtest-pit-v2] Trusted-window gate: PASS (windows: [${windowIds.join(",")}], ` +
+      `setHash: ${windowSetHash.slice(0, 12)}, detectors: ${detVersions.join(", ")})`
+    );
+    immutableRun.setMetadata({
+      trustedGate: {
+        mode: "require",
+        windowIds,
+        windowSetHash,
+        detectors: detVersions,
+        canonicalVersions,
+        gatedAt: new Date().toISOString(),
+      },
+    });
   } else {
     console.log(`[backtest-pit-v2] WARNING: trusted-window gate OFF (--trusted=off) — results are research-only, not gating evidence.`);
     immutableRun.setMetadata({ trustedGate: { mode: "off" } });
@@ -2245,6 +2268,12 @@ async function main() {
         console.log("\nPREFLIGHT VERDICT: READY");
       }
     }
+    immutableRun.finalize({
+      status: blockedSymbols.length > 0 ? "BLOCKED_SYSTEM_QUALITY" : "READY",
+      exitCode: blockedSymbols.length > 0 ? 1 : 0,
+      readinessManifestHash: sha256(canonicalJson(perSymbolDataQuality)),
+    });
+    immutableRunFinalized = true;
     await pool.end();
     process.exit(blockedSymbols.length > 0 ? 1 : 0);
   }
