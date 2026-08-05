@@ -23,6 +23,8 @@ const { Pool } = require("pg");
 const { DAGRunner, globalDAG, getProducerOutputMode, updateLifecycleForSymbol } = require("../apps/engine/dist/index.js");
 const { getCandleTableForTf } = require("../packages/shared/dist/index.js");
 const { verifyBackfillCell } = require("./lib/backfill-readiness.js");
+const { evaluateTrustedGate, buildTrustedGateMetadata } = require("./lib/trusted-gate.js");
+const { canonicalJson, sha256 } = require("./lib/immutable-run-store.js");
 
 const pool = new Pool({
   host: "localhost",
@@ -254,6 +256,13 @@ async function main() {
   const endArg = process.argv.find((a) => a.startsWith("--end="));
   const lifecyclePerTf = process.argv.includes("--lifecycle-per-tf");
   const verifyOnly = process.argv.includes("--verify-only");
+  // Trusted-window gate: ON by default (fail-closed). --trusted=off = research
+  // escape hatch (loud warning; backfill results not gating evidence).
+  const trustedMode = process.argv.find((a) => a.startsWith("--trusted="))?.slice("--trusted=".length) ?? "require";
+  if (!["require", "off"].includes(trustedMode)) {
+    console.error(`[backfill] Unknown --trusted mode "${trustedMode}". Use: require | off`);
+    process.exit(1);
+  }
   const manifest = {
     schemaVersion: 1,
     startedAt: new Date().toISOString(),
@@ -261,6 +270,7 @@ async function main() {
     symbols,
     timeframes: tfs,
     requestedFeatures,
+    trustedGate: null,
     cells: [],
     summary: null,
   };
@@ -275,6 +285,31 @@ async function main() {
     }
     const startTs = startArg ? new Date(startArg.slice("--start=".length)) : minTs;
     const endTs = endArg ? new Date(endArg.slice("--end=".length)) : maxTs;
+
+    // Trusted-window gate (per-symbol coverage over [startTs, endTs]).
+    if (trustedMode === "require") {
+      const gate = await evaluateTrustedGate(pool, [symbol], startTs, endTs);
+      if (!gate.pass) {
+        console.error(
+          `[backfill] BACKFILL GATE BLOCK: ${symbol} requested ${startTs.toISOString().slice(0, 10)} → ${endTs.toISOString().slice(0, 10)} ` +
+          `not fully covered by status='trusted' windows. Narrow --start/--end to a trusted island, or certify+promote ` +
+          `(certify-trusted-windows.js --write; promote-trusted-windows.js --apply). Research escape: --trusted=off.`
+        );
+        await pool.end();
+        process.exit(1);
+      }
+      const gateMeta = buildTrustedGateMetadata(gate);
+      manifest.trustedGate = manifest.trustedGate || { perSymbol: {} };
+      manifest.trustedGate.perSymbol[symbol] = gateMeta;
+      console.log(
+        `[backfill] Trusted-window gate: PASS ${symbol} (windows: [${gateMeta.windowIds.join(",")}], ` +
+        `setHash: ${gateMeta.windowSetHash.slice(0, 12)})`
+      );
+    } else {
+      console.warn(`[backfill] WARNING: trusted-window gate OFF (--trusted=off) — ${symbol} backfill is research-only.`);
+      manifest.trustedGate = manifest.trustedGate || { perSymbol: {} };
+      manifest.trustedGate.perSymbol[symbol] = { mode: "off" };
+    }
 
     console.log(`\n[backfill] === ${symbol} | ${startTs.toISOString()} → ${endTs.toISOString()} ===`);
 
@@ -313,6 +348,18 @@ async function main() {
   }
 
   manifest.finishedAt = new Date().toISOString();
+  // Global trusted-set hash across all per-symbol pinned sets.
+  if (manifest.trustedGate?.perSymbol) {
+    const metas = Object.values(manifest.trustedGate.perSymbol).filter((m) => m.mode === "require");
+    if (metas.length > 0) {
+      manifest.trustedGate.mode = "require";
+      manifest.trustedGate.windowSetHash = sha256(canonicalJson(
+        metas.map((m) => ({ windowIds: m.windowIds, detectors: m.detectors, canonicalVersions: m.canonicalVersions }))
+      ));
+    } else {
+      manifest.trustedGate.mode = "off";
+    }
+  }
   manifest.summary = {
     barsProcessed: totals.bars,
     errors: totals.errors,
