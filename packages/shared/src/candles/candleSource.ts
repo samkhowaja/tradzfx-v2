@@ -406,21 +406,38 @@ export async function getRecentCandles(
   const completedEndTs = new Date(endTs.getTime() - TF_MS[tf]);
   const table = broker ? RAW_CANDLE_TABLE_BY_TF[tf] : getCandleTableForTf(tf);
   const tickCol = tf === "1m" ? "" : ", tick_count";
-  const { rows } = broker
-    ? await pool.query(
-        `SELECT symbol, ts, o, h, l, c, v${tickCol}
-         FROM ${table}
-         WHERE symbol = $1 AND broker = $2 AND ts <= $3
-         ORDER BY ts DESC LIMIT $4`,
-        [symbol, broker, completedEndTs, count]
-      )
-    : await pool.query(
-        `SELECT symbol, ts, o, h, l, c, v${tickCol}
-         FROM ${table}
-         WHERE symbol = $1 AND ts <= $2
-         ORDER BY ts DESC LIMIT $3`,
-        [symbol, completedEndTs, count]
-      );
+  // The raw cagg includes weekend/off-hours bars. `count` is a tradable-bar
+  // contract (feature periods are tuned in tradable bars), so expand the raw
+  // LIMIT until the window covers `count` tradable buckets. At a weekly open a
+  // raw LIMIT of N only spans ~2 days of wall time, yielding far fewer than N
+  // tradable bars and starving long-period features every Sunday.
+  let rawLimit = count;
+  let rows: any[] = [];
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const result = broker
+      ? await pool.query(
+          `SELECT symbol, ts, o, h, l, c, v${tickCol}
+           FROM ${table}
+           WHERE symbol = $1 AND broker = $2 AND ts <= $3
+           ORDER BY ts DESC LIMIT $4`,
+          [symbol, broker, completedEndTs, rawLimit]
+        )
+      : await pool.query(
+          `SELECT symbol, ts, o, h, l, c, v${tickCol}
+           FROM ${table}
+           WHERE symbol = $1 AND ts <= $2
+           ORDER BY ts DESC LIMIT $3`,
+          [symbol, completedEndTs, rawLimit]
+        );
+    rows = result.rows;
+    if (rows.length < rawLimit) break; // exhausted history
+    const oldest = new Date(rows[rows.length - 1].ts);
+    const tradable = tradableBarStarts(tf, oldest, completedEndTs, symbol).length;
+    if (tradable >= count) break;
+    // Scale by observed density (tradable/raw), with headroom.
+    const density = rows.length > 0 ? tradable / rows.length : 0.5;
+    rawLimit = Math.ceil((count * 1.1) / Math.max(density, 0.05));
+  }
   const cagg = rows.map(mapCandleRow).reverse(); // ASC
 
   const allowFallback = opts.allowRealtimeFallback ?? true;
@@ -436,12 +453,15 @@ export async function getRecentCandles(
     }
   }
 
-  // Trailing freshness: a tradable bucket strictly after the last row and <= endTs
-  // means the cagg is lagging the live edge.
+  // Trailing freshness: a tradable bucket strictly after the last row is only
+  // "due" once it has completed, i.e. bucketStart + tf <= endTs. Buckets that
+  // are still open at endTs must not trigger the fallback.
   if (!incomplete) {
+    const tfMsTail = TF_MS[tf];
     const last = cagg[cagg.length - 1].ts;
-    const tailFrom = new Date(last.getTime() + TF_MS[tf]);
-    if (tailFrom.getTime() <= endTs.getTime() && tradableBarStarts(tf, tailFrom, endTs, symbol).length > 0) {
+    const tailFrom = new Date(last.getTime() + tfMsTail);
+    const dueEnd = new Date(endTs.getTime() - tfMsTail);
+    if (tailFrom.getTime() <= dueEnd.getTime() && tradableBarStarts(tf, tailFrom, dueEnd, symbol).length > 0) {
       incomplete = true;
     }
   }
@@ -451,8 +471,18 @@ export async function getRecentCandles(
   // Fallback: rollup the span covered by this lookback and take the last `count`.
   // queryRollup is end-inclusive. Exclude current edge bucket by ending one
   // millisecond before endTs; completedEndTs is the last allowed bucket start.
+  // Span is tradable-aware: raw cagg rows include weekend/off-hours bars, so
+  // cagg[0].ts can start far later than the span `count` tradable bars needs
+  // (e.g. Sunday open: 500 raw bars only reach back to Saturday). Extend the
+  // rollup start backwards until it covers `count` tradable buckets.
   const tfMs = TF_MS[tf];
   const rollupEnd = new Date(completedEndTs.getTime() + tfMs - 1);
-  const rollup = await queryRollup(pool, symbol, broker, tf, cagg[0].ts, rollupEnd);
+  let rollupStart = cagg[0].ts;
+  for (let i = 0; i < 40; i++) {
+    const covered = tradableBarStarts(tf, rollupStart, completedEndTs, symbol).length;
+    if (covered >= count) break;
+    rollupStart = new Date(rollupStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+  }
+  const rollup = await queryRollup(pool, symbol, broker, tf, rollupStart, rollupEnd);
   return rollup.slice(-count);
 }

@@ -21,7 +21,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Pool } = require("pg");
 const { DAGRunner, globalDAG, getProducerOutputMode, updateLifecycleForSymbol } = require("../apps/engine/dist/index.js");
-const { getCandleTableForTf } = require("../packages/shared/dist/index.js");
+const { getCandleTableForTf, TF_MS } = require("../packages/shared/dist/index.js");
 const { verifyBackfillCell } = require("./lib/backfill-readiness.js");
 const { evaluateTrustedGate, buildTrustedGateMetadata } = require("./lib/trusted-gate.js");
 const { canonicalJson, sha256 } = require("./lib/immutable-run-store.js");
@@ -99,9 +99,23 @@ async function getSymbols(arg) {
 
 async function getBarTimestamps(symbol, tf, startTs, endTs) {
   const table = getCandleTableForTf(tf);
+  if (tf === "1m") {
+    const { rows } = await pool.query(
+      `SELECT ts FROM ${table}
+       WHERE symbol = $1 AND ts >= $2 AND ts <= $3
+       ORDER BY ts`,
+      [symbol, startTs, endTs]
+    );
+    return rows.map((r) => new Date(r.ts));
+  }
+  // Anchors = every cagg bar with data, matching live engine behavior: the
+  // engine computes features on any 5m bar that exists (tick_count > 0), even
+  // when the underlying 1m span is partial (thin Sunday-open liquidity). A
+  // stricter 1m-completeness filter here would diverge from live and leave
+  // anchors that readiness (tick_count > 0) legitimately expects unfilled.
   const { rows } = await pool.query(
     `SELECT ts FROM ${table}
-     WHERE symbol = $1 AND ts >= $2 AND ts <= $3
+     WHERE symbol = $1 AND ts >= $2 AND ts <= $3 AND tick_count > 0
      ORDER BY ts`,
     [symbol, startTs, endTs]
   );
@@ -329,12 +343,19 @@ async function main() {
 
       const sourceBars = await getBarTimestamps(symbol, tf, startTs, endTs);
       if (sourceBars.length > 0) {
+        // Producer semantics: an anchor at bar T consumes candles through
+        // T - tf and keys its output rows at the last consumed candle ts.
+        // So the maximum source/persisted edge any run can reach is
+        // lastAnchor - tf; comparing the ledger against lastAnchor itself
+        // produces a permanent one-bar producer_source_edge_behind block.
+        const tfMs = TF_MS[tf] ?? parseInt(tf, 10) * 60_000;
+        const expectedMaxEdge = new Date(sourceBars[sourceBars.length - 1].getTime() - tfMs);
         const cells = await verifySymbolTf(
           symbol,
           tf,
           requestedFeatures,
           sourceBars[0],
-          sourceBars[sourceBars.length - 1]
+          expectedMaxEdge
         );
         manifest.cells.push(...cells);
         const blocked = cells.filter((cell) => cell.verdict !== "READY");
