@@ -58,7 +58,15 @@ const minRows = Number(process.argv.find((x) => x.startsWith('--min-rows='))?.sp
 const maxIslands = Number(process.argv.find((x) => x.startsWith('--max-windows-per-symbol='))?.split('=')[1] || 10);
 const write = process.argv.includes('--write');
 const parityConfirmed = process.argv.includes('--parity-confirmed');
-const FROZEN_VERSION = `window-certifier-v5.2-dxy-formula@${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+// v5.3 (2026-08-05): zero-spread KEEP-review exception, mirroring the v5.1
+// ret-outlier KEEP path. A spread=0 row (importer zero-encodes unavailable
+// spread; verified missing at source in raw candles, not corruption) is a
+// hard blocker unless its timestamp carries an approved KEEP quarantine
+// decision (human reviewed — e.g. GBPUSD 2026-07-22..07-30, 11 rows approved
+// by salman with note "spread missing at source; price clean"). Only
+// timestamps actually zero are checked, so KEEP rows elsewhere do not mask
+// unreviewed missing-spread rows. Fail-closed on anything else.
+const FROZEN_VERSION = `window-certifier-v5.3-spreadzero-keep@${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
 
 if (write && !parityConfirmed) {
   console.error('Refusing --write: run pnpm calendar:parity, verify passed=true, then add --parity-confirmed.');
@@ -210,7 +218,21 @@ async function main() {
           range: evaluateRange(values, threshold),
           spread: evaluateSpread(values, threshold),
         };
-        const zeroSpreadRows = rows.filter((r) => r.spread != null && Number(r.spread) === 0).length;
+        const zeroSpreadTimes = rows.filter((r) => r.spread != null && Number(r.spread) === 0).map((r) => r.ts);
+        const zeroSpreadRows = zeroSpreadTimes.length;
+        // v5.3: zero-spread KEEP-review (see header note by FROZEN_VERSION).
+        let keepResolvedZeroSpread = 0;
+        let unresolvedZeroSpread = zeroSpreadRows;
+        if (zeroSpreadRows > 0) {
+          const { rows: keepZs } = await pool.query(
+            `SELECT DISTINCT event_time FROM candle_quarantine
+             WHERE symbol=$1 AND event_time = ANY($2) AND superseded_at IS NULL
+               AND decision='KEEP' AND approved_at IS NOT NULL AND approved_by IS NOT NULL`,
+            [symbol, zeroSpreadTimes]);
+          const keepZsSet = new Set(keepZs.map((r) => r.event_time.toISOString()));
+          keepResolvedZeroSpread = zeroSpreadTimes.filter((t) => keepZsSet.has(t.toISOString())).length;
+          unresolvedZeroSpread = zeroSpreadRows - keepResolvedZeroSpread;
+        }
         const boundaryCount = symbol === 'DXY' ? await findDxyBoundaryCount(pool, island.window_start, island.window_end) : 0;
 
         // Quarantine rows inside the window. A row is RESOLVED only when a
@@ -266,11 +288,12 @@ async function main() {
         const warnings = [];
         if (unresolvedRetOutliers > 0 || metrics.spread.robustOutliers) blockers.push('v5_robust_outliers');
         if (metrics.ret.hardFloorOutliers) blockers.push('v5_hard_floor_outliers');
-        if (zeroSpreadRows > 0) blockers.push('spread_zero_unresolved');
+        if (unresolvedZeroSpread > 0) blockers.push('spread_zero_unresolved');
         if (boundaryCount > 0) blockers.push('synthetic_boundary_unresolved');
         if (unresolvedQuarantine > 0) blockers.push('unresolved_quarantine_rows');
         if (metrics.range.robustOutliers > 0) warnings.push('range_volatility_tail');
         if (keepResolvedRetOutliers > 0) warnings.push('ret_outliers_keep_reviewed');
+        if (keepResolvedZeroSpread > 0) warnings.push('spread_zero_keep_reviewed');
 
         // Volatility regime label from range-tail evidence: fraction of
         // flagged range outliers over evaluated rows. Lets downstream training
@@ -281,7 +304,7 @@ async function main() {
 
         const entry = {
           broker: island.broker, windowStart: island.window_start, windowEnd: island.window_end,
-          rows: island.rows, metrics, zeroSpreadRows, syntheticBoundaryCount: boundaryCount,
+          rows: island.rows, metrics, zeroSpreadRows, keepResolvedZeroSpread, syntheticBoundaryCount: boundaryCount,
           unresolvedQuarantine, keepResolvedRetOutliers, volatilityRegime, blockers, warnings,
         };
 

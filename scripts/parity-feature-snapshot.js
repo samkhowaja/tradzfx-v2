@@ -2,24 +2,38 @@
 // Usage:
 //   node scripts/parity-feature-snapshot.js snapshot <label>
 //   node scripts/parity-feature-snapshot.js diff <labelA> <labelB>
+// Cell selection via env (defaults = EURUSD 5m window 48 cert cell):
+//   PARITY_SYMBOL, PARITY_TF, PARITY_FROM, PARITY_TO
+// Snapshot labels are namespaced by symbol+tf so cells never collide:
+//   <label> becomes <SYMBOL>_<TF>__<label> on disk.
 require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { Pool } = require("pg");
 
-const SYMBOL = "EURUSD";
-const TF = "5m";
-// Window 48 range. Feature rows are keyed at anchor - tf, so the last row is
-// 2026-08-04T07:45Z (last anchor 07:50 consumes through 07:45).
-const FROM = "2026-07-18T01:40:00Z";
-const TO = "2026-08-04T07:53:00Z";
+const SYMBOL = process.env.PARITY_SYMBOL || "EURUSD";
+const TF = process.env.PARITY_TF || "5m";
+// Default window 48 range. Feature rows are keyed at anchor - tf, so the last
+// row is 2026-08-04T07:45Z (last anchor 07:50 consumes through 07:45).
+// GBPUSD 5m cell (trusted window 59): PARITY_SYMBOL=GBPUSD
+//   PARITY_FROM=2026-07-18T01:43:00Z PARITY_TO=2026-08-04T07:54:00Z
+const FROM = process.env.PARITY_FROM || "2026-07-18T01:40:00Z";
+const TO = process.env.PARITY_TO || "2026-08-04T07:53:00Z";
 const FEATURES = [
   "features_moving_average",
   "features_atr",
   "features_pivot",
   "features_structure",
 ];
+
+const CELL_OVERRIDDEN = !!(process.env.PARITY_SYMBOL || process.env.PARITY_TF || process.env.PARITY_FROM || process.env.PARITY_TO);
+
+function cellLabel(label) {
+  // Namespace only when the cell is overridden via env, so the existing
+  // EURUSD window-48 snapshots (runA/runB/runC) stay addressable.
+  return CELL_OVERRIDDEN ? `${SYMBOL}_${TF}__${label}` : label;
+}
 
 const pool = new Pool({
   host: process.env.TM_DB_HOST || "localhost",
@@ -59,6 +73,7 @@ function rowHash(row) {
 const VOLATILE_COLS = new Set(["generated_at", "created_at", "updated_at"]);
 
 async function snapshot(label) {
+  label = cellLabel(label);
   const outDir = path.resolve(__dirname, "..", "reports", "parity");
   fs.mkdirSync(outDir, { recursive: true });
   const manifest = { symbol: SYMBOL, tf: TF, from: FROM, to: TO, takenAt: new Date().toISOString(), features: {} };
@@ -102,6 +117,8 @@ async function snapshot(label) {
 }
 
 async function diff(labelA, labelB) {
+  labelA = cellLabel(labelA);
+  labelB = cellLabel(labelB);
   const outDir = path.resolve(__dirname, "..", "reports", "parity");
   let fail = 0;
   for (const feature of FEATURES) {
