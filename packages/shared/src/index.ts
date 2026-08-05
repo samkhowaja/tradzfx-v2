@@ -26,6 +26,7 @@ export * from "./execution/executionContracts";
 export * from "./order/constants";
 export * from "./smallAccountPositionManager";
 export * from "./db/producerRuns";
+export * from "./db/goldenCorridors";
 export * from "./db/featureUniverse";
 export * from "./db/pgErrors";
 export * from "./readiness/freshness";

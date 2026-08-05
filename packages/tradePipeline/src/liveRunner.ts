@@ -13,6 +13,7 @@ import {
   checkSmallAccountGate,
   CANDLE_TABLE_BY_TF,
   assertProducerFresh,
+  assertGoldenCorridor,
   ACTIVE_ORDER_STATUSES,
   classifyReadiness,
   elapsedTradableMinutes,
@@ -659,7 +660,52 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
     }
   }
 
-  // 0b. Feature freshness guard — check all features the strategy needs
+  // 0b. Golden-corridor gate (migration 187). Live signals may only be
+  // generated for (symbol, entry-tf) jobs whose evaluation window sits inside
+  // an active certified corridor. Rollout default is warn-only so we can watch
+  // the hit rate against real evaluation timestamps before enforcing;
+  // flip with TM_GOLDEN_CORRIDOR_ACTION=block after ops acceptance.
+  {
+    const gcTf = (entryTf ?? "1m") as TimeFrame;
+    const gcAction = (process.env.TM_GOLDEN_CORRIDOR_ACTION ?? "warn").toLowerCase();
+    const gc = await assertGoldenCorridor(pool, {
+      symbol,
+      timeframe: gcTf,
+      jobStart: now,
+      jobEnd: now,
+    });
+    if (!gc.covered) {
+      const reason = gc.reason ?? "golden_corridor_not_certified";
+      if (gcAction === "block") {
+        await logSignalRejection(pool, effectiveDeploymentId, { symbol, strategyId: strategySpec.id, reason });
+        return {
+          trace: {
+            runId: crypto.randomUUID(),
+            symbol,
+            strategyId: strategySpec.id,
+            ts: now,
+            nodes: [
+              {
+                nodeId: "golden_corridor",
+                nodeType: "gate",
+                passed: false,
+                reason,
+                latencyMs: 0,
+              },
+            ],
+          },
+          reason,
+        };
+      }
+      console.warn(`[liveRunner] golden-corridor gate (warn): ${reason}`);
+    } else if (gc.reason === undefined && gc.corridor) {
+      // Certified — no log spam, trace only when verbose.
+    } else if (gc.reason?.startsWith("gate_offline")) {
+      console.warn(`[liveRunner] golden-corridor gate offline: ${gc.reason} — proceeding (fail-open)`);
+    }
+  }
+
+  // 0c. Feature freshness guard — check all features the strategy needs
   const freshness = await checkFeatureFreshness(pool, symbol, strategySpec, now, !evaluationOnly);
   if (!freshness.ok) {
     await logSignalRejection(pool, effectiveDeploymentId, {
