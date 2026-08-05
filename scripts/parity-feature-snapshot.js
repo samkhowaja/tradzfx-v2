@@ -1,4 +1,7 @@
 // Parity harness: snapshot feature rows over a window, diff two snapshots.
+// FROZEN 2026-08-05 (parity-harness-v1): proven bit-identical reruns on two
+// symbols (EURUSD w48, GBPUSD w59) incl. lineage fields. Do not change logic
+// without an evidenced bug report — same governance as frozen detectors.
 // Usage:
 //   node scripts/parity-feature-snapshot.js snapshot <label>
 //   node scripts/parity-feature-snapshot.js diff <labelA> <labelB>
