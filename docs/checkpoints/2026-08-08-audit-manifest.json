@@ -1,0 +1,8 @@
+﻿{
+    "inventoryHash1":  "2956C7DD38B95D0AB7CE3F9718E74FDBE2EE82B8C31BDB47B8ABA217F717F467",
+    "inventoryHash2":  "2956C7DD38B95D0AB7CE3F9718E74FDBE2EE82B8C31BDB47B8ABA217F717F467",
+    "deterministic":  true,
+    "status":  "?? docs/checkpoints/2026-08-08-ignored-file-rules.json\n?? docs/checkpoints/2026-08-08-repo-reference-audit.json\n?? tools/README.md\n?? tools/script-registry.json\n?? tools/validation/build-repo-inventory.cjs",
+    "head":  "b5fcbc6eb01c61dfc1c3809655a347c7b381bb7b",
+    "checkpoint":  "d140b2e0740078c9f73a390aa74ac3f55f922895"
+}
