@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-26T05-02-57-212Z-f8acfc60-5e12-4611-b7e3-3061a60b0773",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-26T05:02:57.212Z",
+  "finishedAt": "2026-07-26T05:03:24.998Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "watukushay_fe",
+  "specHash": "708d107d3cd524eeda5f292caeabc4ad635f2cd3c1349e77599af0861ac7fa59",
+  "symbol": "XAUUSD",
+  "window": {
+    "from": "2026-04-27T04:53:00.000Z",
+    "to": "2026-07-26T04:53:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T04:53:00.000Z",
+  "readinessManifestHash": "64e8d9863154a3a42bee8a62861482d4701c7010ea7cab47850c9408ede609fd",
+  "arguments": [
+    "XAUUSD",
+    "90",
+    "watukushay_fe",
+    "--persist"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "9e1e54ccce80fb9849e54c62d045cb54177135e466d347661f5ea34ca8548d1b",
+      "bytes": 1560
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "c6d1f0761d9944ef865c7246f8350dde76f3e64db80dad10a1f2eeadb4d555c1",
+      "bytes": 3682
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "26a41d7095ca1f430995570e2e5027f3ce8abc840a4c8ff23dda54048759ba14",
+      "bytes": 4807
+    }
+  }
+}

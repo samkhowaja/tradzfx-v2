@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "USDJPY",
+    "side": "buy",
+    "entry": 162.95,
+    "sl": 162.913,
+    "tp": 163.02399999999994,
+    "ts": "2026-07-21T14:35:00.000Z",
+    "causalLineage": [],
+    "entryType": "limit",
+    "atr_5": 0.06459999999999581,
+    "spread_pips": 0.9,
+    "outcome": "win",
+    "r": 2,
+    "rRealized": 2,
+    "holdBars": 14,
+    "closePrice": 163.02399999999994,
+    "effectiveEntry": 162.95,
+    "maxAdverse": 162.939,
+    "maxFavorable": 163.027,
+    "driftPips": 0,
+    "realizedRisk": 0.03699999999997772,
+    "executed": true,
+    "plannedR": 2,
+    "realizedR": 2,
+    "heatDropped": false
+  }
+]

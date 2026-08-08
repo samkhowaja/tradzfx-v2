@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T20-11-15-669Z-caf9e372-476c-4a19-970a-8a7e67ab324a",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-24T20:11:15.669Z",
+  "finishedAt": "2026-07-24T20:11:23.435Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_xau_sweep_15pip",
+  "specHash": "63b446f09521e687ee29eb28b3f79ded783504590d5e145a3f4017aacd9cef8c",
+  "symbol": "XAUUSD",
+  "window": {
+    "from": "2026-04-25T20:10:00.000Z",
+    "to": "2026-07-24T20:10:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T20:10:00.000Z",
+  "readinessManifestHash": "f747d7b5b8bac66ca96bf959107a5bbbf4025c6a528962a1bff0955c1b8fea59",
+  "arguments": [
+    "XAUUSD",
+    "90",
+    "waqar_v2_xau_sweep_15pip",
+    "--persist",
+    "--spec-file=packages/strategies/src/specs/waqar_v2_xau_sweep_15pip.yaml"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "efa11fbea933e2fcfa438bcbcb7ef45058fa64ddd3995606cbc61dd082ece0ca",
+      "bytes": 1257
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "8d110e586329efd6efa0be8af5b4d3e3aad2e8696d81dfd7885c17512ad61e81",
+      "bytes": 112
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "936e051dbab0bdd8675c02e542d44816795131141e27e28b03ea87141575d309",
+      "bytes": 3869
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "a1eb97e4d2f69808c553465bfa95b03025d3181fcb50bb70a5d719327c98f990",
+      "bytes": 566426
+    }
+  }
+}

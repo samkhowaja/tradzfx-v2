@@ -127,6 +127,75 @@ export function elapsedTradableMinutes(from: Date, to: Date, symbol?: string): n
   return minutes;
 }
 
+/**
+ * Certification-only policy (NOT used by isTradableInstant): the XAUUSD broker
+ * feed (1x Trade Ltd.) empirically halts before the modeled 21:00 UTC break and
+ * resumes after 22:00 UTC. Verified 2026-08-07 over 2026-07-12..2026-08-06:
+ * last pre-break bar drifts between 20:50 and 20:59 UTC; first post-break bar is
+ * 22:05 UTC. These minutes are absent in RAW candles (broker never sent them),
+ * so they are modeled as non-trading for CERTIFICATION gap semantics only. The
+ * tradable filter keeps 20:50-20:59 tradable so real bars are never dropped.
+ */
+export const BREAK_EDGE_POLICY_BY_SYMBOL: Record<string, { preBreakHaltFromMinUTC: number; postBreakResumeMinUTC: number }> = {
+  XAUUSD: { preBreakHaltFromMinUTC: 20 * 60 + 50, postBreakResumeMinUTC: 22 * 60 + 5 },
+};
+
+/** Is a bar-open instant inside the modeled break-edge halt/resume window? */
+export function inBreakEdgeWindow(ts: Date, symbol?: string): boolean {
+  if (!symbol) return false;
+  const pol = BREAK_EDGE_POLICY_BY_SYMBOL[symbol];
+  if (!pol) return false;
+  const mins = ts.getUTCHours() * 60 + ts.getUTCMinutes();
+  return (mins >= pol.preBreakHaltFromMinUTC && mins < 21 * 60) ||
+         (mins >= 22 * 60 && mins < pol.postBreakResumeMinUTC);
+}
+
+/**
+ * Documented genuine feed outages: real trading-hours gaps, absent in raw and
+ * canonical, verified against broker feed. These are PERMANENT hard blockers for
+ * time-bucket certification until replaced with provenance-complete evidence or
+ * reclassified as a structural hole. Never auto-waive.
+ * (Empty as of 2026-08-07: the Jul 29 entry was reclassified STRUCTURAL_BROKER_HOLE.)
+ */
+export const KNOWN_FEED_OUTAGES: { symbol: string; startUTC: string; endExclusiveUTC: string; reason: string; verified: string }[] = [];
+
+export function inKnownFeedOutage(ts: Date, symbol?: string): boolean {
+  if (!symbol) return false;
+  const t = ts.getTime();
+  return KNOWN_FEED_OUTAGES.some(o =>
+    o.symbol === symbol && t >= new Date(o.startUTC).getTime() && t < new Date(o.endExclusiveUTC).getTime());
+}
+
+/**
+ * STRUCTURAL_BROKER_HOLE: intervals the broker itself proves do not exist.
+ * Requires three agreeing evidence classes: live feed absence, historical
+ * re-export absence, and on-demand terminal CopyRates absence (request
+ * artifact). These bars never existed at the broker — NOT pipeline loss.
+ *
+ * Policy (decided 2026-08-07): structural holes are immutable, excluded from
+ * canonical fill attempts, do not count as pipeline loss, do not trigger
+ * quarantine escalation, and are EXPECTED-INCOMPLETE for bucket certification
+ * (documented, non-blocking) when the provenance reference is complete.
+ * KNOWN_FEED_OUTAGES stays for true operational outages pending evidence.
+ */
+export const STRUCTURAL_BROKER_HOLES: { symbol: string; startUTC: string; endExclusiveUTC: string; reason: string; provenanceArtifact: string; verified: string }[] = [
+  {
+    symbol: "XAUUSD",
+    startUTC: "2026-07-29T12:00:00Z",
+    endExclusiveUTC: "2026-07-29T12:08:00Z",
+    reason: "8-minute broker-proven absence in active trading hours: live feed never delivered the bars; MT5 historical re-export lacks them; on-demand terminal CopyRates (LINEAGE-06 request channel) confirms 11:59 → 12:08 jump. Bars never existed at 1xTrade-Server.",
+    provenanceArtifact: "request fefc1b2b-87cc-4f53-98e3-871e25b8df5d / artifact 96648c09-6468-4270-a6be-0cd3ad49518f (sha256 91d76e20ae8ef5703cbf2b40cc2c513397f4a597f1d3a4b93e1f8b5117f6a982), terminal 1xTrade-Server login 296743, retrieved 2026-08-07T06:35:04Z, verdict MATCH 53 bars 0 mismatches",
+    verified: "2026-08-07 reports/candle-request-fefc1b2b-87cc-4f53-98e3-871e25b8df5d.json",
+  },
+];
+
+export function inStructuralBrokerHole(ts: Date, symbol?: string): boolean {
+  if (!symbol) return false;
+  const t = ts.getTime();
+  return STRUCTURAL_BROKER_HOLES.some(o =>
+    o.symbol === symbol && t >= new Date(o.startUTC).getTime() && t < new Date(o.endExclusiveUTC).getTime());
+}
+
 export interface GapInfo {
   hasGaps: boolean;
   gapCount: number;

@@ -1,0 +1,23 @@
+{
+  "requestId": "fefc1b2b-87cc-4f53-98e3-871e25b8df5d",
+  "artifactId": "96648c09-6468-4270-a6be-0cd3ad49518f",
+  "symbol": "XAUUSD",
+  "purpose": "gap_fill",
+  "from": "2026-07-29T11:30:00.000Z",
+  "to": "2026-07-29T12:30:00.000Z",
+  "terminal": {
+    "login": "296743",
+    "server": "1xTrade-Server"
+  },
+  "retrievedAt": "2026-08-07T06:35:04.000Z",
+  "payloadSha256": "91d76e20ae8ef5703cbf2b40cc2c513397f4a597f1d3a4b93e1f8b5117f6a982",
+  "artifactBars": 53,
+  "canonicalBars": 52,
+  "lineageRows": 53,
+  "missingInCanonical": [
+    "2026-07-29T12:30:00.000Z"
+  ],
+  "missingInArtifact": [],
+  "mismatches": [],
+  "verdict": "MATCH"
+}

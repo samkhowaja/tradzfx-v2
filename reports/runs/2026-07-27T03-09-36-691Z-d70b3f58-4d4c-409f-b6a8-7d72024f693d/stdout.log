@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: 10xroi_v1_1m | signalSource: generic
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-19T03:20:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1m
+XAUUSD: 443 raw signals (0 skipped for warmup, 99 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 25 deduped) | signal query 150ms | prefetch 35ms | setup-engine N/Ams | simulate 8ms
+  Executed: 70 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 241 | Heat dropped: 6
+  Gate skips: rateLimit=226, session=15
+  Wins: 13 | Losses: 57 | Timeouts: 2
+  WR: 18.6% | Net R: -19.35 | Avg Win: 1.51R | Avg Loss: -0.68R

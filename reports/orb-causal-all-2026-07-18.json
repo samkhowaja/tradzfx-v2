@@ -1,0 +1,2389 @@
+{
+  "generatedAt": "2026-07-19T02:30:33.588Z",
+  "window": {
+    "from": "2026-04-18T00:00:00.000Z",
+    "to": "2026-07-17T00:00:00.000Z"
+  },
+  "productionSpecsChanged": false,
+  "legacyEvaluatorChanged": false,
+  "method": "range completion -> directional close breakout -> post-breakout confirmation -> coordinated entry",
+  "resolution": {
+    "configured": "spec timeoutBars",
+    "natural": "all available 1m candles through report end; right-censored signals remain stillOpen"
+  },
+  "rows": [
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "EURUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 57
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 57,
+        "breakouts": 36,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 21,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 36,
+        "missing_or_neutral_bias_at_completion": 5
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "GBPUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 58
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 57,
+        "breakouts": 34,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 23,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 34,
+        "missing_or_neutral_bias_at_completion": 5
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "AUDUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 57
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 57,
+        "breakouts": 33,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 24,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 33,
+        "missing_or_neutral_bias_at_completion": 4
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "NZDUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 56
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 57,
+        "breakouts": 33,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 33,
+        "no_directional_close_breakout": 24,
+        "missing_or_neutral_bias_at_completion": 4
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "USDCAD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 57
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 56,
+        "breakouts": 35,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 35,
+        "no_directional_close_breakout": 21,
+        "missing_or_neutral_bias_at_completion": 5
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "USDCHF",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 59
+      },
+      "funnel": {
+        "ranges": 64,
+        "range_identity_valid": 63,
+        "bias_available": 57,
+        "breakouts": 30,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 27,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 30,
+        "missing_or_neutral_bias_at_completion": 6
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "USDJPY",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 57
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 57,
+        "breakouts": 36,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 36,
+        "no_directional_close_breakout": 21,
+        "missing_or_neutral_bias_at_completion": 5
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "forex_strategy_orb",
+      "symbol": "XAUUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 62
+      },
+      "funnel": {
+        "ranges": 64,
+        "range_identity_valid": 63,
+        "bias_available": 58,
+        "breakouts": 40,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "blocked_zone_retest_missing_exact_origin_zone_identity": 40,
+        "no_directional_close_breakout": 18,
+        "missing_or_neutral_bias_at_completion": 5
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "EURUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 12
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 58,
+        "breakouts": 36,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 36,
+        "no_directional_close_breakout": 22,
+        "missing_or_neutral_bias_at_completion": 4
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "GBPUSD",
+      "status": "PASS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 11
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 60,
+        "breakouts": 34,
+        "confirmed": 1,
+        "coordinated": 1
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 33,
+        "no_directional_close_breakout": 26,
+        "missing_or_neutral_bias_at_completion": 2
+      },
+      "riskBlocks": {},
+      "signals": 1,
+      "trades": 1,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 1,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 1,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": [
+        {
+          "symbol": "GBPUSD",
+          "ts": "2026-07-16T14:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 1.35014,
+          "rangeId": "GBPUSD:15m:2026-07-16:london:15",
+          "rangeTs": "2026-07-16T07:15:00.000Z",
+          "rangeHigh": 1.35416,
+          "rangeLow": 1.35306,
+          "rangeMid": 1.35361,
+          "breakoutTs": "2026-07-16T13:30:00.000Z",
+          "confirmationTs": "2026-07-16T14:45:00.000Z",
+          "sl": 1.35361,
+          "tp": 1.3431999999999997,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 1.3500349999999999,
+            "maxAdverse": 1.35019,
+            "maxFavorable": 1.34836
+          },
+          "natural": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 544,
+            "closePrice": null,
+            "effectiveEntry": 1.3500349999999999,
+            "maxAdverse": 1.35019,
+            "maxFavorable": 1.3459
+          }
+        }
+      ]
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "AUDUSD",
+      "status": "PASS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 13
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 18,
+        "breakouts": 9,
+        "confirmed": 3,
+        "coordinated": 3
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 9,
+        "no_post_breakout_confirmation": 6,
+        "missing_or_neutral_bias_at_completion": 43
+      },
+      "riskBlocks": {},
+      "signals": 3,
+      "trades": 3,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 3,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 3,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": -3.211482894799069,
+        "holdMinutes": {
+          "min": 129,
+          "p50": 263,
+          "p75": 1270,
+          "p90": 1270,
+          "max": 1270
+        }
+      },
+      "details": [
+        {
+          "symbol": "AUDUSD",
+          "ts": "2026-04-27T14:30:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 0.71851,
+          "rangeId": "AUDUSD:15m:2026-04-27:london:15",
+          "rangeTs": "2026-04-27T07:15:00.000Z",
+          "rangeHigh": 0.71695,
+          "rangeLow": 0.7164,
+          "rangeMid": 0.716675,
+          "breakoutTs": "2026-04-27T13:30:00.000Z",
+          "confirmationTs": "2026-04-27T14:30:00.000Z",
+          "sl": 0.716675,
+          "tp": 0.72218,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 0.7186049999999999,
+            "maxAdverse": 0.7182,
+            "maxFavorable": 0.71862
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0492227979274389,
+            "holdBars": 1270,
+            "closePrice": 0.71658,
+            "effectiveEntry": 0.7186049999999999,
+            "maxAdverse": 0.71666,
+            "maxFavorable": 0.71991
+          }
+        },
+        {
+          "symbol": "AUDUSD",
+          "ts": "2026-06-26T14:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 0.69053,
+          "rangeId": "AUDUSD:15m:2026-06-26:london:15",
+          "rangeTs": "2026-06-26T07:15:00.000Z",
+          "rangeHigh": 0.68969,
+          "rangeLow": 0.6893,
+          "rangeMid": 0.689495,
+          "breakoutTs": "2026-06-26T13:52:00.000Z",
+          "confirmationTs": "2026-06-26T14:45:00.000Z",
+          "sl": 0.691565,
+          "tp": 0.68846,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 0.690435,
+            "maxAdverse": 0.69053,
+            "maxFavorable": 0.68978
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0840707964601408,
+            "holdBars": 263,
+            "closePrice": 0.6916599999999999,
+            "effectiveEntry": 0.690435,
+            "maxAdverse": 0.6916,
+            "maxFavorable": 0.68949
+          }
+        },
+        {
+          "symbol": "AUDUSD",
+          "ts": "2026-06-29T13:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 0.68902,
+          "rangeId": "AUDUSD:15m:2026-06-29:london:15",
+          "rangeTs": "2026-06-29T07:15:00.000Z",
+          "rangeHigh": 0.69028,
+          "rangeLow": 0.69,
+          "rangeMid": 0.69014,
+          "breakoutTs": "2026-06-29T13:30:00.000Z",
+          "confirmationTs": "2026-06-29T13:45:00.000Z",
+          "sl": 0.69014,
+          "tp": 0.68678,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 0.688925,
+            "maxAdverse": 0.68944,
+            "maxFavorable": 0.68885
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0781893004114889,
+            "holdBars": 129,
+            "closePrice": 0.6902349999999999,
+            "effectiveEntry": 0.688925,
+            "maxAdverse": 0.69016,
+            "maxFavorable": 0.68885
+          }
+        }
+      ]
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "NZDUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 8
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 7,
+        "breakouts": 4,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "missing_or_neutral_bias_at_completion": 54,
+        "no_post_breakout_confirmation": 4,
+        "no_directional_close_breakout": 3
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "USDCAD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 9
+      },
+      "funnel": {
+        "ranges": 62,
+        "range_identity_valid": 61,
+        "bias_available": 8,
+        "breakouts": 5,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "missing_or_neutral_bias_at_completion": 53,
+        "no_post_breakout_confirmation": 5,
+        "no_directional_close_breakout": 3
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "USDCHF",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 9
+      },
+      "funnel": {
+        "ranges": 64,
+        "range_identity_valid": 63,
+        "bias_available": 9,
+        "breakouts": 6,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "missing_or_neutral_bias_at_completion": 54,
+        "no_post_breakout_confirmation": 6,
+        "no_directional_close_breakout": 3
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "USDJPY",
+      "status": "PASS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 9
+      },
+      "funnel": {
+        "ranges": 63,
+        "range_identity_valid": 62,
+        "bias_available": 9,
+        "breakouts": 6,
+        "confirmed": 1,
+        "coordinated": 1
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "missing_or_neutral_bias_at_completion": 53,
+        "no_directional_close_breakout": 3,
+        "no_post_breakout_confirmation": 5
+      },
+      "riskBlocks": {},
+      "signals": 1,
+      "trades": 1,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 1,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 1,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": -1.02035928143712,
+        "holdMinutes": {
+          "min": 618,
+          "p50": 618,
+          "p75": 618,
+          "p90": 618,
+          "max": 618
+        }
+      },
+      "details": [
+        {
+          "symbol": "USDJPY",
+          "ts": "2026-07-03T14:45:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 161.229,
+          "rangeId": "USDJPY:15m:2026-07-03:london:15",
+          "rangeTs": "2026-07-03T07:15:00.000Z",
+          "rangeHigh": 160.917,
+          "rangeLow": 160.723,
+          "rangeMid": 160.82,
+          "breakoutTs": "2026-07-03T13:30:00.000Z",
+          "confirmationTs": "2026-07-03T14:45:00.000Z",
+          "sl": 160.82,
+          "tp": 162.04700000000005,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 161.2375,
+            "maxAdverse": 161.217,
+            "maxFavorable": 161.283
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.02035928143712,
+            "holdBars": 618,
+            "closePrice": 160.8115,
+            "effectiveEntry": 161.2375,
+            "maxAdverse": 160.475,
+            "maxFavorable": 161.426
+          }
+        }
+      ]
+    },
+    {
+      "strategy": "orb_classic",
+      "symbol": "XAUUSD",
+      "status": "PASS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 61
+      },
+      "funnel": {
+        "ranges": 64,
+        "range_identity_valid": 63,
+        "bias_available": 62,
+        "breakouts": 40,
+        "confirmed": 13,
+        "coordinated": 13
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 22,
+        "no_post_breakout_confirmation": 27,
+        "missing_or_neutral_bias_at_completion": 1
+      },
+      "riskBlocks": {},
+      "signals": 13,
+      "trades": 13,
+      "configured": {
+        "wins": 2,
+        "losses": 1,
+        "stillOpen": 10,
+        "winRate": 66.66666666666666,
+        "netR": 2.2839681773991143,
+        "holdMinutes": {
+          "min": 1,
+          "p50": 5,
+          "p75": 15,
+          "p90": 15,
+          "max": 15
+        }
+      },
+      "natural": {
+        "wins": 6,
+        "losses": 7,
+        "stillOpen": 0,
+        "winRate": 46.15384615384615,
+        "netR": 4.081373859869904,
+        "holdMinutes": {
+          "min": 1,
+          "p50": 438,
+          "p75": 449,
+          "p90": 658,
+          "max": 1409
+        }
+      },
+      "details": [
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-04-24T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4710.57,
+          "rangeId": "XAUUSD:15m:2026-04-24:london:15",
+          "rangeTs": "2026-04-24T07:15:00.000Z",
+          "rangeHigh": 4681.4,
+          "rangeLow": 4671,
+          "rangeMid": 4676.2,
+          "breakoutTs": "2026-04-24T13:30:00.000Z",
+          "confirmationTs": "2026-04-24T14:00:00.000Z",
+          "sl": 4676.2,
+          "tp": 4779.3099999999995,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4710.844999999999,
+            "maxAdverse": 4707,
+            "maxFavorable": 4740.28
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.00793765334102,
+            "holdBars": 438,
+            "closePrice": 4675.925,
+            "effectiveEntry": 4710.844999999999,
+            "maxAdverse": 4675.37,
+            "maxFavorable": 4740.28
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-04-29T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4531.48,
+          "rangeId": "XAUUSD:15m:2026-04-29:london:15",
+          "rangeTs": "2026-04-29T07:15:00.000Z",
+          "rangeHigh": 4588.87,
+          "rangeLow": 4576.74,
+          "rangeMid": 4582.805,
+          "breakoutTs": "2026-04-29T13:30:00.000Z",
+          "confirmationTs": "2026-04-29T13:30:00.000Z",
+          "sl": 4582.805,
+          "tp": 4428.829999999998,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4531.205,
+            "maxAdverse": 4536.33,
+            "maxFavorable": 4510.3
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.005329457364334,
+            "holdBars": 449,
+            "closePrice": 4583.08,
+            "effectiveEntry": 4531.205,
+            "maxAdverse": 4600.91,
+            "maxFavorable": 4510.3
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-01T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4632.03,
+          "rangeId": "XAUUSD:15m:2026-05-01:london:15",
+          "rangeTs": "2026-05-01T07:15:00.000Z",
+          "rangeHigh": 4596.39,
+          "rangeLow": 4590.39,
+          "rangeMid": 4593.39,
+          "breakoutTs": "2026-05-01T13:33:00.000Z",
+          "confirmationTs": "2026-05-01T14:00:00.000Z",
+          "sl": 4593.39,
+          "tp": 4709.309999999999,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4632.304999999999,
+            "maxAdverse": 4631.11,
+            "maxFavorable": 4660.18
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0070666837980122,
+            "holdBars": 658,
+            "closePrice": 4593.115000000001,
+            "effectiveEntry": 4632.304999999999,
+            "maxAdverse": 4593.37,
+            "maxFavorable": 4660.18
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-15T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4548.2,
+          "rangeId": "XAUUSD:15m:2026-05-15:london:15",
+          "rangeTs": "2026-05-15T07:15:00.000Z",
+          "rangeHigh": 4586.2,
+          "rangeLow": 4566.05,
+          "rangeMid": 4576.125,
+          "breakoutTs": "2026-05-15T13:30:00.000Z",
+          "confirmationTs": "2026-05-15T13:30:00.000Z",
+          "sl": 4576.125,
+          "tp": 4492.349999999999,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4547.925,
+            "maxAdverse": 4547.925,
+            "maxFavorable": 4511.78
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0097517730496326,
+            "holdBars": 445,
+            "closePrice": 4576.4,
+            "effectiveEntry": 4547.925,
+            "maxAdverse": 4614.89,
+            "maxFavorable": 4511.78
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-22T14:00:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4506.85,
+          "rangeId": "XAUUSD:15m:2026-05-22:london:15",
+          "rangeTs": "2026-05-22T07:15:00.000Z",
+          "rangeHigh": 4526.98,
+          "rangeLow": 4521.56,
+          "rangeMid": 4524.27,
+          "breakoutTs": "2026-05-22T13:33:00.000Z",
+          "confirmationTs": "2026-05-22T14:00:00.000Z",
+          "sl": 4524.27,
+          "tp": 4472.01,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4506.575000000001,
+            "maxAdverse": 4511.04,
+            "maxFavorable": 4490.07
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.015541113308824,
+            "holdBars": 150,
+            "closePrice": 4524.545,
+            "effectiveEntry": 4506.575000000001,
+            "maxAdverse": 4526.59,
+            "maxFavorable": 4490.07
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-26T13:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4528.22,
+          "rangeId": "XAUUSD:15m:2026-05-26:london:15",
+          "rangeTs": "2026-05-26T07:15:00.000Z",
+          "rangeHigh": 4533.86,
+          "rangeLow": 4525.95,
+          "rangeMid": 4529.905,
+          "breakoutTs": "2026-05-26T13:30:00.000Z",
+          "confirmationTs": "2026-05-26T13:45:00.000Z",
+          "sl": 4529.905,
+          "tp": 4524.850000000001,
+          "configured": {
+            "outcome": "win",
+            "r": 1.438775510204574,
+            "holdBars": 5,
+            "closePrice": 4525.125000000001,
+            "effectiveEntry": 4527.945000000001,
+            "maxAdverse": 4529.26,
+            "maxFavorable": 4519.75
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.438775510204574,
+            "holdBars": 5,
+            "closePrice": 4525.125000000001,
+            "effectiveEntry": 4527.945000000001,
+            "maxAdverse": 4529.26,
+            "maxFavorable": 4519.75
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-28T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4427.85,
+          "rangeId": "XAUUSD:15m:2026-05-28:london:15",
+          "rangeTs": "2026-05-28T07:15:00.000Z",
+          "rangeHigh": 4392.28,
+          "rangeLow": 4384.36,
+          "rangeMid": 4388.32,
+          "breakoutTs": "2026-05-28T13:30:00.000Z",
+          "confirmationTs": "2026-05-28T14:00:00.000Z",
+          "sl": 4388.32,
+          "tp": 4506.910000000002,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4428.125,
+            "maxAdverse": 4420.96,
+            "maxFavorable": 4467.1
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.972365280743662,
+            "holdBars": 165,
+            "closePrice": 4506.635000000002,
+            "effectiveEntry": 4428.125,
+            "maxAdverse": 4420.96,
+            "maxFavorable": 4508.31
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-29T14:45:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4538.8,
+          "rangeId": "XAUUSD:15m:2026-05-29:london:15",
+          "rangeTs": "2026-05-29T07:15:00.000Z",
+          "rangeHigh": 4523.9,
+          "rangeLow": 4516.1,
+          "rangeMid": 4520,
+          "breakoutTs": "2026-05-29T13:30:00.000Z",
+          "confirmationTs": "2026-05-29T14:45:00.000Z",
+          "sl": 4520,
+          "tp": 4576.400000000001,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4539.075,
+            "maxAdverse": 4537.01,
+            "maxFavorable": 4570.95
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.9423328964614126,
+            "holdBars": 19,
+            "closePrice": 4576.125000000001,
+            "effectiveEntry": 4539.075,
+            "maxAdverse": 4537.01,
+            "maxFavorable": 4578.26
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-02T14:15:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4502.36,
+          "rangeId": "XAUUSD:15m:2026-06-02:london:15",
+          "rangeTs": "2026-06-02T07:15:00.000Z",
+          "rangeHigh": 4541.48,
+          "rangeLow": 4533.55,
+          "rangeMid": 4537.514999999999,
+          "breakoutTs": "2026-06-02T13:30:00.000Z",
+          "confirmationTs": "2026-06-02T14:15:00.000Z",
+          "sl": 4537.514999999999,
+          "tp": 4432.05,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4502.085,
+            "maxAdverse": 4502.34,
+            "maxFavorable": 4490.42
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.968952864803879,
+            "holdBars": 1409,
+            "closePrice": 4432.325,
+            "effectiveEntry": 4502.085,
+            "maxAdverse": 4508.55,
+            "maxFavorable": 4427.37
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-03T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4452.41,
+          "rangeId": "XAUUSD:15m:2026-06-03:london:15",
+          "rangeTs": "2026-06-03T07:15:00.000Z",
+          "rangeHigh": 4471.85,
+          "rangeLow": 4460,
+          "rangeMid": 4465.925,
+          "breakoutTs": "2026-06-03T13:30:00.000Z",
+          "confirmationTs": "2026-06-03T13:30:00.000Z",
+          "sl": 4465.925,
+          "tp": 4425.379999999999,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4452.135,
+            "maxAdverse": 4453.11,
+            "maxFavorable": 4426.5
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0199419869470367,
+            "holdBars": 449,
+            "closePrice": 4466.2,
+            "effectiveEntry": 4452.135,
+            "maxAdverse": 4479.12,
+            "maxFavorable": 4426.5
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-09T14:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4315.74,
+          "rangeId": "XAUUSD:15m:2026-06-09:london:15",
+          "rangeTs": "2026-06-09T07:15:00.000Z",
+          "rangeHigh": 4334.76,
+          "rangeLow": 4327.34,
+          "rangeMid": 4331.05,
+          "breakoutTs": "2026-06-09T13:41:00.000Z",
+          "confirmationTs": "2026-06-09T14:30:00.000Z",
+          "sl": 4331.05,
+          "tp": 4285.119999999999,
+          "configured": {
+            "outcome": "win",
+            "r": 1.9294193134425062,
+            "holdBars": 15,
+            "closePrice": 4285.394999999999,
+            "effectiveEntry": 4315.465,
+            "maxAdverse": 4319.33,
+            "maxFavorable": 4284.96
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.9294193134425062,
+            "holdBars": 15,
+            "closePrice": 4285.394999999999,
+            "effectiveEntry": 4315.465,
+            "maxAdverse": 4319.33,
+            "maxFavorable": 4284.96
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-10T14:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4149.69,
+          "rangeId": "XAUUSD:15m:2026-06-10:london:15",
+          "rangeTs": "2026-06-10T07:15:00.000Z",
+          "rangeHigh": 4207.76,
+          "rangeLow": 4197.47,
+          "rangeMid": 4202.615,
+          "breakoutTs": "2026-06-10T13:30:00.000Z",
+          "confirmationTs": "2026-06-10T14:45:00.000Z",
+          "sl": 4202.615,
+          "tp": 4043.8399999999992,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 16,
+            "closePrice": null,
+            "effectiveEntry": 4149.415,
+            "maxAdverse": 4150.98,
+            "maxFavorable": 4118.22
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.9793233082706954,
+            "holdBars": 452,
+            "closePrice": 4044.1149999999993,
+            "effectiveEntry": 4149.415,
+            "maxAdverse": 4192.57,
+            "maxFavorable": 4043.26
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-12T14:45:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4183.45,
+          "rangeId": "XAUUSD:15m:2026-06-12:london:15",
+          "rangeTs": "2026-06-12T07:15:00.000Z",
+          "rangeHigh": 4184.73,
+          "rangeLow": 4176.19,
+          "rangeMid": 4180.459999999999,
+          "breakoutTs": "2026-06-12T13:30:00.000Z",
+          "confirmationTs": "2026-06-12T14:45:00.000Z",
+          "sl": 4180.459999999999,
+          "tp": 4189.430000000001,
+          "configured": {
+            "outcome": "loss",
+            "r": -1.084226646247966,
+            "holdBars": 1,
+            "closePrice": 4180.1849999999995,
+            "effectiveEntry": 4183.724999999999,
+            "maxAdverse": 4180.4,
+            "maxFavorable": 4184.31
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.084226646247966,
+            "holdBars": 1,
+            "closePrice": 4180.1849999999995,
+            "effectiveEntry": 4183.724999999999,
+            "maxAdverse": 4180.4,
+            "maxFavorable": 4184.31
+          }
+        }
+      ]
+    },
+    {
+      "strategy": "orb_scalper_1m",
+      "symbol": "XAUUSD",
+      "status": "PASS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 61
+      },
+      "funnel": {
+        "ranges": 64,
+        "range_identity_valid": 63,
+        "bias_available": 62,
+        "breakouts": 40,
+        "confirmed": 13,
+        "coordinated": 13
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 22,
+        "no_post_breakout_confirmation": 27,
+        "missing_or_neutral_bias_at_completion": 1
+      },
+      "riskBlocks": {},
+      "signals": 13,
+      "trades": 13,
+      "configured": {
+        "wins": 5,
+        "losses": 2,
+        "stillOpen": 6,
+        "winRate": 71.42857142857143,
+        "netR": 8.556227009678157,
+        "holdMinutes": {
+          "min": 1,
+          "p50": 5,
+          "p75": 6,
+          "p90": 7,
+          "max": 7
+        }
+      },
+      "natural": {
+        "wins": 11,
+        "losses": 2,
+        "stillOpen": 0,
+        "winRate": 84.61538461538461,
+        "netR": 22.412195032814722,
+        "holdMinutes": {
+          "min": 1,
+          "p50": 7,
+          "p75": 11,
+          "p90": 14,
+          "max": 225
+        }
+      },
+      "details": [
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-04-24T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4710.57,
+          "rangeId": "XAUUSD:15m:2026-04-24:london:15",
+          "rangeTs": "2026-04-24T07:15:00.000Z",
+          "rangeHigh": 4681.4,
+          "rangeLow": 4671,
+          "rangeMid": 4676.2,
+          "breakoutTs": "2026-04-24T13:30:00.000Z",
+          "confirmationTs": "2026-04-24T14:00:00.000Z",
+          "sl": 4701.929099999999,
+          "tp": 4732.17225,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4710.844999999999,
+            "maxAdverse": 4707,
+            "maxFavorable": 4727.15
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.361203019325107,
+            "holdBars": 11,
+            "closePrice": 4731.89725,
+            "effectiveEntry": 4710.844999999999,
+            "maxAdverse": 4707,
+            "maxFavorable": 4733.06
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-04-29T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4531.48,
+          "rangeId": "XAUUSD:15m:2026-04-29:london:15",
+          "rangeTs": "2026-04-29T07:15:00.000Z",
+          "rangeHigh": 4588.87,
+          "rangeLow": 4576.74,
+          "rangeMid": 4582.805,
+          "breakoutTs": "2026-04-29T13:30:00.000Z",
+          "confirmationTs": "2026-04-29T13:30:00.000Z",
+          "sl": 4535.41,
+          "tp": 4521.654999999999,
+          "configured": {
+            "outcome": "loss",
+            "r": -1.0653983353150156,
+            "holdBars": 1,
+            "closePrice": 4535.6849999999995,
+            "effectiveEntry": 4531.205,
+            "maxAdverse": 4536.33,
+            "maxFavorable": 4530.41
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0653983353150156,
+            "holdBars": 1,
+            "closePrice": 4535.6849999999995,
+            "effectiveEntry": 4531.205,
+            "maxAdverse": 4536.33,
+            "maxFavorable": 4530.41
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-01T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4632.03,
+          "rangeId": "XAUUSD:15m:2026-05-01:london:15",
+          "rangeTs": "2026-05-01T07:15:00.000Z",
+          "rangeHigh": 4596.39,
+          "rangeLow": 4590.39,
+          "rangeMid": 4593.39,
+          "breakoutTs": "2026-05-01T13:33:00.000Z",
+          "confirmationTs": "2026-05-01T14:00:00.000Z",
+          "sl": 4628.6556,
+          "tp": 4640.465999999999,
+          "configured": {
+            "outcome": "win",
+            "r": 2.1609031621641543,
+            "holdBars": 2,
+            "closePrice": 4640.191,
+            "effectiveEntry": 4632.304999999999,
+            "maxAdverse": 4631.11,
+            "maxFavorable": 4641.87
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.1609031621641543,
+            "holdBars": 2,
+            "closePrice": 4640.191,
+            "effectiveEntry": 4632.304999999999,
+            "maxAdverse": 4631.11,
+            "maxFavorable": 4641.87
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-15T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4548.2,
+          "rangeId": "XAUUSD:15m:2026-05-15:london:15",
+          "rangeTs": "2026-05-15T07:15:00.000Z",
+          "rangeHigh": 4586.2,
+          "rangeLow": 4566.05,
+          "rangeMid": 4576.125,
+          "breakoutTs": "2026-05-15T13:30:00.000Z",
+          "confirmationTs": "2026-05-15T13:30:00.000Z",
+          "sl": 4551.3512,
+          "tp": 4540.322,
+          "configured": {
+            "outcome": "win",
+            "r": 2.138812678769682,
+            "holdBars": 5,
+            "closePrice": 4540.597,
+            "effectiveEntry": 4547.925,
+            "maxAdverse": 4547.925,
+            "maxFavorable": 4537.37
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.138812678769682,
+            "holdBars": 5,
+            "closePrice": 4540.597,
+            "effectiveEntry": 4547.925,
+            "maxAdverse": 4547.925,
+            "maxFavorable": 4537.37
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-22T14:00:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4506.85,
+          "rangeId": "XAUUSD:15m:2026-05-22:london:15",
+          "rangeTs": "2026-05-22T07:15:00.000Z",
+          "rangeHigh": 4526.98,
+          "rangeLow": 4521.56,
+          "rangeMid": 4524.27,
+          "breakoutTs": "2026-05-22T13:33:00.000Z",
+          "confirmationTs": "2026-05-22T14:00:00.000Z",
+          "sl": 4512.4978,
+          "tp": 4492.730500000001,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4506.575000000001,
+            "maxAdverse": 4510.21,
+            "maxFavorable": 4503.17
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.2910616600259943,
+            "holdBars": 14,
+            "closePrice": 4493.0055,
+            "effectiveEntry": 4506.575000000001,
+            "maxAdverse": 4511.04,
+            "maxFavorable": 4490.07
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-26T13:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4528.22,
+          "rangeId": "XAUUSD:15m:2026-05-26:london:15",
+          "rangeTs": "2026-05-26T07:15:00.000Z",
+          "rangeHigh": 4533.86,
+          "rangeLow": 4525.95,
+          "rangeMid": 4529.905,
+          "breakoutTs": "2026-05-26T13:30:00.000Z",
+          "confirmationTs": "2026-05-26T13:45:00.000Z",
+          "sl": 4539.9296,
+          "tp": 4498.946000000001,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4527.945000000001,
+            "maxAdverse": 4529.26,
+            "maxFavorable": 4513.05
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.39674248619067,
+            "holdBars": 225,
+            "closePrice": 4499.2210000000005,
+            "effectiveEntry": 4527.945000000001,
+            "maxAdverse": 4529.26,
+            "maxFavorable": 4498.24
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-28T14:00:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4427.85,
+          "rangeId": "XAUUSD:15m:2026-05-28:london:15",
+          "rangeTs": "2026-05-28T07:15:00.000Z",
+          "rangeHigh": 4392.28,
+          "rangeLow": 4384.36,
+          "rangeMid": 4388.32,
+          "breakoutTs": "2026-05-28T13:30:00.000Z",
+          "confirmationTs": "2026-05-28T14:00:00.000Z",
+          "sl": 4424.557285714286,
+          "tp": 4436.081785714286,
+          "configured": {
+            "outcome": "loss",
+            "r": -1.0770801633698106,
+            "holdBars": 3,
+            "closePrice": 4424.282285714286,
+            "effectiveEntry": 4428.125,
+            "maxAdverse": 4421.82,
+            "maxFavorable": 4428.56
+          },
+          "natural": {
+            "outcome": "loss",
+            "r": -1.0770801633698106,
+            "holdBars": 3,
+            "closePrice": 4424.282285714286,
+            "effectiveEntry": 4428.125,
+            "maxAdverse": 4421.82,
+            "maxFavorable": 4428.56
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-05-29T14:45:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4538.8,
+          "rangeId": "XAUUSD:15m:2026-05-29:london:15",
+          "rangeTs": "2026-05-29T07:15:00.000Z",
+          "rangeHigh": 4523.9,
+          "rangeLow": 4516.1,
+          "rangeMid": 4520,
+          "breakoutTs": "2026-05-29T13:30:00.000Z",
+          "confirmationTs": "2026-05-29T14:45:00.000Z",
+          "sl": 4536.7828,
+          "tp": 4543.843,
+          "configured": {
+            "outcome": "win",
+            "r": 1.9601256434868926,
+            "holdBars": 6,
+            "closePrice": 4543.568,
+            "effectiveEntry": 4539.075,
+            "maxAdverse": 4537.01,
+            "maxFavorable": 4548.9
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 1.9601256434868926,
+            "holdBars": 6,
+            "closePrice": 4543.568,
+            "effectiveEntry": 4539.075,
+            "maxAdverse": 4537.01,
+            "maxFavorable": 4548.9
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-02T14:15:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4502.36,
+          "rangeId": "XAUUSD:15m:2026-06-02:london:15",
+          "rangeTs": "2026-06-02T07:15:00.000Z",
+          "rangeHigh": 4541.48,
+          "rangeLow": 4533.55,
+          "rangeMid": 4537.514999999999,
+          "breakoutTs": "2026-06-02T13:30:00.000Z",
+          "confirmationTs": "2026-06-02T14:15:00.000Z",
+          "sl": 4506.9214999999995,
+          "tp": 4490.95625,
+          "configured": {
+            "outcome": "win",
+            "r": 2.244133154140699,
+            "holdBars": 7,
+            "closePrice": 4491.23125,
+            "effectiveEntry": 4502.085,
+            "maxAdverse": 4502.34,
+            "maxFavorable": 4490.42
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.244133154140699,
+            "holdBars": 7,
+            "closePrice": 4491.23125,
+            "effectiveEntry": 4502.085,
+            "maxAdverse": 4502.34,
+            "maxFavorable": 4490.42
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-03T13:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4452.41,
+          "rangeId": "XAUUSD:15m:2026-06-03:london:15",
+          "rangeTs": "2026-06-03T07:15:00.000Z",
+          "rangeHigh": 4471.85,
+          "rangeLow": 4460,
+          "rangeMid": 4465.925,
+          "breakoutTs": "2026-06-03T13:30:00.000Z",
+          "confirmationTs": "2026-06-03T13:30:00.000Z",
+          "sl": 4456.128285714285,
+          "tp": 4443.114285714286,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4452.135,
+            "maxAdverse": 4453.11,
+            "maxFavorable": 4446.29
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.1901048188035626,
+            "holdBars": 12,
+            "closePrice": 4443.3892857142855,
+            "effectiveEntry": 4452.135,
+            "maxAdverse": 4453.11,
+            "maxFavorable": 4435.42
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-09T14:30:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4315.74,
+          "rangeId": "XAUUSD:15m:2026-06-09:london:15",
+          "rangeTs": "2026-06-09T07:15:00.000Z",
+          "rangeHigh": 4334.76,
+          "rangeLow": 4327.34,
+          "rangeMid": 4331.05,
+          "breakoutTs": "2026-06-09T13:41:00.000Z",
+          "confirmationTs": "2026-06-09T14:30:00.000Z",
+          "sl": 4319.5188,
+          "tp": 4306.293,
+          "configured": {
+            "outcome": "win",
+            "r": 2.194730869801554,
+            "holdBars": 6,
+            "closePrice": 4306.567999999999,
+            "effectiveEntry": 4315.465,
+            "maxAdverse": 4319.33,
+            "maxFavorable": 4305.23
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.194730869801554,
+            "holdBars": 6,
+            "closePrice": 4306.567999999999,
+            "effectiveEntry": 4315.465,
+            "maxAdverse": 4319.33,
+            "maxFavorable": 4305.23
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-10T14:45:00.000Z",
+          "side": "sell",
+          "direction": "bearish",
+          "entry_price": 4149.69,
+          "rangeId": "XAUUSD:15m:2026-06-10:london:15",
+          "rangeTs": "2026-06-10T07:15:00.000Z",
+          "rangeHigh": 4207.76,
+          "rangeLow": 4197.47,
+          "rangeMid": 4202.615,
+          "breakoutTs": "2026-06-10T13:30:00.000Z",
+          "confirmationTs": "2026-06-10T14:45:00.000Z",
+          "sl": 4154.8337142857135,
+          "tp": 4136.830714285714,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4149.415,
+            "maxAdverse": 4150.98,
+            "maxFavorable": 4137.53
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.271624792386615,
+            "holdBars": 10,
+            "closePrice": 4137.1057142857135,
+            "effectiveEntry": 4149.415,
+            "maxAdverse": 4150.98,
+            "maxFavorable": 4134.02
+          }
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-06-12T14:45:00.000Z",
+          "side": "buy",
+          "direction": "bullish",
+          "entry_price": 4183.45,
+          "rangeId": "XAUUSD:15m:2026-06-12:london:15",
+          "rangeTs": "2026-06-12T07:15:00.000Z",
+          "rangeHigh": 4184.73,
+          "rangeLow": 4176.19,
+          "rangeMid": 4180.459999999999,
+          "breakoutTs": "2026-06-12T13:30:00.000Z",
+          "confirmationTs": "2026-06-12T14:45:00.000Z",
+          "sl": 4175.7292,
+          "tp": 4202.752,
+          "configured": {
+            "outcome": "timeout",
+            "r": 0,
+            "holdBars": 8,
+            "closePrice": null,
+            "effectiveEntry": 4183.724999999999,
+            "maxAdverse": 4177.31,
+            "maxFavorable": 4202.21
+          },
+          "natural": {
+            "outcome": "win",
+            "r": 2.345231246404618,
+            "holdBars": 9,
+            "closePrice": 4202.477000000001,
+            "effectiveEntry": 4183.724999999999,
+            "maxAdverse": 4177.31,
+            "maxFavorable": 4207.4
+          }
+        }
+      ]
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "EURUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 60,
+        "range_identity_valid": 59,
+        "bias_available": 59,
+        "breakouts": 35,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 35,
+        "no_directional_close_breakout": 24
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "GBPUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 59,
+        "range_identity_valid": 58,
+        "bias_available": 58,
+        "breakouts": 33,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 33,
+        "no_directional_close_breakout": 25
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "AUDUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 59,
+        "range_identity_valid": 58,
+        "bias_available": 58,
+        "breakouts": 38,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 38,
+        "no_directional_close_breakout": 20
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "NZDUSD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 59,
+        "range_identity_valid": 58,
+        "bias_available": 57,
+        "breakouts": 38,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 38,
+        "no_directional_close_breakout": 19,
+        "missing_or_neutral_bias_at_completion": 1
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "USDCAD",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 59,
+        "range_identity_valid": 58,
+        "bias_available": 58,
+        "breakouts": 35,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 35,
+        "no_directional_close_breakout": 23
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "USDCHF",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 61,
+        "range_identity_valid": 60,
+        "bias_available": 60,
+        "breakouts": 38,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_post_breakout_confirmation": 38,
+        "no_directional_close_breakout": 22
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    },
+    {
+      "strategy": "scarface_5m_orb",
+      "symbol": "USDJPY",
+      "status": "NO_SIGNALS",
+      "legacy": {
+        "status": "OK",
+        "candidates": 0
+      },
+      "funnel": {
+        "ranges": 59,
+        "range_identity_valid": 58,
+        "bias_available": 58,
+        "breakouts": 35,
+        "confirmed": 0,
+        "coordinated": 0
+      },
+      "rejections": {
+        "range_outside_window_or_date_mismatch": 1,
+        "no_directional_close_breakout": 23,
+        "no_post_breakout_confirmation": 35
+      },
+      "riskBlocks": {},
+      "signals": 0,
+      "trades": 0,
+      "configured": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "natural": {
+        "wins": 0,
+        "losses": 0,
+        "stillOpen": 0,
+        "winRate": 0,
+        "netR": 0,
+        "holdMinutes": {
+          "min": null,
+          "p50": null,
+          "p75": null,
+          "p90": null,
+          "max": null
+        }
+      },
+      "details": []
+    }
+  ]
+}

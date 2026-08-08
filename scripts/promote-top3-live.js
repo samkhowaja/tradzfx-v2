@@ -8,6 +8,7 @@
 const { spawn } = require("child_process");
 const { Pool } = require("pg");
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "..", ".env.local") });
 const {
   loadStrategyFromDB,
   resolveReadinessRequirements,
@@ -30,7 +31,9 @@ const pool = new Pool({
 function runSeed() {
   return new Promise((resolve, reject) => {
     const seedPath = path.join(__dirname, "seed-strategy-specs.js");
-    const proc = spawn("node", [seedPath, "--check"], {
+    // Capability validation runs below against promotion targets only. Avoid
+    // blocking promotion on unrelated inactive/legacy active specs.
+    const proc = spawn("node", [seedPath, "--check", "--skip-capability"], {
       cwd: path.join(__dirname, ".."),
       stdio: "inherit",
     });
@@ -49,6 +52,14 @@ function evaluatePromotionReadiness(matrix) {
   };
 }
 
+function withTimeout(promise, timeoutMs, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function checkPromotionReadiness() {
   for (const variantId of LIVE_VARIANTS) {
     const spec = await loadStrategyFromDB(pool, variantId);
@@ -56,11 +67,14 @@ async function checkPromotionReadiness() {
     const requirements = resolveReadinessRequirements(spec);
     const symbols = spec.filters?.symbols ?? [];
     if (symbols.length === 0) throw new Error(`readiness: strategy has no symbols: ${variantId}`);
-    const matrix = await collectCapabilityMatrix(pool, {
+    console.log(`[promote] Scanning capability matrix: ${variantId}`);
+    const matrix = await withTimeout(collectCapabilityMatrix(pool, {
       symbols,
       tfs: [...new Set(requirements.map((cell) => cell.tf))],
       features: [...new Set(requirements.map((cell) => cell.feature))],
-    });
+      concurrency: 8,
+    }), Number(process.env.TM_PROMOTION_CAPABILITY_TIMEOUT_MS || 120000),
+    `capability scan for ${variantId}`);
     const requiredKeys = new Set(requirements.map((cell) => `${cell.feature}@${cell.tf}`));
     const requiredMatrix = {
       ...matrix,

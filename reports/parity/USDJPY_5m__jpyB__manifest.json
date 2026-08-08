@@ -1,0 +1,41 @@
+{
+  "symbol": "USDJPY",
+  "tf": "5m",
+  "from": "2026-07-18T01:41:00Z",
+  "to": "2026-08-04T07:53:00Z",
+  "takenAt": "2026-08-05T06:52:10.011Z",
+  "features": {
+    "features_moving_average": {
+      "rows": 62605,
+      "distinctAnchors": 3295,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "bd001c93f6cb61e9953449ee08a01be44fa8a86683f5730a92006e014422d039",
+      "file": "reports\\parity\\USDJPY_5m__jpyB__features_moving_average.jsonl"
+    },
+    "features_atr": {
+      "rows": 9885,
+      "distinctAnchors": 3295,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "423b5c5eb06f314dd10e2bda0c166a297ddc38941a955a6e0e640277ba001e11",
+      "file": "reports\\parity\\USDJPY_5m__jpyB__features_atr.jsonl"
+    },
+    "features_pivot": {
+      "rows": 378,
+      "distinctAnchors": 377,
+      "minTs": "2026-07-19T21:30:00.000Z",
+      "maxTs": "2026-08-04T06:45:00.000Z",
+      "setHash": "fb9e00c74491cf4e3260fd0108586b60ede7a04f39a344707f547d25469a0dd8",
+      "file": "reports\\parity\\USDJPY_5m__jpyB__features_pivot.jsonl"
+    },
+    "features_structure": {
+      "rows": 160,
+      "distinctAnchors": 160,
+      "minTs": "2026-07-19T21:30:00.000Z",
+      "maxTs": "2026-08-03T00:25:00.000Z",
+      "setHash": "f88fa44d632119d6228ae45bb72ad2a98843ec460aef2e916b5fc43dfd0732f3",
+      "file": "reports\\parity\\USDJPY_5m__jpyB__features_structure.jsonl"
+    }
+  }
+}

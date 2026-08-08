@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ enable debugging { debug: true }
+[backtest-pit-v2] Strategy: keylevel_bounce_v2 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-06-21T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 24 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 31ms | prefetch 240ms | setup-engine N/Ams | simulate 6ms
+  Executed: 11 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 11 | Heat dropped: 2
+  Gate skips: session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=11
+  Wins: 2 | Losses: 9 | Timeouts: 0
+  WR: 18.2% | Net R: -0.44 | Avg Win: 1.78R | Avg Loss: -0.44R

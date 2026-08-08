@@ -1,0 +1,52 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "AUDUSD",
+      "status": "OK",
+      "candles": 272,
+      "pivots": 17,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.7006,
+          "ts": "2026-07-27T06:30:00.000Z",
+          "availableAtTs": "2026-07-27T06:30:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T07:00:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T06:45:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "AUDUSD|15m|1785103200000|high|0.7006|0|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785103200000|high|0.7006|0",
+          "level": 0.7006,
+          "eventTs": "2026-07-27T06:30:00.000Z",
+          "availableAt": "2026-07-27T06:45:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-27T00:15:00.000Z",
+          "sourceCenterTs": "2026-07-26T22:00:00.000Z",
+          "sourceKind": "high",
+          "trendDirection": "bullish",
+          "establishedTrend": "bullish",
+          "trendDirectionAtBreak": "bullish",
+          "establishedTrendAtBreak": "bullish",
+          "laterPivotExists": true,
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 1
+      }
+    }
+  ]
+}

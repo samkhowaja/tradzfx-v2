@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-26T05-04-12-096Z-aa119202-43db-4eec-b6cb-5f02633f400c",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-26T05:04:12.096Z",
+  "finishedAt": "2026-07-26T05:05:46.849Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "a_plus_orb_fvg_5m",
+  "specHash": "07f995b0387d56e09b95ac5c4429e57c37d261bf896fa289a418bffc39089231",
+  "symbol": "ALL",
+  "window": {
+    "from": "2026-04-27T05:04:00.000Z",
+    "to": "2026-07-26T05:04:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T05:04:00.000Z",
+  "readinessManifestHash": "5ead7a77065cc25f7982bba360ee9d05f9802d8f5ae4da05d1aa06d6e9c8e9b0",
+  "arguments": [
+    "ALL",
+    "90",
+    "a_plus_orb_fvg_5m",
+    "--persist"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "1f6e0af442dbef86b8f2485b4d17ac0dee38b7dc39204cc525155ae1fed2a571",
+      "bytes": 6991
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "5f996827444c3bb2af625663dff0eb3d61ec4317de4941610aef8370527628f4",
+      "bytes": 111866
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "3a35f9f8797e6791e08756a570ced93ccef9f6691b567f12623b26525532a37f",
+      "bytes": 14229
+    }
+  }
+}

@@ -1,25 +1,28 @@
+require("dotenv").config({ path: require("path").resolve(__dirname, "..", ".env.local") });
 const { Pool } = require("pg");
 const pool = new Pool({
-  host: "localhost",
-  port: 5432,
-  database: "tradzfx_v2",
-  user: "postgres",
+  host: process.env.TM_DB_HOST || "localhost",
+  port: +(process.env.TM_DB_PORT || 5432),
+  database: process.env.TM_DB_NAME || "tradzfx_v2",
+  user: process.env.TM_DB_USER || "postgres",
+  password: process.env.TM_DB_PASSWORD,
 });
 
 async function main() {
   // Check live_signal for our strategies
   let r = await pool.query(
-    `SELECT ls.id, ls.variant_id, ls.symbol, ls.created_at, ls.signal_data,
-            ls.is_active, ls.resolved_at, ls.status
+        `SELECT ls.signal_id, ls.strategy_id, ls.symbol, ls.created_at, ls.source_json,
+          ld.is_active, ld.mode
      FROM live_signal ls
-     WHERE ls.variant_id IN ('watukushay_no1', 'doyle_sd', 'orb_classic')
+         LEFT JOIN live_deployment ld ON ld.deployment_id = ls.deployment_id
+         WHERE ls.strategy_id IN ('watukushay_no1', 'doyle_sd', 'orb_classic')
      ORDER BY ls.created_at DESC
      LIMIT 20`
   );
   console.log(`Live signals for our strategies: ${r.rows.length}`);
   r.rows.forEach((row) =>
     console.log(
-      `  [${row.created_at}] ${row.variant_id} ${row.symbol}: status=${row.status} active=${row.is_active} data=${JSON.stringify(row.signal_data).substring(0, 80)}`
+      `  [${row.created_at}] ${row.strategy_id} ${row.symbol}: mode=${row.mode} active=${row.is_active} data=${JSON.stringify(row.source_json).substring(0, 80)}`
     )
   );
 

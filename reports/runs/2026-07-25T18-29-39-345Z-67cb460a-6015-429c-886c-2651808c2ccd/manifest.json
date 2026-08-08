@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T18-29-39-345Z-67cb460a-6015-429c-886c-2651808c2ccd",
+  "parentAuditId": null,
+  "status": "BLOCKED",
+  "startedAt": "2026-07-25T18:29:39.345Z",
+  "finishedAt": "2026-07-25T18:29:56.428Z",
+  "exitCode": 1,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2",
+  "specHash": "c4d14963264d9c6f4d55f78d784d649158ce8669d40db1ec363e3e42bf204106",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-04-26T18:25:00.000Z",
+    "to": "2026-07-25T18:25:00.000Z"
+  },
+  "mode": "research",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-25T18:25:00.000Z",
+  "readinessManifestHash": "eea3d45f99437fa8acc4c815edebb7c33956c77b855096e631c3b3a739077a4d",
+  "arguments": [
+    "EURUSD",
+    "90",
+    "waqar_v2",
+    "--mode=research",
+    "--json"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "bfced0c02f6a1e21e38e0f9f48e3aa23891bb20fcdf9e74ffbccb009d98e5663",
+      "bytes": 353
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "1adae4fc39c19e228989c62e0beab083255922ec380ffe364b7be1a7c012948d",
+      "bytes": 786
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "095199b60cde2c89821af338ca40edd8ca9608117a935058cb6b5475d0ef4e93",
+      "bytes": 2979
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

@@ -50,6 +50,12 @@
     "engine": "pnpm --filter @tm/engine dev",
     "web": "pnpm --filter @tm/web dev",
     "graphify": "powershell -ExecutionPolicy Bypass -File ops/graphify.ps1"
+    ,"reports:validate": "node scripts/validate-development-reports.cjs && node scripts/validate-report-contract.cjs"
+    ,"reports:test": "node --test scripts/report-framework.test.cjs"
+    ,"reports:run:xauusd-15m-atr": "node scripts/run-xauusd-15m-atr-report.cjs"
+    ,"reports:manifest:append": "node scripts/append-report-manifest.cjs"
+    ,"reports:manifest:verify": "node scripts/verify-report-manifest.cjs"
+    ,"reports:overlap:xauusd-15m": "node scripts/report-xauusd-15m-overlap.cjs"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

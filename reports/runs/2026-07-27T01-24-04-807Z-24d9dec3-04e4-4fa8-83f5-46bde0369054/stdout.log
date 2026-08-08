@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: forex_strategy_orb | signalSource: orb
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-07-19T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+[backtest-pit-v2] DEGRADED data quality for GBPUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_STALE_STATE_features_opening_range@15m
+GBPUSD: 5 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 41ms | prefetch 51ms | setup-engine N/Ams | simulate 2ms
+  Executed: 5 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 1 | Losses: 4 | Timeouts: 0
+  WR: 20.0% | Net R: -2.31 | Avg Win: 0.69R | Avg Loss: -0.75R

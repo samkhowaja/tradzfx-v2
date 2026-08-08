@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: pro_ltf_scalp_eurusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-13T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDJPY
+
+USDJPY: 31 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 14 deduped) | signal query 75ms | prefetch 51ms | setup-engine N/Ams | simulate 6ms
+  Executed: 14 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 0
+  Wins: 6 | Losses: 8 | Timeouts: 3
+  WR: 42.9% | Net R: -2.70 | Avg Win: 0.88R | Avg Loss: -1.00R

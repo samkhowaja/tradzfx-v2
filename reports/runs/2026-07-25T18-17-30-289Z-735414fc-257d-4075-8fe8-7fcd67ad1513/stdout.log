@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: gold_anti_bias_sniper_v1 | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 50 derived bars -> signals before 2026-04-26T22:17:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 99 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 48 deduped) | signal query 170ms | prefetch 402ms | setup-engine N/Ams | simulate 9ms
+  Executed: 51 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Gate skips: volatility=40
+  Wins: 7 | Losses: 44 | Timeouts: 0
+  WR: 13.7% | Net R: -2.45 | Avg Win: 1.08R | Avg Loss: -0.23R

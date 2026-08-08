@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: gold_mssnr_scalper_1m | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 240 derived bars -> signals before 2026-04-26T22:07:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 207 raw signals (0 skipped for warmup, 18 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 16 deduped) | signal query 243ms | prefetch 419ms | setup-engine N/Ams | simulate 6ms
+  Executed: 172 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 0
+  Gate skips: rateLimit=63
+  Wins: 45 | Losses: 127 | Timeouts: 1
+  WR: 26.2% | Net R: -96.55 | Avg Win: 0.65R | Avg Loss: -0.99R

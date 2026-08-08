@@ -1,0 +1,5951 @@
+{
+  "generatedAt": "2026-08-04T18:43:43.669Z",
+  "readOnly": true,
+  "summary": {
+    "EXCLUDE": 0,
+    "KEEP": 9,
+    "SYNTHETIC_BOUNDARY": 1,
+    "UNKNOWN": 525
+  },
+  "bySymbol": {
+    "AUDUSD": {
+      "KEEP": 1,
+      "UNKNOWN": 38
+    },
+    "EURUSD": {
+      "KEEP": 1,
+      "UNKNOWN": 28
+    },
+    "GBPUSD": {
+      "KEEP": 1,
+      "UNKNOWN": 43
+    },
+    "NZDUSD": {
+      "KEEP": 2,
+      "UNKNOWN": 32
+    },
+    "USDCAD": {
+      "KEEP": 1
+    },
+    "USDCHF": {
+      "KEEP": 1,
+      "UNKNOWN": 2
+    },
+    "USDJPY": {
+      "KEEP": 1,
+      "UNKNOWN": 69
+    },
+    "USDSEK": {
+      "KEEP": 1,
+      "UNKNOWN": 74
+    },
+    "DXY": {
+      "SYNTHETIC_BOUNDARY": 1,
+      "UNKNOWN": 8
+    },
+    "XAUUSD": {
+      "UNKNOWN": 231
+    }
+  },
+  "buckets": {
+    "EXCLUDE": [],
+    "KEEP": [
+      {
+        "symbol": "AUDUSD",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "MT5",
+        "eventTime": "2026-06-22T21:27:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (NONE)"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "USDCAD",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "USDCHF",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "OANDA Corporation",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "calendar-explained (EXPECTED_WEEKEND)"
+      }
+    ],
+    "SYNTHETIC_BOUNDARY": [
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-07T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "verified synchronized component feed reset (formula-derived)"
+      }
+    ],
+    "UNKNOWN": [
+      {
+        "symbol": "AUDUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-26T20:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:21:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:21:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:23:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:26:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:27:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:34:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:35:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:47:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:48:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-19T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-19T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T02:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T02:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:51:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:51:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "AUDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-07T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-07T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-07T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-07T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-15T13:47:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-15T13:47:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "DXY",
+        "broker": "synthetic",
+        "eventTime": "2026-07-17T23:54:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-08T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:26:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:27:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:29:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:52:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:53:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "EURUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:22:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:22:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:23:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:23:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-08T20:58:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-08T20:58:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-10T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-10T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T21:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:36:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:36:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:38:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:38:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:58:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:58:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T01:52:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T01:52:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T01:56:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-10T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-10T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:47:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:47:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDCHF",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDCHF",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:29:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:39:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T21:40:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T03:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T03:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:14:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:21:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:23:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:29:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:34:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:35:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:36:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T21:38:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:14:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:22:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:24:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:25:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:26:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:28:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:29:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:43:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:53:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T21:54:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-31T08:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDJPY",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-31T08:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "MT5",
+        "eventTime": "2026-04-02T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "MT5",
+        "eventTime": "2026-04-02T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "MT5",
+        "eventTime": "2026-04-02T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "MT5",
+        "eventTime": "2026-04-06T21:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:14:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T14:14:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:40:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:40:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:42:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T21:42:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T00:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T00:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T00:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T00:18:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-25T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-25T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-17T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-17T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-17T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-17T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-17T21:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-21T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-21T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-21T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-21T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-24T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-24T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-06T01:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:08:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:13:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T21:19:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:15:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:26:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:26:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T21:27:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-08-02T21:49:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "USDSEK",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-08-02T21:49:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2025-07-20T02:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2025-07-20T02:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2025-12-31T20:54:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2025-12-31T20:54:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-01T10:03:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-01T10:03:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-02T02:04:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-02T02:04:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-02T14:13:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-01-02T14:13:00.000Z",
+        "flags": [
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "MEDIUM",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "mixed or insufficient evidence"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-23T11:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-24T11:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-24T20:24:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "MT5",
+        "eventTime": "2026-03-26T20:11:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-07T04:38:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-07T04:38:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-07T19:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-07T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-07T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-12T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T15:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T15:03:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T18:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-13T18:12:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T12:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T12:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-15T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-16T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-17T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-19T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-19T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-20T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-20T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-21T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-24T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-24T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-27T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-28T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-28T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-28T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-28T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-29T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-04-30T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-04T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-06T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-11T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-11T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-11T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-11T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-14T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-15T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-15T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-18T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-19T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-19T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-19T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-19T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-20T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-20T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-20T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-20T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-24T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-24T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-26T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-26T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-26T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-26T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-27T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-27T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-27T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-27T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-28T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-29T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-05-29T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-01T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-01T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-01T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-01T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-03T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-03T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-03T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-03T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-05T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-08T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-08T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-09T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-09T21:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-09T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-09T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T07:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T07:45:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T07:57:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T07:57:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-10T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T17:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T17:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T20:59:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-11T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-12T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-12T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-14T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-14T22:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-15T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-15T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T18:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T18:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-17T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-18T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-18T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-18T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-18T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-19T17:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-19T17:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T23:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T23:09:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T23:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-23T23:10:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T12:25:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T12:25:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-24T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-25T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-26T20:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-26T20:50:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-29T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-29T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-29T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-29T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T01:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T01:07:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-06-30T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T06:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T06:06:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T06:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T06:17:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-01T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-02T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-03T17:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-03T17:01:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "MT5",
+        "eventTime": "2026-07-05T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST",
+          "UNEXPECTED_GAP"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-07T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-07T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-07T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-07T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-08T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-09T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-09T20:55:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-09T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-09T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-12T22:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-12T22:04:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-13T14:16:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-14T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-14T12:30:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-26T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-26T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-29T18:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-07-29T18:00:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-08-02T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_ROBUST"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v3-robust",
+        "reason": "unexplained large jump"
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker": "1x Trade Ltd.",
+        "eventTime": "2026-08-02T22:05:00.000Z",
+        "flags": [
+          "LARGE_JUMP_RELATIVE"
+        ],
+        "severity": "HIGH",
+        "detectorVersion": "candle-detector-v2-calendar",
+        "reason": "unexplained large jump"
+      }
+    ]
+  }
+}

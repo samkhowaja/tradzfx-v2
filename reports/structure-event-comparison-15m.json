@@ -1,0 +1,111 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "status": "OK",
+      "candles": 272,
+      "pivots": 10,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 1.14002,
+          "ts": "2026-07-27T07:45:00.000Z",
+          "availableAtTs": "2026-07-27T07:45:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T08:00:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T08:45:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 1.13675,
+          "ts": "2026-07-27T19:00:00.000Z",
+          "availableAtTs": "2026-07-27T19:00:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T19:15:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 1.13653,
+          "ts": "2026-07-28T05:00:00.000Z",
+          "availableAtTs": "2026-07-28T05:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T05:15:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T06:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 1.13609,
+          "ts": "2026-07-28T09:45:00.000Z",
+          "availableAtTs": "2026-07-28T09:45:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T10:00:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T11:15:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "EURUSD|15m|1785123000000|low|1.14002|0|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785123000000|low|1.14002|0",
+          "level": 1.14002,
+          "eventTs": "2026-07-27T07:45:00.000Z",
+          "availableAt": "2026-07-27T08:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "EURUSD|15m|1785164400000|low|1.13675|2|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785164400000|low|1.13675|2",
+          "level": 1.13675,
+          "eventTs": "2026-07-27T19:00:00.000Z",
+          "availableAt": "2026-07-27T19:15:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "EURUSD|15m|1785186000000|low|1.13653|4|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785186000000|low|1.13653|4",
+          "level": 1.13653,
+          "eventTs": "2026-07-28T05:00:00.000Z",
+          "availableAt": "2026-07-28T05:15:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "EURUSD|15m|1785214800000|low|1.13609|7|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785214800000|low|1.13609|7",
+          "level": 1.13609,
+          "eventTs": "2026-07-28T09:45:00.000Z",
+          "availableAt": "2026-07-28T10:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 4
+      }
+    }
+  ]
+}

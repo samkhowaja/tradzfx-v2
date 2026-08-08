@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "XAUUSD",
+    "side": "buy",
+    "entry": 4104.57398,
+    "sl": 4099.01198,
+    "tp": 4115.69798,
+    "ts": "2026-07-22T07:00:00.000Z",
+    "causalLineage": [],
+    "entryType": "market",
+    "atr_5": 3.7079999999999926,
+    "spread_pips": 3.6750000000000003,
+    "outcome": "win",
+    "r": 0.1702887217158794,
+    "rRealized": 0.43653002517071626,
+    "holdBars": 7,
+    "closePrice": 4115.69798,
+    "effectiveEntry": 4113.27,
+    "maxAdverse": 4112.49,
+    "maxFavorable": 4116.12,
+    "driftPips": 86.96020000000317,
+    "realizedRisk": 14.258020000000215,
+    "executed": true,
+    "plannedR": 0.1702887217158794,
+    "realizedR": 0.43653002517071626,
+    "heatDropped": false
+  }
+]

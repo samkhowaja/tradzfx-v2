@@ -8,6 +8,28 @@
 - **Testing:** Vitest. Run `pnpm test` before committing.
 - **TypeScript:** Strict. Build with `pnpm -r build`.
 
+## Index safety policy (DB-INDEX guardrails, validated 2026-08-05)
+
+- **Never drop a `features_*_symbol` index when a `*_pit_cover` sibling exists.** The
+  two-index design is load-bearing, EXPLAIN-proven on all 5 cover tables
+  (`features_pricing/zone/ifvg/structure/order_block`):
+  - `_pit_cover` serves **Index Only Scans** for covered-column PIT queries
+    (`ts` + INCLUDE cols only).
+  - `_symbol` serves `SELECT *` / uncovered-column live reads
+    (`liveRunner` needs `in_ote,ote_low/high`; `contextBuilder` needs
+    `dynamic_ote_*,premium_discount_score,lineage_state`) with a smaller key.
+- Prefix-key overlap alone is NOT redundancy evidence. Required before any index
+  drop: (1) `EXPLAIN (FORMAT JSON)` on the real query shapes, (2) query-text audit
+  of every code reader, (3) `pg_stat_user_indexes` scan counts, (4) explicit
+  per-item user approval, (5) `DROP INDEX CONCURRENTLY` + stored recreation DDL.
+  Zero-scan stats alone are insufficient — they refuted 2 hypotheses in the
+  2026-08-05 audit (idx_fpr_sfts is live; MA `_symbol` is planner-preferred).
+- Full evidence: `reports/index-explain-evidence-2026-08-05.md` (gitignored);
+  executed drops logged in `reports/storage-ops-history.json`.
+- Table drops additionally require: verified pg_dump + SHA-256 + `pg_restore
+  --list` + tracked provenance/DDL in `docs/repro/` + restore drill on a scratch
+  DB before the dump is considered deletable. No `CASCADE`, short `lock_timeout`.
+
 ## Strategy specs
 
 - Canonical specs live in `packages/strategies/src/specs/*.yaml`.

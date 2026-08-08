@@ -1,0 +1,21 @@
+{
+    "report_path":  "reports/2026-08-07/xauusd-15m-atr-audit.json",
+    "report_sha256":  "b2d885d0ddf183fc350a364947bb30b98d7b4c3948e32917cc1eb0cba55613e4",
+    "generated_from":  "manifested immutable report",
+    "cohort_counts":  {
+                          "NO_INGESTION_RUN_EVIDENCE":  556,
+                          "OFF_SESSION_PARENT":  185,
+                          "MISSING_REQUIRED_CHILD":  189,
+                          "UNKNOWN_QUARANTINE_STATE":  0
+                      },
+    "intersections":  {
+                          "NO_INGESTION_RUN_EVIDENCE ∩ OFF_SESSION_PARENT":  185,
+                          "NO_INGESTION_RUN_EVIDENCE ∩ MISSING_REQUIRED_CHILD":  189,
+                          "NO_INGESTION_RUN_EVIDENCE ∩ UNKNOWN_QUARANTINE_STATE":  0,
+                          "OFF_SESSION_PARENT ∩ MISSING_REQUIRED_CHILD":  185,
+                          "OFF_SESSION_PARENT ∩ UNKNOWN_QUARANTINE_STATE":  0,
+                          "MISSING_REQUIRED_CHILD ∩ UNKNOWN_QUARANTINE_STATE":  0,
+                          "ALL FOUR":  0
+                      },
+    "certification_status":  "BLOCKED"
+}`n System.Text.UTF8Encoding

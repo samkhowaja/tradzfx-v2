@@ -1,0 +1,32 @@
+[backtest-pit-v2] Strategy: a_plus_orb_fvg_5m | signalSource: fvg
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-27 → 2026-07-26 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-04-27T09:41:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD, EURUSD, GBPUSD, NZDUSD, USDCAD, USDCHF, USDJPY, USDSEK, XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for AUDUSD: features_zone@5m=STALE(19.02h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for EURUSD: features_zone@5m=STALE(15.47h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for GBPUSD: features_zone@5m=STALE(15.18h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for NZDUSD: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDCAD: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDCHF: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDJPY: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDSEK: features_zone@5m=STALE(19.02h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+AUDUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+EURUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+GBPUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+NZDUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDCAD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDCHF: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDJPY: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDSEK: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+XAUUSD: 1 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 1561ms | prefetch 686ms | setup-engine 584ms | simulate 585ms
+  Setup evaluations: 1 persisted, 1 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 0 | Losses: 1 | Timeouts: 0
+  WR: 0.0% | Net R: -1.00 | Avg Win: 0.00R | Avg Loss: -1.00R
+
+AGGREGATE: Trades=1 WR=0.0% NetR=-1.00 RealizedR=-1.00 AvgDrift=0.00p
+[backtest-pit-v2] Persisted 1 trades to backtest_results (run a_plus_orb_fvg_5m-2026-04-27T01:41:00.000Z-2026-07-26T01:41:00.000Z-6b884165)
+[backtest-pit-v2] Heat post-pass: 0/1 trades dropped (run a_plus_orb_fvg_5m-2026-04-27T01:41:00.000Z-2026-07-26T01:41:00.000Z-6b884165)

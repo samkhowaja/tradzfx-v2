@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-05T02-33-55-548Z-8378ad0a-2bb3-4a0d-916d-064222ac9b64",
+  "parentAuditId": null,
+  "status": "READY",
+  "startedAt": "2026-08-05T02:33:55.548Z",
+  "finishedAt": "2026-08-05T02:33:55.587Z",
+  "exitCode": 0,
+  "gitSha": "e2d99d900d391b343888a659f0fb3044c96bb41d",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": null,
+  "specHash": null,
+  "symbol": null,
+  "window": null,
+  "mode": null,
+  "setupProfile": null,
+  "intrabarMode": null,
+  "dataEdge": null,
+  "trustedGate": {
+    "mode": "require",
+    "windowIds": [
+      48
+    ]
+  },
+  "readinessManifestHash": null,
+  "arguments": [],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

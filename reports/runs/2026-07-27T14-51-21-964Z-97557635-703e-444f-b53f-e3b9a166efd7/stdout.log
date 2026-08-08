@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: scarface_5m_orb | signalSource: orb
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-06-20T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] DEGRADED data quality for EURUSD: capability_STALE_STATE_features_opening_range@5m
+EURUSD: no signals

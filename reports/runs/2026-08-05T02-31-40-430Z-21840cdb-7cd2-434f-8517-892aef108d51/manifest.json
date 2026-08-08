@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-05T02-31-40-430Z-21840cdb-7cd2-434f-8517-892aef108d51",
+  "parentAuditId": null,
+  "status": "BLOCKED_SYSTEM_QUALITY",
+  "startedAt": "2026-08-05T02:31:40.430Z",
+  "finishedAt": "2026-08-05T02:31:43.853Z",
+  "exitCode": 1,
+  "gitSha": "e2d99d900d391b343888a659f0fb3044c96bb41d",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "doyle_sd",
+  "specHash": "3d95c2e2c03ca9b54ab7bd2a721c6d48c41507078af6e0cb0000d230da97b78d",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-28T07:53:00.000Z",
+    "to": "2026-08-04T07:53:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-08-04T07:53:00.000Z",
+  "trustedGate": {
+    "mode": "require",
+    "windowIds": [
+      48
+    ],
+    "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+    "detectors": [
+      "window-certifier-v5.2-dxy-formula@20260805"
+    ],
+    "canonicalVersions": [
+      "canonical-m186-exclude-skip@20260805"
+    ],
+    "gatedAt": "2026-08-05T02:31:40.587Z"
+  },
+  "readinessManifestHash": "f6d8e2ba99b8aec54538ac1e15e2a2aa0f0fd35a2da2926c1bd6ec12148d5b14",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "doyle_sd",
+    "--preflight"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "4a23f372a4d2bf5799056fc06465c957e7e74e528e3a15695840ab90903a280a",
+      "bytes": 1990
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

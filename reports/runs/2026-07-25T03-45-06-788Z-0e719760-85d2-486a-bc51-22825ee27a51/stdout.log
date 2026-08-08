@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: keylevel_bounce_v8b_zone_tp | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-14 → 2026-07-21 (7 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-07-15T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: no signals

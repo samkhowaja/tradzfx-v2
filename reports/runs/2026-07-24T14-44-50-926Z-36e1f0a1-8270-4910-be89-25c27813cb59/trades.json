@@ -1,0 +1,27 @@
+[
+  {
+    "symbol": "NZDUSD",
+    "side": "buy",
+    "entry": 0.5893,
+    "sl": 0.5888000000000001,
+    "tp": 0.5908,
+    "ts": "2026-04-27T07:45:00.000Z",
+    "entryType": "market",
+    "atr_5": 0.00032799999999999496,
+    "spread_pips": 1.5750000000000002,
+    "outcome": "loss",
+    "r": -0.799999999999778,
+    "rRealized": -1,
+    "holdBars": 116,
+    "closePrice": 0.5888000000000001,
+    "effectiveEntry": 0.5892,
+    "maxAdverse": 0.58862,
+    "maxFavorable": 0.58944,
+    "driftPips": 1.000000000001,
+    "realizedRisk": 0.0003999999999998449,
+    "executed": true,
+    "plannedR": -0.799999999999778,
+    "realizedR": -1,
+    "heatDropped": false
+  }
+]

@@ -1,0 +1,17 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-27 → 2026-07-26 (90 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-04-28T04:51:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@15m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@15m, capability_PRODUCER_STALE_features_ifvg@5m, capability_PRODUCER_STALE_features_order_block@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_sweep@15m | features_structure@5m=PRODUCER_STALE_EVENT, features_sweep@15m=PRODUCER_STALE_EVENT
+  [setup-cache] 2 persistent hits, 63 remaining for evaluation
+XAUUSD: 65 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 1 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 3908ms | prefetch 578ms | setup-engine 8918ms | simulate 8922ms
+  Setup evaluations: 63 persisted, 63 evaluated, 2 context-hash skips
+  Executed: 56 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 1 | Heat dropped: 6
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=1
+  Wins: 17 | Losses: 39 | Timeouts: 1
+  WR: 30.4% | Net R: -7.12 | Avg Win: 0.88R | Avg Loss: -0.56R
+[backtest-pit-v2] Persisted 62 trades to backtest_results (run smart_risk_ob_ifvg_1m-2026-04-27T04:51:00.000Z-2026-07-26T04:51:00.000Z-ab964b30)
+[backtest-pit-v2] Heat post-pass: 6/62 trades dropped (run smart_risk_ob_ifvg_1m-2026-04-27T04:51:00.000Z-2026-07-26T04:51:00.000Z-ab964b30)

@@ -18,7 +18,13 @@ dist/
 logs/
 backups/
 downloads/
-reports/
+# Reports are version-controlled audit evidence. Ignore only temporary exports.
+reports/**/*.tmp
+reports/**/*.bak
+reports/**/artifacts/*.dump
+reports/**/artifacts/*.sql
+reports/**/artifacts/*.jsonl
+reports/**/artifacts/*.csv
 data/
 temp/
 

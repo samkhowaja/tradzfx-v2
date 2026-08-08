@@ -1,0 +1,14 @@
+[backtest-pit-v2] Research spec file: C:\tradzfx-v2\packages\strategies\src\specs\waqar_v2_bst_corrected_shadow.yaml
+[backtest-pit-v2] Strategy: waqar_v2_bst_corrected_shadow | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+  [setup-cache] 53 persistent hits, 2 remaining for evaluation
+GBPUSD: 55 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 9 setup-engine BLOCK, 35 drift rejected, 0 deduped) | signal query 39ms | prefetch 619ms | setup-engine 245ms | simulate 249ms
+  Setup evaluations: 2 persisted, 2 evaluated, 53 context-hash skips
+  Executed: 9 | Drift rejected: 35 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=9
+  Wins: 8 | Losses: 1 | Timeouts: 2
+  WR: 88.9% | Net R: 20.96 | Avg Win: 2.79R | Avg Loss: -1.34R

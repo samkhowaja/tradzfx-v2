@@ -11,6 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
+const crypto = require("crypto");
 const { Pool } = require("pg");
 const spool = require("./ingest-spool");
 
@@ -118,6 +119,56 @@ function roundToMinute(ms) {
   const d = new Date(ms);
   d.setSeconds(0, 0);
   return d;
+}
+
+// ── Ingestion run ledger (migration 190/191) ──────────────────────────────
+// Every candle batch is registered in market.candle_ingestion_runs BEFORE any
+// candle write. If the run row cannot be inserted the batch fails (thrown) —
+// no candles without a ledger run. Live-path callers catch this and spool, so
+// bars are preserved and the run is created on drain instead.
+const INGESTION_ENGINE_VER = `ingestion-server@${require(require("path").join(__dirname, "..", "package.json")).version}`;
+
+async function beginIngestionRun({
+  sourceSystem,
+  symbol,
+  broker,
+  batchStartTs,
+  batchEndTs,
+  artifactId = null,
+  artifactSha256 = null,
+  spoolFile = null,
+  terminalLogin = null,
+  terminalServer = null,
+  params = null,
+}) {
+  const { rows } = await pool.query(
+    `INSERT INTO market.candle_ingestion_runs
+       (source_system, symbol, timeframe, broker, batch_start_ts, batch_end_ts,
+        artifact_id, artifact_sha256, spool_file, terminal_login, terminal_server,
+        engine_ver, status, params)
+     VALUES ($1,$2,'1m',$3,$4,$5,$6,$7,$8,$9,$10,$11,'running',$12)
+     RETURNING run_id`,
+    [
+      sourceSystem, symbol, broker, batchStartTs, batchEndTs,
+      artifactId, artifactSha256, spoolFile, terminalLogin, terminalServer,
+      INGESTION_ENGINE_VER, params ? JSON.stringify(params) : null,
+    ]
+  );
+  return rows[0].run_id;
+}
+
+async function finishIngestionRun(runId, status, counts) {
+  // Best-effort: never mask the original candle-write outcome.
+  try {
+    await pool.query(
+      `UPDATE market.candle_ingestion_runs
+       SET status=$2, completed_at=now(), rows_seen=$3, rows_inserted=$4, rows_rejected=$5
+       WHERE run_id=$1`,
+      [runId, status, counts.seen ?? null, counts.inserted ?? null, counts.rejected ?? null]
+    );
+  } catch (err) {
+    log("warn", "ingestion run status update failed", { runId, error: err.message });
+  }
 }
 
 function pointsToPips(points, digits) {
@@ -229,7 +280,36 @@ async function validateApiKey(key) {
   }
 }
 
-async function upsertBars(payload) {
+/**
+ * LINEAGE-06 keyless auth for the on-demand channel: the responder EA cannot
+ * hold a DB credential, so it identifies itself by terminal login + server and
+ * the server resolves the registered terminal row in mt5_terminals. Identity
+ * match = the same fact the heartbeat path already registers, so no new secret
+ * needs to live in EA inputs.
+ */
+async function validateTerminalIdentity(login, server) {
+  if (!login || !server) return false;
+  try {
+    const { rows } = await pool.query(
+      "SELECT 1 FROM mt5_terminals WHERE account_number = $1 AND broker_server = $2 AND api_key IS NOT NULL LIMIT 1",
+      [String(login), String(server)]
+    );
+    return rows.length > 0;
+  } catch (err) {
+    log("warn", "terminal identity db check failed", { error: err.message });
+    return false;
+  }
+}
+
+/**
+ * @param {object} payload candle batch
+ * @param {object} [runCtx] ledger context from the caller:
+ *   { sourceSystem ('mt5-ea'|'ondemand-artifact'), artifactId, artifactSha256,
+ *     spoolFile, terminalLogin, terminalServer, params }
+ * Defaults to a live 'mt5-ea' run. The run row is created BEFORE any candle
+ * write; if it cannot be created the batch throws (callers spool/retry).
+ */
+async function upsertBars(payload, runCtx = {}) {
   const symbol = normalizeSymbol(payload.symbol);
   if (!symbol) {
     const err = new Error("missing symbol");
@@ -244,8 +324,12 @@ async function upsertBars(payload) {
   }
 
   // FX Weekend Calendar Guard: reject non-tradable FX bars at ingestion gateway
-  // This prevents weekend bars from advancing the candle edge and poisoning freshness
-  if (isFxSymbol(symbol)) {
+  // This prevents weekend bars from advancing the candle edge and poisoning freshness.
+  // On-demand (source=on_request) responses are EXEMPT: they are evidence fetches
+  // bound to a candle_requests row and may legitimately probe closed-market windows
+  // for forensics. They are still bound to artifacts and never trigger pipelines.
+  const isOnRequest = payload.source?.source === "on_request";
+  if (isFxSymbol(symbol) && !isOnRequest) {
     for (const bar of payload.bars) {
       const ts = typeof bar.time === "number" ? bar.time : bar.ts;
       if (!isTradableFxTime(ts)) {
@@ -289,20 +373,47 @@ async function upsertBars(payload) {
     values.push(...r);
   }
 
-  const { rowCount } = await pool.query(
-    `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, spread, broker, digits)
-     VALUES ${placeholders.join(", ")}
-     ON CONFLICT (symbol, broker, ts) DO UPDATE SET
-       o = EXCLUDED.o,
-       h = EXCLUDED.h,
-       l = EXCLUDED.l,
-       c = EXCLUDED.c,
-       v = EXCLUDED.v,
-       spread = EXCLUDED.spread,
-       broker = EXCLUDED.broker,
-       digits = EXCLUDED.digits`,
-    values
-  );
+  // Ledger run first: no candle is written without a corresponding run row.
+  // If this insert fails the batch throws — live callers spool and the run is
+  // created on drain instead, so bars are never silently unledgered.
+  const runId = await beginIngestionRun({
+    sourceSystem: runCtx.sourceSystem || "mt5-ea",
+    symbol,
+    broker,
+    batchStartTs: rows[0][1],
+    batchEndTs: rows[rows.length - 1][1],
+    artifactId: runCtx.artifactId ?? null,
+    artifactSha256: runCtx.artifactSha256 ?? null,
+    spoolFile: runCtx.spoolFile ?? null,
+    terminalLogin: runCtx.terminalLogin ?? null,
+    terminalServer: runCtx.terminalServer ?? null,
+    params: runCtx.params ?? null,
+  });
+
+  let rowCount;
+  try {
+    ({ rowCount } = await pool.query(
+      `INSERT INTO candles_1m (symbol, ts, o, h, l, c, v, spread, broker, digits)
+       VALUES ${placeholders.join(", ")}
+       ON CONFLICT (symbol, broker, ts) DO UPDATE SET
+         o = EXCLUDED.o,
+         h = EXCLUDED.h,
+         l = EXCLUDED.l,
+         c = EXCLUDED.c,
+         v = EXCLUDED.v,
+         spread = EXCLUDED.spread,
+         broker = EXCLUDED.broker,
+         digits = EXCLUDED.digits`,
+      values
+    ));
+  } catch (err) {
+    await finishIngestionRun(runId, "failed", {
+      seen: rows.length,
+      inserted: 0,
+      rejected: rows.length,
+    });
+    throw err;
+  }
 
   // Positive eligibility gate: raw persistence does not imply usability.
   // Existing workers must validate and promote rows to CLEAN before triggers.
@@ -322,6 +433,38 @@ async function upsertBars(payload) {
 
   const firstTs = rows.reduce((min, row) => row[1] < min ? row[1] : min, rows[0][1]);
   const lastTs = rows.reduce((max, row) => row[1] > max ? row[1] : max, rows[0][1]);
+
+  // Per-candle ingestion lineage bound to this run. source_key is the
+  // ingestion-side identity (channel), never an artifact of a consumer.
+  const sourceKey = runCtx.artifactId
+    ? `ondemand:artifact:${runCtx.artifactId}`
+    : runCtx.spoolFile
+      ? `mt5-ea:spool:${runCtx.spoolFile}`
+      : "mt5-ea:live";
+  try {
+    const linPlaceholders = [];
+    const linValues = [];
+    let linIdx = 1;
+    for (const r of rows) {
+      linPlaceholders.push(`($${linIdx++}, $${linIdx++}, $${linIdx++}, $${linIdx++}, $${linIdx++})`);
+      linValues.push(symbol, broker, r[1], sourceKey, runId);
+    }
+    await pool.query(
+      `INSERT INTO market.candle_producer_lineage
+         (symbol, broker, candle_ts, source_key, ingestion_run_id)
+       VALUES ${linPlaceholders.join(", ")}`,
+      linValues
+    );
+  } catch (err) {
+    // Lineage failure after candles landed: the run must not read 'success'.
+    await finishIngestionRun(runId, "partial", {
+      seen: rows.length,
+      inserted: rowCount ?? 0,
+      rejected: 0,
+    });
+    throw err;
+  }
+
   const quarantine = await pool.query(
     `SELECT COUNT(*)::int AS count
        FROM market.candle_eligibility
@@ -331,13 +474,100 @@ async function upsertBars(payload) {
     [symbol, broker, firstTs, lastTs]
   );
 
+  await finishIngestionRun(runId, "success", {
+    seen: rows.length,
+    inserted: rowCount ?? 0,
+    rejected: 0,
+  });
+
   return {
     accepted: normalized.length,
     rowCount: rowCount ?? 0,
     symbol,
     broker,
+    ingestionRunId: runId,
     downstreamBlocked: quarantine.rows[0].count > 0,
   };
+}
+
+/**
+ * LINEAGE-06 on-demand response handler.
+ * Payload: { request_id, symbol, timeframe, from_utc, to_utc, terminal: {login,
+ * server, build}, retrieved_at, bars: [{ts(ms|s)|time(s), o|open, h|high, l|low,
+ * c|close, tickVol|tick_volume, spread}] , source: {broker, digits, source:'on_request'} }
+ * Order: artifact row first (hash over canonical payload), then bars, then lineage.
+ * A zero-bar response is still evidence: artifact stored, request fulfilled, no bars.
+ */
+async function handleOndemandResponse(body) {
+  const requestId = String(body?.request_id || "");
+  if (!/^[0-9a-fA-F-]{36}$/.test(requestId)) {
+    throw Object.assign(new Error("missing/invalid request_id"), { statusCode: 400 });
+  }
+  const reqRow = await pool.query(
+    `SELECT request_id, symbol, timeframe, from_utc, to_utc, status FROM market.candle_requests WHERE request_id=$1`,
+    [requestId]);
+  if (reqRow.rowCount === 0) {
+    throw Object.assign(new Error(`unknown request_id ${requestId}`), { statusCode: 404 });
+  }
+  const request = reqRow.rows[0];
+  if (request.status !== "pending") {
+    return { requestId, status: request.status, duplicate: true };
+  }
+  const symbol = normalizeSymbol(body.symbol || request.symbol);
+  if (symbol !== request.symbol) {
+    throw Object.assign(new Error(`symbol mismatch: request=${request.symbol} got=${symbol}`), { statusCode: 400 });
+  }
+  const bars = Array.isArray(body.bars) ? body.bars : [];
+  const payloadHash = crypto.createHash("sha256").update(JSON.stringify({ request_id: requestId, bars })).digest("hex");
+  const terminal = body.terminal || {};
+  const artifact = await pool.query(
+    `INSERT INTO market.candle_source_artifacts
+       (request_id, symbol, timeframe, from_utc, to_utc, bar_count, payload_sha256, payload,
+        terminal_login, terminal_server, terminal_build, retrieved_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+     ON CONFLICT (request_id, payload_sha256) DO NOTHING
+     RETURNING artifact_id`,
+    [requestId, symbol, request.timeframe, request.from_utc, request.to_utc, bars.length,
+     payloadHash, JSON.stringify(bars), String(terminal.login || "unknown"),
+     String(terminal.server || "unknown"), terminal.build != null ? String(terminal.build) : null,
+     body.retrieved_at ? new Date(body.retrieved_at) : new Date()]);
+  const artifactId = artifact.rows[0]?.artifact_id
+    ?? (await pool.query(`SELECT artifact_id FROM market.candle_source_artifacts WHERE request_id=$1 AND payload_sha256=$2`, [requestId, payloadHash])).rows[0].artifact_id;
+
+  let accepted = 0;
+  if (bars.length > 0) {
+    const ingestResult = await upsertBars({
+      symbol,
+      source: { broker: body.source?.broker ?? terminal.server, digits: body.source?.digits, source: "on_request" },
+      bars,
+    }, {
+      sourceSystem: "ondemand-artifact",
+      artifactId,
+      artifactSha256: payloadHash,
+      terminalLogin: terminal.login != null ? Number(terminal.login) || null : null,
+      terminalServer: terminal.server != null ? String(terminal.server) : null,
+      params: { request_id: requestId },
+    });
+    accepted = ingestResult.accepted;
+    // Bar-level lineage: bind each stored bar to this artifact (append-only).
+    const broker = normalizeBrokerName(body.source?.broker ?? terminal.server).replace(/'/g, "").slice(0, 64);
+    const normalized = normalizeBars({ bars });
+    const lp = [], lv = [];
+    let li = 1;
+    for (const b of normalized) {
+      lp.push(`($${li++}, $${li++}, $${li++}, $${li++}::uuid)`);
+      lv.push(symbol, broker, roundToMinute(b.time * 1000), artifactId);
+    }
+    await pool.query(
+      `INSERT INTO market.candle_bar_lineage (symbol, broker, ts, artifact_id)
+       VALUES ${lp.join(", ")} ON CONFLICT DO NOTHING`, lv);
+  }
+  await pool.query(
+    `UPDATE market.candle_requests
+        SET status='fulfilled', response_count=$2, terminal_login=$3, terminal_server=$4, responded_at=now()
+      WHERE request_id=$1`,
+    [requestId, bars.length, String(terminal.login || "unknown"), String(terminal.server || "unknown")]);
+  return { requestId, artifactId, bars: bars.length, accepted };
 }
 
 async function upsertHeartbeat(body, apiKey) {
@@ -457,7 +687,12 @@ async function handleRequest(req, res) {
     return;
   }
 
-  if (!(await validateApiKey(apiKey))) {
+  // On-demand channel additionally accepts terminal-identity auth (keyless EA).
+  const isOndemand = req.url === "/api/ingest/mt5/ondemand";
+  const authed = (await validateApiKey(apiKey))
+    || (isOndemand && await validateTerminalIdentity(
+      req.headers["x-terminal-login"], req.headers["x-terminal-server"]));
+  if (!authed) {
     res.writeHead(401, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Unauthorized" }));
     return;
@@ -469,7 +704,13 @@ async function handleRequest(req, res) {
     if ((req.method === "POST" && req.url === "/api/ingest") || req.url === "/api/ingest/mt5/bars") {
       let result;
       try {
-        result = await upsertBars(body);
+        const termLogin = req.headers["x-terminal-login"];
+        const termServer = req.headers["x-terminal-server"];
+        result = await upsertBars(body, {
+          sourceSystem: "mt5-ea",
+          terminalLogin: termLogin != null ? Number(termLogin) || null : null,
+          terminalServer: termServer != null ? String(termServer) : null,
+        });
       } catch (err) {
         if (err.statusCode === 400) throw err; // validation: client bug, never spool
         // Transient (DB down / timeout / admin-kill): spool durably and ack so
@@ -519,6 +760,16 @@ async function handleRequest(req, res) {
       return;
     }
 
+    if (req.method === "POST" && req.url === "/api/ingest/mt5/ondemand") {
+      // LINEAGE-06 on-demand response: persist artifact + bars + bar lineage.
+      // Never spooled, never triggers the pipeline. Failure -> 500 so the EA retries.
+      const result = await handleOndemandResponse(body);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true, ...result }));
+      log("info", "ondemand response stored", result);
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/api/ingest/heartbeat") {
       await upsertHeartbeat(body, apiKey).catch((err) =>
         log("warn", "heartbeat db write failed", { error: err.message })
@@ -546,9 +797,15 @@ async function drainTick() {
   try {
     await pool.query("SELECT 1"); // is the DB reachable again?
     const drainedSymbols = new Set();
-    const summary = await spool.drainSpool(async (payload) => {
-      const r = await upsertBars(payload);
+    const blockedSymbols = new Set();
+    const summary = await spool.drainSpool(async (payload, ctx = {}) => {
+      const r = await upsertBars(payload, {
+        sourceSystem: "mt5-ea",
+        spoolFile: ctx.fileName ?? null,
+        params: { spool_replay: true },
+      });
       drainedSymbols.add(r.symbol);
+      if (r.downstreamBlocked) blockedSymbols.add(r.symbol);
       return r;
     });
     if (summary.batchesSent > 0 || summary.quarantined > 0) {
@@ -556,7 +813,7 @@ async function drainTick() {
     }
     // Best-effort pipeline kick per drained symbol (once, not per batch).
     for (const sym of drainedSymbols) {
-      if (!r.downstreamBlocked) forwardTrigger(sym).catch(() => {});
+      if (!blockedSymbols.has(sym)) forwardTrigger(sym).catch(() => {});
     }
   } catch (err) {
     log("warn", "spool drain skipped, db unreachable", { error: err.message });

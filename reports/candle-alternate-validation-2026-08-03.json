@@ -1,0 +1,3229 @@
+[
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70682,
+    "h": 0.70684,
+    "l": 0.70672,
+    "c": 0.7068,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.70485,
+        "h": 0.7074,
+        "l": 0.70485,
+        "o": 0.7074,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70126,
+    "h": 0.70126,
+    "l": 0.70126,
+    "c": 0.70126,
+    "spread": 4.2,
+    "alternates": [
+      {
+        "c": 0.70429,
+        "h": 0.70453,
+        "l": 0.7042,
+        "o": 0.70448,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:06:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70666,
+    "h": 0.7067,
+    "l": 0.70664,
+    "c": 0.70668,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.70446,
+        "h": 0.70469,
+        "l": 0.70429,
+        "o": 0.70429,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:08:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70112,
+    "h": 0.70114,
+    "l": 0.70112,
+    "c": 0.70114,
+    "spread": 3.4,
+    "alternates": [
+      {
+        "c": 0.70412,
+        "h": 0.70445,
+        "l": 0.70403,
+        "o": 0.70429,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:11:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70685,
+    "h": 0.70686,
+    "l": 0.70681,
+    "c": 0.70686,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.70411,
+        "h": 0.70428,
+        "l": 0.70396,
+        "o": 0.70405,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:12:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.70106,
+    "h": 0.70106,
+    "l": 0.70105,
+    "c": 0.70105,
+    "spread": 4.2,
+    "alternates": [
+      {
+        "c": 0.70431,
+        "h": 0.70433,
+        "l": 0.70401,
+        "o": 0.70409,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.4155471021748625,
+    "h": 1.4160471021748624,
+    "l": 1.4150471021748625,
+    "c": 1.4155971021748626,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 0.69362,
+        "h": 0.69362,
+        "l": 0.69359,
+        "o": 0.6936,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.3
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:34:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.69411,
+    "h": 0.69414,
+    "l": 0.69411,
+    "c": 0.69412,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.69579,
+        "h": 0.69589,
+        "l": 0.69577,
+        "o": 0.69587,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.5
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-14T12:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.69439,
+    "h": 0.69808,
+    "l": 0.69431,
+    "c": 0.69792,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 0.69477,
+        "h": 0.69482,
+        "l": 0.69475,
+        "o": 0.69476,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "AUDUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.70291,
+    "h": 0.70291,
+    "l": 0.70282,
+    "c": 0.70286,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.70261,
+        "h": 0.7027,
+        "l": 0.70258,
+        "o": 0.7027,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.3
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-03-23T11:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.14862,
+    "h": 1.1582,
+    "l": 1.14862,
+    "c": 1.15765,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15765,
+        "h": 1.1582,
+        "l": 1.14862,
+        "o": 1.14862,
+        "broker": "MT5",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 1
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "MT5",
+    "event_time": "2026-03-23T11:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.14862,
+    "h": 1.1582,
+    "l": 1.14862,
+    "c": 1.15765,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15765,
+        "h": 1.1582,
+        "l": 1.14862,
+        "o": 1.14862,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 1
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.16122,
+    "h": 1.16125,
+    "l": 1.16122,
+    "c": 1.16125,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15478,
+        "h": 1.1595,
+        "l": 1.15473,
+        "o": 1.15941,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.14993,
+    "h": 1.14993,
+    "l": 1.14991,
+    "c": 1.14993,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.15481,
+        "h": 1.15543,
+        "l": 1.15441,
+        "o": 1.15535,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:09:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.16117,
+    "h": 1.16124,
+    "l": 1.16117,
+    "c": 1.16124,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15448,
+        "h": 1.15487,
+        "l": 1.15436,
+        "o": 1.15447,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:10:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.1499,
+    "h": 1.15003,
+    "l": 1.1499,
+    "c": 1.15003,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.15429,
+        "h": 1.15459,
+        "l": 1.15427,
+        "o": 1.15444,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:12:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.16127,
+    "h": 1.16128,
+    "l": 1.16122,
+    "c": 1.16122,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15463,
+        "h": 1.15466,
+        "l": 1.15428,
+        "o": 1.15448,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:13:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15009,
+    "h": 1.1501,
+    "l": 1.15009,
+    "c": 1.1501,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.15433,
+        "h": 1.15461,
+        "l": 1.15425,
+        "o": 1.1546,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:17:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.16107,
+    "h": 1.16109,
+    "l": 1.16106,
+    "c": 1.16109,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15478,
+        "h": 1.15491,
+        "l": 1.15456,
+        "o": 1.15462,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:19:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15002,
+    "h": 1.15003,
+    "l": 1.15002,
+    "c": 1.15003,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.15508,
+        "h": 1.15521,
+        "l": 1.15489,
+        "o": 1.15495,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:20:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.16111,
+    "h": 1.16113,
+    "l": 1.16105,
+    "c": 1.16107,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15511,
+        "h": 1.15533,
+        "l": 1.15507,
+        "o": 1.15508,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:21:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14994,
+    "h": 1.14994,
+    "l": 1.1499,
+    "c": 1.14991,
+    "spread": 5.6,
+    "alternates": [
+      {
+        "c": 1.15542,
+        "h": 1.15545,
+        "l": 1.15505,
+        "o": 1.15511,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:41:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.16102,
+    "h": 1.16103,
+    "l": 1.16101,
+    "c": 1.16102,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15522,
+        "h": 1.15553,
+        "l": 1.15466,
+        "o": 1.15522,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:42:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14998,
+    "h": 1.15,
+    "l": 1.14998,
+    "c": 1.15,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.1553,
+        "h": 1.15535,
+        "l": 1.15473,
+        "o": 1.15519,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:47:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.16084,
+    "h": 1.16095,
+    "l": 1.16084,
+    "c": 1.16095,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.15615,
+        "h": 1.15625,
+        "l": 1.15539,
+        "o": 1.15552,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:48:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15006,
+    "h": 1.15006,
+    "l": 1.15006,
+    "c": 1.15006,
+    "spread": 3.6,
+    "alternates": [
+      {
+        "c": 1.15589,
+        "h": 1.15612,
+        "l": 1.15546,
+        "o": 1.15612,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.15155,
+    "h": 1.15158,
+    "l": 1.15148,
+    "c": 1.15149,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14614,
+        "h": 1.14621,
+        "l": 1.14609,
+        "o": 1.14621,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:03:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.14576,
+    "h": 1.14576,
+    "l": 1.14576,
+    "c": 1.14576,
+    "spread": 6.1000000000000005,
+    "alternates": [
+      {
+        "c": 1.14605,
+        "h": 1.14605,
+        "l": 1.14599,
+        "o": 1.14599,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:12:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.15183,
+    "h": 1.1519,
+    "l": 1.15178,
+    "c": 1.15188,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14634,
+        "h": 1.14638,
+        "l": 1.14634,
+        "o": 1.14638,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:13:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.1457,
+    "h": 1.1457,
+    "l": 1.1457,
+    "c": 1.1457,
+    "spread": 4,
+    "alternates": [
+      {
+        "c": 1.14634,
+        "h": 1.14638,
+        "l": 1.14632,
+        "o": 1.14634,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:19:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.15184,
+    "h": 1.15186,
+    "l": 1.15182,
+    "c": 1.15185,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14631,
+        "h": 1.14636,
+        "l": 1.14629,
+        "o": 1.14631,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:20:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14564,
+    "h": 1.14565,
+    "l": 1.14564,
+    "c": 1.14565,
+    "spread": 6,
+    "alternates": [
+      {
+        "c": 1.14626,
+        "h": 1.14632,
+        "l": 1.14625,
+        "o": 1.1463,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:23:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15189,
+    "h": 1.1519,
+    "l": 1.15171,
+    "c": 1.15175,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14639,
+        "h": 1.1464,
+        "l": 1.14633,
+        "o": 1.14637,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:24:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14573,
+    "h": 1.14573,
+    "l": 1.14571,
+    "c": 1.14571,
+    "spread": 5.2,
+    "alternates": [
+      {
+        "c": 1.14634,
+        "h": 1.14639,
+        "l": 1.14634,
+        "o": 1.14638,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:25:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15179,
+    "h": 1.1518,
+    "l": 1.15178,
+    "c": 1.15178,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14648,
+        "h": 1.1465,
+        "l": 1.14635,
+        "o": 1.14635,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:26:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14571,
+    "h": 1.14571,
+    "l": 1.14571,
+    "c": 1.14571,
+    "spread": 5.3999999999999995,
+    "alternates": [
+      {
+        "c": 1.14635,
+        "h": 1.14647,
+        "l": 1.14634,
+        "o": 1.14647,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:29:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.15168,
+    "h": 1.15176,
+    "l": 1.15168,
+    "c": 1.15173,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.14623,
+        "h": 1.14626,
+        "l": 1.14618,
+        "o": 1.14626,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.14572,
+    "h": 1.14574,
+    "l": 1.14569,
+    "c": 1.14574,
+    "spread": 5.1,
+    "alternates": [
+      {
+        "c": 1.14629,
+        "h": 1.14629,
+        "l": 1.14613,
+        "o": 1.14621,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:40:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.14317,
+    "h": 1.14318,
+    "l": 1.14317,
+    "c": 1.14318,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.14562,
+        "h": 1.14562,
+        "l": 1.14555,
+        "o": 1.14556,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "EURUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.1528,
+    "h": 1.1528,
+    "l": 1.1527,
+    "c": 1.15271,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.1524,
+        "h": 1.15248,
+        "l": 1.15238,
+        "o": 1.15248,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3429,
+    "h": 1.34292,
+    "l": 1.34286,
+    "c": 1.34292,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 1.3359,
+        "h": 1.33987,
+        "l": 1.3358,
+        "o": 1.33986,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:03:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.32804,
+    "h": 1.32804,
+    "l": 1.32791,
+    "c": 1.32803,
+    "spread": 13.200000000000001,
+    "alternates": [
+      {
+        "c": 1.33629,
+        "h": 1.33658,
+        "l": 1.33564,
+        "o": 1.33604,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:04:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3428,
+    "h": 1.34282,
+    "l": 1.34278,
+    "c": 1.34279,
+    "spread": 1.3,
+    "alternates": [
+      {
+        "c": 1.33544,
+        "h": 1.33637,
+        "l": 1.33535,
+        "o": 1.33631,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3287,
+    "h": 1.3287,
+    "l": 1.3287,
+    "c": 1.3287,
+    "spread": 6.5,
+    "alternates": [
+      {
+        "c": 1.33505,
+        "h": 1.33551,
+        "l": 1.33473,
+        "o": 1.33544,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:09:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.34281,
+    "h": 1.3429,
+    "l": 1.34281,
+    "c": 1.34287,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 1.33496,
+        "h": 1.33534,
+        "l": 1.33479,
+        "o": 1.33499,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:10:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.32837,
+    "h": 1.32886,
+    "l": 1.32837,
+    "c": 1.32886,
+    "spread": 6.999999999999999,
+    "alternates": [
+      {
+        "c": 1.33484,
+        "h": 1.33518,
+        "l": 1.33483,
+        "o": 1.33491,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:11:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.34289,
+    "h": 1.34291,
+    "l": 1.34288,
+    "c": 1.34291,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 1.335,
+        "h": 1.33519,
+        "l": 1.33471,
+        "o": 1.33484,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:12:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.32899,
+    "h": 1.32899,
+    "l": 1.32886,
+    "c": 1.3289,
+    "spread": 6.5,
+    "alternates": [
+      {
+        "c": 1.33515,
+        "h": 1.33519,
+        "l": 1.33486,
+        "o": 1.335,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:16:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.34278,
+    "h": 1.34278,
+    "l": 1.34272,
+    "c": 1.34274,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 1.33536,
+        "h": 1.33546,
+        "l": 1.33491,
+        "o": 1.33516,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:17:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 1.32886,
+    "h": 1.32887,
+    "l": 1.32886,
+    "c": 1.32886,
+    "spread": 6.9,
+    "alternates": [
+      {
+        "c": 1.33548,
+        "h": 1.33559,
+        "l": 1.33532,
+        "o": 1.33535,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.33092,
+    "h": 1.33096,
+    "l": 1.33085,
+    "c": 1.33086,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 1.32077,
+        "h": 1.32078,
+        "l": 1.3207,
+        "o": 1.32076,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:03:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.31987,
+    "h": 1.3199,
+    "l": 1.31984,
+    "c": 1.31984,
+    "spread": 16.7,
+    "alternates": [
+      {
+        "c": 1.3206,
+        "h": 1.32068,
+        "l": 1.32053,
+        "o": 1.32053,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:14:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.33141,
+    "h": 1.33147,
+    "l": 1.3314,
+    "c": 1.33147,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 1.32088,
+        "h": 1.32098,
+        "l": 1.32088,
+        "o": 1.32096,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T21:15:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3204,
+    "h": 1.3204,
+    "l": 1.32037,
+    "c": 1.32037,
+    "spread": 6.999999999999999,
+    "alternates": [
+      {
+        "c": 1.32087,
+        "h": 1.32088,
+        "l": 1.32085,
+        "o": 1.32088,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T22:37:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.33164,
+    "h": 1.33166,
+    "l": 1.33163,
+    "c": 1.33163,
+    "spread": 1.6,
+    "alternates": [
+      {
+        "c": 1.31983,
+        "h": 1.31984,
+        "l": 1.31975,
+        "o": 1.31975,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T22:38:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.32041,
+    "h": 1.32046,
+    "l": 1.3204,
+    "c": 1.32046,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.31976,
+        "h": 1.31989,
+        "l": 1.31974,
+        "o": 1.31983,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T22:57:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.33123,
+    "h": 1.33127,
+    "l": 1.33123,
+    "c": 1.33125,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 1.32006,
+        "h": 1.32027,
+        "l": 1.32005,
+        "o": 1.32017,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-18T22:58:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.32045,
+    "h": 1.32045,
+    "l": 1.32044,
+    "c": 1.32045,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 1.32006,
+        "h": 1.3201,
+        "l": 1.32004,
+        "o": 1.32006,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.152527884152389,
+    "h": 1.1530278841523889,
+    "l": 1.152027884152389,
+    "c": 1.152577884152389,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 1.33503,
+        "h": 1.33503,
+        "l": 1.33452,
+        "o": 1.33452,
+        "broker": "1x Trade Ltd.",
+        "spread": 9.1
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:39:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.34112,
+    "h": 1.3412,
+    "l": 1.34111,
+    "c": 1.34113,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.34431,
+        "h": 1.34441,
+        "l": 1.34422,
+        "o": 1.34422,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.3
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "GBPUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3466,
+    "h": 1.34663,
+    "l": 1.3465,
+    "c": 1.3465,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.34577,
+        "h": 1.34582,
+        "l": 1.3457,
+        "o": 1.34582,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.2
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58141,
+    "h": 0.58141,
+    "l": 0.58131,
+    "c": 0.58136,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 0.5792,
+        "h": 0.58177,
+        "l": 0.57916,
+        "o": 0.58177,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:06:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.57704,
+    "h": 0.57704,
+    "l": 0.57653,
+    "c": 0.57704,
+    "spread": 6,
+    "alternates": [
+      {
+        "c": 0.5794,
+        "h": 0.57947,
+        "l": 0.57907,
+        "o": 0.57907,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:11:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58141,
+    "h": 0.58141,
+    "l": 0.58138,
+    "c": 0.5814,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 0.5788,
+        "h": 0.57896,
+        "l": 0.5787,
+        "o": 0.57875,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:12:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.57695,
+    "h": 0.57695,
+    "l": 0.57695,
+    "c": 0.57695,
+    "spread": 4.8,
+    "alternates": [
+      {
+        "c": 0.57896,
+        "h": 0.57898,
+        "l": 0.57872,
+        "o": 0.57879,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:13:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58141,
+    "h": 0.58142,
+    "l": 0.58138,
+    "c": 0.58139,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 0.5787,
+        "h": 0.57893,
+        "l": 0.57868,
+        "o": 0.57892,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:14:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.57693,
+    "h": 0.57693,
+    "l": 0.57686,
+    "c": 0.57686,
+    "spread": 4.8,
+    "alternates": [
+      {
+        "c": 0.57873,
+        "h": 0.57891,
+        "l": 0.57867,
+        "o": 0.57872,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:18:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.58158,
+    "h": 0.58164,
+    "l": 0.58158,
+    "c": 0.58158,
+    "spread": 1.7,
+    "alternates": [
+      {
+        "c": 0.57911,
+        "h": 0.57929,
+        "l": 0.57904,
+        "o": 0.57909,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:19:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.57675,
+    "h": 0.57683,
+    "l": 0.57673,
+    "c": 0.57673,
+    "spread": 4.8,
+    "alternates": [
+      {
+        "c": 0.57923,
+        "h": 0.57933,
+        "l": 0.57909,
+        "o": 0.57913,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "MT5",
+    "event_time": "2026-06-22T21:27:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.57114,
+    "h": 0.57123,
+    "l": 0.571,
+    "c": 0.57102,
+    "spread": 6,
+    "alternates": [
+      {
+        "c": 0.57102,
+        "h": 0.57123,
+        "l": 0.571,
+        "o": 0.57114,
+        "broker": "1x Trade Ltd.",
+        "spread": 6
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 1
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3145020074005123,
+    "h": 1.3150020074005122,
+    "l": 1.3140020074005123,
+    "c": 1.3145520074005124,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 0.56853,
+        "h": 0.56856,
+        "l": 0.56852,
+        "o": 0.56854,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.8
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:33:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.57577,
+    "h": 0.57577,
+    "l": 0.57577,
+    "c": 0.57577,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.57874,
+        "h": 0.57879,
+        "l": 0.5787,
+        "o": 0.57872,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-14T12:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58302,
+    "h": 0.58407,
+    "l": 0.58291,
+    "c": 0.58384,
+    "spread": 1.9,
+    "alternates": [
+      {
+        "c": 0.5801,
+        "h": 0.58012,
+        "l": 0.58004,
+        "o": 0.58004,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-14T15:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58014,
+    "h": 0.58402,
+    "l": 0.58008,
+    "c": 0.58389,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.5818,
+        "h": 0.58185,
+        "l": 0.5817,
+        "o": 0.5818,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "NZDUSD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.58783,
+    "h": 0.58787,
+    "l": 0.58781,
+    "c": 0.58784,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.5874,
+        "h": 0.58751,
+        "l": 0.58737,
+        "o": 0.5875,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCAD",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3759785294557867,
+    "h": 1.3764785294557866,
+    "l": 1.3754785294557867,
+    "c": 1.3760285294557868,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 1.41915,
+        "h": 1.41915,
+        "l": 1.41908,
+        "o": 1.41911,
+        "broker": "1x Trade Ltd.",
+        "spread": 8.299999999999999
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCAD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:34:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.41688,
+    "h": 1.41688,
+    "l": 1.41687,
+    "c": 1.41687,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.41417,
+        "h": 1.41418,
+        "l": 1.41412,
+        "o": 1.41414,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCAD",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.40331,
+    "h": 1.4034,
+    "l": 1.4033,
+    "c": 1.4034,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 1.40386,
+        "h": 1.4039,
+        "l": 1.40379,
+        "o": 1.4038,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-05-15T04:48:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.78527,
+    "h": 0.78534,
+    "l": 0.78523,
+    "c": 0.7853,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.78533,
+        "h": 0.78535,
+        "l": 0.7853,
+        "o": 0.78532,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.5
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-06-11T20:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.80091,
+    "h": 0.80094,
+    "l": 0.80087,
+    "c": 0.80091,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.79448,
+        "h": 0.79455,
+        "l": 0.79442,
+        "o": 0.7945,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.8
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.80066,
+    "h": 0.80075,
+    "l": 0.80066,
+    "c": 0.80075,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 0.79765,
+        "h": 0.79768,
+        "l": 0.79754,
+        "o": 0.79762,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:03:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79466,
+    "h": 0.7947,
+    "l": 0.79466,
+    "c": 0.79468,
+    "spread": 15.4,
+    "alternates": [
+      {
+        "c": 0.79836,
+        "h": 0.79842,
+        "l": 0.79793,
+        "o": 0.79804,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:08:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.8008,
+    "h": 0.8009,
+    "l": 0.80079,
+    "c": 0.80089,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 0.79809,
+        "h": 0.7981,
+        "l": 0.79775,
+        "o": 0.79797,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:09:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79451,
+    "h": 0.79452,
+    "l": 0.79451,
+    "c": 0.79452,
+    "spread": 13.700000000000001,
+    "alternates": [
+      {
+        "c": 0.79819,
+        "h": 0.79822,
+        "l": 0.79808,
+        "o": 0.79811,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:11:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.80076,
+    "h": 0.80077,
+    "l": 0.8007,
+    "c": 0.80075,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.7979,
+        "h": 0.79809,
+        "l": 0.79787,
+        "o": 0.79807,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:13:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.79455,
+    "h": 0.79455,
+    "l": 0.79453,
+    "c": 0.79453,
+    "spread": 7.4,
+    "alternates": [
+      {
+        "c": 0.79772,
+        "h": 0.79786,
+        "l": 0.79768,
+        "o": 0.79768,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:14:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.80081,
+    "h": 0.80095,
+    "l": 0.8008,
+    "c": 0.8009,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 0.79769,
+        "h": 0.79779,
+        "l": 0.79763,
+        "o": 0.79772,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:15:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.79455,
+    "h": 0.79462,
+    "l": 0.79455,
+    "c": 0.79462,
+    "spread": 7.4,
+    "alternates": [
+      {
+        "c": 0.79733,
+        "h": 0.79773,
+        "l": 0.79731,
+        "o": 0.79769,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:25:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.80071,
+    "h": 0.80071,
+    "l": 0.80053,
+    "c": 0.80053,
+    "spread": 1.5,
+    "alternates": [
+      {
+        "c": 0.79709,
+        "h": 0.79731,
+        "l": 0.79709,
+        "o": 0.79725,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:26:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.79423,
+    "h": 0.79423,
+    "l": 0.79423,
+    "c": 0.79423,
+    "spread": 12.3,
+    "alternates": [
+      {
+        "c": 0.79712,
+        "h": 0.79723,
+        "l": 0.79709,
+        "o": 0.7971,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:43:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.80065,
+    "h": 0.80075,
+    "l": 0.80063,
+    "c": 0.80075,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.79698,
+        "h": 0.79707,
+        "l": 0.79696,
+        "o": 0.79705,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-11T21:44:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 0.79441,
+    "h": 0.79448,
+    "l": 0.79429,
+    "c": 0.79447,
+    "spread": 8.9,
+    "alternates": [
+      {
+        "c": 0.79694,
+        "h": 0.7971,
+        "l": 0.79694,
+        "o": 0.79697,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79301,
+    "h": 0.79306,
+    "l": 0.79299,
+    "c": 0.79306,
+    "spread": 1.6,
+    "alternates": [
+      {
+        "c": 0.79617,
+        "h": 0.79639,
+        "l": 0.79237,
+        "o": 0.79237,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:03:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79921,
+    "h": 0.79925,
+    "l": 0.79918,
+    "c": 0.79921,
+    "spread": 12.7,
+    "alternates": [
+      {
+        "c": 0.79523,
+        "h": 0.7957,
+        "l": 0.79499,
+        "o": 0.79559,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:04:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79308,
+    "h": 0.79317,
+    "l": 0.79308,
+    "c": 0.79316,
+    "spread": 1.4,
+    "alternates": [
+      {
+        "c": 0.7959,
+        "h": 0.79595,
+        "l": 0.79521,
+        "o": 0.79524,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-06-17T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.79938,
+    "h": 0.79938,
+    "l": 0.79938,
+    "c": 0.79938,
+    "spread": 6.6000000000000005,
+    "alternates": [
+      {
+        "c": 0.79616,
+        "h": 0.79643,
+        "l": 0.79584,
+        "o": 0.79588,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.2016792033343446,
+    "h": 1.2021792033343446,
+    "l": 1.2011792033343447,
+    "c": 1.2017292033343447,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 0.80787,
+        "h": 0.80787,
+        "l": 0.80715,
+        "o": 0.80715,
+        "broker": "1x Trade Ltd.",
+        "spread": 7.4
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-09T19:44:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.80621,
+    "h": 0.80627,
+    "l": 0.80621,
+    "c": 0.80627,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.80689,
+        "h": 0.80692,
+        "l": 0.80688,
+        "o": 0.80691,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.6
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDCHF",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:53:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 0.80913,
+    "h": 0.80929,
+    "l": 0.80912,
+    "c": 0.80928,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 0.80929,
+        "h": 0.8093,
+        "l": 0.8092,
+        "o": 0.80923,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.5
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDJPY",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3276414589392185,
+    "h": 1.3281414589392184,
+    "l": 1.3271414589392185,
+    "c": 1.3276914589392186,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 162.052,
+        "h": 162.053,
+        "l": 162.014,
+        "o": 162.014,
+        "broker": "1x Trade Ltd.",
+        "spread": 7.1000000000000005
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDJPY",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-10T02:40:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 162.361,
+    "h": 162.361,
+    "l": 162.359,
+    "c": 162.36,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 161.453,
+        "h": 161.5,
+        "l": 161.453,
+        "o": 161.499,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.7000000000000002
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDJPY",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:54:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 156.562,
+    "h": 156.574,
+    "l": 156.537,
+    "c": 156.563,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 156.831,
+        "h": 156.831,
+        "l": 156.782,
+        "o": 156.806,
+        "broker": "1x Trade Ltd.",
+        "spread": 1.8000000000000003
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.206141519892353,
+    "h": 1.206641519892353,
+    "l": 1.2056415198923531,
+    "c": 1.2061915198923532,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 9.6709,
+        "h": 9.6709,
+        "l": 9.6674,
+        "o": 9.6686,
+        "broker": "1x Trade Ltd.",
+        "spread": 336.99999999999994
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-14T12:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 9.6556,
+    "h": 9.6556,
+    "l": 9.5824,
+    "c": 9.5934,
+    "spread": 193,
+    "alternates": [
+      {
+        "c": 9.67897,
+        "h": 9.67995,
+        "l": 9.67845,
+        "o": 9.67995,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-07-14T15:30:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 9.65059,
+    "h": 9.65252,
+    "l": 9.58482,
+    "c": 9.59637,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 9.6312,
+        "h": 9.6328,
+        "l": 9.6302,
+        "o": 9.6314,
+        "broker": "1x Trade Ltd.",
+        "spread": 55.99999999999999
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:00:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 9.6362,
+    "h": 9.6366,
+    "l": 9.6353,
+    "c": 9.6366,
+    "spread": 32,
+    "alternates": [
+      {
+        "c": 9.59015,
+        "h": 9.59225,
+        "l": 9.59015,
+        "o": 9.59175,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:08:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 9.6303,
+    "h": 9.6312,
+    "l": 9.6301,
+    "c": 9.631,
+    "spread": 34,
+    "alternates": [
+      {
+        "c": 9.58578,
+        "h": 9.58578,
+        "l": 9.5847,
+        "o": 9.58533,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:10:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 9.5866,
+    "h": 9.592,
+    "l": 9.5778,
+    "c": 9.5813,
+    "spread": 207.00000000000003,
+    "alternates": [
+      {
+        "c": 9.5857,
+        "h": 9.58587,
+        "l": 9.58482,
+        "o": 9.58572,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:11:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 9.6321,
+    "h": 9.6346,
+    "l": 9.6321,
+    "c": 9.6346,
+    "spread": 29,
+    "alternates": [
+      {
+        "c": 9.58438,
+        "h": 9.5857,
+        "l": 9.58438,
+        "o": 9.5857,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:28:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 9.5826,
+    "h": 9.5883,
+    "l": 9.5826,
+    "c": 9.5826,
+    "spread": 282,
+    "alternates": [
+      {
+        "c": 9.57951,
+        "h": 9.58035,
+        "l": 9.57951,
+        "o": 9.57971,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:48:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 9.6324,
+    "h": 9.633,
+    "l": 9.6319,
+    "c": 9.6329,
+    "spread": 33,
+    "alternates": [
+      {
+        "c": 9.58293,
+        "h": 9.58293,
+        "l": 9.58207,
+        "o": 9.58247,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "1x Trade Ltd.",
+    "event_time": "2026-07-15T21:50:00.000Z",
+    "flags": [
+      "LARGE_JUMP_RELATIVE"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v2-calendar",
+    "o": 9.5745,
+    "h": 9.5803,
+    "l": 9.5731,
+    "c": 9.5765,
+    "spread": 268,
+    "alternates": [
+      {
+        "c": 9.58707,
+        "h": 9.58774,
+        "l": 9.58453,
+        "o": 9.58482,
+        "broker": "OANDA Corporation",
+        "spread": null
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "USDSEK",
+    "broker": "OANDA Corporation",
+    "event_time": "2026-08-03T06:54:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 9.51377,
+    "h": 9.51505,
+    "l": 9.51375,
+    "c": 9.51435,
+    "spread": null,
+    "alternates": [
+      {
+        "c": 9.5219,
+        "h": 9.5228,
+        "l": 9.5208,
+        "o": 9.5228,
+        "broker": "1x Trade Ltd.",
+        "spread": 29
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  },
+  {
+    "symbol": "XAUUSD",
+    "broker": "MT5",
+    "event_time": "2026-07-05T22:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST",
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 4180.2,
+    "h": 4182.27,
+    "l": 4178.42,
+    "c": 4181.76,
+    "spread": 3.4,
+    "alternates": [
+      {
+        "c": 4181.76,
+        "h": 4182.27,
+        "l": 4178.42,
+        "o": 4180.2,
+        "broker": "1x Trade Ltd.",
+        "spread": 3.4
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 1
+  },
+  {
+    "symbol": "XAUUSD",
+    "broker": "smoke-test",
+    "event_time": "2026-07-07T21:05:00.000Z",
+    "flags": [
+      "LARGE_JUMP_ROBUST"
+    ],
+    "severity": "HIGH",
+    "detector_version": "candle-detector-v3-robust",
+    "o": 1.3993123606109616,
+    "h": 1.3998123606109616,
+    "l": 1.3988123606109617,
+    "c": 1.3993623606109618,
+    "spread": 0.1,
+    "alternates": [
+      {
+        "c": 4143.25,
+        "h": 4143.34,
+        "l": 4138.48,
+        "o": 4138.59,
+        "broker": "1x Trade Ltd.",
+        "spread": 3.2
+      }
+    ],
+    "alternate_count": 1,
+    "alternate_valid_geometry": 1,
+    "alternate_same_shape": 0
+  }
+]

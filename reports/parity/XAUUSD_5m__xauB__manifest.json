@@ -1,0 +1,41 @@
+{
+  "symbol": "XAUUSD",
+  "tf": "5m",
+  "from": "2026-07-19T22:05:00Z",
+  "to": "2026-08-04T07:53:00Z",
+  "takenAt": "2026-08-05T08:57:44.262Z",
+  "features": {
+    "features_moving_average": {
+      "rows": 59660,
+      "distinctAnchors": 3140,
+      "minTs": "2026-07-19T22:05:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "620cb84cd8f377b9504890763c5e055713b9c6cb6b794c7baedddc5b892196f8",
+      "file": "reports\\parity\\XAUUSD_5m__xauB__features_moving_average.jsonl"
+    },
+    "features_atr": {
+      "rows": 9420,
+      "distinctAnchors": 3140,
+      "minTs": "2026-07-19T22:05:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "7ee83bb3e350c80b9a1bcbd6c7554bf2d64757aa48ed78978ff650c1cee04073",
+      "file": "reports\\parity\\XAUUSD_5m__xauB__features_atr.jsonl"
+    },
+    "features_pivot": {
+      "rows": 382,
+      "distinctAnchors": 381,
+      "minTs": "2026-07-19T22:30:00.000Z",
+      "maxTs": "2026-08-04T06:35:00.000Z",
+      "setHash": "cfb3f117371d2c00e52910fc7aad3f7cb991bf3878e980a870e6cbb6184c6045",
+      "file": "reports\\parity\\XAUUSD_5m__xauB__features_pivot.jsonl"
+    },
+    "features_structure": {
+      "rows": 170,
+      "distinctAnchors": 170,
+      "minTs": "2026-07-19T22:05:00.000Z",
+      "maxTs": "2026-08-02T22:05:00.000Z",
+      "setHash": "34a803154ab9f42b15af430b1472264dfc4e5d3ea95c581260a28f97b02bee6b",
+      "file": "reports\\parity\\XAUUSD_5m__xauB__features_structure.jsonl"
+    }
+  }
+}

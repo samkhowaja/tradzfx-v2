@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-08-04T04:40:23.586Z",
+  "invariants": {
+    "rawImmutable": "ON CONFLICT update remains ingestion behavior; no delete path executed",
+    "canonicalEligibility": "market.candles_1m_canonical view",
+    "failClosed": "canonical requires CLEAN eligibility"
+  },
+  "eligibility": [
+    {
+      "state": "BLOCKED",
+      "rows": 325394
+    },
+    {
+      "state": "CLEAN",
+      "rows": 1491954
+    },
+    {
+      "state": "PERSISTED",
+      "rows": 325
+    }
+  ],
+  "raw": [
+    {
+      "rows": 1817693,
+      "invalid_geometry": 0,
+      "null_ohlc": 0
+    }
+  ],
+  "canonical": [
+    {
+      "rows": 1491954,
+      "invalid_geometry": 0,
+      "distinct_keys": 1491954
+    }
+  ],
+  "quarantine": [
+    {
+      "decision": "UNKNOWN",
+      "rows": 1380
+    }
+  ],
+  "evidence": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "decision": "UNKNOWN",
+      "rows": 37
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "decision": "UNKNOWN",
+      "rows": 78
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"status":"PASS","checks":["required report files","manifest schema","sensitive artifact exclusion","changed sensitive code coverage"],"commands":[{"command":"node --check scripts/validate-development-reports.cjs","exit_code":0},{"command":"pnpm reports:validate","exit_code":0}]}

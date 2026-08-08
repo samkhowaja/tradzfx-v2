@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: cct_rectangle_xau_v1 | signalSource: generic
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T22:23:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@15m
+  DEBUG XAUUSD: undefined
+  [prefetch] 106650 candles (0 quarantined) in 608ms
+XAUUSD: no signals

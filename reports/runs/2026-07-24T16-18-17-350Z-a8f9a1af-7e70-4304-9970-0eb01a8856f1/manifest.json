@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T16-18-17-350Z-a8f9a1af-7e70-4304-9970-0eb01a8856f1",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-24T16:18:17.350Z",
+  "finishedAt": "2026-07-24T16:19:40.204Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_bst_corrected_7pair_shadow",
+  "specHash": "e317e1368c3a362a3c193609bca7695622dec072877f2b5d4bb7269e32c7bc0d",
+  "symbol": "ALL",
+  "window": {
+    "from": "2026-04-25T00:00:00.000Z",
+    "to": "2026-07-24T00:00:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T00:00:00.000Z",
+  "readinessManifestHash": "7843e2494f692ba7818263cd3f78efe2244b0e8d93ca2fdc362a57fdd86a9fb0",
+  "arguments": [
+    "ALL",
+    "90",
+    "waqar_v2_bst_corrected_7pair_shadow",
+    "--spec-file=packages/strategies/src/specs/waqar_v2_bst_corrected_7pair_shadow.yaml",
+    "--start=2026-04-25T00:00:00.000Z",
+    "--end=2026-07-24T00:00:00.000Z",
+    "--mode=full",
+    "--setup-profile=strict",
+    "--intrabar=sl_first",
+    "--drift-gate=live",
+    "--json",
+    "--trades"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "7bb4922f19b004ade0f85227becc5d07bf48242f187556cbd875d0178dd49855",
+      "bytes": 4504
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "61dc462322f1abf34eab3117bd1dd20ba7884cca23d3e1aadc098dadc42392bd",
+      "bytes": 4627
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "55167b1a5e2f0d103c2db1b8dc72250880798646e52127a95c55e2f6942c064a",
+      "bytes": 948241
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "ac6d85ea18a4e30d70ab2f0968ff01f9aa2056f98e781b3d8789751cf75d877d",
+      "bytes": 931341
+    }
+  }
+}

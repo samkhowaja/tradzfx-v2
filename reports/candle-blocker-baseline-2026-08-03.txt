@@ -1,0 +1,33 @@
+﻿Γùç injected env (17) from .env.local // tip: Γîÿ suppress logs { quiet: true }
+active [
+  {
+    "total": 693,
+    "unresolved": 693,
+    "replaced": 0,
+    "approved": 0
+  }
+]
+versions [
+  {
+    "detector_version": "candle-detector-v2-calendar",
+    "count": 372
+  },
+  {
+    "detector_version": "candle-detector-v3-robust",
+    "count": 321
+  }
+]
+flags [
+  {
+    "flag": "LARGE_JUMP_RELATIVE",
+    "count": 367
+  },
+  {
+    "flag": "LARGE_JUMP_ROBUST",
+    "count": 297
+  },
+  {
+    "flag": "UNEXPECTED_GAP",
+    "count": 42
+  }
+]

@@ -1,0 +1,147 @@
+{
+  "mode": "read_only",
+  "tf": "5m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "XAUUSD",
+      "status": "OK",
+      "candles": 787,
+      "pivots": 75,
+      "legacy": [
+        {
+          "eventType": "choch",
+          "direction": "bearish",
+          "level": 4054.72,
+          "ts": "2026-07-26T20:50:00.000Z",
+          "availableAtTs": "2026-07-26T20:50:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "opposingSweepTs": "2026-07-26T20:50:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "mss",
+          "direction": "bearish",
+          "level": 4056.14,
+          "ts": "2026-07-26T20:50:00.000Z",
+          "availableAtTs": "2026-07-26T20:50:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "opposingSweepTs": "2026-07-26T20:50:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4054.13,
+          "ts": "2026-07-28T01:15:00.000Z",
+          "availableAtTs": "2026-07-28T01:15:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T01:20:00.000Z",
+          "htfAligned": false,
+          "isCisd": false
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4042.44,
+          "ts": "2026-07-28T02:55:00.000Z",
+          "availableAtTs": "2026-07-28T02:55:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T03:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4040.09,
+          "ts": "2026-07-28T05:30:00.000Z",
+          "availableAtTs": "2026-07-28T05:30:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T05:35:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T05:40:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4034.95,
+          "ts": "2026-07-28T09:35:00.000Z",
+          "availableAtTs": "2026-07-28T09:35:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T09:40:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T15:15:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "XAUUSD|5m|1785020400000|low|4054.72|0|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785020400000|low|4054.72|0",
+          "level": 4054.72,
+          "eventTs": "2026-07-26T20:50:00.000Z",
+          "availableAt": "2026-07-26T20:55:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785099000000|low|4054.13|18|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785099000000|low|4054.13|18",
+          "level": 4054.13,
+          "eventTs": "2026-07-28T01:15:00.000Z",
+          "availableAt": "2026-07-28T01:20:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785204000000|low|4042.44|56|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785204000000|low|4042.44|56",
+          "level": 4042.44,
+          "eventTs": "2026-07-28T02:55:00.000Z",
+          "availableAt": "2026-07-28T03:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785214800000|low|4040.09|61|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785214800000|low|4040.09|61",
+          "level": 4040.09,
+          "eventTs": "2026-07-28T05:30:00.000Z",
+          "availableAt": "2026-07-28T05:35:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785216900000|low|4034.95|62|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785216900000|low|4034.95|62",
+          "level": 4034.95,
+          "eventTs": "2026-07-28T09:35:00.000Z",
+          "availableAt": "2026-07-28T09:40:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "CAUSAL_ONLY": 1,
+        "MATCHES_LEGACY": 4
+      }
+    }
+  ]
+}

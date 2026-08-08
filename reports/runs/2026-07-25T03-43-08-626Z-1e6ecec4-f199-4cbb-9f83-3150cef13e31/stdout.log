@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: five_one_scalp_v1 | signalSource: generic
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-14 → 2026-07-21 (7 days)
+[backtest-pit-v2] Warmup: 960 derived bars -> signals before 2026-07-14T16:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 81 raw signals (42 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 97ms | prefetch 35ms | setup-engine N/Ams | simulate 3ms
+  Executed: 33 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 4 | Heat dropped: 0
+  Gate skips: volatility=4
+  Wins: 8 | Losses: 25 | Timeouts: 2
+  WR: 24.2% | Net R: -12.68 | Avg Win: 0.16R | Avg Loss: -0.56R

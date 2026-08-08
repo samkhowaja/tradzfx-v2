@@ -1,0 +1,41 @@
+﻿;
+; Archive created at 2026-08-05 18:40:00
+;     dbname: tradzfx_v2
+;     TOC Entries: 30
+;     Compression: gzip
+;     Dump Version: 1.16-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 17.9
+;     Dumped by pg_dump version: 17.9
+;
+;
+; Selected TOC Entries:
+;
+500; 1259 1247074 TABLE public order_block_event_shadow postgres
+499; 1259 1247073 SEQUENCE public order_block_event_shadow_event_id_seq postgres
+504; 1259 1251485 TABLE public order_block_lifecycle_replay_shadow postgres
+6330; 0 0 COMMENT public TABLE order_block_lifecycle_replay_shadow postgres
+6331; 0 0 COMMENT public COLUMN order_block_lifecycle_replay_shadow.effective_at postgres
+6332; 0 0 COMMENT public COLUMN order_block_lifecycle_replay_shadow.replayed_at postgres
+502; 1259 1247101 TABLE public order_block_state_history_shadow postgres
+501; 1259 1247086 TABLE public order_block_state_shadow postgres
+6320; 0 1247074 TABLE DATA public order_block_event_shadow postgres
+6323; 0 1251485 TABLE DATA public order_block_lifecycle_replay_shadow postgres
+6322; 0 1247101 TABLE DATA public order_block_state_history_shadow postgres
+6321; 0 1247086 TABLE DATA public order_block_state_shadow postgres
+6333; 0 0 SEQUENCE SET public order_block_event_shadow_event_id_seq postgres
+6116; 2606 1247084 CONSTRAINT public order_block_event_shadow order_block_event_shadow_logical_id_key postgres
+6118; 2606 1247082 CONSTRAINT public order_block_event_shadow order_block_event_shadow_pkey postgres
+6128; 2606 1251494 CONSTRAINT public order_block_lifecycle_replay_shadow order_block_lifecycle_replay_shadow_pkey postgres
+6124; 2606 1247107 CONSTRAINT public order_block_state_history_shadow order_block_state_history_shadow_pkey postgres
+6120; 2606 1247095 CONSTRAINT public order_block_state_shadow order_block_state_shadow_pkey postgres
+6114; 1259 1247085 INDEX public idx_order_block_event_shadow_anchor postgres
+6125; 1259 1251501 INDEX public idx_order_block_lifecycle_replay_shadow_effective postgres
+6126; 1259 1251500 INDEX public idx_order_block_lifecycle_replay_shadow_pit postgres
+6121; 1259 1251427 INDEX public idx_order_block_state_history_shadow_effective postgres
+6122; 1259 1247113 INDEX public idx_order_block_state_history_shadow_observed postgres
+6131; 2606 1251495 FK CONSTRAINT public order_block_lifecycle_replay_shadow order_block_lifecycle_replay_shadow_event_id_fkey postgres
+6130; 2606 1247108 FK CONSTRAINT public order_block_state_history_shadow order_block_state_history_shadow_event_id_fkey postgres
+6129; 2606 1247096 FK CONSTRAINT public order_block_state_shadow order_block_state_shadow_event_id_fkey postgres

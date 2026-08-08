@@ -1,0 +1,150 @@
+{
+  "ts": "2026-08-05T18:27:10.788Z",
+  "columns": [
+    {
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "column_name": "level_hash",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "symbol",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "tf",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "level_type",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "kind",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "top",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "bottom",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "strength",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "invalidated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "tapped_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "touch_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "source_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "source_json",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "ts",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "indexes": [
+    {
+      "index_name": "market_levels_pkey",
+      "indexdef": "CREATE UNIQUE INDEX market_levels_pkey ON public.market_levels_legacy_20260802 USING btree (id)"
+    },
+    {
+      "index_name": "market_levels_level_hash_key",
+      "indexdef": "CREATE UNIQUE INDEX market_levels_level_hash_key ON public.market_levels_legacy_20260802 USING btree (level_hash)"
+    },
+    {
+      "index_name": "idx_market_levels_lookup",
+      "indexdef": "CREATE INDEX idx_market_levels_lookup ON public.market_levels_legacy_20260802 USING btree (symbol, level_type, kind, ts DESC) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "index_name": "idx_market_levels_symbol_ts",
+      "indexdef": "CREATE INDEX idx_market_levels_symbol_ts ON public.market_levels_legacy_20260802 USING btree (symbol, ts DESC)"
+    },
+    {
+      "index_name": "idx_market_levels_type_ts",
+      "indexdef": "CREATE INDEX idx_market_levels_type_ts ON public.market_levels_legacy_20260802 USING btree (level_type, ts DESC)"
+    }
+  ],
+  "constraints": [
+    {
+      "conname": "market_levels_level_hash_key",
+      "contype": "u",
+      "definition": "UNIQUE (level_hash)"
+    },
+    {
+      "conname": "market_levels_pkey",
+      "contype": "p",
+      "definition": "PRIMARY KEY (id)"
+    }
+  ],
+  "dependents": [],
+  "stats": {
+    "n": "22679851",
+    "tb": "14977761280",
+    "ib": "5209956352",
+    "tot": "20187717632",
+    "min_ts": "2026-02-02T22:55:00.000Z",
+    "max_ts": "2026-07-02T22:45:00.000Z"
+  }
+}

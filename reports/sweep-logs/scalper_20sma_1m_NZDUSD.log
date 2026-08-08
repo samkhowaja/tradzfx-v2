@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+[backtest-pit-v2] Strategy: scalper_20sma_1m | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-06-20T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: NZDUSD
+
+NZDUSD: 612 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 49 deduped) | signal query 5797ms | prefetch 328ms | setup-engine N/Ams | simulate 36ms
+  Executed: 310 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 8 | Skipped: 211 | Heat dropped: 34
+  Gate skips: session: Session=OFF_HOURS not in allowed=[LONDON, OVERLAP, NY]=75, session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=136
+  Wins: 22 | Losses: 288 | Timeouts: 8
+  WR: 7.1% | Net R: -82.17 | Avg Win: 1.40R | Avg Loss: -0.39R

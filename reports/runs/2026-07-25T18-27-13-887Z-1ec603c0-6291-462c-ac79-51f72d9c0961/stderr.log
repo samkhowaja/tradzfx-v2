@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: smc_ict_liquidity_ifvg_allpairs_v1 | signalSource: generic
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 1440 derived bars -> signals before 2026-04-27T18:18:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_ifvg@1m=STALE(3.23h>2h) | features_bias@1h=STALE_STATE, features_pricing@15m=STALE_STATE, features_atr@5m=STALE_STATE, features_ifvg@1m=BLOCKED_LIFECYCLE | lifecycle_stale_features_ifvg, capability_BLOCKED_LIFECYCLE_features_ifvg@1m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

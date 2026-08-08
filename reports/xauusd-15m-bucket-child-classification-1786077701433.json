@@ -1,0 +1,1119 @@
+{
+  "generatedAt": "2026-08-07T04:41:41.429Z",
+  "mode": "READ-ONLY (no database writes)",
+  "symbol": "XAUUSD",
+  "contract": {
+    "stateMachineDoc": {
+      "path": "docs/repro/LINEAGE-STATE-MACHINE.md",
+      "sha256": "097de858f9287053cbcd5cefdef371f34be41346d3887237f5567a13c7ad2c01"
+    },
+    "sourceManifest": {
+      "path": "reports/backfill-runs/2026-08-06T23-34-27-732Z.json",
+      "sha256": "5d3272144a6abda9e3a44794a777740559117c8f58e3996ed5bbbabfeadd3d1a"
+    },
+    "calendarPolicy": {
+      "path": "packages/shared/src/utils/marketCalendar.ts",
+      "sha256": "40c3f9e0d7188716d15c2b9639720cc61077a5db894a51f4d2525d9ce5ed888c",
+      "week": "FX 24/5: Sun 21:00 UTC -> Fri 21:00 UTC",
+      "dailyBreaks": {
+        "XAUUSD": [
+          "21:00-22:00 UTC"
+        ]
+      },
+      "holidays": "not modelled (1xTrade feed streams through US holidays)"
+    },
+    "certifier": {
+      "path": "scripts/certify-15m-atr-windows.js",
+      "sha256": "782aae21acde5c9104da5c88ed95bcaf79b79c1a897c455368006caa500785f8"
+    },
+    "parserIdentity": "backfill-candles-from-mt5-csv.js + ingestion-server.js (pointsToPips, getPipSize)",
+    "parserConfiguration": "--tz-offset-minutes=180 --broker=MT5, corrupt-bar reject, magnitude-suspect quarantine",
+    "timezonePolicy": "UTC everywhere; MT5 CSV shifted by fixed +180min; no DST handling",
+    "symbolMapping": "XAUUSD only; effective_broker_identity = 1x Trade Ltd. (legacy raw label MT5)",
+    "rowOrdering": "ts ASC; bucket = date_bin('15 minutes', ts, timestamptz '1970-01-01')",
+    "breakEdgePolicy": {
+      "XAUUSD": {
+        "preBreakHaltFromUTC": "20:50",
+        "postBreakResumeUTC": "22:05",
+        "source": "marketCalendar.ts BREAK_EDGE_POLICY_BY_SYMBOL (mirrored)"
+      }
+    },
+    "knownFeedOutages": [
+      {
+        "startUTC": "2026-07-29T12:00:00Z",
+        "endExclusiveUTC": "2026-07-29T12:08:00Z"
+      }
+    ],
+    "candidateWindow": {
+      "start": "2026-07-19T22:00:00.000Z",
+      "endExclusive": "2026-08-06T18:45:00.000Z",
+      "lookbackStart": "2026-07-14T17:00:00.000Z",
+      "lookbackBars": 500
+    },
+    "contractHash": "4005456529a65bc02d57ae48f846d82192a465480bb356f031ad5f5c43ca4b63"
+  },
+  "totals": {
+    "canonicalChildren": 30627,
+    "rawDistinctTsInWindow": 30627,
+    "nonConformingBuckets": 37,
+    "missingChildClasses": {
+      "modeled_break_edge": 143,
+      "daily_break": 1020,
+      "friday_close": 180,
+      "weekend_closure": 1247,
+      "documented_outage_gap": 8
+    },
+    "bucketClasses": {
+      "break_edge_partial": 32,
+      "boundary_partial": 4,
+      "documented_outage": 1
+    }
+  },
+  "empiricalBreakEdges": [
+    {
+      "day": "2026-07-14",
+      "lastPreBreakBarUTC": "2026-07-14T20:56:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-14T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-15",
+      "lastPreBreakBarUTC": "2026-07-15T20:56:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-15T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-16",
+      "lastPreBreakBarUTC": "2026-07-16T20:56:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-16T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-20",
+      "lastPreBreakBarUTC": "2026-07-20T20:57:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-20T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-21",
+      "lastPreBreakBarUTC": "2026-07-21T20:56:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-21T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-22",
+      "lastPreBreakBarUTC": "2026-07-22T20:57:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-22T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-23",
+      "lastPreBreakBarUTC": "2026-07-23T20:57:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-23T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-27",
+      "lastPreBreakBarUTC": "2026-07-27T20:54:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-27T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-28",
+      "lastPreBreakBarUTC": "2026-07-28T20:55:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-28T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-29",
+      "lastPreBreakBarUTC": "2026-07-29T20:55:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-29T22:05:00.000Z"
+    },
+    {
+      "day": "2026-07-30",
+      "lastPreBreakBarUTC": "2026-07-30T20:55:00.000Z",
+      "firstPostBreakBarUTC": "2026-07-30T22:05:00.000Z"
+    },
+    {
+      "day": "2026-08-03",
+      "lastPreBreakBarUTC": "2026-08-03T20:56:00.000Z",
+      "firstPostBreakBarUTC": "2026-08-03T22:05:00.000Z"
+    },
+    {
+      "day": "2026-08-04",
+      "lastPreBreakBarUTC": "2026-08-04T20:54:00.000Z",
+      "firstPostBreakBarUTC": "2026-08-04T22:05:00.000Z"
+    },
+    {
+      "day": "2026-08-05",
+      "lastPreBreakBarUTC": "2026-08-05T20:54:00.000Z",
+      "firstPostBreakBarUTC": "2026-08-05T22:05:00.000Z"
+    },
+    {
+      "day": "2026-08-06",
+      "lastPreBreakBarUTC": "2026-08-06T18:44:00.000Z",
+      "firstPostBreakBarUTC": null
+    }
+  ],
+  "buckets": [
+    {
+      "bucket_start": "2026-07-14T20:45:00.000Z",
+      "child_count": 12,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-14T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-14T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-14T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-14T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-15T20:45:00.000Z",
+      "child_count": 12,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-15T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-15T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-15T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-15T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-16T20:45:00.000Z",
+      "child_count": 12,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-16T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-16T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-16T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-16T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-17T20:45:00.000Z",
+      "child_count": 5,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-17T20:50:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:51:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:52:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:53:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:54:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:55:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-17T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-18T01:30:00.000Z",
+      "child_count": 11,
+      "tradable_expected": 0,
+      "classification": "boundary_partial",
+      "missing": [
+        {
+          "ts": "2026-07-18T01:30:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-18T01:31:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-18T01:32:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-18T01:33:00.000Z",
+          "class": "weekend_closure"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-19T01:45:00.000Z",
+      "child_count": 14,
+      "tradable_expected": 0,
+      "classification": "boundary_partial",
+      "missing": [
+        {
+          "ts": "2026-07-19T01:59:00.000Z",
+          "class": "weekend_closure"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-19T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-19T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-19T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-19T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-19T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-19T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-20T20:45:00.000Z",
+      "child_count": 13,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-20T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-20T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-20T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-20T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-20T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-20T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-20T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-20T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-21T20:45:00.000Z",
+      "child_count": 12,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-21T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-21T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-21T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-21T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-22T20:45:00.000Z",
+      "child_count": 13,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-22T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-22T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-22T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-22T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-22T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-22T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-22T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-22T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-23T20:45:00.000Z",
+      "child_count": 13,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-23T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-23T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-23T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-23T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-23T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-23T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-23T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-23T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-26T20:45:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 0,
+      "classification": "boundary_partial",
+      "missing": [
+        {
+          "ts": "2026-07-26T20:55:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-26T20:56:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-26T20:57:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-26T20:58:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-07-26T20:59:00.000Z",
+          "class": "weekend_closure"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-26T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-26T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-26T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-26T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-26T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-26T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-27T20:45:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-27T20:55:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-27T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-27T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-27T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-28T20:45:00.000Z",
+      "child_count": 11,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-28T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-28T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-28T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-28T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-29T12:00:00.000Z",
+      "child_count": 7,
+      "tradable_expected": 15,
+      "classification": "documented_outage",
+      "missing": [
+        {
+          "ts": "2026-07-29T12:00:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:01:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:02:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:03:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:04:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:05:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:06:00.000Z",
+          "class": "documented_outage_gap"
+        },
+        {
+          "ts": "2026-07-29T12:07:00.000Z",
+          "class": "documented_outage_gap"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-29T20:45:00.000Z",
+      "child_count": 11,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-29T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-29T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-29T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-29T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-30T20:45:00.000Z",
+      "child_count": 11,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-30T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-07-30T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-07-30T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-07-30T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-02T20:45:00.000Z",
+      "child_count": 8,
+      "tradable_expected": 0,
+      "classification": "boundary_partial",
+      "missing": [
+        {
+          "ts": "2026-08-02T20:53:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:54:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:55:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:56:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:57:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:58:00.000Z",
+          "class": "weekend_closure"
+        },
+        {
+          "ts": "2026-08-02T20:59:00.000Z",
+          "class": "weekend_closure"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-02T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-02T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-02T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-02T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-02T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-02T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-03T20:45:00.000Z",
+      "child_count": 12,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-03T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-03T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-03T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-03T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-04T20:45:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-04T20:55:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-04T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-04T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-04T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-05T20:45:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-05T20:55:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T20:56:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T20:57:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T20:58:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T20:59:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    },
+    {
+      "bucket_start": "2026-08-05T22:00:00.000Z",
+      "child_count": 10,
+      "tradable_expected": 15,
+      "classification": "break_edge_partial",
+      "missing": [
+        {
+          "ts": "2026-08-05T22:00:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T22:01:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T22:02:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T22:03:00.000Z",
+          "class": "modeled_break_edge"
+        },
+        {
+          "ts": "2026-08-05T22:04:00.000Z",
+          "class": "modeled_break_edge"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: momentum
+[backtest-pit-v2] Range: 2026-04-30 → 2026-07-29 (90 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-04-30T22:13:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD
+

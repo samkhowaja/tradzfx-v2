@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: fib_golden_swapzone_4h | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 50 derived bars -> signals before 2026-05-05T02:17:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 155 raw signals (4 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 85ms | prefetch 406ms | setup-engine N/Ams | simulate 26ms
+  Executed: 120 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 31 | Skipped: 0 | Heat dropped: 0
+  Gate skips: session=49, volatility=102
+  Wins: 71 | Losses: 49 | Timeouts: 31
+  WR: 59.2% | Net R: 48.73 | Avg Win: 1.29R | Avg Loss: -0.88R

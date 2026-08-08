@@ -124,7 +124,7 @@ async function drainSpool(upsert, opts = {}) {
         continue;
       }
       try {
-        await upsert(rec.payload);
+        await upsert(rec.payload, { fileName: path.basename(f.path) });
         summary.batchesSent++;
       } catch (err) {
         if (err && err.statusCode === 400) {

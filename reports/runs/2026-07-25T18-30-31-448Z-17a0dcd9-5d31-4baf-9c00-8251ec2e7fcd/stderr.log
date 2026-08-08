@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: scalper_20sma_1m | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-04-27T02:26:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for EURUSD: features_zone@5m=STALE(15.47h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@1m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

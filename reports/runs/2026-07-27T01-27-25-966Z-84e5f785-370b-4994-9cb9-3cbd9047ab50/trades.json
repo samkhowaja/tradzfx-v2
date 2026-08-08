@@ -1,0 +1,29 @@
+[
+  {
+    "symbol": "USDCHF",
+    "side": "buy",
+    "entry": 0.81671,
+    "sl": 0.8162100000000001,
+    "tp": 0.8177099999999999,
+    "ts": "2026-07-24T13:30:00.000Z",
+    "causalLineage": [],
+    "entryType": "market",
+    "atr_5": 0.00040400000000004874,
+    "spread_pips": 1.26,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -3.7200000000001334,
+    "holdBars": 1,
+    "closePrice": 0.8162100000000001,
+    "effectiveEntry": 0.81807,
+    "maxAdverse": 0.81807,
+    "maxFavorable": 0.81807,
+    "invalidReason": "gap_through",
+    "driftPips": 13.599999999999168,
+    "realizedRisk": 0.0018599999999998618,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -3.7200000000001334,
+    "heatDropped": false
+  }
+]

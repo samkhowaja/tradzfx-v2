@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T08-30-56-081Z-e4ee2255-cad3-40b9-84d1-c238f66df593",
+  "parentAuditId": null,
+  "status": "BLOCKED",
+  "startedAt": "2026-07-24T08:30:56.081Z",
+  "finishedAt": "2026-07-24T08:31:04.198Z",
+  "exitCode": 1,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2",
+  "specHash": "c1c6ea81f220eea9017f2a4d9277c54c1333f16a4431bf0ade1e20966cebf7ba",
+  "symbol": "GBPUSD",
+  "window": {
+    "from": "2026-04-25T08:29:00.000Z",
+    "to": "2026-07-24T08:29:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T08:29:00.000Z",
+  "readinessManifestHash": "b3074bc84130f8253b05fb1850101e0c8da293b18d5d0464fc0e4b460871ef10",
+  "arguments": [
+    "GBPUSD",
+    "90",
+    "waqar_v2",
+    "--json",
+    "--trades",
+    "--mode=full"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "d643e5979a3fc147dc4b7078fcbec1e7fd338ee0b9169b76ef139048998e662f",
+      "bytes": 351
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "60ecd348dd5a097e76eb6d815a5a44ebd519adda4a40bdb8a076f8f2a8e3da80",
+      "bytes": 618
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "9912cfbfbf3a59ca6e40f1bc5a50ecf81f16757e9323744d6020dc44841a1d4c",
+      "bytes": 2990
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

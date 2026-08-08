@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+[backtest-pit-v2] Strategy: pb_blake_2026_smc | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 576 derived bars -> signals before 2026-06-22T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 28 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 29ms | prefetch 229ms | setup-engine N/Ams | simulate 3ms
+  Executed: 18 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 10 | Heat dropped: 0
+  Gate skips: volatility: ATR5=73.2p exceeds max=50.0p=1, volatility: ATR5=120.7p exceeds max=50.0p=1, volatility: ATR5=57.7p exceeds max=50.0p=1, volatility: ATR5=76.5p exceeds max=50.0p=1, volatility: ATR5=110.5p exceeds max=50.0p=1, volatility: ATR5=58.5p exceeds max=50.0p=1, volatility: ATR5=77.5p exceeds max=50.0p=1, volatility: ATR5=60.7p exceeds max=50.0p=1, volatility: ATR5=78.9p exceeds max=50.0p=1, volatility: ATR5=50.9p exceeds max=50.0p=1
+  Wins: 5 | Losses: 13 | Timeouts: 0
+  WR: 27.8% | Net R: 8.60 | Avg Win: 3.32R | Avg Loss: -0.62R

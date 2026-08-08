@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: waqar_v2_bst_corrected_7pair_shadow | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD
+
+AUDUSD: 34 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 2 setup-engine BLOCK, 22 drift rejected, 2 deduped) | signal query 93ms | prefetch 684ms | setup-engine 2174ms | simulate 2178ms
+  Executed: 5 | Drift rejected: 22 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=2
+  Wins: 0 | Losses: 5 | Timeouts: 3
+  WR: 0.0% | Net R: -4.58 | Avg Win: 0.00R | Avg Loss: -0.92R

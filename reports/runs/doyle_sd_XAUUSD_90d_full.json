@@ -1,0 +1,23 @@
+﻿Γùç injected env (15) from .env.local // tip: Γîÿ multiple files { path: ['.env.local', '.env'] }
+node : [backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+At line:1 char:121
++ ... tradzfx-v2; node scripts/backtest-pit-v2.js XAUUSD 90 doyle_sd --mode ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([backtest-pit-v...nalSource: zone 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: 
+zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 ΓåÆ 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 
+2026-04-27T10:39:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: 
+features_zone@5m=STALE(4.23h>2h) | features_bias@5m=STALE_STATE, 
+features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, 
+features_zone@5m=PRODUCER_STALE, features_moving_average@5m=STALE_STATE | 
+lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / 
+backfill features before trusting results.
+{"spec":"doyle_sd","mode":"full","research":false,"setupProfile":"strict","intrabarMode":"sl_first","symbol":"XAUUSD","days":90,"rawSignals":0,"setupBlocked":0,"deduped":0,"executed":0,"skipped":0,"heatDropped":0,"spreadQuarantined":0,"candlesQuarantined":0,"gateSkips":{},"stageCounts":{},"dataQuality":"BLOCKED_SYSTEM_QUALITY","blockReasons":["lifecycle_stale_features_zone"],"lifecycleCorruption":[],"coverage":[{"table":"features_bias","tf":"5m","isCandle":false,"required":true,"rows":16031,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_moving_average","tf":"5m","isCandle":false,"required":true,"rows":350120,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_zone","tf":"5m","isCandle":false,"required":true,"rows":85504,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_structure","tf":"5m","isCandle":false,"required":true,"rows":1938,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_zone_retest","tf":"5m","isCandle":false,"required":true,"rows":304802,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_displacement","tf":"5m","isCandle":false,"required":true,"rows":15735,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_pricing","tf":"5m","isCandle":false,"required":true,"rows":17037,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_atr","tf":"5m","isCandle":false,"required":true,"rows":62637,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_session","tf":"1m","isCandle":false,"required":false,"rows":3238,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"market.candles_1m_canonical","tf":"1m","isCandle":true,"required":true,"rows":107826,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"market.candles_5m_canonical","tf":"5m","isCandle":true,"required":true,"rows":21576,"expectedRows":null,"densityRatio":null,"insufficientDensity":false}],"wins":0,"losses":0,"timeouts":0,"winRate":0,"netR":0,"avgWinR":0,"avgLossR":0,"longCount":0,"shortCount":0,"avgHoldBars":0,"queryMs":0}

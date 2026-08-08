@@ -1,0 +1,7 @@
+[backtest-pit-v2] Trusted-window gate: PASS (windows: [48], setHash: ac56b104d1a9, detectors: window-certifier-v5.2-dxy-formula@20260805)
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: deterministic | setupProfile: strict | setupFamily: zone_reversal | intrabar: close
+[backtest-pit-v2] Range: 2026-07-18 → 2026-07-25 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-18T18:20:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+

@@ -1,0 +1,72 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "XAUUSD",
+      "status": "OK",
+      "candles": 264,
+      "pivots": 17,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 4056.14,
+          "ts": "2026-07-26T22:00:00.000Z",
+          "availableAtTs": "2026-07-26T22:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T22:15:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T01:15:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "XAUUSD|15m|1785029400000|high|4056.14|0|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785029400000|high|4056.14|0",
+          "level": 4056.14,
+          "eventTs": "2026-07-26T22:00:00.000Z",
+          "availableAt": "2026-07-26T22:15:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-26T03:45:00.000Z",
+          "sourceCenterTs": "2026-07-26T01:30:00.000Z",
+          "sourceKind": "high",
+          "trendDirection": "bullish",
+          "establishedTrend": "bullish",
+          "trendDirectionAtBreak": "bullish",
+          "establishedTrendAtBreak": "bullish",
+          "laterPivotExists": true,
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|15m|1785216600000|low|4034.95|12|mss|bearish",
+          "eventType": "mss",
+          "direction": "bearish",
+          "levelId": "1785216600000|low|4034.95|12",
+          "level": 4034.95,
+          "eventTs": "2026-07-28T09:30:00.000Z",
+          "availableAt": "2026-07-28T09:45:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-28T07:45:00.000Z",
+          "sourceCenterTs": "2026-07-28T05:30:00.000Z",
+          "sourceKind": "low",
+          "trendDirection": "bearish",
+          "establishedTrend": "bearish",
+          "trendDirectionAtBreak": "bearish",
+          "establishedTrendAtBreak": "bearish",
+          "laterPivotExists": true,
+          "classification": "CAUSAL_ONLY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 1,
+        "CAUSAL_ONLY": 1
+      }
+    }
+  ]
+}

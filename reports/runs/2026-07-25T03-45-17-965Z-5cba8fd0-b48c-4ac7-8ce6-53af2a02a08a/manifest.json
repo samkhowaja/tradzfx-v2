@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T03-45-17-965Z-5cba8fd0-b48c-4ac7-8ce6-53af2a02a08a",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T03:45:17.965Z",
+  "finishedAt": "2026-07-25T03:45:25.199Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "lewis_kelly_smc_ny_shorts",
+  "specHash": "7cba996c031de50caa70f8f136708d3d7f8ca902945136c73c169b75bdf737f7",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-14T00:00:00.000Z",
+    "to": "2026-07-21T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-21T00:00:00.000Z",
+  "readinessManifestHash": "eb266890fb9991013e1b009d9e8eb0bdbd1a44f1f1c1d8d13ace77b34d7ccaba",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "lewis_kelly_smc_ny_shorts",
+    "--end=2026-07-21",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "5b0bf6f41d17e35cc56e5a3fe4b468fb78e90b77043e2d87f7c1b6a049eb4dbc",
+      "bytes": 384
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "5ab37e8ee03a868fc444d855a316665e79edc7c5cb972ff31392b162e80fb335",
+      "bytes": 3144
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

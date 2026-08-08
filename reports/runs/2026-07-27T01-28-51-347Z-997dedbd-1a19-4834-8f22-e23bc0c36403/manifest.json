@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T01-28-51-347Z-997dedbd-1a19-4834-8f22-e23bc0c36403",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T01:28:51.347Z",
+  "finishedAt": "2026-07-27T01:29:00.799Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "pro_ltf_scalp_eurusd_v1",
+  "specHash": "97b115627f24060b704726dcde11aa00af3676f0792e82e69ab32a6e32e5dd27",
+  "symbol": "USDCAD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "f3d0717bbedcd4363167b66b2da48e74b6a0f17c97260d4219ba19f3a6d468fa",
+  "arguments": [
+    "USDCAD",
+    "7",
+    "pro_ltf_scalp_eurusd_v1",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "a49c897ddbb23c269a141550108b8010f20c88b9bcf87eaa21edff55ba272df0",
+      "bytes": 963
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "9488bdca197703eb925fd466d9dd36600084ad5b95ee483e49634351eb5dc1d3",
+      "bytes": 3242
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "6cb5031c94728c6bb57c55c203e110efe6f1c1fe84cad5db6d8fc770dee88960",
+      "bytes": 17107
+    }
+  }
+}

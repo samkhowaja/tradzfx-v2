@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+[backtest-pit-v2] Strategy: gold_mssnr_scalper_1m | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 240 derived bars -> signals before 2026-06-20T04:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 60 raw signals (0 skipped for warmup, 4 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 67ms | prefetch 231ms | setup-engine N/Ams | simulate 3ms
+  Executed: 37 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 16 | Heat dropped: 2
+  Gate skips: rateLimit: 20 signals today for gold_mssnr_scalper_1m (max=20)=16
+  Wins: 7 | Losses: 30 | Timeouts: 1
+  WR: 18.9% | Net R: -21.96 | Avg Win: 1.01R | Avg Loss: -0.97R

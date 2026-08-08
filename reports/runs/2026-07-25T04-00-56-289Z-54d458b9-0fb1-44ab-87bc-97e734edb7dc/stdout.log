@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-13T16:40:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCAD
+
+USDCAD: 7 raw signals (2 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 48ms | prefetch 94ms | setup-engine N/Ams | simulate 2ms
+  Executed: 4 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 1 | Heat dropped: 0
+  Gate skips: rateLimit=1
+  Wins: 0 | Losses: 4 | Timeouts: 0
+  WR: 0.0% | Net R: -1.00 | Avg Win: 0.00R | Avg Loss: -0.25R

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-05T05:59:41.132Z",
+  "finishedAt": "2026-08-05T06:05:22.537Z",
+  "symbols": [
+    "GBPUSD"
+  ],
+  "timeframes": [
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_moving_average",
+    "features_atr",
+    "features_pivot",
+    "features_structure"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "GBPUSD": {
+        "mode": "require",
+        "windowIds": [
+          59
+        ],
+        "windowSetHash": "ca746bfd10cc9ab629e3a4f5216c5ff0e380798b372624da5bcf0fe90e004c48",
+        "detectors": [
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805"
+        ],
+        "gatedAt": "2026-08-05T05:59:41.618Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "ffebebf996a683e02cf84fa966b4cf0df45d01f00d77860d9d94ddea4f267870"
+  },
+  "cells": [
+    {
+      "feature": "features_moving_average",
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-18T01:45:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 62662,
+      "persistedMinTs": "2026-07-19T21:00:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:45:00.000Z",
+      "producerRunId": "22445370",
+      "producerStatus": "done",
+      "producerVersion": "2.0.0",
+      "producerWatermarkTs": "2026-08-04T07:45:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 59364,
+      "expectedAnchors": 3298,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    },
+    {
+      "feature": "features_atr",
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-18T01:45:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 9894,
+      "persistedMinTs": "2026-07-19T21:00:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:45:00.000Z",
+      "producerRunId": "22445371",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-04T07:45:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 6596,
+      "expectedAnchors": 3298,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    },
+    {
+      "feature": "features_pivot",
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "mode": "sparse",
+      "sourceMinTs": "2026-07-18T01:45:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 358,
+      "persistedMinTs": "2026-07-19T22:00:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:20:00.000Z",
+      "producerRunId": "22445372",
+      "producerStatus": "done",
+      "producerVersion": "1.3.0",
+      "producerWatermarkTs": "2026-08-04T07:20:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "READY",
+      "reason": null
+    },
+    {
+      "feature": "features_structure",
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "mode": "sparse",
+      "sourceMinTs": "2026-07-18T01:45:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 184,
+      "persistedMinTs": "2026-07-19T21:00:00.000Z",
+      "persistedMaxTs": "2026-08-02T22:00:00.000Z",
+      "producerRunId": "22445374",
+      "producerStatus": "done",
+      "producerVersion": "2.2.0",
+      "producerWatermarkTs": "2026-07-31T13:35:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 4970,
+    "errors": 0,
+    "readyCells": 4,
+    "blockedCells": 0
+  }
+}

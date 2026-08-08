@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ suppress logs { quiet: true }
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-06-20T16:40:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+EURUSD: 39 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 2 deduped) | signal query 1468ms | prefetch 260ms | setup-engine N/Ams | simulate 4ms
+  Executed: 11 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 6 | Skipped: 15 | Heat dropped: 5
+  Gate skips: rateLimit: 2 signals in last hour for doyle_sd (max=2)=15
+  Wins: 4 | Losses: 7 | Timeouts: 6
+  WR: 36.4% | Net R: -1.26 | Avg Win: 1.44R | Avg Loss: -1.00R

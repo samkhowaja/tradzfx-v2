@@ -1,0 +1,29 @@
+[
+  {
+    "symbol": "EURUSD",
+    "side": "buy",
+    "entry": 1.1375547400000001,
+    "sl": 1.1372197400000001,
+    "tp": 1.13788974,
+    "ts": "2026-07-24T00:00:00.000Z",
+    "causalLineage": [],
+    "entryType": "market",
+    "atr_5": 0.0006699999999999484,
+    "spread_pips": 1.25,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -3.582865671641595,
+    "holdBars": 1,
+    "closePrice": 1.1372197400000001,
+    "effectiveEntry": 1.13842,
+    "maxAdverse": 1.13842,
+    "maxFavorable": 1.13842,
+    "invalidReason": "gap_through",
+    "driftPips": 8.652599999998678,
+    "realizedRisk": 0.001200259999999842,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -3.582865671641595,
+    "heatDropped": false
+  }
+]

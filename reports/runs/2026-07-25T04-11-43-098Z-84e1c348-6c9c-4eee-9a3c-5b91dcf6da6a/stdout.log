@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-29 → 2026-07-20 (21 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-09T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+USDCHF: 249 raw signals (147 skipped for warmup, 1 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 101ms | prefetch 144ms | setup-engine N/Ams | simulate 6ms
+  Executed: 9 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 91 | Heat dropped: 1
+  Gate skips: rateLimit=6, session=10, volatility=75
+  Wins: 1 | Losses: 8 | Timeouts: 0
+  WR: 11.1% | Net R: -5.91 | Avg Win: 0.09R | Avg Loss: -0.75R

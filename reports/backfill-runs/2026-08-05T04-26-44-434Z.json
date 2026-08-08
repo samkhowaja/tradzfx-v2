@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-05T04:26:44.434Z",
+  "finishedAt": "2026-08-05T04:28:03.808Z",
+  "symbols": [
+    "EURUSD"
+  ],
+  "timeframes": [
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_moving_average",
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "EURUSD": {
+        "mode": "require",
+        "windowIds": [
+          48
+        ],
+        "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+        "detectors": [
+          "window-certifier-v5.2-dxy-formula@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805"
+        ],
+        "gatedAt": "2026-08-05T04:26:45.046Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "cc5890ca5da1bc97bb348c140101105d4793e979fae4f59e3172fcec755f9314"
+  },
+  "cells": [
+    {
+      "feature": "features_moving_average",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-18T01:40:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 57447,
+      "persistedMinTs": "2026-07-19T21:40:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:45:00.000Z",
+      "producerRunId": "22356079",
+      "producerStatus": "done",
+      "producerVersion": "2.0.0",
+      "producerWatermarkTs": "2026-08-04T07:40:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:40:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    },
+    {
+      "feature": "features_atr",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-18T01:40:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 9774,
+      "persistedMinTs": "2026-07-19T21:25:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:45:00.000Z",
+      "producerRunId": "22356080",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-04T07:40:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:40:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    }
+  ],
+  "summary": {
+    "barsProcessed": 4887,
+    "errors": 2,
+    "readyCells": 0,
+    "blockedCells": 2
+  }
+}

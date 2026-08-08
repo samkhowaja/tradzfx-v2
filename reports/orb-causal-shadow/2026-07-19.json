@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-07-19T23:00:06.354Z",
+  "date": "2026-07-19",
+  "strategyId": "orb_scalper_1m_causal_shadow",
+  "dataClock": "2026-07-19T22:59:00.000Z",
+  "summary": {
+    "tracked": 0,
+    "open": 0,
+    "boundaryOpen": 0,
+    "resolved": 0,
+    "wins": 0,
+    "losses": 0,
+    "winRate": null,
+    "netR": 0,
+    "expectancy": null,
+    "profitFactor": null,
+    "chronologyViolations": 0,
+    "malformedOutcomes": 0
+  },
+  "evidence": {
+    "missingCandidates": 0,
+    "missingOutcomes": 0,
+    "reconciled": true
+  },
+  "freshness": {
+    "fresh": false,
+    "features": [
+      {
+        "feature_table": "features_bias",
+        "max_ts": "2026-07-17T20:45:00.000Z",
+        "lagMinutes": 3014,
+        "maxLagMinutes": 30,
+        "fresh": false
+      },
+      {
+        "feature_table": "features_displacement",
+        "max_ts": "2026-07-17T20:45:00.000Z",
+        "lagMinutes": 3014,
+        "maxLagMinutes": 30,
+        "fresh": false
+      },
+      {
+        "feature_table": "features_opening_range",
+        "max_ts": "2026-07-17T07:15:00.000Z",
+        "lagMinutes": 3824,
+        "maxLagMinutes": 4320,
+        "fresh": true
+      }
+    ]
+  },
+  "acceptance": {
+    "status": "NOT_READY",
+    "promotionAutomatic": false,
+    "checks": {
+      "sample_size": false,
+      "chronology": true,
+      "outcomes_valid": true,
+      "audit_reconciled": true,
+      "producers_fresh": false,
+      "expectancy_positive": false,
+      "profit_factor": false
+    },
+    "failed": [
+      "sample_size",
+      "producers_fresh",
+      "expectancy_positive",
+      "profit_factor"
+    ],
+    "minResolved": 50,
+    "minProfitFactor": 1.2
+  },
+  "auditStages": []
+}

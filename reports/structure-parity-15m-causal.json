@@ -1,0 +1,19 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "AUDUSD",
+      "status": "OK",
+      "warning": "Pivots recomputed from candles",
+      "candles": 272,
+      "pivots": 17,
+      "productionEvents": 1,
+      "causalEvents": 1,
+      "causalTypes": {
+        "bos": 1
+      }
+    }
+  ]
+}

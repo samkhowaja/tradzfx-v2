@@ -14,7 +14,7 @@ async function main() {
   console.log(JSON.stringify(v.rows[0], null, 2));
 
   // MT5 terminals
-  const t = await p.query("SELECT id, terminal_key, mode, enabled, broker, last_seen_at FROM mt5_terminals ORDER BY last_seen_at DESC");
+  const t = await p.query("SELECT id, platform, account_number, broker, broker_server, last_seen_at FROM mt5_terminals ORDER BY last_seen_at DESC");
   console.log('\n=== MT5 TERMINALS ===');
   console.log(JSON.stringify(t.rows, null, 2));
 
@@ -34,7 +34,7 @@ async function main() {
   console.log(JSON.stringify(paper.rows, null, 2));
 
   // Live deployments
-  const ld = await p.query("SELECT id, variant_id, status, created_at FROM live_deployment ORDER BY created_at DESC LIMIT 5");
+  const ld = await p.query("SELECT deployment_id, strategy_id, mode, is_active, started_at, ended_at FROM live_deployment ORDER BY started_at DESC LIMIT 5");
   console.log('\n=== LIVE DEPLOYMENTS ===');
   console.log(JSON.stringify(ld.rows, null, 2));
 

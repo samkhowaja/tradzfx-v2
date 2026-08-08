@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: waqar_v2_live_paper | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-07-21T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD
+
+[backtest-pit-v2] DEGRADED data quality for AUDUSD: capability_STALE_STATE_features_htf_bias@15m, capability_STALE_STATE_features_pricing@1h, capability_STALE_STATE_features_atr@1m
+AUDUSD: no signals

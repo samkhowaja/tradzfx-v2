@@ -1,0 +1,103 @@
+﻿Γùç injected env (0) from .env.local // tip: Γîÿ override existing { override: true }
+{
+  "strategy": "five_one_scalp_staged_v1",
+  "legacyBaseline": "five_one_scalp_v1",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-17T00:00:00.000Z"
+  },
+  "mechanism": "raw_exact_zone_formation_then_setup_then_candle_touch_then_entry",
+  "results": [
+    {
+      "symbol": "XAUUSD",
+      "quality": {
+        "verdict": "PASS",
+        "failures": [],
+        "setupStructures": 57,
+        "entryStructures": 416
+      },
+      "input": {
+        "contexts": 1307,
+        "structures": 473,
+        "zones": 496,
+        "candles": 5938
+      },
+      "events": 8617,
+      "signals": 2,
+      "resolved": 2,
+      "wins": 1,
+      "losses": 1,
+      "timeouts": 0,
+      "openAtEnd": 0,
+      "winRate": 50,
+      "netR": 0.8094985439250748,
+      "rejectedByTriggerFilter": 3,
+      "ignoredReasons": {
+        "zone_without_matching_context": 224,
+        "touch_not_after_zone_formation": 28,
+        "event_not_applicable": 21937,
+        "zone_not_touched": 892,
+        "context_valid": 4638,
+        "entry_not_after_touch": 1,
+        "different_zone": 31,
+        "setup_zone_missing": 166,
+        "touch_not_after_setup": 24,
+        "entry_direction_mismatch": 4
+      },
+      "trades": [
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-07-13T07:58:00.000Z",
+          "side": "buy",
+          "setupId": "five_one_scalp_staged_v1:XAUUSD:buy:2026-07-13T07:55:00.000Z:XAUUSD:5m:2026-07-13T07:55:00.000Z:fvg:4059.4:4060.7",
+          "entryPrice": 4063.97,
+          "evidence": {
+            "contextTs": "2026-07-13T07:55:00.000Z",
+            "zoneId": "XAUUSD:5m:2026-07-13T07:55:00.000Z:fvg:4059.4:4060.7",
+            "zoneTs": "2026-07-13T07:55:00.000Z",
+            "zoneTop": 4060.7,
+            "zoneBottom": 4059.4,
+            "setupTs": "2026-07-13T07:55:00.000Z",
+            "touchTs": "2026-07-13T07:56:00.000Z",
+            "entryTriggerTs": "2026-07-13T07:58:00.000Z"
+          },
+          "sl": 4057.176071428571,
+          "tp": 4077.5578571428573,
+          "outcome": "win",
+          "r": 1.8443894306067348,
+          "holdBars": 17,
+          "closePrice": 4077.282857142857,
+          "effectiveEntry": 4064.245,
+          "maxAdverse": 4063.16,
+          "maxFavorable": 4078.21
+        },
+        {
+          "symbol": "XAUUSD",
+          "ts": "2026-07-13T11:52:00.000Z",
+          "side": "sell",
+          "setupId": "five_one_scalp_staged_v1:XAUUSD:sell:2026-07-13T11:50:00.000Z:XAUUSD:5m:2026-07-13T11:50:00.000Z:fvg:4061.9:4064.5",
+          "entryPrice": 4057.39,
+          "evidence": {
+            "contextTs": "2026-07-13T11:50:00.000Z",
+            "zoneId": "XAUUSD:5m:2026-07-13T11:50:00.000Z:fvg:4061.9:4064.5",
+            "zoneTs": "2026-07-13T11:50:00.000Z",
+            "zoneTop": 4064.5,
+            "zoneBottom": 4061.9,
+            "setupTs": "2026-07-13T11:50:00.000Z",
+            "touchTs": "2026-07-13T11:51:00.000Z",
+            "entryTriggerTs": "2026-07-13T11:52:00.000Z"
+          },
+          "sl": 4064.9967142857145,
+          "tp": 4042.1765714285707,
+          "outcome": "loss",
+          "r": -1.03489088668166,
+          "holdBars": 55,
+          "closePrice": 4065.2717142857146,
+          "effectiveEntry": 4057.115,
+          "maxAdverse": 4065.52,
+          "maxFavorable": 4053.57
+        }
+      ]
+    }
+  ]
+}

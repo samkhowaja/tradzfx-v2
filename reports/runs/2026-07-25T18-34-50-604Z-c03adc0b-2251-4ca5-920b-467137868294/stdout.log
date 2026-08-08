@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: gold_9sma_scalper_1m | signalSource: moving_average
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 105 derived bars -> signals before 2026-04-26T20:10:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1m, capability_STALE_STATE_features_moving_average@5m, capability_PRODUCER_STALE_EVENT_features_candle_pattern@1m | features_candle_pattern@1m=PRODUCER_STALE_EVENT
+XAUUSD: 674 raw signals (0 skipped for warmup, 228 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 1699ms | prefetch 417ms | setup-engine N/Ams | simulate 15ms
+  Executed: 446 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Gate skips: session=203, rateLimit=213, volatility=1
+  Wins: 155 | Losses: 291 | Timeouts: 0
+  WR: 34.8% | Net R: 249.64 | Avg Win: 3.22R | Avg Loss: -0.86R

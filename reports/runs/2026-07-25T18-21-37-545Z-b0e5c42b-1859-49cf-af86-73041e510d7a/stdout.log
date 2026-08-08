@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: cct_rectangle_xau_v1 | signalSource: generic
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 240 derived bars -> signals before 2026-04-26T22:12:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 120 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 53ms | prefetch 428ms | setup-engine N/Ams | simulate 27ms
+  Executed: 120 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 56 | Losses: 64 | Timeouts: 0
+  WR: 46.7% | Net R: 29.46 | Avg Win: 1.53R | Avg Loss: -0.88R

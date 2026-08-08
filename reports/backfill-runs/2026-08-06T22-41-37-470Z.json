@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:41:37.470Z",
+  "finishedAt": "2026-08-06T22:41:50.044Z",
+  "symbols": [
+    "XAUUSD"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "XAUUSD": {
+        "mode": "require",
+        "windowIds": [
+          46,
+          64,
+          74,
+          94,
+          117
+        ],
+        "windowSetHash": "941489225c11f40b494535722404ce69740e6b5e93174915f11bcf44b5a09325",
+        "detectors": [
+          "window-certifier-v5.2-dxy-formula@20260805",
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805",
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:41:37.948Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "27ea82c3605a68b9dac761b60ee5971919d06819b619e59b3de7bf2e92caba47"
+  },
+  "cells": [
+    {
+      "feature": "features_atr",
+      "symbol": "XAUUSD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-19T22:15:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistedRows": 3834,
+      "persistedMinTs": "2026-07-19T22:15:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:30:00.000Z",
+      "producerRunId": "24982727",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:30:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 2556,
+      "expectedAnchors": 1278,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 1663,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

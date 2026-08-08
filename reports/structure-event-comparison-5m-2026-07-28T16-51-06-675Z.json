@@ -1,0 +1,88 @@
+{
+  "mode": "read_only",
+  "tf": "5m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "status": "OK",
+      "candles": 814,
+      "pivots": 67,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 1.13701,
+          "ts": "2026-07-26T21:00:00.000Z",
+          "availableAtTs": "2026-07-26T21:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T21:05:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T14:25:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 1.13939,
+          "ts": "2026-07-26T22:00:00.000Z",
+          "availableAtTs": "2026-07-26T22:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T22:05:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:10:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 1.14122,
+          "ts": "2026-07-27T01:55:00.000Z",
+          "availableAtTs": "2026-07-27T01:55:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T02:00:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "EURUSD|5m|1785017100000|high|1.13701|0|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785017100000|high|1.13701|0",
+          "level": 1.13701,
+          "eventTs": "2026-07-26T21:00:00.000Z",
+          "availableAt": "2026-07-26T21:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "EURUSD|5m|1785100500000|high|1.13939|16|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785100500000|high|1.13939|16",
+          "level": 1.13939,
+          "eventTs": "2026-07-26T22:00:00.000Z",
+          "availableAt": "2026-07-26T22:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "EURUSD|5m|1785112200000|high|1.14122|20|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785112200000|high|1.14122|20",
+          "level": 1.14122,
+          "eventTs": "2026-07-27T01:55:00.000Z",
+          "availableAt": "2026-07-27T02:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 3
+      }
+    }
+  ]
+}

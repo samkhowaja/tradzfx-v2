@@ -1,0 +1,9 @@
+◇ injected env (0) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+[backtest-pit-v2] Strategy: five_one_scalp_v1 | signalSource: generic
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 960 derived bars -> signals before 2026-06-20T16:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_direction_state@5m=BLOCKED_VERSION | capability_BLOCKED_VERSION_features_direction_state@5m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+XAUUSD: BLOCKED_SYSTEM_QUALITY — run skipped (capability_BLOCKED_VERSION_features_direction_state@5m)

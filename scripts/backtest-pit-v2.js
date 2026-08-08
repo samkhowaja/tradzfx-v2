@@ -1807,9 +1807,22 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
   const unresolved = await pool.query(
     `SELECT COUNT(*)::int AS count
        FROM market.candle_eligibility e
+       JOIN raw.symbol_broker_policy p
+         ON p.symbol = e.symbol
+        AND p.broker_id = e.broker
+        AND p.effective_from <= e.ts
+        AND (p.effective_to IS NULL OR e.ts < p.effective_to)
       WHERE e.symbol = $1 AND e.timeframe = '1m'
         AND e.ts >= $2 AND e.ts <= $3
-        AND e.state <> 'CLEAN'`,
+        AND e.state <> 'CLEAN'
+        AND NOT EXISTS (
+          SELECT 1
+            FROM raw.symbol_broker_policy cp
+           WHERE cp.symbol = e.symbol
+             AND cp.effective_from <= e.ts
+             AND (cp.effective_to IS NULL OR e.ts < cp.effective_to)
+             AND cp.priority < p.priority
+        )`,
     [symbol, from, upper]
   );
   if (unresolved.rows[0].count > 0) {
@@ -2860,14 +2873,24 @@ async function main() {
   }
 
   const blocked = Object.values(perSymbolDataQuality).some((quality) => quality.status === "BLOCKED_SYSTEM_QUALITY");
+  // Runtime timings are diagnostic only. Exclude them from immutable replay
+  // payloads; queryMs varies between identical runs and is not a result.
+  const immutableSummary = finalSummary && typeof finalSummary === "object"
+    ? { ...finalSummary }
+    : finalSummary;
+  if (immutableSummary && typeof immutableSummary === "object") delete immutableSummary.queryMs;
   immutableRun.finalize({
     status: blocked ? "BLOCKED" : "SUCCEEDED",
     exitCode: blocked ? 1 : 0,
-    summary: finalSummary,
+    summary: immutableSummary,
     trades: allTrades,
     readinessManifestHash: sha256(canonicalJson(perSymbolDataQuality)),
   });
   immutableRunFinalized = true;
+  if (persistMode && !isCounterfactual) {
+    console.log(`[backtest-pit-v2] Immutable run artifact: ${immutableRun.runId}`);
+    if (runId) console.log(`[backtest-pit-v2] Database result run: ${runId}`);
+  }
   console.log = originalLog;
   console.error = originalError;
   await pool.end();

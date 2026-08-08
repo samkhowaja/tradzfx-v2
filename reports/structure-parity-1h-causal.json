@@ -1,0 +1,17 @@
+{
+  "mode": "read_only",
+  "tf": "1h",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "status": "OK",
+      "warning": "Pivots recomputed from candles",
+      "candles": 68,
+      "pivots": 2,
+      "productionEvents": 0,
+      "causalEvents": 0,
+      "causalTypes": {}
+    }
+  ]
+}

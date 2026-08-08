@@ -1,0 +1,41 @@
+{
+  "symbol": "EURUSD",
+  "tf": "5m",
+  "from": "2026-07-18T01:40:00Z",
+  "to": "2026-08-04T07:53:00Z",
+  "takenAt": "2026-08-05T05:02:45.656Z",
+  "features": {
+    "features_moving_average": {
+      "rows": 62643,
+      "distinctAnchors": 3297,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "3c89760703fc7e9ac9dee07d82a09a3093286ec1e2ca1901f2a5faa0b11a836f",
+      "file": "reports\\parity\\runB__features_moving_average.jsonl"
+    },
+    "features_atr": {
+      "rows": 9891,
+      "distinctAnchors": 3297,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "47268f08f47890ff565607d7825dd8f475fed662e3c57b3994a6468b2adb8483",
+      "file": "reports\\parity\\runB__features_atr.jsonl"
+    },
+    "features_pivot": {
+      "rows": 368,
+      "distinctAnchors": 365,
+      "minTs": "2026-07-19T21:05:00.000Z",
+      "maxTs": "2026-08-04T07:20:00.000Z",
+      "setHash": "4ba98c39a14f06429be15e5e07ac57cb77d875009607251bb99833d467f686f2",
+      "file": "reports\\parity\\runB__features_pivot.jsonl"
+    },
+    "features_structure": {
+      "rows": 187,
+      "distinctAnchors": 187,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-03T14:10:00.000Z",
+      "setHash": "2546017baaf12b571bf287be4d67e2ace34ba72eda130377379ec7a347cd3ee0",
+      "file": "reports\\parity\\runB__features_structure.jsonl"
+    }
+  }
+}

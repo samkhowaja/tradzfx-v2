@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-04-27T18:12:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_ifvg@5m=STALE(3.23h>2h) | features_bias@15m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@15m=PRODUCER_STALE, features_ifvg@5m=BLOCKED_LIFECYCLE, features_order_block@15m=PRODUCER_STALE | lifecycle_stale_features_ifvg, capability_BLOCKED_LIFECYCLE_features_ifvg@5m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-29 → 2026-07-20 (21 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-09T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+EURUSD: 128 raw signals (62 skipped for warmup, 7 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 153ms | prefetch 182ms | setup-engine N/Ams | simulate 5ms
+  Executed: 20 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 34 | Heat dropped: 3
+  Gate skips: session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=16, rateLimit: 5 signals today for watukushay_no1 (max=5)=11, session: Session=OFF_HOURS not in allowed=[LONDON, OVERLAP, NY]=7
+  Wins: 6 | Losses: 14 | Timeouts: 2
+  WR: 30.0% | Net R: -5.09 | Avg Win: 1.15R | Avg Loss: -0.86R

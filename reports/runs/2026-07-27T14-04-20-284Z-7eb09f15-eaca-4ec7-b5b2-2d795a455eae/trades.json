@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "USDCAD",
+    "side": "sell",
+    "entry": 1.4058199999999998,
+    "sl": 1.40851,
+    "tp": 1.4004399999999997,
+    "ts": "2026-07-14T14:45:00.000Z",
+    "causalLineage": [],
+    "entryType": "limit",
+    "atr_5": 0.000609999999999955,
+    "spread_pips": 1.35,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -1,
+    "holdBars": 2,
+    "closePrice": 1.40851,
+    "effectiveEntry": 1.4058199999999998,
+    "maxAdverse": 1.40854,
+    "maxFavorable": 1.4058199999999998,
+    "driftPips": 0,
+    "realizedRisk": 0.002690000000000081,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -1,
+    "heatDropped": false
+  }
+]

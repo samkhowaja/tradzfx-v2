@@ -66,7 +66,10 @@ const parityConfirmed = process.argv.includes('--parity-confirmed');
 // by salman with note "spread missing at source; price clean"). Only
 // timestamps actually zero are checked, so KEEP rows elsewhere do not mask
 // unreviewed missing-spread rows. Fail-closed on anything else.
-const FROZEN_VERSION = `window-certifier-v5.3-spreadzero-keep@${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+// Registry identity is frozen at activation time. Do not derive detector
+// version from wall-clock date; reruns after midnight must remain idempotent
+// and satisfy market.detector_config FK.
+const FROZEN_VERSION = 'window-certifier-v5.3-spreadzero-keep@20260805';
 
 if (write && !parityConfirmed) {
   console.error('Refusing --write: run pnpm calendar:parity, verify passed=true, then add --parity-confirmed.');

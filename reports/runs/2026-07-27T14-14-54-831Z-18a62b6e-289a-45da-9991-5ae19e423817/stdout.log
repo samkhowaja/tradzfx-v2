@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: scalper_20sma_1m | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-13T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCAD
+
+USDCAD: 230 raw signals (9 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 39 deduped) | signal query 2000ms | prefetch 63ms | setup-engine N/Ams | simulate 7ms
+  Executed: 98 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 75 | Heat dropped: 7
+  Gate skips: session: Session=OFF_HOURS not in allowed=[LONDON, OVERLAP, NY]=15, session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=60
+  Wins: 6 | Losses: 92 | Timeouts: 2
+  WR: 6.1% | Net R: -35.19 | Avg Win: 0.80R | Avg Loss: -0.43R

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-01-44-085Z-8e812eb7-c837-49b0-b088-dd2da85f6ee3",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:01:44.085Z",
+  "finishedAt": "2026-07-25T04:01:49.867Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "forex_strategy_orb",
+  "specHash": "d90b55be397516e2e0de1bcc5da63ec6f2e5900685336e9f07fc6d10dcd728ee",
+  "symbol": "AUDUSD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "07a71c1d752b35dbf0de7e01b806664dbcb41b5f22f99eaf84ffa71edd13e789",
+  "arguments": [
+    "AUDUSD",
+    "7",
+    "forex_strategy_orb",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "5ab5fa7dbbdca808e0cc4f2375d446c843917d93b3cce2d34c7262603149c194",
+      "bytes": 878
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "0b2ef4d54e0a8c7f22768362295e6bc9b4130423d45e70d3c42413eb512eb54d",
+      "bytes": 3866
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "c7cfea8853da82d5546280c164d785be3688ea5a490f64c255846ce46576d3e9",
+      "bytes": 1345
+    }
+  }
+}

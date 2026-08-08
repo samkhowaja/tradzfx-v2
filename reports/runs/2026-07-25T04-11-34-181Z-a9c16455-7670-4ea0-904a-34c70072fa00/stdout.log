@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-29 → 2026-07-20 (21 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-09T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: NZDUSD
+
+NZDUSD: 161 raw signals (61 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 118ms | prefetch 169ms | setup-engine N/Ams | simulate 10ms
+  Executed: 1 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 99 | Heat dropped: 0
+  Gate skips: volatility=98, session=1
+  Wins: 1 | Losses: 0 | Timeouts: 0
+  WR: 100.0% | Net R: 0.79 | Avg Win: 0.79R | Avg Loss: 0.00R

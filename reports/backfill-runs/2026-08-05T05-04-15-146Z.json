@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-05T05:04:15.146Z",
+  "finishedAt": "2026-08-05T05:09:25.825Z",
+  "symbols": [
+    "EURUSD"
+  ],
+  "timeframes": [
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_pivot",
+    "features_structure"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "EURUSD": {
+        "mode": "require",
+        "windowIds": [
+          48
+        ],
+        "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+        "detectors": [
+          "window-certifier-v5.2-dxy-formula@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805"
+        ],
+        "gatedAt": "2026-08-05T05:04:15.725Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "cc5890ca5da1bc97bb348c140101105d4793e979fae4f59e3172fcec755f9314"
+  },
+  "cells": [
+    {
+      "feature": "features_pivot",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "sparse",
+      "sourceMinTs": "2026-07-18T01:40:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 368,
+      "persistedMinTs": "2026-07-19T21:05:00.000Z",
+      "persistedMaxTs": "2026-08-04T07:20:00.000Z",
+      "producerRunId": "22420521",
+      "producerStatus": "done",
+      "producerVersion": "1.3.0",
+      "producerWatermarkTs": "2026-08-04T07:20:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "READY",
+      "reason": null
+    },
+    {
+      "feature": "features_structure",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "sparse",
+      "sourceMinTs": "2026-07-18T01:40:00.000Z",
+      "sourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistedRows": 187,
+      "persistedMinTs": "2026-07-19T21:00:00.000Z",
+      "persistedMaxTs": "2026-08-03T14:10:00.000Z",
+      "producerRunId": "22420524",
+      "producerStatus": "done",
+      "producerVersion": "2.2.0",
+      "producerWatermarkTs": "2026-07-31T13:35:00.000Z",
+      "producerSourceMaxTs": "2026-08-04T07:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 4970,
+    "errors": 0,
+    "readyCells": 2,
+    "blockedCells": 0
+  }
+}

@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: waqar_ebook_v1 | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T08:31:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for GBPUSD: features_zone@1h=STALE(3.55h>2h), features_zone@1m=STALE(3.55h>2h) | lifecycle_stale_features_zone, lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

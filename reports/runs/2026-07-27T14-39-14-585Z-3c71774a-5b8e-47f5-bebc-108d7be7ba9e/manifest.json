@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T14-39-14-585Z-3c71774a-5b8e-47f5-bebc-108d7be7ba9e",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T14:39:14.585Z",
+  "finishedAt": "2026-07-27T14:39:20.088Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "doyle_sd",
+  "specHash": "3d95c2e2c03ca9b54ab7bd2a721c6d48c41507078af6e0cb0000d230da97b78d",
+  "symbol": "USDJPY",
+  "window": {
+    "from": "2026-06-20T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "8da2eb5012a4036b0f979551111a380d561a4155ab35413c24f660cb7196db61",
+  "arguments": [
+    "USDJPY",
+    "30",
+    "doyle_sd",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "243fdbd4802d52d65e23cf5bb2f03785fd60e57e9f57ade39612f3e6826918ba",
+      "bytes": 847
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "69f5bf12b54a58c9d2f6b2ff50e90be1cda2faaacb5ae0ee684dd63af7dceda0",
+      "bytes": 4079
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "59afb0e119afc4e68b200d719c9be20ef6ed72bb990e7edd83f89d3be395060c",
+      "bytes": 188164
+    }
+  }
+}

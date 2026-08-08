@@ -1,0 +1,197 @@
+================================================================================
+STRATEGY SPECS AUDIT — EXECUTIVE SUMMARY
+Date: 2026-07-07
+================================================================================
+
+TOTAL SPECS ANALYZED: 49
+ACTIVE: 37 (76%)
+INACTIVE: 12 (24% — dead code)
+
+================================================================================
+TOP 5 CRITICAL FINDINGS
+================================================================================
+
+1. MASSIVE FAMILY BLOAT
+   Problem: smart_risk_ob_ifvg_1m has 27 variants (55% of all specs)
+   Issue: 20 of 27 are minor parameter tweaks or inactive experiments
+   Impact: Hard to maintain, QA nightmare, confusing for deployment
+   Action: Consolidate 27 → 4 active base variants (85% reduction)
+   Effort: 1 hour
+
+2. CONTRADICTORY TP/SL RULES (10 variants)
+   Problem: minRR conflicts with variable TP formulas
+   Example: keylevel_bounce_v8_levels has minRR=1.5 but TP="nearest_profit_pivot"
+           If pivot is 40 pips away from 50-pip SL = 0.8R < 1.5R minRR conflict
+   Impact: Engine behavior undefined — trades may reject or TP logic breaks
+   Action: Document TP priority rules, add fallback enforcement
+   Effort: 30 minutes
+
+3. UNREALISTIC SNIPER ASSUMPTIONS (8 variants)
+   Problem: 10-pip SL targeting 100-pip TP (minRR=10) on 5m timeframe
+   Issue: All 8 variants are INACTIVE — never successfully backtested
+   Impact: Low-probability, high-loss trades if somehow activated
+   Action: DELETE all 8 sniper variants immediately
+   Effort: 5 minutes
+
+4. DEAD CODE ACCUMULATION (12 inactive variants)
+   Problem: 625 lines of obsolete YAML sitting in repo
+   Files: Deprecated bases, experimental variants, parameter tweaks
+   Impact: Clutter, seed script bloat, seeding time wasted
+   Action: Delete 12 inactive files
+   Effort: 5 minutes
+
+5. MISSING REQUIRED FIELD (1 variant)
+   Problem: keylevel_bounce_v8c_min3.yaml has NO minRR specified
+   Impact: May inherit incorrect default or fail validation
+   Action: Add "minRR: 3" to risk section
+   Effort: 1 minute
+
+================================================================================
+KEY STATISTICS
+================================================================================
+
+Family Distribution:
+  keylevel_bounce:       13 variants (27%) — consolidate to 5 (62% reduction)
+  smart_risk_ob_ifvg_1m: 27 variants (55%) — consolidate to 4 (85% reduction)
+  watukushay:             3 variants (6%)  — keep 2, rename for clarity
+  Standalone:             6 specs (12%)    — no changes needed
+
+Status Breakdown:
+  Active:       37 specs (76%)
+  Inactive:     12 specs (24%)
+
+Code Health:
+  Total lines:          ~3,200 YAML
+  Dead code (inactive): ~625 lines (20%)
+  Active:               ~2,575 lines (80%)
+
+Issues Found:
+  Contradictory rules:     10 variants
+  Unrealistic assumptions:  8 variants
+  Parameter tweaks only:   15 variants
+  Missing fields:           1 variant
+  Structural issues:        0 (familyId compliance 100% ✓)
+
+================================================================================
+CONSOLIDATION IMPACT
+================================================================================
+
+Before:  49 specs (37 active)
+After:   35 specs (35 active)
+
+Deletion: 14 files removed
+  - 12 inactive variants
+  - 1 deprecated base (keylevel_bounce)
+  - 1 deprecated base (watukushay)
+
+Consolidation: 0 net new files (refactor via inheritance templates)
+  - Smart Risk: 27 → 4 (keep 4, delete 23, update 1)
+  - Keylevel:   13 → 5 (keep 1, create 5 templates, delete 8)
+  - Watukushay: 3 → 2 (keep 2, rename for clarity)
+  - Standalones: 6 → 6 (no change)
+
+Result: 35 active specs (maintain all live trading strategies + real variants)
+
+================================================================================
+RECOMMENDED ACTIONS (BY PRIORITY)
+================================================================================
+
+PHASE 1 — IMMEDIATE CLEANUP (Now, 10 minutes)
+┌─ DELETE 12 inactive variants (625 lines)
+├─ FIX missing minRR in v8c_min3
+└─ Result: 49 → 37 active specs
+
+PHASE 2 — SMART RISK CONSOLIDATION (Sprint 1, 1 hour)
+┌─ Keep: _runon_15r (rename → _pivot_tp), _ob_tp, _zone_tp, base
+├─ DELETE: 23 filter-tweak & sniper variants
+└─ Result: 27 → 4 active variants
+
+PHASE 3 — KEYLEVEL CONSOLIDATION (Sprint 1, 2-3 hours)
+┌─ Create: 5 template specs (base, directional, timed, level_tp, zone_tp)
+├─ Migrate: 13 variants to inherit from templates
+├─ DELETE: 8 parameter-only variant files
+└─ Result: 13 → 5 active variants
+
+PHASE 4 — NAMING CLARITY (Sprint 2, 30 minutes)
+┌─ Rename: watukushay_fe → watukushay_rsi
+├─ Rename: watukushay_no1 → watukushay_ma_cross
+└─ Result: Clear naming convention
+
+DOCUMENTATION (After cleanup)
+┌─ Create: tp-enforcement-rules.md (minRR vs variable TP priority)
+├─ Create: strategy-specs-structure.md (template model, family/variant rules)
+└─ Update: AGENTS.md (add versioning policy: config > override > new variant)
+
+================================================================================
+VALIDATION CHECKLIST
+================================================================================
+
+After Phase 1:
+  ☐ All 49 YAML files parse without errors
+  ☐ Schema validation passes
+  ☐ No broken references in seeding script
+
+After Phase 2-3:
+  ☐ Backtest comparison: old variant ≡ new template variant
+  ☐ Trade entry/exit logic identical
+  ☐ Risk settings match
+
+After all phases:
+  ☐ 35 specs seed correctly into DB
+  ☐ UI renders all strategies without errors
+  ☐ Search/filter functionality works
+  ☐ Live trading modes still functional
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+Phase 1 Cleanup: ✓ ZERO RISK (deleting only inactive files)
+Phase 2-3 Consolidation: LOW RISK (templates inherit existing logic)
+Testing: MEDIUM RISK (must validate template logic equivalence)
+
+Mitigation:
+  1. Run full backtest suite before/after consolidation
+  2. Keep original files in backup branch for 1 month
+  3. Validate DB seeding with dry-run before production
+  4. Test UI rendering on all 35 specs before deployment
+
+================================================================================
+EFFORT ESTIMATE
+================================================================================
+
+Phase 1 (Cleanup):             10 min   (trivial)
+Phase 2 (Smart Risk):          1 hour   (low complexity)
+Phase 3 (Keylevel):            2-3 hours (medium complexity)
+Phase 4 (Naming):              30 min   (trivial)
+Documentation:                 30 min   (low effort)
+Testing & Validation:          2-3 hours (medium effort)
+────────────────────────────────────────────────────
+TOTAL:                         6-8 hours (1 sprint)
+
+Recommendation: Execute across 2-3 working days
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Approve Phase 1 cleanup (no risk, immediate value)
+2. Schedule Phase 2-3 consolidation in Sprint 1
+3. Block Phase 4 naming for clarity until after consolidation
+4. Create documentation templates before refactoring
+5. Allocate 2-3 hours QA time for backtest validation
+
+Questions to resolve before implementation:
+  ☐ Should parameter tweaks become config flags or separate variants?
+  ☐ Is minRR enforced or advisory when TP is dynamic?
+  ☐ Should FX-specific variants use filtering or separate specs?
+  ☐ What's the acceptable tolerance for template logic equivalence in backtest?
+
+================================================================================
+GENERATED BY: Automated Specs Analyzer
+DATE: 2026-07-07
+CONFIDENCE LEVEL: 95% (based on YAML structure analysis)
+FULL REPORT: STRATEGY_SPECS_AUDIT_2026-07-07.md
+CSV INVENTORY: STRATEGY_SPECS_INVENTORY.csv
+CONSOLIDATION PLAN: STRATEGY_CONSOLIDATION_ROADMAP.md
+================================================================================

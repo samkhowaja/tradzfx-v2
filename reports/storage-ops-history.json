@@ -1,0 +1,120 @@
+{
+  "ops": [
+    {
+      "ts": "2026-08-05T18:22:14.462Z",
+      "op": "wave1+1.5 complete (3 index drops)",
+      "db_bytes": 49492547251
+    },
+    {
+      "ts": "2026-08-05T19:34:46.395Z",
+      "op": "DB-INDEX-04-ML-LEGACY: DROP TABLE public.market_levels_legacy_20260802",
+      "approval": "explicit user approval 2026-08-05, scope limited to this table only",
+      "ddl": "DROP TABLE public.market_levels_legacy_20260802",
+      "operator": "copilot-agent",
+      "git_rev": "9fef5b0b137c864b90c09222d065e366e3b7d5a9",
+      "lock_timeout": "5s",
+      "cascade": false,
+      "duration_ms": 111,
+      "pre": {
+        "db_bytes": 49551677107,
+        "table_rows": 22679851,
+        "table_total_bytes": 20187717632,
+        "heap_bytes": 14973591552,
+        "index_bytes": 5209956352,
+        "active_lock_holders": 0
+      },
+      "post": {
+        "db_bytes": 29364008627,
+        "to_regclass": null,
+        "reclaimed_bytes": 20187668480,
+        "reclaimed_gib": 18.8,
+        "db_reduction_pct": 40.7
+      },
+      "snapshot": {
+        "dump": "backups/market_levels_legacy_20260802_20260805T182754Z.dump",
+        "sha256": "8B5E1579EBD379AAA074D331B7C7ADEF90A9BFD4D8348EE75AD4535107351CD6",
+        "tracked_lineage": "docs/repro/market_levels_legacy_20260802_PROVENANCE.md + restore_list.txt + ddl-market_levels_legacy_20260802.json"
+      },
+      "health_post_drop": {
+        "pm2": "12 online + tz-progressive-dag-shadow stopped (pre-existing)",
+        "ingestion_health": "ok, db=true, spool 0",
+        "db_deadlocks": 0,
+        "producer_runs_last_1h": 65402,
+        "oanda_edge": "2026-08-05T22:34Z (flowing)",
+        "frozen_1x_edge": "2026-08-04T07:54Z (pre-existing MT5 freeze, unrelated)"
+      }
+    },
+    {
+      "ts": "2026-08-05T19:50:00Z",
+      "op": "RESTORE DRILL: market_levels_legacy_20260802 snapshot into scratch DB restore_drill_ml",
+      "result": "PASS",
+      "pg_restore_exit": 0,
+      "objects_restored": "TABLE + TABLE DATA + market_levels_level_hash_key + market_levels_pkey + idx_market_levels_lookup + idx_market_levels_symbol_ts + idx_market_levels_type_ts",
+      "verification": {
+        "rows": 22679851,
+        "rows_match_predrop": true,
+        "min_ts": "2026-02-02T22:55:00.000Z",
+        "max_ts": "2026-07-02T22:45:00.000Z",
+        "column_count": 17,
+        "constraints": ["market_levels_level_hash_key UNIQUE(level_hash)", "market_levels_pkey PRIMARY KEY(id)"],
+        "indexes": ["idx_market_levels_lookup", "idx_market_levels_symbol_ts", "idx_market_levels_type_ts", "market_levels_level_hash_key", "market_levels_pkey"],
+        "level_hash_duplicates": 0,
+        "ddl_match_vs_docs_repro": true
+      },
+      "cleanup": "scratch DB restore_drill_ml dropped, exit 0",
+      "snapshot_now_proven": "restorable, not merely readable",
+      "remaining": "off-host copy of dump + .sha256 still user action before final deletion (retention review 2026-11-05)"
+    },
+    {
+      "ts": "2026-08-05T22:45:00Z",
+      "op": "DB-INDEX-05-ML-LEGACY: DROP OB shadow family (trigger + function + 4 tables)",
+      "approval": "explicit user approval 2026-08-05, Option A full removal",
+      "scope": "public.order_block_state_history_shadow, order_block_event_shadow, order_block_state_shadow, order_block_lifecycle_replay_shadow, trg_mirror_order_block_event_state_shadow, mirror_order_block_event_state_shadow()",
+      "ddl": [
+        "DROP TRIGGER IF EXISTS trg_mirror_order_block_event_state_shadow ON public.features_order_block",
+        "DROP FUNCTION IF EXISTS public.mirror_order_block_event_state_shadow()",
+        "DROP TABLE IF EXISTS public.order_block_state_history_shadow, public.order_block_state_shadow, public.order_block_lifecycle_replay_shadow, public.order_block_event_shadow"
+      ],
+      "operator": "copilot-agent",
+      "lock_timeout": "5s",
+      "cascade": false,
+      "pre": {
+        "db_bytes": 29489501875,
+        "rows": {
+          "order_block_state_history_shadow": 2194641,
+          "order_block_event_shadow": 29460,
+          "order_block_state_shadow": 29460,
+          "order_block_lifecycle_replay_shadow": 2825
+        },
+        "total_shadow_bytes": 801890304,
+        "indexes": 10,
+        "constraints": 14
+      },
+      "post": {
+        "db_bytes": 28688807603,
+        "reclaimed_bytes": 800694272,
+        "reclaimed_mb": 763.6,
+        "tables_remaining": 0,
+        "trigger_remaining": 0,
+        "function_remaining": 0,
+        "features_order_block_rows": 24916
+      },
+      "restore_drill": {
+        "result": "PASS",
+        "scratch_db": "restore_drill_ob",
+        "verification": "4/4 tables exact rows, 10 indexes, 14 constraints (6c/1u/4p/3f), ts ranges exact",
+        "cleanup": "scratch DB dropped"
+      },
+      "snapshot": {
+        "dump": "backups/ob_shadow_legacy_20260805T223959Z.dump",
+        "sha256": "8c6c8d9575fe63e7269e03254689c7f676a517a9900473d4904bcaa1345aa400",
+        "tracked_lineage": "docs/repro/ob_shadow_legacy_20260805_PROVENANCE.md + restore_list.txt + inventory.json"
+      },
+      "health_post_drop": {
+        "ingestion_health": "ok, db=true, spool 0",
+        "features_order_block_writable": true
+      },
+      "retention": "review 2026-11-05, deletion needs separate approval"
+    }
+  ]
+}

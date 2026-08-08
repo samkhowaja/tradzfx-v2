@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T03-57-07-418Z-d94a2014-ba1c-4500-912e-ec8c90b97808",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T03:57:07.418Z",
+  "finishedAt": "2026-07-25T03:57:12.470Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "a_plus_orb_fvg_5m",
+  "specHash": "07f995b0387d56e09b95ac5c4429e57c37d261bf896fa289a418bffc39089231",
+  "symbol": "USDCAD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "725fd52c5ca9a8f9dd932aa1d647102637b823041065e0dee07b8aa63548a00b",
+  "arguments": [
+    "USDCAD",
+    "7",
+    "a_plus_orb_fvg_5m",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "8c7d3b3ccaba357333689b8b7a3064af77c7473d49b7df0d9d95fa5401c96cc0",
+      "bytes": 779
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "308492eb115fbed5e6b8f93d45d7d6f1034c100817448679a7b0b34740f8d217",
+      "bytes": 2892
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "21585b85a9c825d4707bb3d4771a2607ed88f754066267724493c151d4b7be5d",
+      "bytes": 649
+    }
+  }
+}

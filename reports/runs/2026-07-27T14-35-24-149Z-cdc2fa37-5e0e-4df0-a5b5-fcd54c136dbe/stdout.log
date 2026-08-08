@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: apex_scalp | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 120 derived bars -> signals before 2026-06-20T02:00:00.000Z skipped
+[backtest-pit-v2] Symbols: NZDUSD
+
+NZDUSD: 212 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 167 deduped) | signal query 441ms | prefetch 326ms | setup-engine N/Ams | simulate 25ms
+  Executed: 42 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 0
+  Wins: 14 | Losses: 28 | Timeouts: 3
+  WR: 33.3% | Net R: 14.12 | Avg Win: 2.08R | Avg Loss: -0.54R

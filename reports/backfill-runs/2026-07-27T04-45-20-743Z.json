@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-07-27T04:45:20.743Z",
+  "finishedAt": "2026-07-27T05:19:55.128Z",
+  "symbols": [
+    "XAUUSD"
+  ],
+  "timeframes": [
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_zone"
+  ],
+  "cells": [
+    {
+      "feature": "features_zone",
+      "symbol": "XAUUSD",
+      "tf": "5m",
+      "mode": "sparse",
+      "sourceMinTs": "2026-07-20T00:00:00.000Z",
+      "sourceMaxTs": "2026-07-27T00:00:00.000Z",
+      "persistedRows": 484,
+      "persistedMinTs": "2026-07-20T00:05:00.000Z",
+      "persistedMaxTs": "2026-07-27T00:00:00.000Z",
+      "producerRunId": "17997767",
+      "producerStatus": "done",
+      "producerVersion": "2.3.0",
+      "producerWatermarkTs": "2026-07-27T00:00:00.000Z",
+      "producerSourceMaxTs": "2026-07-27T00:00:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 1951,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

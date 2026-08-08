@@ -1,0 +1,46 @@
+[backtest-pit-v2] Strategy: waqar_v2_bst_ebook_pricing_7pair_shadow | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY
+
+EURUSD: 8 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 8 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 123ms | prefetch 644ms | setup-engine 97ms | simulate 98ms
+  Setup evaluations: 8 persisted, 8 evaluated, 0 context-hash skips
+  Executed: 0 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=8
+  Wins: 0 | Losses: 0 | Timeouts: 0
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R
+GBPUSD: 8 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 3 setup-engine BLOCK, 2 drift rejected, 1 deduped) | signal query 274ms | prefetch 502ms | setup-engine 760ms | simulate 762ms
+  Setup evaluations: 8 persisted, 8 evaluated, 0 context-hash skips
+  Executed: 2 | Drift rejected: 2 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=3
+  Wins: 1 | Losses: 1 | Timeouts: 0
+  WR: 50.0% | Net R: 1.70 | Avg Win: 2.68R | Avg Loss: -0.98R
+AUDUSD: 3 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 2 drift rejected, 0 deduped) | signal query 48ms | prefetch 456ms | setup-engine 137ms | simulate 137ms
+  Setup evaluations: 3 persisted, 3 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 2 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 1 | Losses: 0 | Timeouts: 0
+  WR: 100.0% | Net R: 3.16 | Avg Win: 3.16R | Avg Loss: 0.00R
+NZDUSD: 4 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 3 setup-engine BLOCK, 1 drift rejected, 0 deduped) | signal query 39ms | prefetch 509ms | setup-engine 84ms | simulate 84ms
+  Setup evaluations: 4 persisted, 4 evaluated, 0 context-hash skips
+  Executed: 0 | Drift rejected: 1 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=3
+  Wins: 0 | Losses: 0 | Timeouts: 0
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R
+USDCAD: 11 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 6 setup-engine BLOCK, 4 drift rejected, 0 deduped) | signal query 50ms | prefetch 649ms | setup-engine 138ms | simulate 139ms
+  Setup evaluations: 11 persisted, 11 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 4 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=6
+  Wins: 0 | Losses: 1 | Timeouts: 0
+  WR: 0.0% | Net R: -0.92 | Avg Win: 0.00R | Avg Loss: -0.92R
+USDCHF: 9 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 2 setup-engine BLOCK, 4 drift rejected, 0 deduped) | signal query 83ms | prefetch 788ms | setup-engine 671ms | simulate 671ms
+  Setup evaluations: 9 persisted, 9 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 4 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=2
+  Wins: 0 | Losses: 1 | Timeouts: 2
+  WR: 0.0% | Net R: -0.88 | Avg Win: 0.00R | Avg Loss: -0.88R
+USDJPY: 3 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 30ms | prefetch 629ms | setup-engine 60ms | simulate 60ms
+  Setup evaluations: 3 persisted, 3 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 2
+  Wins: 0 | Losses: 1 | Timeouts: 0
+  WR: 0.0% | Net R: -1.28 | Avg Win: 0.00R | Avg Loss: -1.28R

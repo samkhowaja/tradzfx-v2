@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-07-27T15:03:54.942Z",
+  "finishedAt": "2026-07-27T15:04:27.198Z",
+  "symbols": [
+    "AUDUSD",
+    "DXY",
+    "EURUSD",
+    "GBPUSD",
+    "NZDUSD",
+    "USDCAD",
+    "USDCHF",
+    "USDJPY",
+    "USDSEK",
+    "XAUUSD"
+  ],
+  "timeframes": [
+    "15m",
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_session features_opening_range"
+  ],
+  "cells": [
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "AUDUSD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "AUDUSD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "DXY",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "DXY",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "EURUSD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "GBPUSD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "NZDUSD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "NZDUSD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDCAD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDCAD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDCHF",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDCHF",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDJPY",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDJPY",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDSEK",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "USDSEK",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "XAUUSD",
+      "tf": "15m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    },
+    {
+      "feature": "features_session features_opening_range",
+      "symbol": "XAUUSD",
+      "tf": "5m",
+      "verdict": "CONTRACT_MISMATCH",
+      "reason": "Missing producer output-mode contract: features_session features_opening_range"
+    }
+  ],
+  "summary": {
+    "barsProcessed": 0,
+    "errors": 370701,
+    "readyCells": 0,
+    "blockedCells": 20
+  }
+}

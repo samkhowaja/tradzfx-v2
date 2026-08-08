@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: scalper_20sma_1m | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-19T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+[backtest-pit-v2] DEGRADED data quality for USDCHF: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@1m
+USDCHF: 835 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 236 deduped) | signal query 3886ms | prefetch 48ms | setup-engine N/Ams | simulate 18ms
+  Executed: 287 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 13 | Skipped: 220 | Heat dropped: 79
+  Gate skips: session=220
+  Wins: 36 | Losses: 251 | Timeouts: 13
+  WR: 12.5% | Net R: -84.36 | Avg Win: 0.57R | Avg Loss: -0.42R

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-11-38-871Z-5d9b7261-2782-4837-812b-42fac6dc244d",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:11:38.871Z",
+  "finishedAt": "2026-07-25T04:11:42.622Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "watukushay_no1",
+  "specHash": "10421365521f763159ad1ddcc1cb0e715f83767c67aa46aa3b61c2d0bd8bdf6c",
+  "symbol": "USDCAD",
+  "window": {
+    "from": "2026-06-29T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "8c87279352af7b27ea52aa3bce537b5eca7ed37e8738f8fd3a7d33fd34a990b3",
+  "arguments": [
+    "USDCAD",
+    "21",
+    "watukushay_no1",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "98f1ae7027903d3a902d2f6627f4b7e15273e262f0dc68776461b65c63ad7bc1",
+      "bytes": 828
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "68901ecbacbff46c2c6421de122d56c5540168a0bcf3944ef799248216e1eac4",
+      "bytes": 3600
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "a0d0b7bc8da563e9abd082169c9e83fbd3ae7203e74a7deee72dc95db383a415",
+      "bytes": 2065
+    }
+  }
+}

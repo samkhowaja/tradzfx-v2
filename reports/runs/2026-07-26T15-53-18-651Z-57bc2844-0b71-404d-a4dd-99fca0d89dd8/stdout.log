@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-26 → 2026-07-26 (30 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-06-27T15:44:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_ifvg@5m=STALE(23.98h>2h) | features_bias@15m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@15m=STALE_STATE, features_zone@15m=PRODUCER_STALE, features_ifvg@5m=BLOCKED_LIFECYCLE, features_order_block@15m=PRODUCER_STALE | lifecycle_stale_features_ifvg, capability_STALE_STATE_features_bias@15m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@15m, capability_PRODUCER_STALE_features_zone@15m, capability_BLOCKED_LIFECYCLE_features_ifvg@5m, capability_PRODUCER_STALE_features_order_block@15m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+XAUUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_ifvg, capability_STALE_STATE_features_bias@15m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@15m, capability_PRODUCER_STALE_features_zone@15m, capability_BLOCKED_LIFECYCLE_features_ifvg@5m, capability_PRODUCER_STALE_features_order_block@15m)

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-06-50-741Z-1481e031-4ab4-4cfb-bac9-c19858ae667c",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:06:50.741Z",
+  "finishedAt": "2026-07-25T04:06:57.540Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "scalper_20sma_1m",
+  "specHash": "f6468936f344449fb3ec3ecc581b619cea28b48befca016a5c55a2237f5e9265",
+  "symbol": "USDCAD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "0bfa0cadd9edb8d1f02957f4a6ba1fa604fe389d3f5f32b7e4c0360a16a4d2f3",
+  "arguments": [
+    "USDCAD",
+    "7",
+    "scalper_20sma_1m",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "70579e80880176d0cc4034af1c76f638de29929b11b9429ea4d50b3bcf91b0a9",
+      "bytes": 784
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "0dd725a208cb5446671f323224228cab93e1850742cb365a2d1d97e64b567036",
+      "bytes": 3184
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "0cac3eb2f1b734cd3a087c2447c918b7a11aecf3207bd2cb6799585883f547c1",
+      "bytes": 9011
+    }
+  }
+}

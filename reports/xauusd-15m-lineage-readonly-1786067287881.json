@@ -1,0 +1,58 @@
+{
+  "reportType": "xauusd-15m-lineage-readonly",
+  "generatedAt": "2026-08-07T01:48:07.880Z",
+  "readOnly": true,
+  "source": {
+    "manifestName": "2026-08-06T23-34-27-732Z.json",
+    "manifestPath": "C:\\tradzfx-v2\\reports\\backfill-runs\\2026-08-06T23-34-27-732Z.json",
+    "trustedMode": "require",
+    "featureRuns": [
+      "25077375",
+      "25077376"
+    ]
+  },
+  "interval": {
+    "coverageStart": "2026-07-19T22:05:00Z",
+    "coverageEndExclusive": "2026-08-06T18:54:00Z",
+    "candidateEndExclusive": "2026-08-06T18:45:00Z"
+  },
+  "schemaRelations": {
+    "candle_source_runs": null,
+    "candle_source_lineage": null,
+    "canonical_candle_lineage": null,
+    "candle_producer_lineage": null
+  },
+  "counts": {
+    "canonical_count": 24825,
+    "valid_raw_source_key_count": 0,
+    "provable_ingestion_lineage_count": 0,
+    "without_representable_lineage_count": 24825
+  },
+  "sourceRunsGroupedByBroker": [
+    {
+      "broker": "1x Trade Ltd.",
+      "candles": 24825
+    }
+  ],
+  "ingestionSourceRunCounts": "NO DEDICATED INGESTION RELATION",
+  "buckets": {
+    "preliminary": [
+      {
+        "classification": "full",
+        "buckets": 1635
+      },
+      {
+        "classification": "partial_or_incomplete",
+        "buckets": 28
+      }
+    ],
+    "note": "Frozen market-calendar classification required; no wall-clock closed-period claim made."
+  },
+  "conclusion": "FAIL-CLOSED / PRODUCER-LINEAGE-NOT-REPRESENTABLE",
+  "actions": [
+    "No migration applied",
+    "No lineage rows inserted",
+    "No candidate created",
+    "No trusted window promoted"
+  ]
+}
