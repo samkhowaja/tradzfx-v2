@@ -1,0 +1,22 @@
+"use strict";
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "../..");
+const inputPath = path.join(root, "docs/checkpoints/2026-08-08-repo-reference-audit.json");
+const input = JSON.parse(fs.readFileSync(inputPath, "utf8"));
+const unknown = input.quarantineCandidates.filter((row) => row.classification === "UNKNOWN");
+const pathClass = (p) => {
+  if (/^reports\/(2026-08-07|2026-08-08|runs|sweep-logs|parity|waqar)/i.test(p)) return "generated_or_run_output";
+  if (/atr|candle|provenance|lineage|quarantine/i.test(p)) return "atr_candle_certification_evidence";
+  if (/architecture|migration|schema|index/i.test(p)) return "architecture_or_migration_report";
+  if (/backtest|trade|strategy|sweep/i.test(p)) return "backtest_or_strategy_report";
+  if (/audit|checkpoint|inventory|manifest/i.test(p)) return "audit_index_or_checkpoint";
+  return "other_evidence";
+};
+const referenceType = (row) => row.references.length ? "text_reference" : row.ignoredByGit ? "ignored_without_text_reference" : "no_text_reference";
+const rows = unknown.map((row) => ({ originalPath: row.originalPath, classification: "UNKNOWN", pathClass: pathClass(row.originalPath), referenceType: referenceType(row), ignoredByGit: row.ignoredByGit, sha256: row.sha256, size: row.size, references: row.references, reviewRequired: true, disposition: "UNREVIEWED" }));
+const group = (key) => rows.reduce((out, row) => { out[row[key]] = (out[row[key]] || 0) + 1; return out; }, {});
+const output = { schemaVersion: 1, sourceAuditSha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(inputPath)).digest("hex"), sourceCounts: input.counts, policy: "UNKNOWN remains in place; no movement, deletion, or quarantine approval", counts: { unknown: rows.length, byPathClass: group("pathClass"), byReferenceType: group("referenceType") }, rows };
+const outPath = path.join(root, "docs/checkpoints/2026-08-08-unknown-classification-evidence.json");
+fs.writeFileSync(outPath, JSON.stringify(output, null, 2) + "\n");
+console.log(JSON.stringify({ outPath, counts: output.counts, sourceAuditSha256: output.sourceAuditSha256 }, null, 2));
