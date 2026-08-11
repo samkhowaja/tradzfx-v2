@@ -61,7 +61,7 @@ describe("resolveReadinessRequirements", () => {
     });
     expect(structure).toMatchObject({
       semanticType: "event",
-      engineVersion: "2.1.0",
+      engineVersion: "2.2.0",
       lifecycleOwned: false,
     });
   });
