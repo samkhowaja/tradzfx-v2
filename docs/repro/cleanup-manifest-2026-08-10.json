@@ -1,0 +1,184 @@
+﻿[
+    {
+        "path":  "_audit_gates.ts",
+        "sha256":  "C6E3DA98686E5B0E7E766B57E240B7F11C04E9EBCB8A59122190706360E3C0E3",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_audit_no_signal.ts",
+        "sha256":  "E4460C177F8E40FF750522CD46640C65E7DBB0FC0470CEFEFED9B34ABC10D244",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_debug.cjs",
+        "sha256":  "3866C6D27CBC7BD90E928E4C32DDFA2643B1CC7DC732BDB6B97085CA6F515283",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_debug_timeouts.cjs",
+        "sha256":  "B83504053BF598E6BAA51852B910D93154DA40204AF3E46C2221B604A3F82B6A",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_diagnose_sql.js",
+        "sha256":  "09BAAE1676BFA8284F757694A328F6E16D05A9CE38E6643DDD1B329BE03CB8EA",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_analyze_trades.py",
+        "sha256":  "825F49AE8C4B926F9825DB35E2F2BCA895AD6A6C0F34AA49C88EF36B2A3FA3C6",
+        "references":  [
+
+                       ]
+    },
+    {
+        "path":  "_tmp_bias_check.cjs",
+        "sha256":  "7E9F08B82C58DBD45E8A8803C6BE28BD329AAB14E1BD60166BF8009A8790B7E7",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_check_db.js",
+        "sha256":  "A882614866524087BFDD533420DEA4EBB9336BD8613A2A37D6B050069D3B003A",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_check_schema.cjs",
+        "sha256":  "0BF7B3F3B6806A7E5ABB76B45C37B59F1FE4AEB7F105361B0E2BE1C341F34D24",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_compile.js",
+        "sha256":  "1C5CEF83145BD259077F32BEA9ACBBE3FD0E4EA8C146725119ACAB4462FDCAFD",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_diag.js",
+        "sha256":  "3284A9E6F55623256DBCD0F2CFBFA837C8FA78166DDA06DEAB8C86C8B7410A55",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_diag2.cjs",
+        "sha256":  "132530356F27985836B8DE08646E8FA29E2D4447180917D85A11A3AA03B7DD4A",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_diag3.cjs",
+        "sha256":  "DED806A1BC9320BBBDF24C7D2655221ECC23F68DC66818DF2D41F4F720A430E2",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_diag_eurusd.cjs",
+        "sha256":  "E5094C7CD98B8009BD6C761BAC70FD9FAC07317B9CE4ED01F6BD7CDD4EB1003C",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_feature_audit.js",
+        "sha256":  "439CE8FA0719A55ED167E0F9A416CD1F887D5E837B877D8200A9EAE3056ED82F",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_fix_db.js",
+        "sha256":  "28E5D30D978B9E86F879B943BED4EFBAECC4035BEF9F749B4BCEF803CE5C2282",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_ifvg.js",
+        "sha256":  "0B26CC9701DEDD969B076BB085A092AE53E1CA0EB1C75E01253EFB014A8BFF02",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_ifvg2.js",
+        "sha256":  "C241F84BB8AFBD25AD3457E11F107469E2B8ED3B11E7ABD7029AB9D8EF5E18DA",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_investigate.js",
+        "sha256":  "9D889083D4730235F327E26DEBE44196A802EF86E9D8CB81495759F45E1715BA",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_lk_diag.js",
+        "sha256":  "EB0DD84F1727543C4710D01B88E78D94C5AF2D2AD3376453D02CF1F243202F13",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_query_active.js",
+        "sha256":  "69FC2D1BDC650987AB705760AD6718BC5B05CE1DB97353DDD943C5BF6E037CC1",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_schema_check.js",
+        "sha256":  "DD09FA8169707A9ED9602290D035DC044923B4D13356CCC9A19A8DF477167F9A",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_schema_check2.js",
+        "sha256":  "A0CE78F78B6026D2998B805B127C76027F70A1FD391FD3042C34D9D8169D0956",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_sweep_map.cjs",
+        "sha256":  "8C047BFEF169D0CB65104CD3B6E3065AC40BB5FB95508CC00DEADC40693CBB7E",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "_tmp_yaml_check.js",
+        "sha256":  "430FF33CB8AF0865F32AF4D2E035C25FACD0D6BF99F009F4728B1548A47677BE",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    },
+    {
+        "path":  "__check_spec.cjs",
+        "sha256":  "C2D18CA0B34AC06D45B729C66793E60CC1D31DB7840D937E3FB18C35E1A6C6B3",
+        "references":  [
+                           "docs/checkpoints/2026-08-08-repo-reference-audit.json"
+                       ]
+    }
+]
