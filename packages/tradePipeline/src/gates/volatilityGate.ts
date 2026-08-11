@@ -17,7 +17,7 @@
 
 import type { MarketContext } from "@tm/shared";
 import { getRegistryPipSize } from "@tm/shared";
-import { VOLATILITY_DEFAULT_PERCENTILE, VOLATILITY_PERCENTILE_KEYS } from "@tm/engine";
+import { VOLATILITY_DEFAULT_PERCENTILE, VOLATILITY_PERCENTILE_KEYS } from "@tm/engine/params/gates";
 
 export interface VolatilityGateConfig {
   /** ATR5 threshold in pips; compared against symbol-specific pip size */
