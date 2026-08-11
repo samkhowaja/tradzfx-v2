@@ -524,12 +524,27 @@ describe("evaluatePortfolioHeat", () => {
 // ---------------------------------------------------------------------------
 
 describe("prefetchCandles", () => {
+  it("emits diagnostics without changing returned candles", async () => {
+    const rawTs = date("2026-01-01T00:00:00Z");
+    const canonicalTs = date("2026-01-01T00:00:00Z");
+    const fakePool = {
+      query: async (sql) => {
+        if (sql.includes("FROM market.candle_eligibility")) return { rows: [{ count: 0 }] };
+        if (sql.includes("FROM candles_1m WHERE")) return { rows: [{ ts: rawTs }, { ts: rawTs }] };
+        return { rows: [{ ts: canonicalTs, o: 1, h: 2, l: 1, c: 1.5, spread_pips: 1, suspect: false }] };
+      },
+    };
+    const result = await prefetchCandles(fakePool, "EURUSD", rawTs, rawTs, 1);
+    assert.deepStrictEqual(result.candles, [{ ts: canonicalTs, o: 1, h: 2, l: 1, c: 1.5, spread_pips: 1 }]);
+    assert.strictEqual(result.quarantined, 0);
+  });
+
   it("queries the expected range", async () => {
     const captured = { args: null };
     const fakePool = {
       query: async (sql, params) => {
         if (sql.includes("FROM market.candle_eligibility")) return { rows: [{ count: 0 }] };
-        captured.args = { sql, params };
+        if (sql.includes("FROM market.candles_1m_canonical")) captured.args = { sql, params };
         return { rows: [] };
       },
     };

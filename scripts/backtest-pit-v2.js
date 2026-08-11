@@ -1793,7 +1793,7 @@ async function applyGates(trades, spec, options = {}) {
 // Candle prefetch (Phase 4)
 // ---------------------------------------------------------------------------
 
-async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
+async function prefetchCandles(pool, symbol, from, to, _timeoutBars, jobId = null) {
   // Do not fetch beyond the stated backtest end date. Trades that cannot
   // resolve by `to` are reported as timeout/no-result, not as wins/losses.
   //
@@ -1826,10 +1826,14 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
     [symbol, from, upper]
   );
   if (unresolved.rows[0].count > 0) {
-    throw new Error(
-      `Canonical candle interval unresolved for ${symbol}; backtest aborted (${unresolved.rows[0].count} quarantined candles)`
-    );
+    const msg =
+      `Canonical candle interval unresolved for ${symbol}; backtest aborted (${unresolved.rows[0].count} quarantined candles)`;
+    throw new Error(msg);
   }
+  const { rows: rawRows } = await pool.query(
+    `SELECT ts FROM candles_1m WHERE symbol = $1 AND ts >= $2 AND ts <= $3 ORDER BY ts`,
+    [symbol, from, upper]
+  );
   const { rows } = await pool.query(
     `SELECT c.ts, c.o, c.h, c.l, c.c, c.spread AS spread_pips,
             (cq.is_suspect IS TRUE) AS suspect
@@ -1840,6 +1844,31 @@ async function prefetchCandles(pool, symbol, from, to, _timeoutBars) {
       ORDER BY c.ts`,
     [symbol, from, upper]
   );
+  const toUtcKey = (ts) => new Date(ts).toISOString();
+  const rawUnique = new Set(rawRows.map((row) => toUtcKey(row.ts)));
+  const canonicalUnique = new Set(rows.map((row) => toUtcKey(row.ts)));
+  const rawTimestamps = rawRows.map((row) => toUtcKey(row.ts));
+  const canonicalTimestamps = rows.map((row) => toUtcKey(row.ts));
+  const missingCanonicalTimestamps = [...rawUnique].filter((ts) => !canonicalUnique.has(ts));
+  const unexpectedCanonicalTimestamps = [...canonicalUnique].filter((ts) => !rawUnique.has(ts));
+  const coverageDiagnostic = {
+    jobId,
+    symbol,
+    timeframe: "1m",
+    lookback: _timeoutBars,
+    rawStart: rawTimestamps.length ? rawTimestamps[0] : null,
+    rawEnd: rawTimestamps.length ? rawTimestamps[rawTimestamps.length - 1] : null,
+    rawTimestampCount: rawUnique.size,
+    canonicalTimestampCount: canonicalUnique.size,
+    missingCanonicalTimestamps: missingCanonicalTimestamps.slice(0, 20),
+    unexpectedCanonicalTimestamps: unexpectedCanonicalTimestamps.slice(0, 20),
+    duplicateTimestamps: {
+      raw: rawRows.length - rawUnique.size,
+      canonical: rows.length - canonicalUnique.size,
+    },
+    coverageRatio: rawUnique.size === 0 ? null : canonicalUnique.size / rawUnique.size,
+  };
+  console.log(`[prefetch-coverage-diagnostic] ${JSON.stringify(coverageDiagnostic)}`);
   const candles = [];
   let quarantined = 0;
   for (const r of rows) {
