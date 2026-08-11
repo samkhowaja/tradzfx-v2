@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T14-07-12-869Z-ab490fd1-82b7-405d-ad6c-9fec7ceaabf4",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T14:07:12.869Z",
+  "finishedAt": "2026-07-27T14:07:19.800Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "apex_scalp_orb_v1",
+  "specHash": "733930d2b0e485a7b69882f8b66e0acf30a160fad3784746ee96aac3bef8876d",
+  "symbol": "AUDUSD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "cabbb9b5b0629fc48d42312dfc70d39e090f4091b0695f7c44e16bbe1bf5bed8",
+  "arguments": [
+    "AUDUSD",
+    "7",
+    "apex_scalp_orb_v1",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "9a6ec4a827f4461e5870159909e53bca4e0acef42645a6732e02d53c88071247",
+      "bytes": 878
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "fd36d3de44143254931a2836f4058dcd9f2b3a93e8e733c1fd9bcfe8b9f13e8b",
+      "bytes": 3164
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "d7c20811565dcfdcd8f9f280bcb0cc583c2290eaefeaac38715191f3f45cdc03",
+      "bytes": 1828
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T03:38:46.496Z",
+  "finishedAt": "2026-08-06T03:38:49.528Z",
+  "symbols": [
+    "EURUSD"
+  ],
+  "timeframes": [
+    "5m"
+  ],
+  "requestedFeatures": [
+    "features_bias",
+    "features_pricing",
+    "features_atr",
+    "features_moving_average"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "EURUSD": {
+        "mode": "require",
+        "windowIds": [
+          48
+        ],
+        "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+        "detectors": [
+          "window-certifier-v5.2-dxy-formula@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805"
+        ],
+        "gatedAt": "2026-08-06T03:38:47.127Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "cc5890ca5da1bc97bb348c140101105d4793e979fae4f59e3172fcec755f9314"
+  },
+  "cells": [
+    {
+      "feature": "features_bias",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-24T20:55:00.000Z",
+      "sourceMaxTs": "2026-07-25T01:35:00.000Z",
+      "persistedRows": 1,
+      "persistedMinTs": "2026-07-24T20:55:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:55:00.000Z",
+      "producerRunId": "23909117",
+      "producerStatus": "done",
+      "producerVersion": "3.0.0",
+      "producerWatermarkTs": "2026-07-24T20:55:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:55:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    },
+    {
+      "feature": "features_pricing",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-24T20:55:00.000Z",
+      "sourceMaxTs": "2026-07-25T01:35:00.000Z",
+      "persistedRows": 1,
+      "persistedMinTs": "2026-07-24T20:55:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:55:00.000Z",
+      "producerRunId": "23909118",
+      "producerStatus": "done",
+      "producerVersion": "2.1.0",
+      "producerWatermarkTs": "2026-07-24T20:55:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:55:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    },
+    {
+      "feature": "features_atr",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-24T20:55:00.000Z",
+      "sourceMaxTs": "2026-07-25T01:35:00.000Z",
+      "persistedRows": 3,
+      "persistedMinTs": "2026-07-24T20:55:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:55:00.000Z",
+      "producerRunId": "23909114",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-07-24T20:55:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:55:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    },
+    {
+      "feature": "features_moving_average",
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-24T20:55:00.000Z",
+      "sourceMaxTs": "2026-07-25T01:35:00.000Z",
+      "persistedRows": 19,
+      "persistedMinTs": "2026-07-24T20:55:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:55:00.000Z",
+      "producerRunId": "23909119",
+      "producerStatus": "done",
+      "producerVersion": "2.0.0",
+      "producerWatermarkTs": "2026-07-24T20:55:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:55:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    }
+  ],
+  "summary": {
+    "barsProcessed": 58,
+    "errors": 4,
+    "readyCells": 0,
+    "blockedCells": 4
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-06T05-17-44-313Z-9071d62d-e807-4a59-afdc-4cc0eadaeab2",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-08-06T05:17:44.313Z",
+  "finishedAt": "2026-08-06T05:17:48.190Z",
+  "exitCode": 0,
+  "gitSha": "9fef5b0b137c864b90c09222d065e366e3b7d5a9",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "doyle_sd",
+  "specHash": "3d95c2e2c03ca9b54ab7bd2a721c6d48c41507078af6e0cb0000d230da97b78d",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-18T01:40:00.000Z",
+    "to": "2026-07-24T20:55:00.000Z"
+  },
+  "mode": "deterministic",
+  "setupProfile": "strict",
+  "intrabarMode": "close",
+  "dataEdge": "2026-07-24T20:55:00.000Z",
+  "trustedGate": {
+    "mode": "require",
+    "windowIds": [
+      48
+    ],
+    "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+    "detectors": [
+      "window-certifier-v5.2-dxy-formula@20260805"
+    ],
+    "canonicalVersions": [
+      "canonical-m186-exclude-skip@20260805"
+    ],
+    "gatedAt": "2026-08-06T05:17:44.397Z"
+  },
+  "readinessManifestHash": "f544e0275a0254e26643191a8ef3184a7b1b557920b790c61c97b76699bc9bac",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "doyle_sd",
+    "--start=2026-07-18T01:40:00Z",
+    "--end=2026-07-24T20:55:00Z",
+    "--mode=deterministic",
+    "--persist",
+    "--json"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "5457c90d5a7019d70717118b86ace1c9b03cebc15a5ee61487c1573416a38fc7",
+      "bytes": 1267
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "5457c90d5a7019d70717118b86ace1c9b03cebc15a5ee61487c1573416a38fc7",
+      "bytes": 1267
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "774f588545c90f46c376696b2777dbca187418e5cfec966c4cf29e8657cf4080",
+      "bytes": 3983
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "432c8ea71d0a3ac9dc4cbc31c9148d9d7731975453a5ea85a32330c238b5b5a0",
+      "bytes": 100703
+    }
+  }
+}

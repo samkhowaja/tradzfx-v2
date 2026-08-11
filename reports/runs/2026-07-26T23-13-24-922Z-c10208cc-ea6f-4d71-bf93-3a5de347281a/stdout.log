@@ -1,0 +1,9 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-20T15:53:25.167Z skipped
+[backtest-pit-v2] Symbols: --help
+
+[backtest-pit-v2] Coverage warning for --help: features_bias@5m=0, features_moving_average@5m=0, features_zone@5m=0, features_structure@5m=0, features_zone_retest@5m=0, features_displacement@5m=0, features_pricing@5m=0, features_atr@5m=0, market.candles_1m_canonical@1m=0, market.candles_5m_canonical@5m=0
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for --help: [object Object]=STALE(?h>?h) | features_bias@5m=EMPTY_DENSE, features_pricing@5m=EMPTY_DENSE, features_atr@5m=EMPTY_DENSE, features_zone@5m=EMPTY_DENSE, features_moving_average@5m=EMPTY_DENSE | lifecycle_stale_[object Object], missing_candles_1m, missing_market.candles_1m_canonical, missing_market.candles_5m_canonical, capability_EMPTY_DENSE_features_bias@5m, capability_EMPTY_DENSE_features_pricing@5m, capability_EMPTY_DENSE_features_atr@5m, capability_EMPTY_DENSE_features_zone@5m, capability_EMPTY_DENSE_features_moving_average@5m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+--help: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_[object Object], missing_candles_1m, missing_market.candles_1m_canonical, missing_market.candles_5m_canonical, capability_EMPTY_DENSE_features_bias@5m, capability_EMPTY_DENSE_features_pricing@5m, capability_EMPTY_DENSE_features_atr@5m, capability_EMPTY_DENSE_features_zone@5m, capability_EMPTY_DENSE_features_moving_average@5m)

@@ -1,0 +1,46 @@
+[backtest-pit-v2] Strategy: a_plus_orb_fvg_5m | signalSource: fvg
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-27 → 2026-07-26 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-04-27T09:50:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD, EURUSD, GBPUSD, NZDUSD, USDCAD, USDCHF, USDJPY, USDSEK, XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for AUDUSD: features_zone@5m=STALE(19.02h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] DEGRADED data quality for EURUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+[backtest-pit-v2] DEGRADED data quality for GBPUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+[backtest-pit-v2] DEGRADED data quality for NZDUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDCAD: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] DEGRADED data quality for USDCHF: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDJPY: features_zone@5m=STALE(19h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for USDSEK: features_zone@5m=STALE(19.02h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m
+AUDUSD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+EURUSD: 2 raw signals (0 skipped for warmup, 1 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 820ms | prefetch 829ms | setup-engine 980ms | simulate 982ms
+  Setup evaluations: 1 persisted, 1 evaluated, 0 context-hash skips
+  Executed: 0 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 0
+  Wins: 0 | Losses: 0 | Timeouts: 1
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R
+GBPUSD: 6 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 1179ms | prefetch 627ms | setup-engine 1827ms | simulate 1829ms
+  Setup evaluations: 6 persisted, 6 evaluated, 0 context-hash skips
+  Executed: 2 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 4 | Skipped: 0 | Heat dropped: 0
+  Wins: 1 | Losses: 1 | Timeouts: 4
+  WR: 50.0% | Net R: 1.00 | Avg Win: 2.00R | Avg Loss: -1.00R
+NZDUSD: 8 raw signals (0 skipped for warmup, 1 invalid compiler geometry, 0 invalid setup geometry, 2 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 804ms | prefetch 874ms | setup-engine 946ms | simulate 947ms
+  Setup evaluations: 7 persisted, 7 evaluated, 0 context-hash skips
+  Executed: 4 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: setup grade BLOCK=2
+  Wins: 0 | Losses: 4 | Timeouts: 1
+  WR: 0.0% | Net R: -4.00 | Avg Win: 0.00R | Avg Loss: -1.00R
+USDCAD: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDCHF: 7 raw signals (0 skipped for warmup, 1 invalid compiler geometry, 0 invalid setup geometry, 3 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 703ms | prefetch 1024ms | setup-engine 268ms | simulate 269ms
+  Setup evaluations: 6 persisted, 6 evaluated, 0 context-hash skips
+  Executed: 2 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: setup grade BLOCK=2, No active FVG aligned with setup direction=1
+  Wins: 0 | Losses: 2 | Timeouts: 1
+  WR: 0.0% | Net R: -2.00 | Avg Win: 0.00R | Avg Loss: -1.00R
+USDJPY: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+USDSEK: BLOCKED_SYSTEM_QUALITY — run skipped (lifecycle_stale_features_zone)
+XAUUSD: no signals
+
+AGGREGATE: Trades=8 WR=12.5% NetR=-5.00 RealizedR=-5.00 AvgDrift=0.00p
+[backtest-pit-v2] Persisted 8 trades to backtest_results (run a_plus_orb_fvg_5m-2026-04-27T01:50:00.000Z-2026-07-26T01:50:00.000Z-9237ebc2)
+[backtest-pit-v2] Heat post-pass: 0/8 trades dropped (run a_plus_orb_fvg_5m-2026-04-27T01:50:00.000Z-2026-07-26T01:50:00.000Z-9237ebc2)

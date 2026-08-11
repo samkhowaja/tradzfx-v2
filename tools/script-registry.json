@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "audit-only",
+  "checkpointTag": "repo-checkpoint-2026-08-08",
+  "unknownPolicy": "KEEP",
+  "movementAllowed": false,
+  "deletionAllowed": false,
+  "source": "docs/checkpoints/2026-08-08-repo-reference-audit.json",
+  "protectedPathPrefixes": [
+    "infra/migrations/",
+    "scripts/migration-193-",
+    "scripts/audit-migration-193-",
+    "scripts/ingestion-",
+    "apps/",
+    "packages/",
+    "mt5-ea/",
+    "docs/checkpoints/",
+    "docs/repro/"
+  ],
+  "entries": []
+}

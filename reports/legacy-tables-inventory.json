@@ -1,0 +1,117 @@
+{
+  "ts": "2026-08-05T18:22:14.458Z",
+  "rows": [
+    {
+      "schema_name": "public",
+      "table_name": "market_levels_legacy_20260802",
+      "total_bytes": "20187717632",
+      "table_bytes": "14977761280",
+      "indexes_bytes": "5209956352",
+      "est_rows": "23125492"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "order_block_state_history_shadow",
+      "total_bytes": "784334848",
+      "table_bytes": "450666496",
+      "indexes_bytes": "333668352",
+      "est_rows": "2123551"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "order_block_event_shadow",
+      "total_bytes": "8880128",
+      "table_bytes": "4218880",
+      "indexes_bytes": "4661248",
+      "est_rows": "27741"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "order_block_state_shadow",
+      "total_bytes": "7282688",
+      "table_bytes": "6168576",
+      "indexes_bytes": "1114112",
+      "est_rows": "29460"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "order_block_lifecycle_replay_shadow",
+      "total_bytes": "1392640",
+      "table_bytes": "778240",
+      "indexes_bytes": "614400",
+      "est_rows": "2825"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_htf_bias_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "1056768",
+      "table_bytes": "1056768",
+      "indexes_bytes": "0",
+      "est_rows": "500"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "total_bytes": "630784",
+      "table_bytes": "368640",
+      "indexes_bytes": "262144",
+      "est_rows": "677"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_fvg_backup",
+      "total_bytes": "598016",
+      "table_bytes": "598016",
+      "indexes_bytes": "0",
+      "est_rows": "3900"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_atr_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "278528",
+      "table_bytes": "278528",
+      "indexes_bytes": "0",
+      "est_rows": "1500"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_bias_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "139264",
+      "table_bytes": "139264",
+      "indexes_bytes": "0",
+      "est_rows": "166"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "progressive_shadow_checkpoint",
+      "total_bytes": "81920",
+      "table_bytes": "49152",
+      "indexes_bytes": "32768",
+      "est_rows": "9"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_direction_state_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "73728",
+      "table_bytes": "73728",
+      "indexes_bytes": "0",
+      "est_rows": "166"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_pivot_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "16384",
+      "table_bytes": "16384",
+      "indexes_bytes": "0",
+      "est_rows": "55"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "features_structure_backup_eurusd_5m_20260802_1307",
+      "total_bytes": "16384",
+      "table_bytes": "16384",
+      "indexes_bytes": "0",
+      "est_rows": "-1"
+    }
+  ]
+}

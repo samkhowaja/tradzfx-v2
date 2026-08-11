@@ -1,0 +1,7 @@
+﻿# Graphify regeneration
+
+Run from repository root:
+
+    pnpm graphify
+
+Generated output: graphify-out/; curated snapshots: docs/graphify/.

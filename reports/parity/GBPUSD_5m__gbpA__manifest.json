@@ -1,0 +1,41 @@
+{
+  "symbol": "GBPUSD",
+  "tf": "5m",
+  "from": "2026-07-18T01:43:00Z",
+  "to": "2026-08-04T07:54:00Z",
+  "takenAt": "2026-08-05T06:05:48.373Z",
+  "features": {
+    "features_moving_average": {
+      "rows": 62662,
+      "distinctAnchors": 3298,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "e77578ec96ad818b4fd9a79cc9f69d0af820333d929b29dc035943690e7b21bd",
+      "file": "reports\\parity\\GBPUSD_5m__gbpA__features_moving_average.jsonl"
+    },
+    "features_atr": {
+      "rows": 9894,
+      "distinctAnchors": 3298,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-04T07:45:00.000Z",
+      "setHash": "49ce42ce0cc3838af655f71b3c4b06bd442502cf060947152d75c5425225b2f8",
+      "file": "reports\\parity\\GBPUSD_5m__gbpA__features_atr.jsonl"
+    },
+    "features_pivot": {
+      "rows": 358,
+      "distinctAnchors": 357,
+      "minTs": "2026-07-19T22:00:00.000Z",
+      "maxTs": "2026-08-04T07:20:00.000Z",
+      "setHash": "e9b9c8214107259544356f5c28bfa1aeb4095e16275fe1883e98bc74e846edda",
+      "file": "reports\\parity\\GBPUSD_5m__gbpA__features_pivot.jsonl"
+    },
+    "features_structure": {
+      "rows": 184,
+      "distinctAnchors": 184,
+      "minTs": "2026-07-19T21:00:00.000Z",
+      "maxTs": "2026-08-02T22:00:00.000Z",
+      "setHash": "a89a2f167413227c991d0895377d234b413f96d2d6b4f8773b7d1a2394ad5ca4",
+      "file": "reports\\parity\\GBPUSD_5m__gbpA__features_structure.jsonl"
+    }
+  }
+}

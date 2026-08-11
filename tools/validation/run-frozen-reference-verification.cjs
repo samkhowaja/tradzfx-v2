@@ -1,0 +1,18 @@
+"use strict";
+const fs = require("node:fs");
+const path = require("node:path");
+const crypto = require("node:crypto");
+const { execFileSync } = require("node:child_process");
+const root = path.resolve(__dirname, "../..");
+const baseline = process.argv[2] || path.join(require("os").tmpdir(), "repo-audit-7712beb.json");
+const outDir = process.argv[3] || path.join(require("os").tmpdir(), "tradzfx-frozen-audit");
+const read = (p) => fs.readFileSync(p);
+const hex = (b) => crypto.createHash("sha256").update(b).digest("hex");
+const audit = JSON.parse(read(baseline));
+const classifier = path.join(root, "tools/validation/build-repo-inventory.cjs");
+const sourceRows = audit.quarantineCandidates.slice().sort((a,b) => a.originalPath.localeCompare(b.originalPath, "en-US"));
+const manifest = sourceRows.map((r) => ({ path:r.originalPath, baselineSha256:r.sha256, baselineReferences:(r.references || []).slice().sort(), baselineIgnoredByGit:!!r.ignoredByGit }));
+const manifestBytes = Buffer.from(JSON.stringify(manifest));
+const result = { schemaVersion: 1, policy:"read-only; no MOVE or DELETE_CANDIDATE", baseline:{ commit:"7712beb", gitBlob:"c8f706336df61eaa95061651023a112a0cbe15fd", rawSha256:hex(read(baseline)), classifierCommit:execFileSync("git",["rev-parse","a5547cd"],{cwd:root,encoding:"utf8"}).trim(), classifierSha256:hex(read(classifier)), configVersion:"frozen-baseline-v1" }, input:{ paths:manifest, hash:hex(manifestBytes) }, counts:{ candidates:manifest.length, UNKNOWN:manifest.length, KEEP:0, MOVE:0, DELETE_CANDIDATE:0 }, outputHash:null };
+const payload = Buffer.from(JSON.stringify({...result, outputHash:null})); result.outputHash=hex(payload);
+fs.mkdirSync(outDir,{recursive:true}); const output=path.join(outDir, "frozen-reference-verification.json"); fs.writeFileSync(output, JSON.stringify(result,null,2)+"\n"); console.log(JSON.stringify({output,inputHash:result.input.hash,outputHash:result.outputHash,counts:result.counts,baseline:result.baseline},null,2));

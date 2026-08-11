@@ -1,0 +1,13 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-28 → 2026-07-27 (90 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-04-29T00:25:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+  [setup-cache] 1 persistent hits, 27 remaining for evaluation
+XAUUSD: 28 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 6 deduped) | signal query 826ms | prefetch 416ms | setup-engine 2856ms | simulate 2862ms
+  Setup evaluations: 27 persisted, 27 evaluated, 1 context-hash skips
+  Executed: 0 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 22 | Heat dropped: 0
+  Gate skips: volatility=22
+  Wins: 0 | Losses: 0 | Timeouts: 0
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R

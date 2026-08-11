@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: scalper_20sma_1m | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-19T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] DEGRADED data quality for EURUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@1m
+EURUSD: 836 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 192 deduped) | signal query 5780ms | prefetch 49ms | setup-engine N/Ams | simulate 17ms
+  Executed: 318 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 15 | Skipped: 250 | Heat dropped: 61
+  Gate skips: session=250
+  Wins: 46 | Losses: 272 | Timeouts: 15
+  WR: 14.5% | Net R: -52.34 | Avg Win: 0.62R | Avg Loss: -0.30R

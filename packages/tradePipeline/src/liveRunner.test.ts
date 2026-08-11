@@ -177,9 +177,9 @@ describe("runLivePipeline", () => {
     expect(result.reason).toBe("no_signal");
     expect(result.orderCreated).toBeUndefined();
     // 1 wall-clock guard (fires first, fails open — query count stays same)
-    // + 5 base queries (candle MAX, 1x batched feature freshness, 3x producer SLA)
-    // + 1 signal SELECT + 1 rejection INSERT = 8 total (no transaction on early return).
-    expect(fakePool.query).toHaveBeenCalledTimes(8);
+    // + 6 base queries (candle MAX, 1x batched feature freshness, 4x producer SLA)
+    // + 1 signal SELECT + 1 rejection INSERT = 9 total (no transaction on early return).
+    expect(fakePool.query).toHaveBeenCalledTimes(9);
   });
 
   it("writes live_signal and live_order when gates pass and deploymentId is provided", async () => {

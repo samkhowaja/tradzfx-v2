@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: cct_rectangle_xau_v1 | signalSource: generic
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T23:12:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_pricing@15m=STALE_STATE, features_atr@15m=STALE_STATE | capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@15m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+XAUUSD: BLOCKED_SYSTEM_QUALITY — run skipped (capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@15m)

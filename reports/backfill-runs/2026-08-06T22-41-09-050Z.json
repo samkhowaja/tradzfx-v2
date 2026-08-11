@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:41:09.050Z",
+  "finishedAt": "2026-08-06T22:41:14.199Z",
+  "symbols": [
+    "AUDUSD"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "AUDUSD": {
+        "mode": "require",
+        "windowIds": [
+          104
+        ],
+        "windowSetHash": "ff0e387ed5beb97e5b0e1c4d75674fcbb2bc42838134dd4ca122d7ae8c8f0c76",
+        "detectors": [
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:41:09.557Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "6f4120fcf46c20f2c5b02a1911898f3f289e010710c1165c36d94717bc61f3b1"
+  },
+  "cells": [
+    {
+      "feature": "features_atr",
+      "symbol": "AUDUSD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-08-06T01:30:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistedRows": 207,
+      "persistedMinTs": "2026-08-06T01:30:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:30:00.000Z",
+      "producerRunId": "24980759",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:30:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 138,
+      "expectedAnchors": 69,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 70,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

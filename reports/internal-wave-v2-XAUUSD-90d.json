@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-07-24T20:15:06.913Z",
+  "mode": "inactive-read-only",
+  "symbol": "XAUUSD",
+  "days": 90,
+  "window": [
+    "2026-04-25T20:14:00.000Z",
+    "2026-07-24T20:14:00.000Z"
+  ],
+  "assumptions": {
+    "killzones": [
+      "LONDON_KILLZONE",
+      "NY_KILLZONE"
+    ],
+    "confirmationMinutes": 30,
+    "timeoutMinutes": 120,
+    "intrabar": "sl_first",
+    "costs": "zero",
+    "parentLeg": "latest confirmed aligned 15m structure",
+    "entry": "first 1m retest of MSS/CHOCH level",
+    "stop": "5m sweep extreme",
+    "target": "nearest known opposing external, else internal, else 2R"
+  },
+  "funnel": {
+    "sweeps": 1980,
+    "killzone": 682,
+    "direction": 286,
+    "parentLeg": 63,
+    "confirmation": 1,
+    "retest": 0,
+    "trade": 0
+  },
+  "metrics": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "timeouts": 0,
+    "winRate": 0,
+    "netR": 0,
+    "expectancyR": 0,
+    "profitFactor": null,
+    "avgEntryDelayMin": 0,
+    "avgMfeR": 0,
+    "avgMaeR": 0
+  },
+  "byKillzone": {},
+  "byDirection": {},
+  "byRegime": {},
+  "byWeekday": {},
+  "trades": []
+}

@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: keylevel_bounce_v1_4r | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-21 → 2026-07-20 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-04-22T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 132 raw signals (4 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 47 deduped) | signal query 138ms | prefetch 592ms | setup-engine N/Ams | simulate 10ms
+  Executed: 49 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 32 | Heat dropped: 0
+  Gate skips: session=32
+  Wins: 15 | Losses: 34 | Timeouts: 0
+  WR: 30.6% | Net R: -11.62 | Avg Win: 0.56R | Avg Loss: -0.59R

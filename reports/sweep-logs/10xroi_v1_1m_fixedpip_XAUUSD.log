@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+[backtest-pit-v2] Strategy: 10xroi_v1_1m_fixedpip | signalSource: generic
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-06-20T03:20:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 69 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 39 deduped) | signal query 94ms | prefetch 263ms | setup-engine N/Ams | simulate 4ms
+  Executed: 12 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 18 | Heat dropped: 0
+  Gate skips: rateLimit: 1 signals in last hour for 10xroi_v1_1m_fixedpip (max=1)=15, session: Session=OFF_HOURS not in allowed=[ASIA, LONDON, OVERLAP, NY]=3
+  Wins: 0 | Losses: 12 | Timeouts: 0
+  WR: 0.0% | Net R: -11.00 | Avg Win: 0.00R | Avg Loss: -0.92R

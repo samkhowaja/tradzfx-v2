@@ -49,6 +49,7 @@ import { createDailyLossGate } from "./gates/dailyLossGate";
 import { createDailyWinGate } from "./gates/dailyWinGate";
 import { createDirectionAlignmentGate } from "./gates/directionAlignmentGate";
 import { appendSignalCandidate } from "./candidateAudit";
+import { assertExecutionAllowedByDxyPolicy } from "./dxyGuard";
 
 /**
  * In-memory cache for market_volatility_profile rows.
@@ -557,6 +558,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
   } = opts;
   const now = evaluationTs ?? new Date();
   const effectiveDeploymentId = evaluationOnly ? undefined : deploymentId;
+  assertExecutionAllowedByDxyPolicy(strategySpec, evaluationOnly);
 
   // 0. Wall-clock staleness guard (step 0 — independent of evaluationTs).
   // When ingestion stalls, evaluationTs freezes at the last candle ts and the

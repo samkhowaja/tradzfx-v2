@@ -1,0 +1,62 @@
+[backtest-pit-v2] Strategy: forex_strategy_orb | signalSource: orb
+[backtest-pit-v2] Mode: deterministic | setupProfile: strict | setupFamily: orb_breakout | intrabar: close
+[backtest-pit-v2] Range: 2026-04-20 → 2026-07-19 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-04-21T01:12:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD
+
+  [setup-cache] 57 persistent hits, 0 remaining for evaluation
+EURUSD: 57 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 34 setup-engine BLOCK, 0 deduped) | signal query 1923ms | prefetch 427ms | setup-engine 15ms | simulate 23ms
+  Executed: 21 | Skipped: 1 | Heat dropped: 0
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=23, HTF bias is BLOCK (short) vs setup (long)=11
+  Wins: 11 | Losses: 10 | Timeouts: 1
+  WR: 52.4% | Net R: -1.04 | Avg Win: 1.37R | Avg Loss: -1.61R
+  [setup-cache] 58 persistent hits, 0 remaining for evaluation
+GBPUSD: 58 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 30 setup-engine BLOCK, 0 deduped) | signal query 2375ms | prefetch 398ms | setup-engine 5ms | simulate 9ms
+  Executed: 24 | Skipped: 1 | Heat dropped: 0
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=27, HTF bias is BLOCK (short) vs setup (long)=3
+  Wins: 14 | Losses: 10 | Timeouts: 3
+  WR: 58.3% | Net R: 2.40 | Avg Win: 1.36R | Avg Loss: -1.66R
+  [setup-cache] 57 persistent hits, 0 remaining for evaluation
+AUDUSD: 57 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 22 setup-engine BLOCK, 0 deduped) | signal query 2386ms | prefetch 408ms | setup-engine 6ms | simulate 15ms
+  Executed: 30 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: setup grade BLOCK=21, HTF bias is BLOCK (short) vs setup (long)=1
+  Wins: 8 | Losses: 22 | Timeouts: 5
+  WR: 26.7% | Net R: -36.47 | Avg Win: 1.11R | Avg Loss: -2.06R
+  [setup-cache] 56 persistent hits, 0 remaining for evaluation
+NZDUSD: 56 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 19 setup-engine BLOCK, 0 deduped) | signal query 2626ms | prefetch 437ms | setup-engine 6ms | simulate 14ms
+  Executed: 30 | Skipped: 4 | Heat dropped: 0
+  Gate skips: volatility=4
+  Setup-engine BLOCK reasons: setup grade BLOCK=19
+  Wins: 7 | Losses: 23 | Timeouts: 3
+  WR: 23.3% | Net R: -39.69 | Avg Win: 1.19R | Avg Loss: -2.09R
+  [setup-cache] 57 persistent hits, 0 remaining for evaluation
+USDCAD: 57 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 19 setup-engine BLOCK, 0 deduped) | signal query 2466ms | prefetch 408ms | setup-engine 4ms | simulate 14ms
+  Executed: 33 | Skipped: 1 | Heat dropped: 0
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=19
+  Wins: 10 | Losses: 23 | Timeouts: 4
+  WR: 30.3% | Net R: -33.30 | Avg Win: 1.22R | Avg Loss: -1.98R
+  [setup-cache] 59 persistent hits, 0 remaining for evaluation
+USDCHF: 59 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 21 setup-engine BLOCK, 0 deduped) | signal query 2106ms | prefetch 430ms | setup-engine 3ms | simulate 12ms
+  Executed: 34 | Skipped: 1 | Heat dropped: 0
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=21
+  Wins: 9 | Losses: 25 | Timeouts: 3
+  WR: 26.5% | Net R: -42.02 | Avg Win: 0.90R | Avg Loss: -2.01R
+  [setup-cache] 56 persistent hits, 1 remaining for evaluation
+USDJPY: 57 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 13 setup-engine BLOCK, 0 deduped) | signal query 2995ms | prefetch 375ms | setup-engine 59ms | simulate 68ms
+  Setup evaluations: 1 persisted, 1 evaluated, 56 context-hash skips
+  Executed: 36 | Skipped: 4 | Heat dropped: 0
+  Gate skips: volatility=4
+  Setup-engine BLOCK reasons: setup grade BLOCK=13
+  Wins: 19 | Losses: 17 | Timeouts: 4
+  WR: 52.8% | Net R: -4.04 | Avg Win: 1.35R | Avg Loss: -1.74R
+  [setup-cache] 62 persistent hits, 0 remaining for evaluation
+XAUUSD: 62 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 18 setup-engine BLOCK, 0 deduped) | signal query 3392ms | prefetch 403ms | setup-engine 6ms | simulate 14ms
+  Executed: 43 | Skipped: 1 | Heat dropped: 0
+  Gate skips: volatility=1
+  Setup-engine BLOCK reasons: setup grade BLOCK=18
+  Wins: 32 | Losses: 11 | Timeouts: 0
+  WR: 74.4% | Net R: 39.32 | Avg Win: 1.68R | Avg Loss: -1.31R

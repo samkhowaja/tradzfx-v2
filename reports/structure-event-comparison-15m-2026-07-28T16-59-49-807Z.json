@@ -1,0 +1,82 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "USDJPY",
+      "status": "OK",
+      "candles": 272,
+      "pivots": 14,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 163.511,
+          "ts": "2026-07-27T01:45:00.000Z",
+          "availableAtTs": "2026-07-27T01:45:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T02:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 163.449,
+          "ts": "2026-07-27T07:15:00.000Z",
+          "availableAtTs": "2026-07-27T07:15:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T07:30:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "USDJPY|15m|1785099600000|low|163.511|1|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785099600000|low|163.511|1",
+          "level": 163.511,
+          "eventTs": "2026-07-27T01:45:00.000Z",
+          "availableAt": "2026-07-27T02:00:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-26T23:15:00.000Z",
+          "sourceCenterTs": "2026-07-26T21:00:00.000Z",
+          "sourceKind": "low",
+          "trendDirection": "bearish",
+          "establishedTrend": "bearish",
+          "trendDirectionAtBreak": "bearish",
+          "establishedTrendAtBreak": "bearish",
+          "laterPivotExists": true,
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "USDJPY|15m|1785117600000|low|163.449|2|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785117600000|low|163.449|2",
+          "level": 163.449,
+          "eventTs": "2026-07-27T07:15:00.000Z",
+          "availableAt": "2026-07-27T07:30:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-27T04:15:00.000Z",
+          "sourceCenterTs": "2026-07-27T02:00:00.000Z",
+          "sourceKind": "low",
+          "trendDirection": "bearish",
+          "establishedTrend": "bearish",
+          "trendDirectionAtBreak": "bearish",
+          "establishedTrendAtBreak": "bearish",
+          "laterPivotExists": true,
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 2
+      }
+    }
+  ]
+}

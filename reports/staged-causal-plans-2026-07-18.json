@@ -1,0 +1,3462 @@
+{
+  "generatedAt": "2026-07-19T00:07:14.270Z",
+  "total": 47,
+  "replayable": 17,
+  "blocked": 30,
+  "plans": [
+    {
+      "file": "a_plus_orb_fvg_5m.yaml",
+      "id": "a_plus_orb_fvg_5m",
+      "active": true,
+      "symbols": [
+        "AUDUSD",
+        "EURUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "USDSEK",
+        "XAUUSD"
+      ],
+      "strategyId": "a_plus_orb_fvg_5m",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "local_bias_anchor",
+          "role": "context",
+          "condition": {
+            "id": "local_bias_anchor",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction IN ('bullish', 'bearish')",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "opening_break_fvg",
+          "role": "object",
+          "condition": {
+            "id": "opening_break_fvg",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind = 'fvg' AND direction IN ('bullish', 'bearish')",
+            "required": true,
+            "groupBy": [
+              "direction"
+            ]
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event"
+      ],
+      "warnings": [
+        "local_bias_anchor:implicit_lookback",
+        "opening_break_fvg:implicit_lookback"
+      ]
+    },
+    {
+      "file": "doyle_sd.yaml",
+      "id": "doyle_sd",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "XAUUSD"
+      ],
+      "strategyId": "doyle_sd",
+      "template": "trend_cross",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "trend_ema",
+          "role": "filter",
+          "condition": {
+            "id": "trend_ema",
+            "feature": "features_moving_average",
+            "tf": "5m",
+            "predicate": "ma_type = 'ema_cross' AND fast_period = 50 AND slow_period = 200 AND direction = features_bias.direction",
+            "required": true,
+            "groupBy": [
+              "ma_type",
+              "fast_period",
+              "slow_period"
+            ]
+          }
+        },
+        {
+          "id": "sd_zone",
+          "role": "object",
+          "condition": {
+            "id": "sd_zone",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND quality_score > 0.05",
+            "required": true,
+            "groupBy": [
+              "zone_kind"
+            ]
+          }
+        },
+        {
+          "id": "msb",
+          "role": "entry_event",
+          "condition": {
+            "id": "msb",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true,
+            "groupBy": [
+              "event_type",
+              "direction"
+            ]
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "filter",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone_retest",
+            "tf": "5m",
+            "predicate": "wick_into_zone = true AND close_inside_zone = false AND direction = features_bias.direction",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:trend_cross"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "trend_ema:implicit_lookback",
+        "sd_zone:implicit_lookback",
+        "msb:implicit_lookback",
+        "zone_retest:implicit_lookback"
+      ]
+    },
+    {
+      "file": "fib_golden_50ema_4h.yaml",
+      "id": "fib_golden_50ema_4h",
+      "active": false,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "XAUUSD"
+      ],
+      "strategyId": "fib_golden_50ema_4h",
+      "template": "trend_cross",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "4h",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "golden_zone",
+          "role": "filter",
+          "condition": {
+            "id": "golden_zone",
+            "feature": "features_pricing",
+            "tf": "4h",
+            "predicate": "fib_position IN ('500_618', '618_786') AND in_ote = true AND position IS NOT NULL",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "ema_50",
+          "role": "filter",
+          "condition": {
+            "id": "ema_50",
+            "feature": "features_moving_average",
+            "tf": "4h",
+            "predicate": "ma_type = 'ema' AND period = 50 AND value > 0",
+            "required": true,
+            "weight": 7,
+            "groupBy": [
+              "ma_type",
+              "period"
+            ]
+          }
+        },
+        {
+          "id": "engulfing",
+          "role": "filter",
+          "condition": {
+            "id": "engulfing",
+            "feature": "features_candle_pattern",
+            "tf": "4h",
+            "predicate": "pattern_name IN ('engulfing_bull', 'engulfing_bear') AND direction = features_bias.direction AND confidence >= 0.6",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 6
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:trend_cross"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "golden_zone:implicit_lookback",
+        "ema_50:implicit_lookback"
+      ]
+    },
+    {
+      "file": "fib_golden_avwap_4h.yaml",
+      "id": "fib_golden_avwap_4h",
+      "active": false,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "XAUUSD"
+      ],
+      "strategyId": "fib_golden_avwap_4h",
+      "template": "custom",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "4h",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "golden_zone",
+          "role": "filter",
+          "condition": {
+            "id": "golden_zone",
+            "feature": "features_pricing",
+            "tf": "4h",
+            "predicate": "fib_position IN ('500_618', '618_786') AND in_ote = true AND position IS NOT NULL",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "vwap_confluence",
+          "role": "filter",
+          "condition": {
+            "id": "vwap_confluence",
+            "feature": "features_pricing",
+            "tf": "4h",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount')) OR (features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium'))\n",
+            "required": true,
+            "weight": 7
+          }
+        },
+        {
+          "id": "engulfing",
+          "role": "filter",
+          "condition": {
+            "id": "engulfing",
+            "feature": "features_candle_pattern",
+            "tf": "4h",
+            "predicate": "pattern_name IN ('engulfing_bull', 'engulfing_bear') AND direction = features_bias.direction AND confidence >= 0.6",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 6
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:custom"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "golden_zone:implicit_lookback",
+        "vwap_confluence:implicit_lookback"
+      ]
+    },
+    {
+      "file": "fib_golden_swapzone_4h.yaml",
+      "id": "fib_golden_swapzone_4h",
+      "active": false,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "XAUUSD"
+      ],
+      "strategyId": "fib_golden_swapzone_4h",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "4h",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "golden_zone",
+          "role": "filter",
+          "condition": {
+            "id": "golden_zone",
+            "feature": "features_pricing",
+            "tf": "4h",
+            "predicate": "fib_position IN ('500_618', '618_786') AND in_ote = true AND position IS NOT NULL",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "swap_zone",
+          "role": "object",
+          "condition": {
+            "id": "swap_zone",
+            "feature": "features_zone",
+            "tf": "4h",
+            "predicate": "zone_kind IN ('demand', 'supply') AND is_fresh = true AND quality_score > 0.1",
+            "required": true,
+            "weight": 7,
+            "groupBy": [
+              "zone_kind"
+            ],
+            "lookbackBars": 24
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "engulfing",
+          "role": "filter",
+          "condition": {
+            "id": "engulfing",
+            "feature": "features_candle_pattern",
+            "tf": "4h",
+            "pattern_name": "engulfing",
+            "predicate": "pattern_name IN ('engulfing_bull', 'engulfing_bear') AND direction = features_bias.direction AND confidence >= 0.6",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 6
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "golden_zone:implicit_lookback"
+      ]
+    },
+    {
+      "file": "five_one_scalp_staged_v1.yaml",
+      "id": "five_one_scalp_staged_v1",
+      "active": false,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "five_one_scalp_staged_v1",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_structure",
+          "role": "setup_event",
+          "condition": {
+            "id": "htf_structure",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos','mss')",
+            "required": true,
+            "lookbackBars": 96
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind IN ('fvg','order_block') AND fill_pct < 0.85",
+            "required": true,
+            "lookbackBars": 48
+          }
+        },
+        {
+          "id": "htf_direction",
+          "role": "context",
+          "condition": {
+            "id": "htf_direction",
+            "feature": "features_direction_state",
+            "tf": "5m",
+            "predicate": "direction IN ('buy','sell')",
+            "required": true,
+            "lookbackBars": 96
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_structure",
+          "role": "entry_event",
+          "condition": {
+            "id": "ltf_structure",
+            "feature": "features_structure",
+            "tf": "1m",
+            "predicate": "event_type = 'bos'",
+            "required": true,
+            "lookbackBars": 5
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": []
+    },
+    {
+      "file": "five_one_scalp_v1.yaml",
+      "id": "five_one_scalp_v1",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "five_one_scalp_v1",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_structure",
+          "role": "setup_event",
+          "condition": {
+            "id": "htf_structure",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos','mss')",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 96
+          }
+        },
+        {
+          "id": "htf_direction",
+          "role": "context",
+          "condition": {
+            "id": "htf_direction",
+            "feature": "features_direction_state",
+            "tf": "5m",
+            "predicate": "direction IN ('buy','sell')",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 96
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_structure",
+          "role": "entry_event",
+          "condition": {
+            "id": "ltf_structure",
+            "feature": "features_structure",
+            "tf": "1m",
+            "predicate": "event_type IN ('bos','mss')",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 120
+          }
+        },
+        {
+          "id": "ltf_zone_touch",
+          "role": "object",
+          "condition": {
+            "id": "ltf_zone_touch",
+            "feature": "features_zone",
+            "tf": "1m",
+            "predicate": "zone_kind IN ('fvg','order_block') AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 480
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": []
+    },
+    {
+      "file": "forex_strategy_orb.yaml",
+      "id": "forex_strategy_orb",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "XAUUSD"
+      ],
+      "strategyId": "forex_strategy_orb",
+      "template": "orb_breakout",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "orb",
+          "role": "filter",
+          "condition": {
+            "id": "orb",
+            "feature": "features_opening_range",
+            "tf": "15m",
+            "session": "london",
+            "predicate": "1 = 1",
+            "required": true
+          }
+        },
+        {
+          "id": "sd_zone",
+          "role": "object",
+          "condition": {
+            "id": "sd_zone",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND quality_score > 0.05",
+            "required": true,
+            "groupBy": [
+              "zone_kind"
+            ]
+          }
+        },
+        {
+          "id": "displacement",
+          "role": "setup_event",
+          "condition": {
+            "id": "displacement",
+            "feature": "features_displacement",
+            "tf": "5m",
+            "predicate": "grade IN ('LOW', 'MEDIUM', 'HIGH') AND consecutive_count >= 1 AND sequence_grade IN ('LOW', 'MEDIUM', 'HIGH')",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "filter",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone_retest",
+            "tf": "5m",
+            "predicate": "(engulfing_at_zone = true OR wick_into_zone = true) AND direction = features_bias.direction",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:orb_breakout"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "orb:implicit_lookback",
+        "sd_zone:implicit_lookback",
+        "displacement:implicit_lookback",
+        "zone_retest:implicit_lookback"
+      ]
+    },
+    {
+      "file": "gold_9sma_scalper_1m.yaml",
+      "id": "gold_9sma_scalper_1m",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_9sma_scalper_1m",
+      "template": "trend_cross",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 8
+          }
+        },
+        {
+          "id": "ma_fast",
+          "role": "filter",
+          "condition": {
+            "id": "ma_fast",
+            "feature": "features_moving_average",
+            "tf": "5m",
+            "predicate": "ma_type = 'sma' AND period = 9 AND value > 0",
+            "required": true,
+            "groupBy": [
+              "ma_type",
+              "period"
+            ]
+          }
+        },
+        {
+          "id": "ma_slow",
+          "role": "filter",
+          "condition": {
+            "id": "ma_slow",
+            "feature": "features_moving_average",
+            "tf": "5m",
+            "predicate": "ma_type = 'sma' AND period = 21 AND value > 0",
+            "required": true,
+            "groupBy": [
+              "ma_type",
+              "period"
+            ]
+          }
+        },
+        {
+          "id": "candle_rejection",
+          "role": "filter",
+          "condition": {
+            "id": "candle_rejection",
+            "feature": "features_candle_pattern",
+            "tf": "1m",
+            "predicate": "pattern_name IN ('pin_bar', 'hammer', 'engulfing_bull', 'engulfing_bear', 'hanging_man') AND direction = features_bias.direction AND confidence >= 0.5",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 6
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:trend_cross"
+      ],
+      "warnings": [
+        "ma_fast:implicit_lookback",
+        "ma_slow:implicit_lookback"
+      ]
+    },
+    {
+      "file": "gold_anti_bias_sniper_v1.yaml",
+      "id": "gold_anti_bias_sniper_v1",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_anti_bias_sniper_v1",
+      "template": "liquidity_sweep_reversal",
+      "stages": [
+        {
+          "id": "htf_bias",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "lookbackBars": 16,
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "anti_bias_sweep",
+          "role": "entry_event",
+          "condition": {
+            "id": "anti_bias_sweep",
+            "feature": "features_sweep",
+            "tf": "5m",
+            "lookbackBars": 48,
+            "predicate": "direction != features_bias.direction",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "structure_confirm",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_confirm",
+            "feature": "features_structure",
+            "tf": "5m",
+            "lookbackBars": 48,
+            "predicate": "event_type IN ('bos', 'mss') AND direction != features_bias.direction",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:liquidity_sweep_reversal"
+      ],
+      "warnings": []
+    },
+    {
+      "file": "gold_mssnr_scalper_1m.yaml",
+      "id": "gold_mssnr_scalper_1m",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_mssnr_scalper_1m",
+      "template": "custom",
+      "stages": [
+        {
+          "id": "structure_trend",
+          "role": "setup_event",
+          "condition": {
+            "id": "structure_trend",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction IN ('bullish', 'bearish')",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 48
+          }
+        },
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction = 'bearish'",
+            "required": true,
+            "weight": 5,
+            "lookbackBars": 8
+          }
+        },
+        {
+          "id": "candle_confirmation",
+          "role": "filter",
+          "condition": {
+            "id": "candle_confirmation",
+            "feature": "features_candle_pattern",
+            "tf": "1m",
+            "predicate": "direction = 'bearish' AND pattern_name IN ('engulfing_bear', 'evening_star', 'hanging_man', 'pin_bar', 'three_black_crows', 'wick_close_bear') AND confidence >= 0.5",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 12
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:custom"
+      ],
+      "warnings": []
+    },
+    {
+      "file": "gold_scalp_1_ob_ifvg.yaml",
+      "id": "gold_scalp_1_ob_ifvg",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_scalp_1_ob_ifvg",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_bias",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone_fresh",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone_fresh",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8",
+            "required": true,
+            "weight": 9,
+            "lookbackBars": 240
+          }
+        },
+        {
+          "id": "htf_order_block",
+          "role": "object",
+          "condition": {
+            "id": "htf_order_block",
+            "feature": "features_order_block",
+            "tf": "15m",
+            "predicate": "ob_kind = features_bias.direction AND degree IN ('major', 'swing')",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "htf_bias:implicit_lookback",
+        "htf_order_block:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "gold_scalp_2_breaker_block.yaml",
+      "id": "gold_scalp_2_breaker_block",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_scalp_2_breaker_block",
+      "template": "custom",
+      "stages": [
+        {
+          "id": "htf_bias",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bullish'",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "ltf_mss_reversal",
+          "role": "entry_event",
+          "condition": {
+            "id": "ltf_mss_reversal",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "ltf_bos_entry",
+          "role": "entry_event",
+          "condition": {
+            "id": "ltf_bos_entry",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bullish'",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:custom"
+      ],
+      "warnings": [
+        "htf_bias:implicit_lookback",
+        "ltf_mss_reversal:implicit_lookback",
+        "ltf_bos_entry:implicit_lookback"
+      ]
+    },
+    {
+      "file": "gold_scalp_3_choch_fvg.yaml",
+      "id": "gold_scalp_3_choch_fvg",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "gold_scalp_3_choch_fvg",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_bias_reversal",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias_reversal",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bullish'",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "htf_choch",
+          "role": "setup_event",
+          "condition": {
+            "id": "htf_choch",
+            "feature": "features_structure",
+            "tf": "1h",
+            "predicate": "event_type = 'bos' AND direction = 'bullish'",
+            "required": true,
+            "weight": 9,
+            "lookbackBars": 24
+          }
+        },
+        {
+          "id": "htf_fvg_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_fvg_zone",
+            "feature": "features_zone",
+            "tf": "1h",
+            "predicate": "zone_kind = 'fvg' AND fill_pct < 0.8",
+            "required": true,
+            "weight": 9,
+            "lookbackBars": 240
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg_reversal",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg_reversal",
+            "feature": "features_ifvg",
+            "tf": "15m",
+            "predicate": "direction = 'bullish' AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "htf_bias_reversal:implicit_lookback",
+        "ltf_ifvg_reversal:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce.yaml",
+      "id": "keylevel_bounce",
+      "active": false,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v1.yaml",
+      "id": "keylevel_bounce_v1",
+      "active": false,
+      "symbols": [],
+      "template": "custom",
+      "stages": [],
+      "blockers": [
+        "load_error:spec.setup is not iterable"
+      ],
+      "warnings": []
+    },
+    {
+      "file": "keylevel_bounce_v1_4r.yaml",
+      "id": "keylevel_bounce_v1_4r",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v1_4r",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v1_fx.yaml",
+      "id": "keylevel_bounce_v1_fx",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "strategyId": "keylevel_bounce_v1_fx",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v1_limit.yaml",
+      "id": "keylevel_bounce_v1_limit",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v1_limit",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v1_wider.yaml",
+      "id": "keylevel_bounce_v1_wider",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v1_wider",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v2.yaml",
+      "id": "keylevel_bounce_v2",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v2",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v3.yaml",
+      "id": "keylevel_bounce_v3",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v3",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95 AND tapped = true AND quality_score > 0.05",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95 AND tapped = true",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v4.yaml",
+      "id": "keylevel_bounce_v4",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v4",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_bias",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias",
+            "feature": "features_bias",
+            "tf": "4h",
+            "predicate": "direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('discount', 'deep_discount', 'equilibrium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('premium', 'deep_premium', 'equilibrium'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "htf_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v5_longs.yaml",
+      "id": "keylevel_bounce_v5_longs",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v5_longs",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bullish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('discount', 'deep_discount', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bullish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v5_shorts.yaml",
+      "id": "keylevel_bounce_v5_shorts",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v5_shorts",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v6_ny_overlap_shorts.yaml",
+      "id": "keylevel_bounce_v6_ny_overlap_shorts",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v6_ny_overlap_shorts",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v7_shorts_time.yaml",
+      "id": "keylevel_bounce_v7_shorts_time",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v7_shorts_time",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v8_levels.yaml",
+      "id": "keylevel_bounce_v8_levels",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v8_levels",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v8b_zone_tp.yaml",
+      "id": "keylevel_bounce_v8b_zone_tp",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v8b_zone_tp",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v8c_min3.yaml",
+      "id": "keylevel_bounce_v8c_min3",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "keylevel_bounce_v8c_min3",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium')",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "15m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.95",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [],
+      "warnings": [
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "lewis_kelly_smc_ny_shorts.yaml",
+      "id": "lewis_kelly_smc_ny_shorts",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "strategyId": "lewis_kelly_smc_ny_shorts",
+      "template": "custom",
+      "stages": [
+        {
+          "id": "mtf_bias",
+          "role": "context",
+          "condition": {
+            "id": "mtf_bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "htf_bias",
+          "role": "context",
+          "condition": {
+            "id": "htf_bias",
+            "feature": "features_htf_bias",
+            "tf": "4h",
+            "predicate": "direction = 'bearish'",
+            "required": true
+          }
+        },
+        {
+          "id": "premium_pricing",
+          "role": "filter",
+          "condition": {
+            "id": "premium_pricing",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium')",
+            "required": true
+          }
+        },
+        {
+          "id": "supply_retest",
+          "role": "filter",
+          "condition": {
+            "id": "supply_retest",
+            "feature": "features_zone_retest",
+            "tf": "15m",
+            "groupBy": [
+              "zone_kind"
+            ],
+            "predicate": "zone_kind = 'supply' AND wick_into_zone = true",
+            "required": true
+          }
+        },
+        {
+          "id": "ltf_choch",
+          "role": "entry_event",
+          "condition": {
+            "id": "ltf_choch",
+            "feature": "features_structure",
+            "tf": "1m",
+            "predicate": "event_type IN ('choch', 'mss', 'bos') AND direction = 'bearish'",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:custom"
+      ],
+      "warnings": [
+        "mtf_bias:implicit_lookback",
+        "htf_bias:implicit_lookback",
+        "premium_pricing:implicit_lookback",
+        "supply_retest:implicit_lookback",
+        "ltf_choch:implicit_lookback"
+      ]
+    },
+    {
+      "file": "orb_classic.yaml",
+      "id": "orb_classic",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "XAUUSD"
+      ],
+      "strategyId": "orb_classic",
+      "template": "orb_breakout",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "session",
+          "role": "filter",
+          "condition": {
+            "id": "session",
+            "feature": "features_session",
+            "tf": "15m",
+            "predicate": "session IN ('LONDON', 'OVERLAP', 'NY')",
+            "required": true
+          }
+        },
+        {
+          "id": "orb",
+          "role": "filter",
+          "condition": {
+            "id": "orb",
+            "feature": "features_opening_range",
+            "tf": "15m",
+            "session": "london",
+            "predicate": "1 = 1",
+            "required": true
+          }
+        },
+        {
+          "id": "displacement",
+          "role": "entry_event",
+          "condition": {
+            "id": "displacement",
+            "feature": "features_displacement",
+            "tf": "15m",
+            "predicate": "grade IN ('MEDIUM', 'HIGH')",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:orb_breakout"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "session:implicit_lookback",
+        "orb:implicit_lookback",
+        "displacement:implicit_lookback"
+      ]
+    },
+    {
+      "file": "orb_scalper_1m.yaml",
+      "id": "orb_scalper_1m",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "orb_scalper_1m",
+      "template": "orb_breakout",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 16
+          }
+        },
+        {
+          "id": "session",
+          "role": "filter",
+          "condition": {
+            "id": "session",
+            "feature": "features_session",
+            "tf": "15m",
+            "predicate": "session IN ('OVERLAP')",
+            "required": true
+          }
+        },
+        {
+          "id": "orb",
+          "role": "filter",
+          "condition": {
+            "id": "orb",
+            "feature": "features_opening_range",
+            "tf": "15m",
+            "session": "london",
+            "predicate": "1 = 1",
+            "required": true
+          }
+        },
+        {
+          "id": "displacement",
+          "role": "entry_event",
+          "condition": {
+            "id": "displacement",
+            "feature": "features_displacement",
+            "tf": "15m",
+            "predicate": "grade IN ('MEDIUM', 'HIGH') AND direction = features_bias.direction",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:orb_breakout"
+      ],
+      "warnings": [
+        "session:implicit_lookback",
+        "orb:implicit_lookback",
+        "displacement:implicit_lookback"
+      ]
+    },
+    {
+      "file": "pb_blake_2026_smc.yaml",
+      "id": "pb_blake_2026_smc",
+      "active": true,
+      "symbols": [
+        "XAUUSD",
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "strategyId": "pb_blake_2026_smc",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "15m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 3
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ifvg_confirmation_long",
+          "role": "object",
+          "condition": {
+            "id": "ifvg_confirmation_long",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = 'bullish' AND fill_pct >= 0.3 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "ifvg_confirmation_short",
+          "role": "object",
+          "condition": {
+            "id": "ifvg_confirmation_short",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = 'bearish' AND fill_pct >= 0.3 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_explicit_direction_context",
+        "missing_causal_entry_event"
+      ],
+      "warnings": [
+        "pricing_filter:implicit_lookback",
+        "ifvg_confirmation_long:implicit_lookback",
+        "ifvg_confirmation_short:implicit_lookback"
+      ]
+    },
+    {
+      "file": "scalper_20sma_1m.yaml",
+      "id": "scalper_20sma_1m",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF"
+      ],
+      "strategyId": "scalper_20sma_1m",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 4
+          }
+        },
+        {
+          "id": "setup_zone",
+          "role": "object",
+          "condition": {
+            "id": "setup_zone",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND direction = features_bias.direction AND is_fresh = true",
+            "required": true,
+            "weight": 8,
+            "lookbackBars": 48
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "candle_rejection",
+          "role": "filter",
+          "condition": {
+            "id": "candle_rejection",
+            "feature": "features_candle_pattern",
+            "tf": "1m",
+            "predicate": "pattern_name IN ('pin_bar', 'hammer', 'engulfing_bull', 'engulfing_bear', 'hanging_man') AND direction = features_bias.direction AND confidence >= 0.5",
+            "required": true,
+            "weight": 10,
+            "lookbackBars": 6
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event"
+      ],
+      "warnings": []
+    },
+    {
+      "file": "scarface_5m_orb.yaml",
+      "id": "scarface_5m_orb",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY"
+      ],
+      "strategyId": "scarface_5m_orb",
+      "template": "orb_breakout",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "5m",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "orb",
+          "role": "filter",
+          "condition": {
+            "id": "orb",
+            "feature": "features_opening_range",
+            "tf": "5m",
+            "session": "london",
+            "predicate": "1 = 1",
+            "required": true
+          }
+        },
+        {
+          "id": "candle",
+          "role": "filter",
+          "condition": {
+            "id": "candle",
+            "feature": "features_candle_pattern",
+            "tf": "1m",
+            "predicate": "pattern_name IN ('engulfing_bull', 'engulfing_bear', 'pin_bar') AND direction = features_bias.direction",
+            "required": true,
+            "groupBy": [
+              "pattern_name"
+            ]
+          }
+        },
+        {
+          "id": "displacement",
+          "role": "entry_event",
+          "condition": {
+            "id": "displacement",
+            "feature": "features_displacement",
+            "tf": "1m",
+            "predicate": "grade IN ('MEDIUM', 'HIGH') AND consecutive_count >= 2 AND sequence_grade IN ('LOW', 'MEDIUM', 'HIGH')",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:orb_breakout"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "orb:implicit_lookback",
+        "candle:implicit_lookback",
+        "displacement:implicit_lookback"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m.yaml",
+      "id": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m_runon_15r",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r_ob_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_ob_tp",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m_runon_15r_ob_tp",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r_zone_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_zone_tp",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m_runon_15r_zone_tp",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx.yaml",
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY"
+      ],
+      "strategyId": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "15m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND is_fresh = true",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "pricing_filter",
+          "role": "filter",
+          "condition": {
+            "id": "pricing_filter",
+            "feature": "features_pricing",
+            "tf": "5m",
+            "predicate": "position IN ('premium', 'deep_premium', 'equilibrium', 'discount', 'deep_discount')",
+            "required": true,
+            "weight": 1
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "ltf_ifvg",
+          "role": "object",
+          "condition": {
+            "id": "ltf_ifvg",
+            "feature": "features_ifvg",
+            "tf": "5m",
+            "predicate": "direction = features_bias.direction AND fill_pct >= 0.5 AND is_fresh = true",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "missing_causal_entry_event",
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "htf_zone:implicit_lookback",
+        "pricing_filter:implicit_lookback",
+        "ltf_ifvg:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "waqar_v2.yaml",
+      "id": "waqar_v2",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY"
+      ],
+      "strategyId": "waqar_v2",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "1h",
+            "predicate": "zone_kind IN ('demand', 'supply') AND is_fresh = true",
+            "required": true,
+            "groupBy": [
+              "zone_kind"
+            ]
+          }
+        },
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_htf_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral' AND state IN ('READY', 'SOFT_WARN')",
+            "required": true
+          }
+        },
+        {
+          "id": "premium_discount",
+          "role": "filter",
+          "condition": {
+            "id": "premium_discount",
+            "feature": "features_pricing",
+            "tf": "1h",
+            "predicate": "(features_htf_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))\nOR\n(features_htf_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))\n",
+            "required": true
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "1m",
+            "predicate": "event_type IN ('bos', 'mss', 'choch') AND direction = features_htf_bias.direction",
+            "required": true,
+            "groupBy": [
+              "direction"
+            ],
+            "ignoreLifecycle": true
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "1m",
+            "predicate": "zone_kind IN ('demand', 'supply', 'fvg') AND is_fresh = true AND fill_pct <= 1.0 AND direction = features_htf_bias.direction",
+            "required": true,
+            "groupBy": [
+              "zone_kind"
+            ]
+          }
+        }
+      ],
+      "blockers": [
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "htf_zone:implicit_lookback",
+        "trend_bias:implicit_lookback",
+        "premium_discount:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    },
+    {
+      "file": "watukushay.yaml",
+      "id": "watukushay",
+      "active": false,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "XAUUSD"
+      ],
+      "strategyId": "watukushay",
+      "template": "indicator_trigger",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "rsi",
+          "role": "filter",
+          "condition": {
+            "id": "rsi",
+            "feature": "features_indicator",
+            "tf": "1h",
+            "predicate": "indicator_name = 'rsi' AND period = 20 AND ((features_bias.direction = 'bullish' AND value < 28) OR (features_bias.direction = 'bearish' AND value > 72))",
+            "required": true,
+            "groupBy": [
+              "indicator_name",
+              "period"
+            ]
+          }
+        },
+        {
+          "id": "displacement",
+          "role": "entry_event",
+          "condition": {
+            "id": "displacement",
+            "feature": "features_displacement",
+            "tf": "1h",
+            "predicate": "grade IN ('MEDIUM', 'HIGH')",
+            "required": true
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:indicator_trigger"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "rsi:implicit_lookback",
+        "displacement:implicit_lookback"
+      ]
+    },
+    {
+      "file": "watukushay_fe.yaml",
+      "id": "watukushay_fe",
+      "active": false,
+      "symbols": [],
+      "template": "custom",
+      "stages": [],
+      "blockers": [
+        "load_error:spec.setup is not iterable"
+      ],
+      "warnings": []
+    },
+    {
+      "file": "watukushay_no1.yaml",
+      "id": "watukushay_no1",
+      "active": true,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "USDCHF",
+        "USDJPY",
+        "XAUUSD"
+      ],
+      "strategyId": "watukushay_no1",
+      "template": "trend_cross",
+      "stages": [
+        {
+          "id": "bias",
+          "role": "context",
+          "condition": {
+            "id": "bias",
+            "feature": "features_bias",
+            "tf": "1h",
+            "predicate": "direction != 'neutral'",
+            "required": true
+          }
+        },
+        {
+          "id": "ma_fast",
+          "role": "filter",
+          "condition": {
+            "id": "ma_fast",
+            "feature": "features_moving_average",
+            "tf": "1h",
+            "predicate": "ma_type = 'sma' AND period = 15 AND value > 0",
+            "required": true,
+            "groupBy": [
+              "ma_type",
+              "period"
+            ]
+          }
+        },
+        {
+          "id": "ma_slow",
+          "role": "filter",
+          "condition": {
+            "id": "ma_slow",
+            "feature": "features_moving_average",
+            "tf": "1h",
+            "predicate": "ma_type = 'sma' AND period = 250 AND value > 0",
+            "required": true,
+            "groupBy": [
+              "ma_type",
+              "period"
+            ]
+          }
+        }
+      ],
+      "blockers": [
+        "template_not_implemented:trend_cross"
+      ],
+      "warnings": [
+        "bias:implicit_lookback",
+        "ma_fast:implicit_lookback",
+        "ma_slow:implicit_lookback"
+      ]
+    },
+    {
+      "file": "xauusd_v1.yaml",
+      "id": "xauusd_v1",
+      "active": true,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "strategyId": "xauusd_v1",
+      "template": "zone_entry",
+      "stages": [
+        {
+          "id": "htf_zone",
+          "role": "object",
+          "condition": {
+            "id": "htf_zone",
+            "feature": "features_zone",
+            "tf": "1h",
+            "predicate": "zone_kind IN ('demand', 'supply')",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "trend_bias",
+          "role": "context",
+          "condition": {
+            "id": "trend_bias",
+            "feature": "features_bias",
+            "tf": "15m",
+            "predicate": "direction != 'neutral'",
+            "required": true,
+            "weight": 8
+          }
+        },
+        {
+          "id": "directional_zone",
+          "role": "filter",
+          "condition": {
+            "id": "directional_zone",
+            "feature": "features_pricing",
+            "tf": "4h",
+            "predicate": "(features_bias.direction = 'bullish' AND position IN ('premium', 'deep_premium'))\nOR\n(features_bias.direction = 'bearish' AND position IN ('discount', 'deep_discount'))\n",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "time_of_day_edge",
+          "role": "filter",
+          "condition": {
+            "id": "time_of_day_edge",
+            "feature": "features_time_of_day_edge",
+            "tf": "15m",
+            "predicate": "edge IN ('STRONG', 'GOOD', 'NEUTRAL')",
+            "required": true,
+            "weight": 9
+          }
+        },
+        {
+          "id": "candle_reconstructed_touch",
+          "role": "touch",
+          "reconstructedFromCandles": true
+        },
+        {
+          "id": "structure_break",
+          "role": "entry_event",
+          "condition": {
+            "id": "structure_break",
+            "feature": "features_structure",
+            "tf": "5m",
+            "predicate": "event_type IN ('bos', 'mss') AND direction = features_bias.direction",
+            "required": true,
+            "weight": 10
+          }
+        },
+        {
+          "id": "zone_retest",
+          "role": "object",
+          "condition": {
+            "id": "zone_retest",
+            "feature": "features_zone",
+            "tf": "5m",
+            "predicate": "zone_kind IN ('demand', 'supply') AND fill_pct < 0.8 AND tapped = false",
+            "required": true,
+            "weight": 10
+          }
+        }
+      ],
+      "blockers": [
+        "multiple_object_tables_need_explicit_identity_link"
+      ],
+      "warnings": [
+        "htf_zone:implicit_lookback",
+        "trend_bias:implicit_lookback",
+        "directional_zone:implicit_lookback",
+        "time_of_day_edge:implicit_lookback",
+        "structure_break:implicit_lookback",
+        "zone_retest:implicit_lookback",
+        "setup_and_entry_zone_must_share_exact_identity"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T01-34-52-726Z-64f01a96-6c73-465b-883a-4beb6b1e2573",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T01:34:52.726Z",
+  "finishedAt": "2026-07-27T01:34:57.598Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_live_paper",
+  "specHash": "310f1c69169b03bc96f734995e4b9ce7b00e19311883fd7303ce35b846aa0815",
+  "symbol": "NZDUSD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "45aaf35c21923ea742b8723bfd1561a3813620202c40979c9fb6101fc8634292",
+  "arguments": [
+    "NZDUSD",
+    "7",
+    "waqar_v2_live_paper",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "833292dd60514b26f24a7383a649031fe4923437f711b54238734cc7f267668d",
+      "bytes": 963
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "44106f7a1459929dd7af60e211108e3c9301fe7ce20afca390bd19971297f518",
+      "bytes": 3717
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "2ee3303cc8bc82d4c0e9f39810355c59b12fe802b6408fd8e4f02b7ed30d26f1",
+      "bytes": 34364
+    }
+  }
+}

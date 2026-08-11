@@ -1,0 +1,20 @@
+{
+  "mode": "read_only",
+  "tf": "5m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "GBPUSD",
+      "status": "OK",
+      "warning": "Pivots recomputed from candles",
+      "candles": 814,
+      "pivots": 56,
+      "productionEvents": 6,
+      "causalEvents": 6,
+      "causalTypes": {
+        "bos": 5,
+        "mss": 1
+      }
+    }
+  ]
+}

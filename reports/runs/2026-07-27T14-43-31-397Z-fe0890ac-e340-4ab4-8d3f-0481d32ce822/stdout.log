@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: lewis_kelly_smc_ny_shorts | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 1440 derived bars -> signals before 2026-06-21T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+GBPUSD: no signals

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T18-29-57-649Z-2cccd026-1e8a-47eb-ad69-f4194103b5a6",
+  "parentAuditId": null,
+  "status": "BLOCKED",
+  "startedAt": "2026-07-25T18:29:57.649Z",
+  "finishedAt": "2026-07-25T18:30:06.431Z",
+  "exitCode": 1,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_ebook_v1",
+  "specHash": "6ecfae7592777ddf4e89cb22ac83e41f85d727893980d1e328d838c4a2f1b9b2",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-04-26T18:25:00.000Z",
+    "to": "2026-07-25T18:25:00.000Z"
+  },
+  "mode": "research",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-25T18:25:00.000Z",
+  "readinessManifestHash": "eea3d45f99437fa8acc4c815edebb7c33956c77b855096e631c3b3a739077a4d",
+  "arguments": [
+    "EURUSD",
+    "90",
+    "waqar_ebook_v1",
+    "--mode=research",
+    "--json"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "e7f3e8d2bb0583eaf744adbd69132ac0a2591ba128eb41814725bad92a863d9d",
+      "bytes": 359
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "b82905c1bf8a4c30f78b075819092f48d6b7e75b962006baf843150b83cf4d30",
+      "bytes": 792
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "d7de37fb8887b9ef597bb07e0a36e4dc6d4017035ecc1bcf1d8451fd14eaf19c",
+      "bytes": 2985
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

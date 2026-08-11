@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-04-27T10:41:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_zone@5m=STALE(4.23h>2h) | features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE, features_moving_average@5m=STALE_STATE | lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

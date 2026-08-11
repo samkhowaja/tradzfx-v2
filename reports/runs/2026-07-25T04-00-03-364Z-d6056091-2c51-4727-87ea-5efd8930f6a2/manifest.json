@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-00-03-364Z-d6056091-2c51-4727-87ea-5efd8930f6a2",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:00:03.364Z",
+  "finishedAt": "2026-07-25T04:00:10.121Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "apex_scalp_orb_v1",
+  "specHash": "733930d2b0e485a7b69882f8b66e0acf30a160fad3784746ee96aac3bef8876d",
+  "symbol": "USDJPY",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "9a921e1593ceca4231840baeda58b19c8f4a67b1e9a2a313c0a2f153a4a1c07c",
+  "arguments": [
+    "USDJPY",
+    "7",
+    "apex_scalp_orb_v1",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "17c7e6acc0390773bae1e7f20f4be766473cddcee4d21e64a787427d92cd71f9",
+      "bytes": 878
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "90e739b98994a5fbce4dae312f7c5c5027a8c8ca6de7a74e10fdd01e69c1f940",
+      "bytes": 3149
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "443c88d7abde7a9f9066248f7b072e5548faaad4e39f7e6fd3c86f558612987e",
+      "bytes": 1842
+    }
+  }
+}

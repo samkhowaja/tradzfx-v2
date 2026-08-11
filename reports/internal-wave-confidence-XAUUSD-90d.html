@@ -1,0 +1,19 @@
+<!doctype html><meta charset=utf-8><title>Internal Wave Confidence</title><style>body{font:14px system-ui;background:#0d1117;color:#e6edf3;max-width:1100px;margin:auto;padding:24px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #30363d;padding:9px;text-align:left}code{color:#79c0ff}.warn{color:#ffd166}</style><h1>XAUUSD outcome-blind confidence validation</h1><p>Cell format: trades / win rate / expectancy / PF. Costs excluded.</p><h2>Frozen score contract</h2><pre>{
+  "independentDelay6To30": 2,
+  "displacementTf5m": 1,
+  "gradedDisplacement": 2,
+  "trendingRegime": 2,
+  "lowVolatilityRegime": 1,
+  "sessionPoints": 0,
+  "outcomeUsed": false,
+  "bands": {
+    "A": ">=5",
+    "B": "3-4",
+    "C": "0-2"
+  }
+}</pre><h2>Frozen bands</h2><table><tr><th>Band</th><th>Discovery</th><th>Holdout</th></tr><tr><td>A</td><td>14 / 92.9% / 1.590R / 23.26</td><td>1 / 100.0% / 0.142R / ∞</td></tr><tr><td>B</td><td>43 / 53.5% / 0.441R / 2.04</td><td>18 / 50.0% / 0.301R / 1.65</td></tr><tr><td>C</td><td>43 / 44.2% / 0.303R / 1.62</td><td>26 / 26.9% / -0.170R / 0.74</td></tr></table><h2>Threshold diagnostics</h2><p class=warn>Diagnostics only. Do not select threshold from holdout.</p><table><tr><th>Minimum score</th><th>Discovery</th><th>Holdout</th></tr><tr><td>>=0</td><td>100 / 55.0% / 0.543R / 2.34</td><td>45 / 37.8% / 0.025R / 1.04</td></tr><tr><td>>=1</td><td>100 / 55.0% / 0.543R / 2.34</td><td>44 / 38.6% / 0.048R / 1.09</td></tr><tr><td>>=2</td><td>61 / 63.9% / 0.758R / 3.28</td><td>21 / 57.1% / 0.455R / 2.15</td></tr><tr><td>>=3</td><td>57 / 63.2% / 0.723R / 3.14</td><td>19 / 52.6% / 0.292R / 1.67</td></tr><tr><td>>=4</td><td>18 / 88.9% / 1.501R / 15.98</td><td>2 / 50.0% / -0.429R / 0.14</td></tr><tr><td>>=5</td><td>14 / 92.9% / 1.590R / 23.26</td><td>1 / 100.0% / 0.142R / ∞</td></tr><tr><td>>=6</td><td>3 / 100.0% / 1.352R / ∞</td><td>1 / 100.0% / 0.142R / ∞</td></tr><tr><td>>=7</td><td>2 / 100.0% / 1.028R / ∞</td><td>0 / 0.0% / 0.000R / ∞</td></tr></table><h2>Deduplication</h2><pre>{
+  "input": 222,
+  "clusters": 145,
+  "removed": 77,
+  "selection": "highest confidence, then body_pct, then earliest sweep"
+}</pre>

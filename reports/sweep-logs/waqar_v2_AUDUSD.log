@@ -1,0 +1,11 @@
+◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+[backtest-pit-v2] Strategy: waqar_v2 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-06-22T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD
+
+AUDUSD: 25 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 7 deduped) | signal query 41ms | prefetch 275ms | setup-engine N/Ams | simulate 5ms
+  Executed: 14 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 1
+  Wins: 0 | Losses: 14 | Timeouts: 3
+  WR: 0.0% | Net R: -3.00 | Avg Win: 0.00R | Avg Loss: -0.21R

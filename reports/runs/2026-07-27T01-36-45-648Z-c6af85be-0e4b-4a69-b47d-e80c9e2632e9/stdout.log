@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: xauusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-17 → 2026-07-26 (9 days)
+[backtest-pit-v2] Warmup: 1152 derived bars -> signals before 2026-07-21T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_bias@15m=STALE_STATE, features_atr@5m=STALE_STATE, features_correlation@15m=STALE_STATE | insufficient_density_features_correlation@15m(79/720=11%). Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+XAUUSD: BLOCKED_SYSTEM_QUALITY — run skipped (insufficient_density_features_correlation@15m(79/720=11%))

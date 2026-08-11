@@ -1,0 +1,1144 @@
+{
+  "generatedAt": "2026-07-19T01:59:08.669Z",
+  "window": {
+    "from": "2026-04-18T00:00:00.000Z",
+    "to": "2026-07-17T00:00:00.000Z"
+  },
+  "chronologies": {
+    "touch_then_structure": [
+      {
+        "strategy": "keylevel_bounce_v1_4r",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "direction_aligned": 4743,
+          "pricing_aligned": 41,
+          "touched": 25425,
+          "confirmed": 7198,
+          "lifecycle_valid": 7198,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 559,
+          "invalidated_before_confirmation": 18227,
+          "never_touched": 2438,
+          "pricing_mismatch_or_stale": 4702,
+          "bias_mismatch_or_stale": 1896,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_fx",
+        "symbol": "EURUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 568,
+          "structures": 258,
+          "bias": 1574,
+          "pricing": 6250,
+          "atr": 15312,
+          "candles": 115458
+        },
+        "funnel": {
+          "zones": 568,
+          "direction_allowed": 568,
+          "direction_aligned": 72,
+          "pricing_aligned": 0,
+          "touched": 518,
+          "confirmed": 139,
+          "lifecycle_valid": 139,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "invalidated_before_confirmation": 379,
+          "bias_mismatch_or_stale": 67,
+          "never_touched": 50,
+          "pricing_mismatch_or_stale": 72
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_fx",
+        "symbol": "GBPUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 572,
+          "structures": 239,
+          "bias": 1570,
+          "pricing": 6243,
+          "atr": 15230,
+          "candles": 115610
+        },
+        "funnel": {
+          "zones": 572,
+          "direction_allowed": 572,
+          "direction_aligned": 42,
+          "pricing_aligned": 0,
+          "touched": 528,
+          "confirmed": 107,
+          "lifecycle_valid": 107,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "never_touched": 44,
+          "invalidated_before_confirmation": 421,
+          "bias_mismatch_or_stale": 65,
+          "pricing_mismatch_or_stale": 42
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_limit",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "direction_aligned": 4743,
+          "pricing_aligned": 41,
+          "touched": 25425,
+          "confirmed": 7198,
+          "lifecycle_valid": 7198,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 559,
+          "invalidated_before_confirmation": 18227,
+          "never_touched": 2438,
+          "pricing_mismatch_or_stale": 4702,
+          "bias_mismatch_or_stale": 1896,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_wider",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "direction_aligned": 4743,
+          "pricing_aligned": 41,
+          "touched": 25425,
+          "confirmed": 7198,
+          "lifecycle_valid": 7198,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 559,
+          "invalidated_before_confirmation": 18227,
+          "never_touched": 2438,
+          "pricing_mismatch_or_stale": 4702,
+          "bias_mismatch_or_stale": 1896,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v2",
+        "symbol": "XAUUSD",
+        "status": "BLOCKED_OPTIONAL_RETEST_ADAPTER",
+        "blocker": "features_zone_retest@1m"
+      },
+      {
+        "strategy": "keylevel_bounce_v3",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "direction_aligned": 4743,
+          "pricing_aligned": 41,
+          "touched": 25425,
+          "confirmed": 7198,
+          "lifecycle_valid": 7198,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 559,
+          "invalidated_before_confirmation": 18227,
+          "never_touched": 2438,
+          "pricing_mismatch_or_stale": 4702,
+          "bias_mismatch_or_stale": 1896,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v4",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "direction_aligned": 4743,
+          "pricing_aligned": 41,
+          "touched": 25425,
+          "confirmed": 7198,
+          "lifecycle_valid": 7198,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 559,
+          "invalidated_before_confirmation": 18227,
+          "never_touched": 2438,
+          "pricing_mismatch_or_stale": 4702,
+          "bias_mismatch_or_stale": 1896,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v5_longs",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 13126,
+          "direction_aligned": 1952,
+          "pricing_aligned": 0,
+          "touched": 11681,
+          "confirmed": 3417,
+          "lifecycle_valid": 3417,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "outside_report_window": 391,
+          "variant_direction_restricted": 14737,
+          "invalidated_before_confirmation": 8264,
+          "never_touched": 1445,
+          "pricing_mismatch_or_stale": 1952,
+          "bias_mismatch_or_stale": 1074
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v5_shorts",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v6_ny_overlap_shorts",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v7_shorts_time",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8b_zone_tp",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8c_min3",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8_levels",
+        "symbol": "XAUUSD",
+        "status": "NO_STAGED_SIGNALS",
+        "input": {
+          "zones": 27863,
+          "structures": 352,
+          "bias": 2068,
+          "pricing": 6190,
+          "atr": 15282,
+          "candles": 113556
+        },
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "direction_aligned": 2791,
+          "pricing_aligned": 41,
+          "touched": 13744,
+          "confirmed": 3781,
+          "lifecycle_valid": 3781,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "variant_direction_restricted": 13126,
+          "invalidated_before_confirmation": 9963,
+          "never_touched": 993,
+          "outside_report_window": 168,
+          "bias_mismatch_or_stale": 822,
+          "pricing_mismatch_or_stale": 2750,
+          "session_or_window": 41
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "resolved": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      }
+    ],
+    "structure_then_retest": [
+      {
+        "strategy": "keylevel_bounce_v1_4r",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "session_or_window": 41,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_fx",
+        "symbol": "EURUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 568,
+          "direction_allowed": 568,
+          "structure_after_zone": 137,
+          "bias_aligned": 69,
+          "pricing_aligned": 0,
+          "retested": 0,
+          "directional_close": 0,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "invalidated_before_structure": 428,
+          "bias_mismatch_or_stale": 68,
+          "pricing_mismatch_or_stale": 69,
+          "no_structure_within_24h": 3
+        },
+        "candidateHours": {},
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_fx",
+        "symbol": "GBPUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 572,
+          "direction_allowed": 572,
+          "structure_after_zone": 99,
+          "bias_aligned": 37,
+          "pricing_aligned": 0,
+          "retested": 0,
+          "directional_close": 0,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "invalidated_before_structure": 462,
+          "bias_mismatch_or_stale": 62,
+          "no_structure_within_24h": 11,
+          "pricing_mismatch_or_stale": 37
+        },
+        "candidateHours": {},
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_limit",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "session_or_window": 41,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v1_wider",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "session_or_window": 41,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v2",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 19,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "no_directional_close": 22,
+          "session_or_window": 19,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v3",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "session_or_window": 41,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v4",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 27863,
+          "structure_after_zone": 7289,
+          "bias_aligned": 5125,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 5084,
+          "invalidated_before_structure": 20547,
+          "bias_mismatch_or_stale": 2164,
+          "session_or_window": 41,
+          "no_structure_within_24h": 27
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v5_longs",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 13126,
+          "structure_after_zone": 3419,
+          "bias_aligned": 2349,
+          "pricing_aligned": 0,
+          "retested": 0,
+          "directional_close": 0,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "pricing_mismatch_or_stale": 2349,
+          "direction_restricted": 14737,
+          "invalidated_before_structure": 9695,
+          "bias_mismatch_or_stale": 1070,
+          "no_structure_within_24h": 12
+        },
+        "candidateHours": {},
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v5_shorts",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v6_ny_overlap_shorts",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v7_shorts_time",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8b_zone_tp",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8c_min3",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      },
+      {
+        "strategy": "keylevel_bounce_v8_levels",
+        "symbol": "XAUUSD",
+        "status": "NO_SIGNALS",
+        "funnel": {
+          "zones": 27863,
+          "direction_allowed": 14737,
+          "structure_after_zone": 3870,
+          "bias_aligned": 2776,
+          "pricing_aligned": 41,
+          "retested": 41,
+          "directional_close": 41,
+          "session_valid": 0,
+          "risk_valid": 0
+        },
+        "rejections": {
+          "direction_restricted": 13126,
+          "invalidated_before_structure": 10852,
+          "bias_mismatch_or_stale": 1094,
+          "pricing_mismatch_or_stale": 2735,
+          "session_or_window": 41,
+          "no_structure_within_24h": 15
+        },
+        "candidateHours": {
+          "01": 22,
+          "00": 19
+        },
+        "riskBlocks": {},
+        "signals": 0,
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "timeouts": 0,
+        "winRate": 0,
+        "netR": 0,
+        "details": []
+      }
+    ]
+  }
+}

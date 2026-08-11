@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ override existing { override: true }
+[backtest-pit-v2] Strategy: gold_9sma_scalper_1m | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: trend_pullback | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 105 derived bars -> signals before 2026-06-20T01:45:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 115 raw signals (0 skipped for warmup, 27 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 365ms | prefetch 237ms | setup-engine N/Ams | simulate 4ms
+  Executed: 31 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 56 | Heat dropped: 1
+  Gate skips: session: Session=OFF_HOURS not in allowed=[LONDON, OVERLAP, NY]=14, session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=29, rateLimit: 15 signals today for gold_9sma_scalper_1m (max=15)=13
+  Wins: 9 | Losses: 22 | Timeouts: 0
+  WR: 29.0% | Net R: 5.23 | Avg Win: 2.47R | Avg Loss: -0.77R

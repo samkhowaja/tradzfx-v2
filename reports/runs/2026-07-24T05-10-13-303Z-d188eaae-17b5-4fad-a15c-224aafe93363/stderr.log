@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: waqar_v2 | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T05:09:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+GBPUSD: 87 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 15 setup-engine BLOCK, 15 deduped) | signal query 183ms | prefetch 557ms | setup-engine 7554ms | simulate 7558ms
+  Setup evaluations: 87 persisted, 87 evaluated, 0 context-hash skips
+  Executed: 38 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 18
+  Setup-engine BLOCK reasons: setup grade BLOCK=2, No entry zone within 1.5 ATR of current price=13
+  Wins: 29 | Losses: 9 | Timeouts: 1
+  WR: 76.3% | Net R: 48.20 | Avg Win: 2.26R | Avg Loss: -1.93R

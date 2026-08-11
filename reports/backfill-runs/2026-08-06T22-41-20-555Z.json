@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:41:20.555Z",
+  "finishedAt": "2026-08-06T22:41:24.874Z",
+  "symbols": [
+    "USDCAD"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "USDCAD": {
+        "mode": "require",
+        "windowIds": [
+          109
+        ],
+        "windowSetHash": "f19aff82bcb449fb87a7288baf5503a7e80f75add1f183d3258a8e1f16a5aec5",
+        "detectors": [
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:41:21.091Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "ed22f409e77957d02d59d7261b77326088902700fa0d8f12e062f967c1f918e8"
+  },
+  "cells": [
+    {
+      "feature": "features_atr",
+      "symbol": "USDCAD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-08-06T01:30:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistedRows": 207,
+      "persistedMinTs": "2026-08-06T01:30:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:30:00.000Z",
+      "producerRunId": "24980909",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:30:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 138,
+      "expectedAnchors": 69,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 70,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

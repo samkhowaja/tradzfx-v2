@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-07-23T20:55:22.513Z",
+  "date": "2026-07-23",
+  "plan": {
+    "plan_hash": "5757349fe2d3d24ba08a5cfe0255218715bb184dce0002c999a4d32347c5556f",
+    "strategy_id": "xauusd_liquidity_confirmed_bos_shadow_v2",
+    "strategy_version": "2.0.0-shadow.1"
+  },
+  "summary": {
+    "runs": 1,
+    "passed": 1,
+    "failed": 0,
+    "running": 0,
+    "passRate": 1,
+    "rowsRead": 0,
+    "eventsInserted": 0,
+    "eventsApplied": 0,
+    "eventsIgnored": 0,
+    "maxPassCount": 1
+  },
+  "lifecycle": {
+    "transitions": 887,
+    "revisions": 887,
+    "pending": 0,
+    "errors": 0,
+    "claims": 0,
+    "exclusive_duplicates": 0
+  },
+  "instanceStatuses": [
+    {
+      "status": "active",
+      "count": 3
+    },
+    {
+      "status": "entry_ready",
+      "count": 23
+    },
+    {
+      "status": "expired",
+      "count": 378
+    }
+  ],
+  "readiness": {
+    "status": "OBSERVING",
+    "promotionAutomatic": false,
+    "checks": {
+      "runs_present": true,
+      "all_runs_passed": true,
+      "transition_parity": true,
+      "inbox_clear": true,
+      "exclusive_unique": true
+    },
+    "failed": []
+  },
+  "runs": [
+    {
+      "run_id": "1",
+      "plan_hash": "5757349fe2d3d24ba08a5cfe0255218715bb184dce0002c999a4d32347c5556f",
+      "symbol": "XAUUSD",
+      "data_clock": "2026-07-23T20:30:00.000Z",
+      "window_since": "2026-07-16T20:30:00.000Z",
+      "status": "passed",
+      "pass_count": 1,
+      "rows_read": 0,
+      "events_inserted": 0,
+      "events_applied": 0,
+      "events_ignored": 0,
+      "invariant_json": {
+        "claims": 0,
+        "errors": 0,
+        "passed": true,
+        "pending": 0,
+        "revisions": 887,
+        "transitions": 887,
+        "overdueActive": 0,
+        "exclusiveDuplicates": 0
+      },
+      "error_text": null,
+      "started_at": "2026-07-23T20:54:55.462Z",
+      "finished_at": "2026-07-23T20:54:55.547Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[backtest-pit-v2] Strategy: waqar_v2_xau_research | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T20:10:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+  [setup-cache] 126 persistent hits, 0 remaining for evaluation
+XAUUSD: 126 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 24 setup-engine BLOCK, 0 drift rejected, 14 deduped) | signal query 269ms | prefetch 409ms | setup-engine 13ms | simulate 19ms
+  Executed: 88 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=14, setup grade BLOCK=10
+  Wins: 20 | Losses: 68 | Timeouts: 0
+  WR: 22.7% | Net R: -31.43 | Avg Win: 1.33R | Avg Loss: -0.85R
+[backtest-pit-v2] Persisted 88 trades to backtest_results (run waqar_v2_xau_research-2026-04-25T20:10:00.000Z-2026-07-24T20:10:00.000Z-9d5f1aa5)
+[backtest-pit-v2] Heat post-pass: 0/88 trades dropped (run waqar_v2_xau_research-2026-04-25T20:10:00.000Z-2026-07-24T20:10:00.000Z-9d5f1aa5)

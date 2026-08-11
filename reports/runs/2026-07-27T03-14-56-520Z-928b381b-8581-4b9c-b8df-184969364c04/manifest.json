@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T03-14-56-520Z-928b381b-8581-4b9c-b8df-184969364c04",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T03:14:56.520Z",
+  "finishedAt": "2026-07-27T03:15:03.210Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "forex_strategy_orb",
+  "specHash": "166cd3b32dbb2c2975228b709249303e4fc1d9f68c8f543f04ed10716519c598",
+  "symbol": "NZDUSD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "d11247f0dad08ecea49f929777ecc400a20c4a4c79e2898d7b894e2440f662d0",
+  "arguments": [
+    "NZDUSD",
+    "7",
+    "forex_strategy_orb",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "9a6fa39c3a0e58f0c423f50afa97fd9bf4ba1e0ea0f3fbddc8eea2be482e3f2d",
+      "bytes": 1003
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "d6bab1c120fbb5bafcd11626a9a28b910700e932627a2bb6874753c90118c568",
+      "bytes": 3863
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "053ac029fbb431b0a2f0c31518c57e63c6cd43d0a887ec386bffe0d8cc928478",
+      "bytes": 1357
+    }
+  }
+}

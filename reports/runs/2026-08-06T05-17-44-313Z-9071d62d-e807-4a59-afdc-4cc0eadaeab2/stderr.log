@@ -1,0 +1,15 @@
+[backtest-pit-v2] Trusted-window gate: PASS (windows: [48], setHash: ac56b104d1a9, detectors: window-certifier-v5.2-dxy-formula@20260805)
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: deterministic | setupProfile: strict | setupFamily: zone_reversal | intrabar: close
+[backtest-pit-v2] Range: 2026-07-18 → 2026-07-24 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-18T18:20:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+  [setup-cache] 25 persistent hits, 0 remaining for evaluation
+EURUSD: 25 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 1 deduped) | signal query 85ms | prefetch 111ms | setup-engine 7ms | simulate 9ms
+  Executed: 7 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 13 | Heat dropped: 4
+  Gate skips: rateLimit=13
+  Wins: 3 | Losses: 4 | Timeouts: 0
+  WR: 42.9% | Net R: -3.31 | Avg Win: 0.23R | Avg Loss: -1.00R
+[backtest-pit-v2] Persisted 11 trades to backtest_results (run doyle_sd-2026-07-18T01:40:00.000Z-2026-07-24T20:55:00.000Z-2ff058c3)
+[backtest-pit-v2] Heat post-pass: 4/11 trades dropped (run doyle_sd-2026-07-18T01:40:00.000Z-2026-07-24T20:55:00.000Z-2ff058c3)

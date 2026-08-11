@@ -1,0 +1,162 @@
+{
+  "spec": "watukushay_fe",
+  "mode": "full",
+  "research": false,
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "symbol": "XAUUSD",
+  "days": 90,
+  "rawSignals": 319,
+  "setupBlocked": 66,
+  "driftRejected": 0,
+  "driftRejectionReasons": {},
+  "deduped": 190,
+  "executed": 7,
+  "skipped": 12,
+  "heatDropped": 0,
+  "spreadQuarantined": 0,
+  "candlesQuarantined": 0,
+  "gateSkips": {
+    "session": 2,
+    "spread": 4,
+    "volatility": 6
+  },
+  "stageCounts": {
+    "rawSignals": 319,
+    "warmupSkipped": 44,
+    "invalidGeometry": 0,
+    "setupInvalidGeometry": 0,
+    "setupBlocked": 66,
+    "setupBlockReasons": {
+      "setup grade BLOCK": 66
+    },
+    "simulated": 209,
+    "driftRejected": 0,
+    "driftRejectionReasons": {},
+    "deduped": 190,
+    "gateSkipped": 12,
+    "gateSkipReasons": {
+      "session": 2,
+      "spread": 4,
+      "volatility": 6
+    },
+    "invalidOutcomes": 0,
+    "invalidOutcomeReasons": {},
+    "timeouts": 0,
+    "heatDropped": 0,
+    "spreadQuarantined": 0,
+    "candlesQuarantined": 0,
+    "executed": 7
+  },
+  "dataQuality": "DEGRADED",
+  "lifecycleCorruption": [],
+  "coverage": [
+    {
+      "table": "features_bias",
+      "tf": "1h",
+      "isCandle": false,
+      "required": true,
+      "rows": 1510,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_indicator",
+      "tf": "1h",
+      "isCandle": false,
+      "required": true,
+      "rows": 15609,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_displacement",
+      "tf": "1h",
+      "isCandle": false,
+      "required": true,
+      "rows": 1324,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_pricing",
+      "tf": "15m",
+      "isCandle": false,
+      "required": true,
+      "rows": 6224,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_atr",
+      "tf": "1h",
+      "isCandle": false,
+      "required": true,
+      "rows": 5256,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_session",
+      "tf": "1m",
+      "isCandle": false,
+      "required": false,
+      "rows": 3238,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_1m_canonical",
+      "tf": "1m",
+      "isCandle": true,
+      "required": true,
+      "rows": 108068,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_15m_canonical",
+      "tf": "15m",
+      "isCandle": true,
+      "required": true,
+      "rows": 7217,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_1h_canonical",
+      "tf": "1h",
+      "isCandle": true,
+      "required": true,
+      "rows": 1811,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    }
+  ],
+  "wins": 1,
+  "losses": 6,
+  "timeouts": 0,
+  "invalidOutcomes": 0,
+  "invalidOutcomeReasons": {},
+  "winRate": 0.14285714285714285,
+  "netR": -1.105959160152013,
+  "netRRealized": -17.82475415544714,
+  "avgWinR": 2.894040839847987,
+  "avgLossR": -0.6666666666666666,
+  "avgWinRRealized": 1.4863947035342149,
+  "avgLossRRealized": -3.218524809830226,
+  "avgDriftPips": 316.57174285714126,
+  "longCount": 2,
+  "shortCount": 5,
+  "avgHoldBars": 10,
+  "queryMs": 55
+}

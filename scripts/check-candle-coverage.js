@@ -13,10 +13,10 @@ const { Pool } = require("pg");
 const { checkCandleCoverage, recordCandleCoverage, VALID_TFS } = require("../packages/shared/dist/index.js");
 
 const pool = new Pool({
-  host: "localhost",
-  port: 5432,
+  host: process.env.TM_DB_HOST || "localhost",
+  port: +(process.env.TM_DB_PORT || 5432),
   database: process.env.TM_DB_NAME || "tradzfx_v2",
-  user: "postgres",
+  user: process.env.TM_DB_USER || "postgres",
   password: process.env.TM_DB_PASSWORD,
 });
 

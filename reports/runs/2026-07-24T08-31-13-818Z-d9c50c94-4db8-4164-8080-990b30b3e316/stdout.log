@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: waqar_ebook_v1 | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T08:31:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+

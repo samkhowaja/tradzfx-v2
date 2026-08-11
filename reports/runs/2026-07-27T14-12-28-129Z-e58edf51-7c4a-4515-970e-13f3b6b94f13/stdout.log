@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: orb_classic | signalSource: orb
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 50 derived bars -> signals before 2026-07-13T12:30:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCAD
+
+[backtest-pit-v2] DEGRADED data quality for USDCAD: capability_STALE_STATE_features_session@15m, capability_STALE_STATE_features_opening_range@15m
+USDCAD: 5 raw signals (0 skipped for warmup, 3 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 19ms | prefetch 64ms | setup-engine N/Ams | simulate 2ms
+  Executed: 2 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 0 | Losses: 2 | Timeouts: 0
+  WR: 0.0% | Net R: -1.00 | Avg Win: 0.00R | Avg Loss: -0.50R

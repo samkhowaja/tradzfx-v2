@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T14-44-38-382Z-9f39f431-78f3-43d2-bc46-273417b16963",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T14:44:38.382Z",
+  "finishedAt": "2026-07-27T14:44:50.825Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "pb_blake_2026_smc",
+  "specHash": "ef30def0f1376368055ce2ba8305502c7810dcc6a5158503beff7adf5b73b6fb",
+  "symbol": "GBPUSD",
+  "window": {
+    "from": "2026-06-20T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "77e4634b725818e213e946f1f94316b00bfe9a51517f0cd5a55df8f1b995e52e",
+  "arguments": [
+    "GBPUSD",
+    "30",
+    "pb_blake_2026_smc",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "daf2960ebd0f32ecc66e738bd5f81da71af6b3229c4bc3f47e711308a31f4055",
+      "bytes": 783
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "451b13604476f7a570a3aa018a72f663a61825dfd789796ba6bdfa1f86960b1d",
+      "bytes": 4631
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "e0b7b0b28e1ed2f98e361c479660b853404a66aa6e2f3396bdbf75cb6f6a1692",
+      "bytes": 62243
+    }
+  }
+}

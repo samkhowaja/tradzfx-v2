@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:41:31.625Z",
+  "finishedAt": "2026-08-06T22:41:37.019Z",
+  "symbols": [
+    "USDJPY"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "USDJPY": {
+        "mode": "require",
+        "windowIds": [
+          114
+        ],
+        "windowSetHash": "972a1b8ee13651e6591decc868dc5e5dd2e6d07f84399a2a721d62ef7af3bfae",
+        "detectors": [
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:41:32.112Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "1207eed0a5f2d9d761ae3532c973e55b7b28f8f2a83d745337495bc7711b6209"
+  },
+  "cells": [
+    {
+      "feature": "features_atr",
+      "symbol": "USDJPY",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-08-06T01:30:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistedRows": 207,
+      "persistedMinTs": "2026-08-06T01:30:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:30:00.000Z",
+      "producerRunId": "24981059",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:30:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 138,
+      "expectedAnchors": 69,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 70,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

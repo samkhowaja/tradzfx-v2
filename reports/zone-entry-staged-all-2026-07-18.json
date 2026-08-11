@@ -1,0 +1,811 @@
+{
+  "generatedAt": "2026-07-19T00:41:36.258Z",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-17T00:00:00.000Z"
+  },
+  "mechanism": "zone_entry_compiler_context_raw_zone_touch_then_confirmation",
+  "rows": [
+    {
+      "strategy": "five_one_scalp_v1",
+      "symbol": "XAUUSD",
+      "status": "BLOCKED_COMPILE",
+      "reason": "zone mitigation guard not found; compiler contract changed"
+    },
+    {
+      "strategy": "keylevel_bounce_v1_4r",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v1_fx",
+      "symbol": "EURUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 90,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:00:00.000Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 342,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:00.000Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 171,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T13:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 13,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T16:15:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 171,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T13:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v1_fx",
+      "symbol": "GBPUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 90,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:00:00.000Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 331,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:00.000Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 143,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T07:00:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 9,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T14:45:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 143,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T07:00:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v1_limit",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v1_wider",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v2",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v3",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v4",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_bias",
+          "feature": "features_bias",
+          "tf": "4h",
+          "count": 0,
+          "first_ts": null,
+          "last_ts": null
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v5_longs",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v5_shorts",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v6_ny_overlap_shorts",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v7_shorts_time",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v8b_zone_tp",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v8c_min3",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    },
+    {
+      "strategy": "keylevel_bounce_v8_levels",
+      "symbol": "XAUUSD",
+      "status": "NO_CAUSAL_CANDIDATES",
+      "reason": "context, entry-event, pricing, direction, and zone predicate intersection empty before touch evaluation",
+      "coverage": [
+        {
+          "id": "trend_bias",
+          "feature": "features_bias",
+          "tf": "1h",
+          "count": 382,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "directional_zone",
+          "feature": "features_pricing",
+          "tf": "15m",
+          "count": 324,
+          "first_ts": "2026-07-13T04:45:00.000Z",
+          "last_ts": "2026-07-16T23:45:43.840Z"
+        },
+        {
+          "id": "htf_zone",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "structure_break",
+          "feature": "features_structure",
+          "tf": "15m",
+          "count": 7,
+          "first_ts": "2026-07-13T03:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        },
+        {
+          "id": "zone_retest",
+          "feature": "features_zone",
+          "tf": "15m",
+          "count": 195,
+          "first_ts": "2026-07-13T00:00:00.000Z",
+          "last_ts": "2026-07-16T12:30:00.000Z"
+        }
+      ],
+      "legacyCandidates": 0,
+      "causalCandidates": 0,
+      "stagedSignals": 0,
+      "rejections": {},
+      "trades": []
+    }
+  ]
+}

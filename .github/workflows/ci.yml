@@ -45,6 +45,9 @@ jobs:
       - name: Run script-level tests
         run: pnpm test
 
+      - name: Validate development audit reports
+        run: pnpm reports:validate
+
   strategy-validation:
     name: Strategy Spec Validation
     runs-on: ubuntu-latest

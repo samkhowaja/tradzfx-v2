@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"tradzfx://reports/development-audit-v1",
+  "type":"object","required":["schema_version","framework_version","change_id","generated_at","scope","detector_version","policy_version","input_fingerprint","output_fingerprint","source_evidence","summary","certification"],
+  "properties":{
+    "schema_version":{"const":"development-audit-report-v1"},"framework_version":{"type":"string","minLength":1},"change_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9-]*$"},"generated_at":{"type":"string","format":"date-time"},
+    "scope":{"type":"object","required":["symbol","timeframe","from","to"],"properties":{"symbol":{"type":"string"},"broker":{"type":["string","null"]},"timeframe":{"type":"string"},"from":{"type":"string","format":"date-time"},"to":{"type":"string","format":"date-time"}},"additionalProperties":false},
+    "detector_version":{"type":"string"},"policy_version":{"type":"string"},"input_fingerprint":{"type":"string","pattern":"^[a-f0-9]{64}$"},"output_fingerprint":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "source_evidence":{"type":"object","required":["queries","tables"],"properties":{"queries":{"type":"array","items":{"type":"string"}},"tables":{"type":"array","items":{"type":"string"}},"snapshot_id":{"type":["string","null"]}},"additionalProperties":false},
+    "summary":{"type":"object","required":["counts"],"properties":{"counts":{"type":"object","additionalProperties":{"type":"integer","minimum":0}}},"additionalProperties":true},
+    "certification":{"type":"object","required":["status","blocking_violation_count"],"properties":{"status":{"enum":["READY","BLOCKED","INCOMPLETE"]},"blocking_violation_count":{"type":"integer","minimum":0}},"additionalProperties":false}
+  },"additionalProperties":false
+}

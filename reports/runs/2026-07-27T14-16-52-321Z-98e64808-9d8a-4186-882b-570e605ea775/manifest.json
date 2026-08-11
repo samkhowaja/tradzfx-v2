@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T14-16-52-321Z-98e64808-9d8a-4186-882b-570e605ea775",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T14:16:52.321Z",
+  "finishedAt": "2026-07-27T14:17:25.402Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "scarface_5m_orb",
+  "specHash": "e13570fa0846aba026ec071e2848888b353952ce02fd38bb488209a12cb28a23",
+  "symbol": "USDCHF",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "986277e0b49abd68608a9a2c6212b6b86b01640d19147d0c8525549793d8a8eb",
+  "arguments": [
+    "USDCHF",
+    "7",
+    "scarface_5m_orb",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "e8c966308a8054baea44d5d638fd46331f7607a2199f4113709a6fe46dc553b2",
+      "bytes": 472
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "ec6349e422d43fd6140ba2018da87745622f775dadaaaaf2d838c25f71d0ae01",
+      "bytes": 2910
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

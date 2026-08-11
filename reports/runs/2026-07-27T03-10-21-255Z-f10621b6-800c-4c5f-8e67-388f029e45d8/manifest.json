@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T03-10-21-255Z-f10621b6-800c-4c5f-8e67-388f029e45d8",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T03:10:21.255Z",
+  "finishedAt": "2026-07-27T03:10:27.294Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "a_plus_orb_fvg_5m",
+  "specHash": "de503cf215eb5769c773842e066f194b0a3f79b3255dc2cf75b81413e4d02792",
+  "symbol": "NZDUSD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "979356c509d75245f9ab13018a69a22f83042b6bcdf4bd9d58ab94ad95dce423",
+  "arguments": [
+    "NZDUSD",
+    "7",
+    "a_plus_orb_fvg_5m",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "879d628412254d9a3f0b4e0330fc94895b14bf7538cea322ed7e217d68604db0",
+      "bytes": 552
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "939dd872f3225b33fc8e61e96d7cf8f237fd30dbbe8d9726a7e4a8c12ff4c574",
+      "bytes": 2452
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

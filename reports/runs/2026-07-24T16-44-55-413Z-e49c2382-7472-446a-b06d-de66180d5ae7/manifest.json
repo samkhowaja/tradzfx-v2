@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T16-44-55-413Z-e49c2382-7472-446a-b06d-de66180d5ae7",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-24T16:44:55.413Z",
+  "finishedAt": "2026-07-24T16:46:18.037Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_bst_ebook_pricing_7pair_shadow",
+  "specHash": "8e51b13bbd253471e33c2354083851fdb70e57d2138275c9b84a69b25feb1204",
+  "symbol": "ALL",
+  "window": {
+    "from": "2026-04-25T00:00:00.000Z",
+    "to": "2026-07-24T00:00:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T00:00:00.000Z",
+  "readinessManifestHash": "7c9129d98c1eb8d370ef91475af13741f1b1742e50ee97b527099198c5c30329",
+  "arguments": [
+    "ALL",
+    "90",
+    "waqar_v2_bst_ebook_pricing_7pair_shadow",
+    "--spec-file=packages/strategies/src/specs/waqar_v2_bst_ebook_pricing_7pair_shadow.yaml",
+    "--start=2026-04-25T00:00:00.000Z",
+    "--end=2026-07-24T00:00:00.000Z",
+    "--mode=full",
+    "--setup-profile=strict",
+    "--intrabar=sl_first",
+    "--drift-gate=live",
+    "--json",
+    "--trades"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "d405f3f20b8520592033fd6f776d91409091c2ffe728194552d3686e018daefc",
+      "bytes": 4266
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "c054b2bf28da56bf8c763d836a9d4525f648f4c885c8b18cc4ba8afb1ccc0f81",
+      "bytes": 4393
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "486ff172090d271e9fc166a9faa18a4f38f78a50cb03763d9f9b7dfbbcedee9c",
+      "bytes": 123266
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "5b181a703b1669abab379735b4213352c319160f4a59ad4aca8a96c8cbff345c",
+      "bytes": 51385
+    }
+  }
+}

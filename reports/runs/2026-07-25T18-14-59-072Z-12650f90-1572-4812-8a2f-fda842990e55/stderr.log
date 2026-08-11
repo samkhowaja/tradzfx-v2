@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-04-27T10:46:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_moving_average@5m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+XAUUSD: 197 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 1 deduped) | signal query 22806ms | prefetch 923ms | setup-engine N/Ams | simulate 12ms
+  Executed: 182 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 14 | Skipped: 0 | Heat dropped: 0
+  Gate skips: rateLimit=89
+  Wins: 86 | Losses: 96 | Timeouts: 14
+  WR: 47.3% | Net R: 23.44 | Avg Win: 0.98R | Avg Loss: -0.64R

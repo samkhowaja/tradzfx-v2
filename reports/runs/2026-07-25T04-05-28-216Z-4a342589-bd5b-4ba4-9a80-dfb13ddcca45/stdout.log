@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: pro_ltf_scalp_eurusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-13T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] DEGRADED data quality for EURUSD: capability_STALE_STATE_features_bias@15m
+EURUSD: 19 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 5 deduped) | signal query 38ms | prefetch 53ms | setup-engine N/Ams | simulate 5ms
+  Executed: 11 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 0
+  Wins: 9 | Losses: 2 | Timeouts: 3
+  WR: 81.8% | Net R: 8.53 | Avg Win: 1.17R | Avg Loss: -1.00R

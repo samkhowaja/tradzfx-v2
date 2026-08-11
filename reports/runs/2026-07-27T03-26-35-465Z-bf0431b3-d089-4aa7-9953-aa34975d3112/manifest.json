@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T03-26-35-465Z-bf0431b3-d089-4aa7-9953-aa34975d3112",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T03:26:35.465Z",
+  "finishedAt": "2026-07-27T03:26:41.927Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_xau_sweep_15pip",
+  "specHash": "eae09825cb316a45ee96db84d374653d6df601466eeda827a426291248823c2d",
+  "symbol": "XAUUSD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "2a6fee45eec46d5a168f10eda21f7ef9a82503d82edb802f4e853ea1dcd743c7",
+  "arguments": [
+    "XAUUSD",
+    "7",
+    "waqar_v2_xau_sweep_15pip",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "91152dd2e57fc3828b9e7500601dc7f8576d3ed11b7de51174c08c13e264a099",
+      "bytes": 966
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "dfb91635a0d4ecc23d3670a529cd64f9f8c4a111abbfb4fad97775fcee3c0a25",
+      "bytes": 3633
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "ab5d3c10b812913f03f0bc6259557fb053b28912eb2601660a2f3fa014a42ae0",
+      "bytes": 5830
+    }
+  }
+}

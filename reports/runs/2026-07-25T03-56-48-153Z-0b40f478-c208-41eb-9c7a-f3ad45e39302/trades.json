@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "AUDUSD",
+    "side": "buy",
+    "entry": 0.6980000000000001,
+    "sl": 0.69417,
+    "tp": 0.7056600000000003,
+    "ts": "2026-07-14T13:55:00.000Z",
+    "causalLineage": [],
+    "entryType": "limit",
+    "atr_5": 0.00045600000000001195,
+    "spread_pips": 1.08,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -1,
+    "holdBars": 93,
+    "closePrice": 0.69417,
+    "effectiveEntry": 0.6980000000000001,
+    "maxAdverse": 0.69415,
+    "maxFavorable": 0.6980000000000001,
+    "driftPips": 0,
+    "realizedRisk": 0.003830000000000111,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -1,
+    "heatDropped": false
+  }
+]

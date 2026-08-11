@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-05-07T04:01:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for XAUUSD: features_bias@1h=STALE_STATE, features_pricing@15m=STALE_STATE, features_atr@1h=STALE_STATE, features_indicator@1h=STALE_STATE, features_moving_average@1h=STALE_STATE | capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1h, capability_STALE_STATE_features_indicator@1h, capability_STALE_STATE_features_moving_average@1h. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

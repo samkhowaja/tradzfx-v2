@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: waqar_v2 | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+  [setup-cache] 74 persistent hits, 0 remaining for evaluation
+EURUSD: 74 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 14 setup-engine BLOCK, 10 deduped) | signal query 46ms | prefetch 434ms | setup-engine 10ms | simulate 15ms
+  Executed: 30 | Invalid outcomes: 0 | Timeouts: 4 | Skipped: 0 | Heat dropped: 16
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=10, setup grade BLOCK=4
+  Wins: 21 | Losses: 9 | Timeouts: 4
+  WR: 70.0% | Net R: 29.36 | Avg Win: 2.10R | Avg Loss: -1.65R

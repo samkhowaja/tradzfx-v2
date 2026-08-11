@@ -1,0 +1,53 @@
+{
+  "contractId": "internal_wave_v2_shadow_v1",
+  "contractHash": "a382658ed8293e12840d854fb8a58e0441accc804528de1cd9c0ff5f37ded28e",
+  "generatedAt": "2026-07-24T04:40:38.078Z",
+  "window": [
+    "2026-07-24T04:27:00.000Z",
+    "2026-07-24T04:40:00.000Z"
+  ],
+  "observationDays": 0.009027777777777777,
+  "mode": "frozen-inactive-forward-only-zero-cost",
+  "audit": {
+    "events": 0,
+    "causalViolations": 0,
+    "violations": [],
+    "rawSetups": 0,
+    "distinctWaves": 0
+  },
+  "all": {
+    "setups": 0,
+    "resolved": 0,
+    "wins": 0,
+    "losses": 0,
+    "netR": 0,
+    "expectancyR": null,
+    "profitFactor": null
+  },
+  "qualified": {
+    "setups": 0,
+    "resolved": 0,
+    "wins": 0,
+    "losses": 0,
+    "netR": 0,
+    "expectancyR": null,
+    "profitFactor": null
+  },
+  "preferred": {
+    "setups": 0,
+    "resolved": 0,
+    "wins": 0,
+    "losses": 0,
+    "netR": 0,
+    "expectancyR": null,
+    "profitFactor": null
+  },
+  "acceptance": {
+    "minimumDaysMet": false,
+    "minimumResolvedMet": false,
+    "minimumQualifiedMet": false,
+    "causalClean": true,
+    "ready": false
+  },
+  "setups": []
+}

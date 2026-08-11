@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-06-43-429Z-6e752c35-df26-4850-8295-f7bc64809583",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:06:43.429Z",
+  "finishedAt": "2026-07-25T04:06:50.234Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "scalper_20sma_1m",
+  "specHash": "f6468936f344449fb3ec3ecc581b619cea28b48befca016a5c55a2237f5e9265",
+  "symbol": "NZDUSD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "70b5dd7b70ee68778c2ddc61383d2b2d5eeeb414f0cdde5fc4c261cd77127a24",
+  "arguments": [
+    "NZDUSD",
+    "7",
+    "scalper_20sma_1m",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "811751fc7dfa681100b719bab254cb68ba020f762a8ceb3cc6f97f05bc68a4c1",
+      "bytes": 782
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "fee25f756f77fc290037cc520ea88aa7c135d8a28cdf8b5d0a499df244d0fbc7",
+      "bytes": 3146
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "4fb136847b1d74271cf4e8227fa7b2d57887f57bf96f77f36e88c43d63ba5e56",
+      "bytes": 4590
+    }
+  }
+}

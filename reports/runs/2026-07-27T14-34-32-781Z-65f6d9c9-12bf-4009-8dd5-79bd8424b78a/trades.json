@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "USDSEK",
+    "side": "buy",
+    "entry": 9.71885,
+    "sl": 9.6817,
+    "tp": 9.79315,
+    "ts": "2026-06-23T15:35:00.000Z",
+    "causalLineage": [],
+    "entryType": "limit",
+    "atr_5": 0.009479999999999577,
+    "spread_pips": 32,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -1,
+    "holdBars": 27,
+    "closePrice": 9.6817,
+    "effectiveEntry": 9.71885,
+    "maxAdverse": 9.6817,
+    "maxFavorable": 9.71885,
+    "driftPips": 0,
+    "realizedRisk": 0.03715000000000046,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -1,
+    "heatDropped": false
+  }
+]

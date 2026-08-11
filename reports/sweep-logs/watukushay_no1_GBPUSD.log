@@ -1,0 +1,12 @@
+◇ injected env (0) from .env.local // tip: ⌘ override existing { override: true }
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-06-30T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+GBPUSD: 231 raw signals (70 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 237ms | prefetch 247ms | setup-engine N/Ams | simulate 7ms
+  Executed: 44 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 111 | Heat dropped: 4
+  Gate skips: session: Session=OFF_HOURS not in allowed=[LONDON, OVERLAP, NY]=22, session: Session=ASIA not in allowed=[LONDON, OVERLAP, NY]=54, rateLimit: 5 signals today for watukushay_no1 (max=5)=35
+  Wins: 11 | Losses: 33 | Timeouts: 2
+  WR: 25.0% | Net R: -20.70 | Avg Win: 0.57R | Avg Loss: -0.82R

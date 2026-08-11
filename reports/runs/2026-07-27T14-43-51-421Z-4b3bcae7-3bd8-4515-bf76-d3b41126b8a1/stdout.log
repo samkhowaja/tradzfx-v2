@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: orb_classic | signalSource: orb
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 50 derived bars -> signals before 2026-06-20T12:30:00.000Z skipped
+[backtest-pit-v2] Symbols: AUDUSD
+
+[backtest-pit-v2] DEGRADED data quality for AUDUSD: capability_STALE_STATE_features_session@15m, capability_STALE_STATE_features_opening_range@15m
+AUDUSD: 12 raw signals (0 skipped for warmup, 9 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 32ms | prefetch 188ms | setup-engine N/Ams | simulate 3ms
+  Executed: 3 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 0 | Losses: 3 | Timeouts: 0
+  WR: 0.0% | Net R: -3.00 | Avg Win: 0.00R | Avg Loss: -1.00R

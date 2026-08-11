@@ -1,0 +1,1965 @@
+{
+  "generatedAt": "2026-08-04T06:08:49.938Z",
+  "symbols": [
+    "AUDUSD",
+    "EURUSD",
+    "GBPUSD",
+    "NZDUSD",
+    "USDCAD",
+    "USDCHF",
+    "USDJPY",
+    "USDSEK",
+    "XAUUSD"
+  ],
+  "window": {
+    "days": 90,
+    "from": "2026-05-06T06:08:49.884Z",
+    "to": "2026-08-04T06:08:49.884Z",
+    "parityDays": 30,
+    "parityFrom": "2026-07-05T06:08:49.884Z"
+  },
+  "raw": [
+    {
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "rows": "113251",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:07:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "AUDUSD",
+      "broker": "OANDA Corporation",
+      "rows": "17656",
+      "first_ts": "2026-06-15T05:43:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "AUDUSD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "rows": "112998",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:07:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "EURUSD",
+      "broker": "OANDA Corporation",
+      "rows": "19771",
+      "first_ts": "2026-06-11T20:06:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "EURUSD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "rows": "113246",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "GBPUSD",
+      "broker": "OANDA Corporation",
+      "rows": "17767",
+      "first_ts": "2026-06-15T05:55:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "GBPUSD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "rows": "112996",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:07:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "broker": "MT5",
+      "rows": "9953",
+      "first_ts": "2026-06-22T21:27:00.000Z",
+      "last_ts": "2026-07-01T21:40:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "broker": "OANDA Corporation",
+      "rows": "17690",
+      "first_ts": "2026-06-15T05:50:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCAD",
+      "broker": "1x Trade Ltd.",
+      "rows": "113276",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCAD",
+      "broker": "OANDA Corporation",
+      "rows": "17748",
+      "first_ts": "2026-06-15T05:53:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCAD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "rows": "113206",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCHF",
+      "broker": "OANDA Corporation",
+      "rows": "24138",
+      "first_ts": "2026-05-15T04:48:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDCHF",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDJPY",
+      "broker": "1x Trade Ltd.",
+      "rows": "112935",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDJPY",
+      "broker": "OANDA Corporation",
+      "rows": "17761",
+      "first_ts": "2026-06-15T05:44:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDJPY",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "rows": "113159",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDSEK",
+      "broker": "OANDA Corporation",
+      "rows": "8814",
+      "first_ts": "2026-07-13T13:42:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "USDSEK",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "XAUUSD",
+      "broker": "1x Trade Ltd.",
+      "rows": "109987",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-04T06:08:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "XAUUSD",
+      "broker": "MT5",
+      "rows": "2740",
+      "first_ts": "2026-07-05T22:05:00.000Z",
+      "last_ts": "2026-07-07T20:54:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    },
+    {
+      "symbol": "XAUUSD",
+      "broker": "smoke-test",
+      "rows": "2",
+      "first_ts": "2026-07-07T21:04:00.000Z",
+      "last_ts": "2026-07-07T21:05:00.000Z",
+      "future_rows": "0",
+      "non_finite_or_null": "0",
+      "invalid_geometry": "0",
+      "negative_volume": "0",
+      "invalid_digits": "0",
+      "invalid_spread": "0"
+    }
+  ],
+  "duplicates": [
+    {
+      "symbol": "AUDUSD",
+      "cross_broker_timestamps": "17642",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "EURUSD",
+      "cross_broker_timestamps": "19682",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "GBPUSD",
+      "cross_broker_timestamps": "17719",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "NZDUSD",
+      "cross_broker_timestamps": "27608",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "USDCAD",
+      "cross_broker_timestamps": "17740",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "USDCHF",
+      "cross_broker_timestamps": "24111",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "USDJPY",
+      "cross_broker_timestamps": "17644",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "USDSEK",
+      "cross_broker_timestamps": "8801",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    },
+    {
+      "symbol": "XAUUSD",
+      "cross_broker_timestamps": "2742",
+      "duplicate_same_broker_rows": "0",
+      "max_brokers_at_timestamp": 2
+    }
+  ],
+  "canonical": [
+    {
+      "symbol": "AUDUSD",
+      "rows": "112816",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:04:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "EURUSD",
+      "rows": "112540",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:04:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "GBPUSD",
+      "rows": "112789",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:04:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "rows": "112555",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "USDCAD",
+      "rows": "112853",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "USDCHF",
+      "rows": "112766",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "USDJPY",
+      "rows": "112479",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "USDSEK",
+      "rows": "112699",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    },
+    {
+      "symbol": "XAUUSD",
+      "rows": "109482",
+      "first_ts": "2026-05-06T06:09:00.000Z",
+      "last_ts": "2026-08-03T23:05:00.000Z",
+      "broker_count": 1,
+      "brokers": [
+        "1x Trade Ltd."
+      ],
+      "duplicate_timestamps": "0",
+      "invalid_geometry": "0"
+    }
+  ],
+  "policies": [
+    {
+      "symbol": "AUDUSD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "EURUSD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "GBPUSD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "NZDUSD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "USDCAD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "USDCHF",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "USDJPY",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "USDSEK",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    },
+    {
+      "symbol": "XAUUSD",
+      "overlapping_policy_pairs": 0,
+      "symbols_without_policy": 0
+    }
+  ],
+  "quality": [
+    {
+      "symbol": "USDSEK",
+      "flagged_rows": "3",
+      "suspect_rows": "3",
+      "reasons": [
+        "1m range 1376.0p > 1000p cap"
+      ],
+      "first_ts": "2026-07-05T21:59:58.000Z",
+      "last_ts": "2026-07-06T02:51:32.000Z"
+    }
+  ],
+  "spread": [
+    {
+      "symbol": "AUDUSD",
+      "sanity_cap_pips": 12,
+      "rows": "112816",
+      "samples": "112816",
+      "nulls": "0",
+      "zeros": "38",
+      "invalid": "0",
+      "over_sanity_cap": "29",
+      "percentiles_pips": [
+        1.4,
+        2,
+        2.1,
+        5.2
+      ],
+      "max_pips": 28.099999999999998
+    },
+    {
+      "symbol": "EURUSD",
+      "sanity_cap_pips": 10,
+      "rows": "112540",
+      "samples": "112540",
+      "nulls": "0",
+      "zeros": "0",
+      "invalid": "0",
+      "over_sanity_cap": "0",
+      "percentiles_pips": [
+        1.7,
+        2.1,
+        2.1,
+        5.3999999999999995
+      ],
+      "max_pips": 9.9
+    },
+    {
+      "symbol": "GBPUSD",
+      "sanity_cap_pips": 12,
+      "rows": "112789",
+      "samples": "112789",
+      "nulls": "0",
+      "zeros": "108",
+      "invalid": "0",
+      "over_sanity_cap": "499",
+      "percentiles_pips": [
+        1.4,
+        2.1,
+        2.2,
+        7.5
+      ],
+      "max_pips": 26.7
+    },
+    {
+      "symbol": "NZDUSD",
+      "sanity_cap_pips": 15,
+      "rows": "112555",
+      "samples": "112555",
+      "nulls": "0",
+      "zeros": "0",
+      "invalid": "0",
+      "over_sanity_cap": "169",
+      "percentiles_pips": [
+        1.7,
+        2.3,
+        2.3,
+        6.999999999999999
+      ],
+      "max_pips": 20.599999999999998
+    },
+    {
+      "symbol": "USDCAD",
+      "sanity_cap_pips": 15,
+      "rows": "112853",
+      "samples": "112853",
+      "nulls": "0",
+      "zeros": "34",
+      "invalid": "0",
+      "over_sanity_cap": "47",
+      "percentiles_pips": [
+        1.7,
+        2.1,
+        2.1,
+        6.699999999999999
+      ],
+      "max_pips": 23.200000000000003
+    },
+    {
+      "symbol": "USDCHF",
+      "sanity_cap_pips": 14,
+      "rows": "112766",
+      "samples": "112766",
+      "nulls": "0",
+      "zeros": "30",
+      "invalid": "0",
+      "over_sanity_cap": "427",
+      "percentiles_pips": [
+        1.5,
+        2,
+        2.3,
+        8.5
+      ],
+      "max_pips": 33.5
+    },
+    {
+      "symbol": "USDJPY",
+      "sanity_cap_pips": 10,
+      "rows": "112479",
+      "samples": "112479",
+      "nulls": "0",
+      "zeros": "0",
+      "invalid": "0",
+      "over_sanity_cap": "504",
+      "percentiles_pips": [
+        1.7000000000000002,
+        2.6,
+        2.8,
+        7.1000000000000005
+      ],
+      "max_pips": 18.5
+    },
+    {
+      "symbol": "USDSEK",
+      "sanity_cap_pips": 320,
+      "rows": "112699",
+      "samples": "112699",
+      "nulls": "0",
+      "zeros": "18",
+      "invalid": "0",
+      "over_sanity_cap": "1485",
+      "percentiles_pips": [
+        34,
+        68,
+        91,
+        276
+      ],
+      "max_pips": 568
+    },
+    {
+      "symbol": "XAUUSD",
+      "sanity_cap_pips": 35,
+      "rows": "109482",
+      "samples": "109482",
+      "nulls": "0",
+      "zeros": "0",
+      "invalid": "0",
+      "over_sanity_cap": "0",
+      "percentiles_pips": [
+        2.9999999999999996,
+        3.4,
+        3.5,
+        3.7
+      ],
+      "max_pips": 4.6
+    }
+  ],
+  "spreadFeatureParity": [
+    {
+      "symbol": "AUDUSD",
+      "checked_rows": "1501",
+      "mismatches": "868",
+      "max_abs_error": 6.09,
+      "non_anchor_rows": "0"
+    },
+    {
+      "symbol": "EURUSD",
+      "checked_rows": "7221",
+      "mismatches": "41",
+      "max_abs_error": 0.20500000000000007,
+      "non_anchor_rows": "0"
+    },
+    {
+      "symbol": "GBPUSD",
+      "checked_rows": "1503",
+      "mismatches": "236",
+      "max_abs_error": 1.166071428571429,
+      "non_anchor_rows": "0"
+    },
+    {
+      "symbol": "NZDUSD",
+      "checked_rows": "1502",
+      "mismatches": "640",
+      "max_abs_error": 7.134999999999998,
+      "non_anchor_rows": "1"
+    },
+    {
+      "symbol": "USDCAD",
+      "checked_rows": "1502",
+      "mismatches": "854",
+      "max_abs_error": 7.469999999999998,
+      "non_anchor_rows": "0"
+    },
+    {
+      "symbol": "USDCHF",
+      "checked_rows": "1513",
+      "mismatches": "863",
+      "max_abs_error": 11.219090909090907,
+      "non_anchor_rows": "0"
+    },
+    {
+      "symbol": "USDJPY",
+      "checked_rows": "1504",
+      "mismatches": "146",
+      "max_abs_error": 0.245000000000001,
+      "non_anchor_rows": "2"
+    },
+    {
+      "symbol": "USDSEK",
+      "checked_rows": "1186",
+      "mismatches": "622",
+      "max_abs_error": 265.8333333333333,
+      "non_anchor_rows": "3"
+    },
+    {
+      "symbol": "XAUUSD",
+      "checked_rows": "1452",
+      "mismatches": "178",
+      "max_abs_error": 0.47000000000000064,
+      "non_anchor_rows": "4"
+    }
+  ],
+  "coverage": [
+    {
+      "symbol": "AUDUSD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91616,
+      "coverageRatio": 0.9940864356940572,
+      "hasGaps": true,
+      "gapCount": 545,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "AUDUSD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18347,
+      "coverageRatio": 0.9953344545109315,
+      "hasGaps": true,
+      "gapCount": 86,
+      "largestGapMinutes": 425,
+      "source": "rollup"
+    },
+    {
+      "symbol": "AUDUSD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "AUDUSD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "AUDUSD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "AUDUSD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91368,
+      "coverageRatio": 0.9913954926704355,
+      "hasGaps": true,
+      "gapCount": 793,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18345,
+      "coverageRatio": 0.9952259534530462,
+      "hasGaps": true,
+      "gapCount": 88,
+      "largestGapMinutes": 425,
+      "source": "rollup"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "EURUSD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91585,
+      "coverageRatio": 0.9937500678161044,
+      "hasGaps": true,
+      "gapCount": 576,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18346,
+      "coverageRatio": 0.9952802039819888,
+      "hasGaps": true,
+      "gapCount": 87,
+      "largestGapMinutes": 425,
+      "source": "rollup"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "GBPUSD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91385,
+      "coverageRatio": 0.9915799524744741,
+      "hasGaps": true,
+      "gapCount": 776,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18330,
+      "coverageRatio": 0.9944121955189064,
+      "hasGaps": true,
+      "gapCount": 103,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "NZDUSD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91653,
+      "coverageRatio": 0.9944879070322588,
+      "hasGaps": true,
+      "gapCount": 508,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18349,
+      "coverageRatio": 0.9954429555688168,
+      "hasGaps": true,
+      "gapCount": 84,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCAD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91563,
+      "coverageRatio": 0.9935113551285251,
+      "hasGaps": true,
+      "gapCount": 598,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18343,
+      "coverageRatio": 0.9951174523951608,
+      "hasGaps": true,
+      "gapCount": 90,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDCHF",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91305,
+      "coverageRatio": 0.9907119063378218,
+      "hasGaps": true,
+      "gapCount": 856,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18343,
+      "coverageRatio": 0.9951174523951608,
+      "hasGaps": true,
+      "gapCount": 90,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6117,
+      "coverageRatio": 0.9954434499593166,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDJPY",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 92161,
+      "actualRows": 91501,
+      "coverageRatio": 0.9928386193726196,
+      "hasGaps": true,
+      "gapCount": 660,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 18433,
+      "actualRows": 18337,
+      "coverageRatio": 0.9947919492215049,
+      "hasGaps": true,
+      "gapCount": 96,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 6145,
+      "actualRows": 6115,
+      "coverageRatio": 0.9951179820992677,
+      "hasGaps": true,
+      "gapCount": 30,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1537,
+      "actualRows": 1530,
+      "coverageRatio": 0.9954456733897202,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "USDSEK",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "1m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 88321,
+      "actualRows": 87654,
+      "coverageRatio": 0.9924480021738884,
+      "hasGaps": true,
+      "gapCount": 667,
+      "largestGapMinutes": 0,
+      "source": "cagg"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "5m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 17665,
+      "actualRows": 17557,
+      "coverageRatio": 0.9938862156807245,
+      "hasGaps": true,
+      "gapCount": 108,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "15m",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 5889,
+      "actualRows": 5861,
+      "coverageRatio": 0.9952453727288164,
+      "hasGaps": true,
+      "gapCount": 28,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "1h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 1473,
+      "actualRows": 1466,
+      "coverageRatio": 0.9952477936184657,
+      "hasGaps": true,
+      "gapCount": 7,
+      "largestGapMinutes": 420,
+      "source": "rollup"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "4h",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 385,
+      "actualRows": 383,
+      "coverageRatio": 0.9948051948051948,
+      "hasGaps": true,
+      "gapCount": 2,
+      "largestGapMinutes": 480,
+      "source": "rollup"
+    },
+    {
+      "symbol": "XAUUSD",
+      "tf": "1d",
+      "from": "2026-05-06T06:08:49.884Z",
+      "to": "2026-08-04T06:08:49.884Z",
+      "expectedRows": 65,
+      "actualRows": 64,
+      "coverageRatio": 0.9846153846153847,
+      "hasGaps": true,
+      "gapCount": 1,
+      "largestGapMinutes": 1440,
+      "source": "rollup"
+    }
+  ],
+  "htfParity": {
+    "5m": [
+      {
+        "symbol": "AUDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "EURUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "GBPUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "NZDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      },
+      {
+        "symbol": "USDCAD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      },
+      {
+        "symbol": "USDCHF",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      },
+      {
+        "symbol": "USDJPY",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      },
+      {
+        "symbol": "USDSEK",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      },
+      {
+        "symbol": "XAUUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:05:00.000Z",
+        "actual_edge": "2026-08-03T23:05:00.000Z"
+      }
+    ],
+    "15m": [
+      {
+        "symbol": "AUDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "EURUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "GBPUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "NZDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDCAD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDCHF",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDJPY",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDSEK",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "XAUUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      }
+    ],
+    "1h": [
+      {
+        "symbol": "AUDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "EURUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "GBPUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "NZDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDCAD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDCHF",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDJPY",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "USDSEK",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      },
+      {
+        "symbol": "XAUUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T23:00:00.000Z",
+        "actual_edge": "2026-08-03T23:00:00.000Z"
+      }
+    ],
+    "4h": [
+      {
+        "symbol": "AUDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "EURUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "GBPUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "NZDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "USDCAD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "USDCHF",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "USDJPY",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "USDSEK",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      },
+      {
+        "symbol": "XAUUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T20:00:00.000Z",
+        "actual_edge": "2026-08-03T20:00:00.000Z"
+      }
+    ],
+    "1d": [
+      {
+        "symbol": "AUDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "EURUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "GBPUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "NZDUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "USDCAD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "USDCHF",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "USDJPY",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "USDSEK",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      },
+      {
+        "symbol": "XAUUSD",
+        "extra_actual": "0",
+        "missing_actual": "0",
+        "value_mismatches": "0",
+        "expected_edge": "2026-08-03T00:00:00.000Z",
+        "actual_edge": "2026-08-03T00:00:00.000Z"
+      }
+    ]
+  },
+  "incidents": {
+    "xauJul6To7": [
+      {
+        "day": "2026-07-06T00:00:00.000Z",
+        "rows": 1440,
+        "first_ts": "2026-07-06T00:00:00.000Z",
+        "last_ts": "2026-07-06T23:59:00.000Z"
+      },
+      {
+        "day": "2026-07-07T00:00:00.000Z",
+        "rows": 1438,
+        "first_ts": "2026-07-07T00:00:00.000Z",
+        "last_ts": "2026-07-07T23:59:00.000Z"
+      }
+    ],
+    "dxyHistory": [
+      {
+        "broker": "synthetic",
+        "rows": "123662",
+        "first_ts": "2026-04-23T04:45:00.000Z",
+        "last_ts": "2026-08-04T09:12:00.000Z"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "code": "SPREAD_FEATURE_PARITY",
+      "count": 4448,
+      "detail": "Candle-anchored spread feature differs from current producer contract."
+    },
+    {
+      "severity": "medium",
+      "code": "SPREAD_NON_ANCHOR_ROWS",
+      "count": 10,
+      "detail": "Legacy spread rows use scheduler timestamps instead of canonical candle anchors."
+    },
+    {
+      "severity": "medium",
+      "code": "SPREAD_POLLUTION",
+      "count": 3160,
+      "detail": "Canonical spread samples violate sanity contract."
+    },
+    {
+      "severity": "medium",
+      "code": "SUSPECT_CANDLES",
+      "count": 3,
+      "detail": "Quality side table quarantines candles."
+    },
+    {
+      "severity": "medium",
+      "code": "COVERAGE_GAPS",
+      "count": 54,
+      "detail": "Strategy-visible symbol/timeframe surfaces contain market-calendar gaps."
+    }
+  ],
+  "verdict": "DEGRADED"
+}

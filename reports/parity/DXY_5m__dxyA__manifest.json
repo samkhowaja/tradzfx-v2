@@ -1,0 +1,41 @@
+{
+  "symbol": "DXY",
+  "tf": "5m",
+  "from": "2026-07-17T23:54:00Z",
+  "to": "2026-07-31T13:42:00Z",
+  "takenAt": "2026-08-05T09:28:46.595Z",
+  "features": {
+    "features_moving_average": {
+      "rows": 52820,
+      "distinctAnchors": 2780,
+      "minTs": "2026-07-19T21:05:00.000Z",
+      "maxTs": "2026-07-31T13:35:00.000Z",
+      "setHash": "e0b2fb79acd4353fa6c0e8220bf6b368cbcaad66530f6b599d6bfc0ca4f32a1d",
+      "file": "reports\\parity\\DXY_5m__dxyA__features_moving_average.jsonl"
+    },
+    "features_atr": {
+      "rows": 8340,
+      "distinctAnchors": 2780,
+      "minTs": "2026-07-19T21:05:00.000Z",
+      "maxTs": "2026-07-31T13:35:00.000Z",
+      "setHash": "9b0645195013d137a515d39604f8940646419c305e2c2ebe1a1f18cdefeb9d15",
+      "file": "reports\\parity\\DXY_5m__dxyA__features_atr.jsonl"
+    },
+    "features_pivot": {
+      "rows": 334,
+      "distinctAnchors": 331,
+      "minTs": "2026-07-19T21:15:00.000Z",
+      "maxTs": "2026-07-31T12:30:00.000Z",
+      "setHash": "3ac445d9b00a72173ad2c4f3cfe4734aba2d684da086cc16877cd70cb509cd70",
+      "file": "reports\\parity\\DXY_5m__dxyA__features_pivot.jsonl"
+    },
+    "features_structure": {
+      "rows": 147,
+      "distinctAnchors": 147,
+      "minTs": "2026-07-19T22:00:00.000Z",
+      "maxTs": "2026-07-30T13:35:00.000Z",
+      "setHash": "a638524fdef8b5ccbfea3586c6542af6c11dbd6df0949fc6d9ecde9a45a691ba",
+      "file": "reports\\parity\\DXY_5m__dxyA__features_structure.jsonl"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:41:14.630Z",
+  "finishedAt": "2026-08-06T22:41:20.099Z",
+  "symbols": [
+    "NZDUSD"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_atr"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "NZDUSD": {
+        "mode": "require",
+        "windowIds": [
+          106
+        ],
+        "windowSetHash": "a6ebc17e0bf5dd5c6a9f7c6238c80c7ebbd853c58783eebfadd75ce5a72058d1",
+        "detectors": [
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:41:15.138Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "2bf279c0e84329ab3e4668422b000da686000b10532198e84682025ee6e12406"
+  },
+  "cells": [
+    {
+      "feature": "features_atr",
+      "symbol": "NZDUSD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-08-06T01:30:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistedRows": 207,
+      "persistedMinTs": "2026-08-06T01:30:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:30:00.000Z",
+      "producerRunId": "24980834",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:30:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:30:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 138,
+      "expectedAnchors": 69,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 70,
+    "errors": 0,
+    "readyCells": 1,
+    "blockedCells": 0
+  }
+}

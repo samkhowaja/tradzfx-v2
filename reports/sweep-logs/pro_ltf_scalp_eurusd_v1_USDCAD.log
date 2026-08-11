@@ -1,0 +1,11 @@
+◇ injected env (0) from .env.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+[backtest-pit-v2] Strategy: pro_ltf_scalp_eurusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-06-20T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCAD
+
+USDCAD: 31 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 7 deduped) | signal query 631ms | prefetch 1855ms | setup-engine N/Ams | simulate 12ms
+  Executed: 23 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 0
+  Wins: 7 | Losses: 16 | Timeouts: 1
+  WR: 30.4% | Net R: 13.81 | Avg Win: 3.83R | Avg Loss: -0.81R

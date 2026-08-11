@@ -1,0 +1,273 @@
+{
+  "generatedAt": "2026-08-04T20:02:35.823Z",
+  "readOnly": true,
+  "sources": {
+    "alternateBroker": "2026-08-04T18:42:49.005Z",
+    "noAlternate": "2026-08-04T18:43:43.669Z"
+  },
+  "summary": {
+    "KEEP": 20
+  },
+  "proposals": [
+    {
+      "quarantineId": "1083",
+      "symbol": "AUDUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1084",
+      "symbol": "AUDUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-08-03T06:53:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1111",
+      "symbol": "EURUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-10T02:40:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1112",
+      "symbol": "EURUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1149",
+      "symbol": "GBPUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1150",
+      "symbol": "GBPUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-08-03T06:53:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1173",
+      "symbol": "NZDUSD",
+      "broker": "MT5",
+      "eventTime": "2026-06-22T21:27:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (NONE)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1174",
+      "symbol": "NZDUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-10T02:33:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1176",
+      "symbol": "NZDUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1177",
+      "symbol": "NZDUSD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-08-03T06:53:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1179",
+      "symbol": "USDCAD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-10T02:34:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1180",
+      "symbol": "USDCAD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1181",
+      "symbol": "USDCAD",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-08-03T06:53:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1193",
+      "symbol": "USDCHF",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-05-15T04:48:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1195",
+      "symbol": "USDCHF",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-09T19:44:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1196",
+      "symbol": "USDCHF",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1197",
+      "symbol": "USDCHF",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-08-03T06:53:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "alternate-broker report: calendar-explained",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1218",
+      "symbol": "USDJPY",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "1260",
+      "symbol": "USDSEK",
+      "broker": "OANDA Corporation",
+      "eventTime": "2026-07-17T23:54:00.000Z",
+      "flags": [
+        "UNEXPECTED_GAP"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: calendar-explained (EXPECTED_WEEKEND)",
+      "alreadyApproved": false
+    },
+    {
+      "quarantineId": "655",
+      "symbol": "DXY",
+      "broker": "synthetic",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "no-alternate report: verified synchronized component feed reset (formula-derived)",
+      "alreadyApproved": false
+    }
+  ]
+}

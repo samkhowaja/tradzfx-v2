@@ -1,0 +1,88 @@
+{
+  "mode": "read_only",
+  "tf": "5m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "AUDUSD",
+      "status": "OK",
+      "candles": 814,
+      "pivots": 78,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.69803,
+          "ts": "2026-07-26T21:00:00.000Z",
+          "availableAtTs": "2026-07-26T21:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T21:05:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T04:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.70023,
+          "ts": "2026-07-26T22:00:00.000Z",
+          "availableAtTs": "2026-07-26T22:00:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.7006,
+          "ts": "2026-07-27T06:30:00.000Z",
+          "availableAtTs": "2026-07-27T06:30:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T06:35:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T06:50:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "AUDUSD|5m|1785019200000|high|0.69803|0|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785019200000|high|0.69803|0",
+          "level": 0.69803,
+          "eventTs": "2026-07-26T21:00:00.000Z",
+          "availableAt": "2026-07-26T21:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "AUDUSD|5m|1785100800000|high|0.70023|16|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785100800000|high|0.70023|16",
+          "level": 0.70023,
+          "eventTs": "2026-07-26T22:00:00.000Z",
+          "availableAt": "2026-07-26T22:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "AUDUSD|5m|1785103200000|high|0.7006|18|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785103200000|high|0.7006|18",
+          "level": 0.7006,
+          "eventTs": "2026-07-27T06:30:00.000Z",
+          "availableAt": "2026-07-27T06:35:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 3
+      }
+    }
+  ]
+}

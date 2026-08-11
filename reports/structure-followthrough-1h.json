@@ -1,0 +1,104 @@
+{
+  "bars": 3,
+  "atrPeriod": 14,
+  "scope": "causal_only",
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "total": 0,
+      "buckets": {
+        "bos": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        },
+        "choch": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        },
+        "internal_bos": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        },
+        "internal_choch": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        }
+      },
+      "events": []
+    },
+    {
+      "symbol": "XAUUSD",
+      "total": 1,
+      "buckets": {
+        "bos": {
+          "count": 1,
+          "valid": 1,
+          "winRate": 1,
+          "meanReturn": 1.8081487341771936,
+          "medianReturn": 1.8081487341771936,
+          "sharpe": null
+        },
+        "choch": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        },
+        "internal_bos": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        },
+        "internal_choch": {
+          "count": 0,
+          "valid": 0,
+          "winRate": null,
+          "meanReturn": null,
+          "medianReturn": null,
+          "sharpe": null
+        }
+      },
+      "events": [
+        {
+          "identity": "XAUUSD|1h|1777543200000|high|4646.77|1|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1777543200000|high|4646.77|1",
+          "level": 4646.77,
+          "eventTs": "2026-05-06T04:00:00.000Z",
+          "availableAt": "2026-05-06T05:00:00.000Z",
+          "sourceKind": "high",
+          "sourceCenterTs": "2026-04-30T10:00:00.000Z",
+          "sourceConfirmationTs": "2026-04-30T21:00:00.000Z",
+          "breakClose": 4649,
+          "breakHigh": 4653.62,
+          "breakLow": 4643.43,
+          "classification": "CAUSAL_ONLY",
+          "atr14": 18.05714285714287,
+          "forwardReturnR": 1.8081487341771936
+        }
+      ]
+    }
+  ]
+}

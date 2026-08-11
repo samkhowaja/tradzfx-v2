@@ -1,0 +1,74 @@
+[backtest-pit-v2] Strategy: forex_strategy_orb | signalSource: orb
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-27 → 2026-07-26 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-04-27T13:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY, XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for EURUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for GBPUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for AUDUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for NZDUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for USDCAD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for USDCHF: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for USDJPY: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_STALE_STATE_features_opening_range@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m | features_structure@5m=PRODUCER_STALE_EVENT, features_displacement@5m=PRODUCER_STALE_EVENT, features_zone_retest@5m=PRODUCER_STALE_EVENT
+EURUSD: 61 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 35 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 6392ms | prefetch 715ms | setup-engine 7030ms | simulate 7033ms
+  Setup evaluations: 61 persisted, 61 evaluated, 0 context-hash skips
+  Executed: 5 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 21 | Heat dropped: 0
+  Gate skips: volatility=21
+  Setup-engine BLOCK reasons: setup grade BLOCK=35
+  Wins: 1 | Losses: 4 | Timeouts: 0
+  WR: 20.0% | Net R: -3.73 | Avg Win: 0.27R | Avg Loss: -1.00R
+GBPUSD: 62 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 18 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 4675ms | prefetch 579ms | setup-engine 9914ms | simulate 9915ms
+  Setup evaluations: 62 persisted, 62 evaluated, 0 context-hash skips
+  Executed: 6 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 38 | Heat dropped: 0
+  Gate skips: volatility=38
+  Setup-engine BLOCK reasons: setup grade BLOCK=18
+  Wins: 1 | Losses: 5 | Timeouts: 0
+  WR: 16.7% | Net R: -3.31 | Avg Win: 0.69R | Avg Loss: -0.80R
+AUDUSD: 61 raw signals (0 skipped for warmup, 28 invalid compiler geometry, 0 invalid setup geometry, 21 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 4670ms | prefetch 694ms | setup-engine 1369ms | simulate 1370ms
+  Setup evaluations: 33 persisted, 33 evaluated, 0 context-hash skips
+  Executed: 3 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 9 | Heat dropped: 0
+  Gate skips: volatility=9
+  Setup-engine BLOCK reasons: setup grade BLOCK=21
+  Wins: 0 | Losses: 3 | Timeouts: 0
+  WR: 0.0% | Net R: -2.00 | Avg Win: 0.00R | Avg Loss: -0.67R
+NZDUSD: 62 raw signals (0 skipped for warmup, 37 invalid compiler geometry, 0 invalid setup geometry, 16 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 4790ms | prefetch 623ms | setup-engine 1755ms | simulate 1756ms
+  Setup evaluations: 25 persisted, 25 evaluated, 0 context-hash skips
+  Executed: 3 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 6 | Heat dropped: 0
+  Gate skips: volatility=6
+  Setup-engine BLOCK reasons: setup grade BLOCK=16
+  Wins: 0 | Losses: 3 | Timeouts: 0
+  WR: 0.0% | Net R: -2.00 | Avg Win: 0.00R | Avg Loss: -0.67R
+USDCAD: 62 raw signals (0 skipped for warmup, 22 invalid compiler geometry, 0 invalid setup geometry, 22 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 4166ms | prefetch 599ms | setup-engine 1962ms | simulate 1963ms
+  Setup evaluations: 40 persisted, 40 evaluated, 0 context-hash skips
+  Executed: 1 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 16 | Heat dropped: 0
+  Gate skips: volatility=16
+  Setup-engine BLOCK reasons: setup grade BLOCK=22
+  Wins: 0 | Losses: 1 | Timeouts: 1
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R
+USDCHF: 64 raw signals (0 skipped for warmup, 20 invalid compiler geometry, 0 invalid setup geometry, 23 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 3545ms | prefetch 559ms | setup-engine 1896ms | simulate 1897ms
+  Setup evaluations: 44 persisted, 44 evaluated, 0 context-hash skips
+  Executed: 3 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 18 | Heat dropped: 0
+  Gate skips: volatility=18
+  Setup-engine BLOCK reasons: setup grade BLOCK=23
+  Wins: 0 | Losses: 3 | Timeouts: 0
+  WR: 0.0% | Net R: -3.00 | Avg Win: 0.00R | Avg Loss: -1.00R
+USDJPY: 62 raw signals (0 skipped for warmup, 3 invalid compiler geometry, 0 invalid setup geometry, 28 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 5109ms | prefetch 531ms | setup-engine 3175ms | simulate 3176ms
+  Setup evaluations: 59 persisted, 59 evaluated, 0 context-hash skips
+  Executed: 7 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 24 | Heat dropped: 0
+  Gate skips: volatility=24
+  Setup-engine BLOCK reasons: setup grade BLOCK=28
+  Wins: 2 | Losses: 5 | Timeouts: 0
+  WR: 28.6% | Net R: 2.22 | Avg Win: 2.61R | Avg Loss: -0.60R
+XAUUSD: 62 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 21 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 6362ms | prefetch 605ms | setup-engine 9755ms | simulate 9756ms
+  Setup evaluations: 62 persisted, 62 evaluated, 0 context-hash skips
+  Executed: 4 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 37 | Heat dropped: 0
+  Gate skips: volatility=37
+  Setup-engine BLOCK reasons: setup grade BLOCK=21
+  Wins: 1 | Losses: 3 | Timeouts: 0
+  WR: 25.0% | Net R: -1.48 | Avg Win: 0.52R | Avg Loss: -0.67R
+
+AGGREGATE: Trades=32 WR=15.6% NetR=-13.30 RealizedR=-122.61 AvgDrift=61.33p
+[backtest-pit-v2] Persisted 32 trades to backtest_results (run forex_strategy_orb-2026-04-27T05:00:00.000Z-2026-07-26T05:00:00.000Z-8e1cc363)
+[backtest-pit-v2] Heat post-pass: 6/32 trades dropped (run forex_strategy_orb-2026-04-27T05:00:00.000Z-2026-07-26T05:00:00.000Z-8e1cc363)

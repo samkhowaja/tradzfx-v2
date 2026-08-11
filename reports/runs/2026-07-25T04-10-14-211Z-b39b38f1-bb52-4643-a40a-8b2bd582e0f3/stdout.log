@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: waqar_v2_live_paper | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-07-15T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+USDCHF: 14 raw signals (4 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 3 deduped) | signal query 83ms | prefetch 72ms | setup-engine N/Ams | simulate 3ms
+  Executed: 2 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 4 | Skipped: 0 | Heat dropped: 1
+  Wins: 1 | Losses: 1 | Timeouts: 4
+  WR: 50.0% | Net R: 1.17 | Avg Win: 2.17R | Avg Loss: -1.00R

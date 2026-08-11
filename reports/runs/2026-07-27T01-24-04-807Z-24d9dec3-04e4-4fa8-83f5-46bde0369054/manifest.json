@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T01-24-04-807Z-24d9dec3-04e4-4fa8-83f5-46bde0369054",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T01:24:04.807Z",
+  "finishedAt": "2026-07-27T01:24:12.342Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "forex_strategy_orb",
+  "specHash": "166cd3b32dbb2c2975228b709249303e4fc1d9f68c8f543f04ed10716519c598",
+  "symbol": "GBPUSD",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "15eff0049464cac4186451b72aea2e955883015cd21485fefbce42c46d000f9d",
+  "arguments": [
+    "GBPUSD",
+    "7",
+    "forex_strategy_orb",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "cee9b2885d9a8ea9570b00adfa3972e79e79388a24035dd2ca091fb4512f4e4d",
+      "bytes": 1004
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "808bbe2e7bf5c30f919852c7fb5fe6dc1af3d0cccdb7b271b94b7858ca7c16df",
+      "bytes": 3923
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "fe92b6dd034dae12b251c5b720ac7ccc7a6f806854f7a735573d3caf5eb29ee3",
+      "bytes": 3414
+    }
+  }
+}

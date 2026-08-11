@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: smc_ict_liquidity_ifvg_allpairs_v1 | signalSource: generic
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 1440 derived bars -> signals before 2026-04-27T18:18:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+

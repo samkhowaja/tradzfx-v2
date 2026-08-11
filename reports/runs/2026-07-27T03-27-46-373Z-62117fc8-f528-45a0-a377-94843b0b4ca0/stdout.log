@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-05 → 2026-07-26 (21 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-15T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDJPY
+
+[backtest-pit-v2] DEGRADED data quality for USDJPY: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1h, capability_STALE_STATE_features_indicator@1h, capability_STALE_STATE_features_moving_average@1h
+USDJPY: 243 raw signals (138 skipped for warmup, 8 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 105ms | prefetch 203ms | setup-engine N/Ams | simulate 9ms
+  Executed: 6 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 91 | Heat dropped: 0
+  Gate skips: volatility=84, rateLimit=4, session=3
+  Wins: 1 | Losses: 5 | Timeouts: 0
+  WR: 16.7% | Net R: -1.47 | Avg Win: 2.53R | Avg Loss: -0.80R

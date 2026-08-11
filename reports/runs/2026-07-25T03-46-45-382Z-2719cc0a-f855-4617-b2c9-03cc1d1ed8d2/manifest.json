@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T03-46-45-382Z-2719cc0a-f855-4617-b2c9-03cc1d1ed8d2",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T03:46:45.382Z",
+  "finishedAt": "2026-07-25T03:46:50.894Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx",
+  "specHash": "824e0c6f8e43f4608ef59e3cc22e8d8f5cb65aa5f725ddcd96424392fd2ce093",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-14T00:00:00.000Z",
+    "to": "2026-07-21T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-21T00:00:00.000Z",
+  "readinessManifestHash": "3538f577805137c28579f3130dbb3b35a3c671c5c98a811a62b274f2226f9198",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx",
+    "--end=2026-07-21",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "336054844b3cf38e42e6ffc4f41f0e9af0808e65239ca645fca219499a24b372",
+      "bytes": 418
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "b5811b5c12c5356183ce2c35aa4eda42180fc3f2b792027d206c11962d3ce390",
+      "bytes": 3630
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

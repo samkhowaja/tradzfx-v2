@@ -1,0 +1,29 @@
+[
+  {
+    "symbol": "AUDUSD",
+    "side": "sell",
+    "entry": 0.68876452,
+    "sl": 0.68945952,
+    "tp": 0.68806952,
+    "ts": "2026-06-30T20:00:00.000Z",
+    "causalLineage": [],
+    "entryType": "market",
+    "atr_5": 0.0013900000000000245,
+    "spread_pips": 1.2,
+    "outcome": "loss",
+    "r": 0,
+    "rRealized": 0,
+    "holdBars": 1,
+    "closePrice": 0.69108,
+    "effectiveEntry": 0.69108,
+    "maxAdverse": 0.69108,
+    "maxFavorable": 0.69108,
+    "invalidReason": "gap_through",
+    "driftPips": 23.154800000000364,
+    "realizedRisk": null,
+    "executed": true,
+    "plannedR": 0,
+    "realizedR": 0,
+    "heatDropped": false
+  }
+]

@@ -1,0 +1,16 @@
+[backtest-pit-v2] Strategy: gold_mssnr_scalper_1m | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-27 → 2026-07-26 (90 days)
+[backtest-pit-v2] Warmup: 240 derived bars -> signals before 2026-04-27T08:51:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1m, capability_PRODUCER_STALE_features_zone@15m, capability_PRODUCER_STALE_EVENT_features_structure@5m, capability_PRODUCER_STALE_EVENT_features_candle_pattern@1m | features_structure@5m=PRODUCER_STALE_EVENT, features_candle_pattern@1m=PRODUCER_STALE_EVENT
+  [setup-cache] 61 persistent hits, 112 remaining for evaluation
+XAUUSD: 188 raw signals (0 skipped for warmup, 15 invalid compiler geometry, 0 invalid setup geometry, 116 setup-engine BLOCK, 0 drift rejected, 3 deduped) | signal query 613ms | prefetch 742ms | setup-engine 6710ms | simulate 6714ms
+  Setup evaluations: 112 persisted, 112 evaluated, 61 context-hash skips
+  Executed: 54 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=97, setup grade BLOCK=19
+  Wins: 13 | Losses: 41 | Timeouts: 0
+  WR: 24.1% | Net R: -33.27 | Avg Win: 0.52R | Avg Loss: -0.98R
+[backtest-pit-v2] Persisted 54 trades to backtest_results (run gold_mssnr_scalper_1m-2026-04-27T04:51:00.000Z-2026-07-26T04:51:00.000Z-0bbd39a3)
+[backtest-pit-v2] Heat post-pass: 0/54 trades dropped (run gold_mssnr_scalper_1m-2026-04-27T04:51:00.000Z-2026-07-26T04:51:00.000Z-0bbd39a3)

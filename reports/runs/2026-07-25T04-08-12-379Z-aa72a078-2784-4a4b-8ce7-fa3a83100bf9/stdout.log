@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-07-14T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_bias@15m
+XAUUSD: no signals

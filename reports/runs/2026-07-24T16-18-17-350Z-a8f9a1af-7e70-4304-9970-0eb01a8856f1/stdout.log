@@ -1,0 +1,48 @@
+[backtest-pit-v2] Strategy: waqar_v2_bst_corrected_7pair_shadow | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-25 → 2026-07-24 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-27T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD, GBPUSD, AUDUSD, NZDUSD, USDCAD, USDCHF, USDJPY
+
+  [setup-cache] 54 persistent hits, 0 remaining for evaluation
+EURUSD: 54 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 11 setup-engine BLOCK, 31 drift rejected, 0 deduped) | signal query 223ms | prefetch 458ms | setup-engine 13ms | simulate 17ms
+  Executed: 10 | Drift rejected: 31 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 1
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=10, setup grade BLOCK=1
+  Wins: 7 | Losses: 3 | Timeouts: 1
+  WR: 70.0% | Net R: 16.58 | Avg Win: 2.80R | Avg Loss: -1.01R
+GBPUSD: 60 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 10 setup-engine BLOCK, 39 drift rejected, 0 deduped) | signal query 457ms | prefetch 472ms | setup-engine 4157ms | simulate 4159ms
+  Setup evaluations: 60 persisted, 60 evaluated, 0 context-hash skips
+  Executed: 9 | Drift rejected: 39 | Invalid outcomes: 0 | Timeouts: 2 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=10
+  Wins: 8 | Losses: 1 | Timeouts: 2
+  WR: 88.9% | Net R: 20.96 | Avg Win: 2.79R | Avg Loss: -1.34R
+AUDUSD: 34 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 2 setup-engine BLOCK, 22 drift rejected, 2 deduped) | signal query 210ms | prefetch 520ms | setup-engine 1583ms | simulate 1584ms
+  Setup evaluations: 34 persisted, 34 evaluated, 0 context-hash skips
+  Executed: 4 | Drift rejected: 22 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 1
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=2
+  Wins: 0 | Losses: 4 | Timeouts: 3
+  WR: 0.0% | Net R: -3.82 | Avg Win: 0.00R | Avg Loss: -0.95R
+NZDUSD: 59 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 20 setup-engine BLOCK, 32 drift rejected, 2 deduped) | signal query 223ms | prefetch 642ms | setup-engine 1474ms | simulate 1475ms
+  Setup evaluations: 59 persisted, 59 evaluated, 0 context-hash skips
+  Executed: 2 | Drift rejected: 32 | Invalid outcomes: 0 | Timeouts: 3 | Skipped: 0 | Heat dropped: 0
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=20
+  Wins: 1 | Losses: 1 | Timeouts: 3
+  WR: 50.0% | Net R: 1.98 | Avg Win: 2.78R | Avg Loss: -0.80R
+USDCAD: 68 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 20 setup-engine BLOCK, 40 drift rejected, 0 deduped) | signal query 177ms | prefetch 551ms | setup-engine 1942ms | simulate 1943ms
+  Setup evaluations: 68 persisted, 68 evaluated, 0 context-hash skips
+  Executed: 6 | Drift rejected: 40 | Invalid outcomes: 0 | Timeouts: 1 | Skipped: 0 | Heat dropped: 1
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=20
+  Wins: 2 | Losses: 4 | Timeouts: 1
+  WR: 33.3% | Net R: 0.80 | Avg Win: 2.74R | Avg Loss: -1.17R
+USDCHF: 50 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 7 setup-engine BLOCK, 32 drift rejected, 3 deduped) | signal query 193ms | prefetch 480ms | setup-engine 2105ms | simulate 2106ms
+  Setup evaluations: 50 persisted, 50 evaluated, 0 context-hash skips
+  Executed: 2 | Drift rejected: 32 | Invalid outcomes: 0 | Timeouts: 4 | Skipped: 0 | Heat dropped: 2
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=7
+  Wins: 2 | Losses: 0 | Timeouts: 4
+  WR: 100.0% | Net R: 5.46 | Avg Win: 2.73R | Avg Loss: 0.00R
+USDJPY: 62 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 14 setup-engine BLOCK, 24 drift rejected, 5 deduped) | signal query 124ms | prefetch 424ms | setup-engine 3036ms | simulate 3037ms
+  Setup evaluations: 62 persisted, 62 evaluated, 0 context-hash skips
+  Executed: 11 | Drift rejected: 24 | Invalid outcomes: 0 | Timeouts: 5 | Skipped: 0 | Heat dropped: 3
+  Setup-engine BLOCK reasons: No entry zone within 1.5 ATR of current price=14
+  Wins: 9 | Losses: 2 | Timeouts: 5
+  WR: 81.8% | Net R: 23.68 | Avg Win: 2.88R | Avg Loss: -1.12R

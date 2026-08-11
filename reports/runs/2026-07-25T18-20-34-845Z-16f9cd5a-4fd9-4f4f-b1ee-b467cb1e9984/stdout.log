@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: gold_scalp_1_ob_ifvg | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 720 derived bars -> signals before 2026-04-29T06:11:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+

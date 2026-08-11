@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T05-39-35-174Z-2eac0a1a-236a-463d-ab43-8d0ec97f4089",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T05:39:35.174Z",
+  "finishedAt": "2026-07-25T05:39:47.566Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "scalper_20sma_1m",
+  "specHash": "6e01eeca66cbabb1553dd517d0a1b21027072adccdd0eb335c0fbcbd9d518d5a",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "55611c20d2464b51a26a3fd253451f4711b8a4c5fe87b964182f0cfe246b852b",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "scalper_20sma_1m",
+    "--mode=fast",
+    "--end=2026-07-20"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "9991b354626324b8896789b5993a456d5842ee1ef90d74b4eaaf5e67b9d73ca8",
+      "bytes": 811
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "459108a58acf54dd8373fad89133e1f2ea58fe5509a3706c101953e6e41ca946",
+      "bytes": 3261
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "f4034b66279e87c4582e2049625fa1318498febf1ced6352f68457e3082671b9",
+      "bytes": 4627
+    }
+  }
+}

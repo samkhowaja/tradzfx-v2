@@ -1,0 +1,12 @@
+{
+  "schema_version": "development-audit-report-v1",
+  "change_id": "reporting-framework",
+  "timestamp": "2026-08-07T00:00:00Z",
+  "branch": "master",
+  "commit_sha": "9fef5b0b137c864b90c09222d065e366e3b7d5a9",
+  "status": "INCOMPLETE",
+  "scope": "reporting framework only",
+  "sensitive_values_redacted": true,
+  "artifacts": [],
+  "redactions": ["credentials", "connection strings", "environment files", "database dumps", "raw candle history"]
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "USDCHF",
+    "side": "sell",
+    "entry": 0.8087,
+    "sl": 0.81033,
+    "tp": 0.8054399999999999,
+    "ts": "2026-07-15T13:50:00.000Z",
+    "causalLineage": [],
+    "entryType": "limit",
+    "atr_5": 0.00040800000000000835,
+    "spread_pips": 1.26,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -1,
+    "holdBars": 26,
+    "closePrice": 0.81033,
+    "effectiveEntry": 0.8087,
+    "maxAdverse": 0.81037,
+    "maxFavorable": 0.8087,
+    "driftPips": 0,
+    "realizedRisk": 0.0016300000000000203,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -1,
+    "heatDropped": false
+  }
+]

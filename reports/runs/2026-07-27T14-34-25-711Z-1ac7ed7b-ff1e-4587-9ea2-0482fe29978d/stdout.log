@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: a_plus_orb_fvg_5m | signalSource: fvg
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-06-20T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDJPY
+
+USDJPY: no signals

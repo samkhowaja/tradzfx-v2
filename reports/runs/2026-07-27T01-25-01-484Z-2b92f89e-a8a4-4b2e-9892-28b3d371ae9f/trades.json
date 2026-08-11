@@ -1,0 +1,147 @@
+[
+  {
+    "symbol": "XAUUSD",
+    "side": "buy",
+    "entry": 4068.5,
+    "sl": 4064.5,
+    "tp": 4088.5,
+    "ts": "2026-07-21T20:45:00.000Z",
+    "causalLineage": [
+      {
+        "tf": "15m",
+        "row": {
+          "ts": "2026-07-21T20:45:00+00:00",
+          "regime": "trending",
+          "symbol": "XAUUSD",
+          "direction": "bullish"
+        },
+        "feature": "features_bias",
+        "conditionId": "htf_bias"
+      },
+      {
+        "tf": "5m",
+        "row": {
+          "tf": "5m",
+          "ts": "2026-07-21T20:45:00+00:00",
+          "close": 4078.44,
+          "level": 4079.13,
+          "symbol": "XAUUSD",
+          "extreme": 4082.07,
+          "evidence": {
+            "targetType": "swing",
+            "closeBackBars": 2,
+            "penetrationAtr": 0.6187612748045521,
+            "structureScore": 0,
+            "wickSizeAtrPct": 0.6187612748045521,
+            "displacementAtr": 0.846061334936817
+          },
+          "direction": "bearish",
+          "engine_ver": "1.4.0",
+          "input_hash": "bulk:XAUUSD:5m:2026-07-22T23:25:00.000Z",
+          "sweep_type": "inducement",
+          "target_type": "swing",
+          "mitigated_at": "2026-07-21T20:48:00+00:00"
+        },
+        "feature": "features_sweep",
+        "conditionId": "anti_bias_sweep"
+      },
+      {
+        "tf": "5m",
+        "row": {
+          "tf": "5m",
+          "ts": "2026-07-21T20:45:00+00:00",
+          "level": 4079.35,
+          "symbol": "XAUUSD",
+          "is_cisd": false,
+          "strength": "weak",
+          "confirmed": true,
+          "direction": "bearish",
+          "engine_ver": "2.1.0",
+          "event_type": "bos",
+          "input_hash": "bulk:XAUUSD:5m:2026-07-23T14:10:00.000Z",
+          "htf_aligned": true,
+          "invalidated_at": "2026-07-21T20:46:00+00:00",
+          "confirmation_ts": "2026-07-21T20:50:00+00:00",
+          "opposing_sweep_ts": null
+        },
+        "feature": "features_structure",
+        "conditionId": "structure_confirm"
+      },
+      {
+        "tf": "15m",
+        "row": {
+          "tf": "15m",
+          "ts": "2026-07-21T13:45:00+00:00",
+          "in_ote": false,
+          "symbol": "XAUUSD",
+          "ote_low": 4060.4117,
+          "balanced": false,
+          "ote_high": 4064.7209,
+          "pip_size": 0.1,
+          "position": "discount",
+          "engine_ver": "2.1.0",
+          "input_hash": "bulk:XAUUSD:15m:2026-07-21T13:45:00.000Z",
+          "llt_target": 4070.21,
+          "fib_position": "236_382",
+          "impulse_legs": null,
+          "dynamic_ote_low": 4060.4117,
+          "dynamic_ote_mid": 4062.5663,
+          "dynamic_ote_high": 4064.7209,
+          "dynamic_ote_source": "recent_range",
+          "dynamic_ote_quality": 0,
+          "premium_discount_score": -0.32397660818713125
+        },
+        "feature": "features_pricing",
+        "conditionId": "signal_pricing"
+      },
+      {
+        "tf": "15m",
+        "row": {
+          "tf": "15m",
+          "ts": "2026-07-21T18:15:00+00:00",
+          "top": 4071.3,
+          "bottom": 4068.5,
+          "symbol": "XAUUSD",
+          "tapped": true,
+          "outcome": null,
+          "age_bars": 161,
+          "fill_pct": 1,
+          "is_fresh": false,
+          "direction": "bullish",
+          "formation": "fvg",
+          "zone_kind": "fvg",
+          "engine_ver": "2.2.0",
+          "input_hash": "2.2.0:67d45572f764ddfdea300e44f1b5329ae22362e2b1cdc6189ac5e73ad820127a:XAUUSD:15m:2026-07-23T12:15:00.000Z",
+          "rank_score": 0.5641619891153529,
+          "touch_count": 0,
+          "mitigated_at": "2026-07-23T12:31:00+00:00",
+          "retest_count": 0,
+          "quality_score": 0.6800000000000002,
+          "first_touch_at": "2026-07-23T12:24:00+00:00",
+          "invalidated_at": "2026-07-23T12:30:00+00:00",
+          "strength_score": 0.8217821782178283,
+          "departure_candles": 54
+        },
+        "feature": "features_zone",
+        "conditionId": "signal_zone"
+      }
+    ],
+    "entryType": "market",
+    "atr_5": 3.3819999999998798,
+    "spread_pips": 3.5,
+    "outcome": "win",
+    "r": 0.8447348193696846,
+    "rRealized": 2.7474999999999454,
+    "holdBars": 129,
+    "closePrice": 4088.5,
+    "effectiveEntry": 4077.51,
+    "maxAdverse": 4076.79,
+    "maxFavorable": 4090.09,
+    "driftPips": 90.10000000000218,
+    "realizedRisk": 13.010000000000218,
+    "executed": true,
+    "plannedR": 0.8447348193696846,
+    "realizedR": 2.7474999999999454,
+    "heatDropped": false
+  }
+]

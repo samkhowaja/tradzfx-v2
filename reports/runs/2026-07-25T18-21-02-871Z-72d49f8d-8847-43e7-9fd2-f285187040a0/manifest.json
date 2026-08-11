@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T18-21-02-871Z-72d49f8d-8847-43e7-9fd2-f285187040a0",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T18:21:02.871Z",
+  "finishedAt": "2026-07-25T18:21:10.327Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "five_one_scalp_v1",
+  "specHash": "9c914aff854174ce2160d383681f722b9055f022f28906f5afce1fedd94428f9",
+  "symbol": "XAUUSD",
+  "window": {
+    "from": "2026-04-26T18:12:00.000Z",
+    "to": "2026-07-25T18:12:00.000Z"
+  },
+  "mode": "research",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-25T18:12:00.000Z",
+  "readinessManifestHash": "f8a15abb71ff7766726c24549ecfa24a39bc00bc932dd263582673408dba2d90",
+  "arguments": [
+    "XAUUSD",
+    "90",
+    "five_one_scalp_v1",
+    "--mode=research",
+    "--json"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "4d201eb72013123e9429e2699f956920741b44e066cb51ebf5d197d64c2d4b59",
+      "bytes": 826
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "810f86eb9054af31cb6a2f81686c84b657fd58c936559947dbf544f449ae83cc",
+      "bytes": 1300
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "8f56d70ac531120ecc83d048fc07c2c06f9bc46cd2570f2f198442d26be85850",
+      "bytes": 3816
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "0c2cce048903786a93cad2a03c2d18d739a33cb5738c9400412260760780e63b",
+      "bytes": 65173
+    }
+  }
+}

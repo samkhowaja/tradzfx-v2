@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T14-45-02-075Z-a038c170-fe70-4be2-bb55-0b31a97e5123",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-24T14:45:02.075Z",
+  "finishedAt": "2026-07-24T14:45:11.260Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_bst_corrected_7pair_shadow",
+  "specHash": "e317e1368c3a362a3c193609bca7695622dec072877f2b5d4bb7269e32c7bc0d",
+  "symbol": "USDCAD",
+  "window": {
+    "from": "2026-04-25T00:00:00.000Z",
+    "to": "2026-07-24T00:00:00.000Z"
+  },
+  "mode": "research",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T00:00:00.000Z",
+  "readinessManifestHash": "4806b21ed4155f6f10907f2db1a43e0a65263fbc229bad71928a89c3d52232ff",
+  "arguments": [
+    "USDCAD",
+    "90",
+    "waqar_v2_bst_corrected_7pair_shadow",
+    "--spec-file=packages/strategies/src/specs/waqar_v2_bst_corrected_7pair_shadow.yaml",
+    "--start=2026-04-25T00:00:00.000Z",
+    "--end=2026-07-24T00:00:00.000Z",
+    "--mode=research",
+    "--setup-profile=strict",
+    "--intrabar=sl_first",
+    "--drift-gate=live",
+    "--json",
+    "--trades"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "7958aac7332399151e9e2d124aa92c084f15a88460f8363f9babd8d6389385a1",
+      "bytes": 893
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "fc39339bac173fd78f3b500909ec29546a02b3baf5a5478a5e578a20e57178a7",
+      "bytes": 1016
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "6a5682cb685270459db52acb5150cc4aa95360e80c955c8fc93a3fec298fa741",
+      "bytes": 7670
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "3725661cfee9050c9abae03e3df230e2140c951e081405070bebc751f65c3103",
+      "bytes": 4478
+    }
+  }
+}

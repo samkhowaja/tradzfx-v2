@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 288 derived bars -> signals before 2026-06-21T00:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] DEGRADED data quality for XAUUSD: capability_STALE_STATE_features_direction_state@15m
+XAUUSD: 16 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 5 deduped) | signal query 414ms | prefetch 237ms | setup-engine N/Ams | simulate 4ms
+  Executed: 0 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 11 | Heat dropped: 0
+  Gate skips: volatility: ATR5=207.4p exceeds max=3.0p=1, volatility: ATR5=153.8p exceeds max=3.0p=1, volatility: ATR5=154.8p exceeds max=3.0p=1, volatility: ATR5=94.5p exceeds max=3.0p=1, volatility: ATR5=91.8p exceeds max=3.0p=1, volatility: ATR5=57.0p exceeds max=3.0p=1, volatility: ATR5=156.0p exceeds max=3.0p=1, volatility: ATR5=313.8p exceeds max=3.0p=1, volatility: ATR5=109.4p exceeds max=3.0p=1, volatility: ATR5=84.6p exceeds max=3.0p=1, volatility: ATR5=153.3p exceeds max=3.0p=1
+  Wins: 0 | Losses: 0 | Timeouts: 0
+  WR: 0.0% | Net R: 0.00 | Avg Win: 0.00R | Avg Loss: 0.00R

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T03-53-56-781Z-912cc5fa-41f7-4a62-9ee2-4b3d4ed5aa00",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T03:53:56.781Z",
+  "finishedAt": "2026-07-27T03:54:00.344Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "watukushay_fe",
+  "specHash": "708d107d3cd524eeda5f292caeabc4ad635f2cd3c1349e77599af0861ac7fa59",
+  "symbol": "GBPUSD",
+  "window": {
+    "from": "2026-07-20T03:53:00.000Z",
+    "to": "2026-07-27T03:53:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-27T03:53:00.000Z",
+  "readinessManifestHash": "bf117dd1c33045d9965b5f113fd4dcf1ce3e0efd94a4b00485f85b944aac6f7a",
+  "arguments": [
+    "GBPUSD",
+    "7",
+    "watukushay_fe",
+    "--mode=full"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "d0f4b3a797658ac6795ab849565c26e87ed3a71f1a67d722523a870d9e22b99c",
+      "bytes": 915
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "93c415c2e8cae513a52c6c61f6947625ba48e8a06e2aec468e80e7e4786471a9",
+      "bytes": 3513
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

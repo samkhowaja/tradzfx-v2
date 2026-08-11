@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: forex_strategy_orb | signalSource: orb
+[backtest-pit-v2] Mode: deterministic | setupProfile: strict | setupFamily: orb_breakout | intrabar: close
+[backtest-pit-v2] Range: 2026-01-20 → 2026-04-20 (90 days)
+[backtest-pit-v2] Warmup: 96 derived bars -> signals before 2026-01-20T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: GBPUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for GBPUSD: features_opening_range@15m=STALE_STATE | insufficient_density_features_bias@1h(396/1800=22%), insufficient_density_features_pricing@5m(4746/21600=22%), capability_STALE_STATE_features_opening_range@15m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

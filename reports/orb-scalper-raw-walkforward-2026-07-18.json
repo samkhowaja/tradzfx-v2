@@ -1,0 +1,1550 @@
+{
+  "generatedAt": "2026-07-19T02:39:05.327Z",
+  "window": {
+    "from": "2026-04-07T00:00:00.000Z",
+    "to": "2026-07-19T00:00:00.000Z"
+  },
+  "method": {
+    "range": "raw 1m London 07:00-07:15 UTC",
+    "bias": "15m EMA20/EMA50 at range completion; proxy, not features_bias v3",
+    "breakout": "15m directional close outside range during 13:30-16:00 UTC",
+    "confirmation": "first later 15m MEDIUM/HIGH displacement using engine v1.2 formula",
+    "risk": "15m Wilder ATR14 * 0.6; TP 2.5R",
+    "entry": "confirmation 15m close",
+    "costs": "pair registry spread/commission; sl_first"
+  },
+  "productionSpecsChanged": false,
+  "funnel": {
+    "days": 103,
+    "completeLondonRange": 88,
+    "biasReady": 87,
+    "directionalBreakout": 51,
+    "displacementConfirmed": 20
+  },
+  "sensitivity": {
+    "8": {
+      "signals": 20,
+      "wins": 3,
+      "losses": 13,
+      "open": 4,
+      "winRate": 18.75,
+      "netR": -6.560130532339377,
+      "holdMinutes": {
+        "p50": 6,
+        "p75": 8,
+        "p90": 8,
+        "max": 8
+      }
+    },
+    "15": {
+      "signals": 20,
+      "wins": 3,
+      "losses": 14,
+      "open": 3,
+      "winRate": 17.647058823529413,
+      "netR": -7.60086949156117,
+      "holdMinutes": {
+        "p50": 7,
+        "p75": 8,
+        "p90": 8,
+        "max": 10
+      }
+    },
+    "30": {
+      "signals": 20,
+      "wins": 4,
+      "losses": 15,
+      "open": 1,
+      "winRate": 21.052631578947366,
+      "netR": -6.287770751904297,
+      "holdMinutes": {
+        "p50": 7,
+        "p75": 8,
+        "p90": 21,
+        "max": 25
+      }
+    },
+    "60": {
+      "signals": 20,
+      "wins": 4,
+      "losses": 15,
+      "open": 1,
+      "winRate": 21.052631578947366,
+      "netR": -6.287770751904297,
+      "holdMinutes": {
+        "p50": 7,
+        "p75": 8,
+        "p90": 21,
+        "max": 25
+      }
+    },
+    "240": {
+      "signals": 20,
+      "wins": 5,
+      "losses": 15,
+      "open": 0,
+      "winRate": 25,
+      "netR": -4.001374234676087,
+      "holdMinutes": {
+        "p50": 7,
+        "p75": 8,
+        "p90": 21,
+        "max": 124
+      }
+    },
+    "natural": {
+      "signals": 20,
+      "wins": 5,
+      "losses": 15,
+      "open": 0,
+      "winRate": 25,
+      "netR": -4.001374234676087,
+      "holdMinutes": {
+        "p50": 7,
+        "p75": 8,
+        "p90": 21,
+        "max": 124
+      }
+    }
+  },
+  "monthly": {
+    "2026-04": {
+      "signals": 4,
+      "wins": 2,
+      "losses": 2,
+      "open": 0,
+      "winRate": 50,
+      "netR": 2.5545480018399784,
+      "holdMinutes": {
+        "p50": 6,
+        "p75": 10,
+        "p90": 124,
+        "max": 124
+      }
+    },
+    "2026-05": {
+      "signals": 4,
+      "wins": 1,
+      "losses": 3,
+      "open": 0,
+      "winRate": 25,
+      "netR": -0.7758894838779531,
+      "holdMinutes": {
+        "p50": 8,
+        "p75": 8,
+        "p90": 21,
+        "max": 21
+      }
+    },
+    "2026-06": {
+      "signals": 10,
+      "wins": 1,
+      "losses": 9,
+      "open": 0,
+      "winRate": 10,
+      "netR": -7.021329478716079,
+      "holdMinutes": {
+        "p50": 6,
+        "p75": 8,
+        "p90": 8,
+        "max": 25
+      }
+    },
+    "2026-07": {
+      "signals": 2,
+      "wins": 1,
+      "losses": 1,
+      "open": 0,
+      "winRate": 50,
+      "netR": 1.2412967260779662,
+      "holdMinutes": {
+        "p50": 8,
+        "p75": 8,
+        "p90": 8,
+        "max": 8
+      }
+    }
+  },
+  "details": [
+    {
+      "ts": "2026-04-13T15:14:00.000Z",
+      "side": "sell",
+      "entry": 4684.67,
+      "atr": 14.633321433383445,
+      "direction": "bearish",
+      "rangeHigh": 4738.44,
+      "rangeLow": 4724.86,
+      "breakoutTs": "2026-04-13T14:15:00.000Z",
+      "confirmationTs": "2026-04-13T15:00:00.000Z",
+      "sl": 4693.44999286003,
+      "tp": 4662.720017849925,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0303699852943609,
+          "holdBars": 6,
+          "closePrice": 4693.7249928600295,
+          "effectiveEntry": 4684.395,
+          "maxAdverse": 4694.41,
+          "maxFavorable": 4667.75
+        }
+      }
+    },
+    {
+      "ts": "2026-04-14T15:29:00.000Z",
+      "side": "buy",
+      "entry": 4750.79,
+      "atr": 9.197408105119171,
+      "direction": "bullish",
+      "rangeHigh": 4719.92,
+      "rangeLow": 4709.13,
+      "breakoutTs": "2026-04-14T13:30:00.000Z",
+      "confirmationTs": "2026-04-14T15:15:00.000Z",
+      "sl": 4745.271555136928,
+      "tp": 4764.586112157679,
+      "results": {
+        "8": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 8,
+          "closePrice": null,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4746.62,
+          "maxFavorable": 4752.88
+        },
+        "15": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 15,
+          "closePrice": null,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4746.62,
+          "maxFavorable": 4752.88
+        },
+        "30": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 30,
+          "closePrice": null,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4745.78,
+          "maxFavorable": 4752.88
+        },
+        "60": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 60,
+          "closePrice": null,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4745.78,
+          "maxFavorable": 4753.52
+        },
+        "240": {
+          "outcome": "win",
+          "r": 2.2863965172282095,
+          "holdBars": 124,
+          "closePrice": 4764.311112157679,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4745.78,
+          "maxFavorable": 4765.13
+        },
+        "natural": {
+          "outcome": "win",
+          "r": 2.2863965172282095,
+          "holdBars": 124,
+          "closePrice": 4764.311112157679,
+          "effectiveEntry": 4751.065,
+          "maxAdverse": 4745.78,
+          "maxFavorable": 4765.13
+        }
+      }
+    },
+    {
+      "ts": "2026-04-21T14:44:00.000Z",
+      "side": "sell",
+      "entry": 4744.07,
+      "atr": 12.372981250919095,
+      "direction": "bearish",
+      "rangeHigh": 4785.71,
+      "rangeLow": 4772.76,
+      "breakoutTs": "2026-04-21T14:30:00.000Z",
+      "confirmationTs": "2026-04-21T14:30:00.000Z",
+      "sl": 4751.493788750551,
+      "tp": 4725.510528123621,
+      "results": {
+        "8": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        },
+        "15": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        },
+        "30": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        },
+        "60": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        },
+        "240": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        },
+        "natural": {
+          "outcome": "win",
+          "r": 2.3392604291279224,
+          "holdBars": 4,
+          "closePrice": 4725.785528123621,
+          "effectiveEntry": 4743.795,
+          "maxAdverse": 4745.49,
+          "maxFavorable": 4723.8
+        }
+      }
+    },
+    {
+      "ts": "2026-04-29T13:44:00.000Z",
+      "side": "sell",
+      "entry": 4514.78,
+      "atr": 10.792158630328386,
+      "direction": "bearish",
+      "rangeHigh": 4588.87,
+      "rangeLow": 4576.74,
+      "breakoutTs": "2026-04-29T13:30:00.000Z",
+      "confirmationTs": "2026-04-29T13:30:00.000Z",
+      "sl": 4521.255295178197,
+      "tp": 4498.591762054507,
+      "results": {
+        "8": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 8,
+          "closePrice": null,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4520.84,
+          "maxFavorable": 4510.3
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0407389592217926,
+          "holdBars": 10,
+          "closePrice": 4521.530295178197,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4521.31,
+          "maxFavorable": 4510.3
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0407389592217926,
+          "holdBars": 10,
+          "closePrice": 4521.530295178197,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4521.31,
+          "maxFavorable": 4510.3
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0407389592217926,
+          "holdBars": 10,
+          "closePrice": 4521.530295178197,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4521.31,
+          "maxFavorable": 4510.3
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0407389592217926,
+          "holdBars": 10,
+          "closePrice": 4521.530295178197,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4521.31,
+          "maxFavorable": 4510.3
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0407389592217926,
+          "holdBars": 10,
+          "closePrice": 4521.530295178197,
+          "effectiveEntry": 4514.505,
+          "maxAdverse": 4521.31,
+          "maxFavorable": 4510.3
+        }
+      }
+    },
+    {
+      "ts": "2026-05-15T13:44:00.000Z",
+      "side": "sell",
+      "entry": 4520.16,
+      "atr": 13.886267029141269,
+      "direction": "bearish",
+      "rangeHigh": 4586.2,
+      "rangeLow": 4566.05,
+      "breakoutTs": "2026-05-15T13:30:00.000Z",
+      "confirmationTs": "2026-05-15T13:30:00.000Z",
+      "sl": 4528.491760217485,
+      "tp": 4499.330599456288,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.031951627912322,
+          "holdBars": 5,
+          "closePrice": 4528.766760217484,
+          "effectiveEntry": 4519.885,
+          "maxAdverse": 4529.12,
+          "maxFavorable": 4511.78
+        }
+      }
+    },
+    {
+      "ts": "2026-05-22T14:14:00.000Z",
+      "side": "sell",
+      "entry": 4497.09,
+      "atr": 10.23290574118238,
+      "direction": "bearish",
+      "rangeHigh": 4526.98,
+      "rangeLow": 4521.56,
+      "breakoutTs": "2026-05-22T13:30:00.000Z",
+      "confirmationTs": "2026-05-22T14:00:00.000Z",
+      "sl": 4503.229743444709,
+      "tp": 4481.740641388226,
+      "results": {
+        "8": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 8,
+          "closePrice": null,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4500.45,
+          "maxFavorable": 4492.83
+        },
+        "15": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 15,
+          "closePrice": null,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4500.45,
+          "maxFavorable": 4492.1
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0428699919755136,
+          "holdBars": 21,
+          "closePrice": 4503.504743444709,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4504.11,
+          "maxFavorable": 4492.1
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0428699919755136,
+          "holdBars": 21,
+          "closePrice": 4503.504743444709,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4504.11,
+          "maxFavorable": 4492.1
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0428699919755136,
+          "holdBars": 21,
+          "closePrice": 4503.504743444709,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4504.11,
+          "maxFavorable": 4492.1
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0428699919755136,
+          "holdBars": 21,
+          "closePrice": 4503.504743444709,
+          "effectiveEntry": 4496.8150000000005,
+          "maxAdverse": 4504.11,
+          "maxFavorable": 4492.1
+        }
+      }
+    },
+    {
+      "ts": "2026-05-26T13:59:00.000Z",
+      "side": "sell",
+      "entry": 4513.89,
+      "atr": 10.127038337147269,
+      "direction": "bearish",
+      "rangeHigh": 4533.86,
+      "rangeLow": 4525.95,
+      "breakoutTs": "2026-05-26T13:45:00.000Z",
+      "confirmationTs": "2026-05-26T13:45:00.000Z",
+      "sl": 4519.966223002289,
+      "tp": 4498.6994424942795,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0432987473279667,
+          "holdBars": 8,
+          "closePrice": 4520.241223002288,
+          "effectiveEntry": 4513.615000000001,
+          "maxAdverse": 4520.48,
+          "maxFavorable": 4511.14
+        }
+      }
+    },
+    {
+      "ts": "2026-05-29T14:59:00.000Z",
+      "side": "buy",
+      "entry": 4564.29,
+      "atr": 12.614567394206487,
+      "direction": "bullish",
+      "rangeHigh": 4523.9,
+      "rangeLow": 4516.1,
+      "breakoutTs": "2026-05-29T13:30:00.000Z",
+      "confirmationTs": "2026-05-29T14:45:00.000Z",
+      "sl": 4556.721259563476,
+      "tp": 4583.21185109131,
+      "results": {
+        "8": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        },
+        "15": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        },
+        "30": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        },
+        "60": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        },
+        "240": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        },
+        "natural": {
+          "outcome": "win",
+          "r": 2.342230883337849,
+          "holdBars": 8,
+          "closePrice": 4582.93685109131,
+          "effectiveEntry": 4564.565,
+          "maxAdverse": 4564.565,
+          "maxFavorable": 4585.63
+        }
+      }
+    },
+    {
+      "ts": "2026-06-03T13:44:00.000Z",
+      "side": "sell",
+      "entry": 4427.4,
+      "atr": 11.356189345148696,
+      "direction": "bearish",
+      "rangeHigh": 4471.85,
+      "rangeLow": 4460,
+      "breakoutTs": "2026-06-03T13:30:00.000Z",
+      "confirmationTs": "2026-06-03T13:30:00.000Z",
+      "sl": 4434.213713607089,
+      "tp": 4410.365715982277,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0387940626807994,
+          "holdBars": 2,
+          "closePrice": 4434.488713607088,
+          "effectiveEntry": 4427.125,
+          "maxAdverse": 4434.39,
+          "maxFavorable": 4426.5
+        }
+      }
+    },
+    {
+      "ts": "2026-06-10T14:59:00.000Z",
+      "side": "sell",
+      "entry": 4124.89,
+      "atr": 18.601743539131714,
+      "direction": "bearish",
+      "rangeHigh": 4207.76,
+      "rangeLow": 4197.47,
+      "breakoutTs": "2026-06-10T13:30:00.000Z",
+      "confirmationTs": "2026-06-10T14:45:00.000Z",
+      "sl": 4136.051046123479,
+      "tp": 4096.987384691302,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0240467725497415,
+          "holdBars": 3,
+          "closePrice": 4136.326046123479,
+          "effectiveEntry": 4124.615000000001,
+          "maxAdverse": 4136.23,
+          "maxFavorable": 4123.18
+        }
+      }
+    },
+    {
+      "ts": "2026-06-11T14:14:00.000Z",
+      "side": "sell",
+      "entry": 4060.9,
+      "atr": 13.900582559330632,
+      "direction": "bearish",
+      "rangeHigh": 4098.35,
+      "rangeLow": 4091.74,
+      "breakoutTs": "2026-06-11T13:30:00.000Z",
+      "confirmationTs": "2026-06-11T14:00:00.000Z",
+      "sl": 4069.2403495355984,
+      "tp": 4040.049126161004,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0319197728268363,
+          "holdBars": 8,
+          "closePrice": 4069.5153495355985,
+          "effectiveEntry": 4060.625,
+          "maxAdverse": 4073.32,
+          "maxFavorable": 4056.28
+        }
+      }
+    },
+    {
+      "ts": "2026-06-12T14:59:00.000Z",
+      "side": "buy",
+      "entry": 4203.94,
+      "atr": 13.861473909709314,
+      "direction": "bullish",
+      "rangeHigh": 4184.73,
+      "rangeLow": 4176.19,
+      "breakoutTs": "2026-06-12T13:30:00.000Z",
+      "confirmationTs": "2026-06-12T14:45:00.000Z",
+      "sl": 4195.623115654174,
+      "tp": 4224.732210864564,
+      "results": {
+        "8": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 8,
+          "closePrice": null,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4210.74
+        },
+        "15": {
+          "outcome": "timeout",
+          "r": 0,
+          "holdBars": 15,
+          "closePrice": null,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4215.16
+        },
+        "30": {
+          "outcome": "win",
+          "r": 2.355968731632386,
+          "holdBars": 25,
+          "closePrice": 4224.457210864564,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4230.38
+        },
+        "60": {
+          "outcome": "win",
+          "r": 2.355968731632386,
+          "holdBars": 25,
+          "closePrice": 4224.457210864564,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4230.38
+        },
+        "240": {
+          "outcome": "win",
+          "r": 2.355968731632386,
+          "holdBars": 25,
+          "closePrice": 4224.457210864564,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4230.38
+        },
+        "natural": {
+          "outcome": "win",
+          "r": 2.355968731632386,
+          "holdBars": 25,
+          "closePrice": 4224.457210864564,
+          "effectiveEntry": 4204.214999999999,
+          "maxAdverse": 4200.3,
+          "maxFavorable": 4230.38
+        }
+      }
+    },
+    {
+      "ts": "2026-06-15T13:44:00.000Z",
+      "side": "buy",
+      "entry": 4363.78,
+      "atr": 8.312639150237446,
+      "direction": "bullish",
+      "rangeHigh": 4314.33,
+      "rangeLow": 4305.4,
+      "breakoutTs": "2026-06-15T13:30:00.000Z",
+      "confirmationTs": "2026-06-15T13:30:00.000Z",
+      "sl": 4358.7924165098575,
+      "tp": 4376.248958725356,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0522557030239577,
+          "holdBars": 6,
+          "closePrice": 4358.517416509858,
+          "effectiveEntry": 4364.054999999999,
+          "maxAdverse": 4358.77,
+          "maxFavorable": 4364.56
+        }
+      }
+    },
+    {
+      "ts": "2026-06-16T14:29:00.000Z",
+      "side": "sell",
+      "entry": 4319.64,
+      "atr": 7.954389520047775,
+      "direction": "bearish",
+      "rangeHigh": 4328.41,
+      "rangeLow": 4322.64,
+      "breakoutTs": "2026-06-16T14:15:00.000Z",
+      "confirmationTs": "2026-06-16T14:15:00.000Z",
+      "sl": 4324.412633712029,
+      "tp": 4307.708415719929,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0544809737965604,
+          "holdBars": 8,
+          "closePrice": 4324.687633712028,
+          "effectiveEntry": 4319.365000000001,
+          "maxAdverse": 4324.75,
+          "maxFavorable": 4313.32
+        }
+      }
+    },
+    {
+      "ts": "2026-06-18T14:14:00.000Z",
+      "side": "sell",
+      "entry": 4241.77,
+      "atr": 11.517200094684934,
+      "direction": "bearish",
+      "rangeHigh": 4309.17,
+      "rangeLow": 4300.36,
+      "breakoutTs": "2026-06-18T13:30:00.000Z",
+      "confirmationTs": "2026-06-18T14:00:00.000Z",
+      "sl": 4248.680320056811,
+      "tp": 4224.494199857973,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0382724774714789,
+          "holdBars": 5,
+          "closePrice": 4248.955320056811,
+          "effectiveEntry": 4241.495000000001,
+          "maxAdverse": 4250.3,
+          "maxFavorable": 4237.09
+        }
+      }
+    },
+    {
+      "ts": "2026-06-26T15:44:00.000Z",
+      "side": "buy",
+      "entry": 4095.06,
+      "atr": 11.452660730212534,
+      "direction": "bullish",
+      "rangeHigh": 4033.83,
+      "rangeLow": 4026.76,
+      "breakoutTs": "2026-06-26T13:30:00.000Z",
+      "confirmationTs": "2026-06-26T15:30:00.000Z",
+      "sl": 4088.1884035618723,
+      "tp": 4112.238991095319,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.038479855744049,
+          "holdBars": 7,
+          "closePrice": 4087.913403561872,
+          "effectiveEntry": 4095.335,
+          "maxAdverse": 4084.68,
+          "maxFavorable": 4095.94
+        }
+      }
+    },
+    {
+      "ts": "2026-06-27T14:29:00.000Z",
+      "side": "buy",
+      "entry": 4072.2,
+      "atr": 7.521335897940126,
+      "direction": "bullish",
+      "rangeHigh": 4049.31,
+      "rangeLow": 4035.9,
+      "breakoutTs": "2026-06-27T13:30:00.000Z",
+      "confirmationTs": "2026-06-27T14:15:00.000Z",
+      "sl": 4067.6871984612358,
+      "tp": 4083.48200384691,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.057437635577325,
+          "holdBars": 7,
+          "closePrice": 4067.4121984612357,
+          "effectiveEntry": 4072.475,
+          "maxAdverse": 4067.63,
+          "maxFavorable": 4072.475
+        }
+      }
+    },
+    {
+      "ts": "2026-06-29T14:14:00.000Z",
+      "side": "sell",
+      "entry": 4008.82,
+      "atr": 10.556393794508283,
+      "direction": "bearish",
+      "rangeHigh": 4062.71,
+      "rangeLow": 4056.19,
+      "breakoutTs": "2026-06-29T13:30:00.000Z",
+      "confirmationTs": "2026-06-29T14:00:00.000Z",
+      "sl": 4015.153836276705,
+      "tp": 3992.9854093082376,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.041610956677716,
+          "holdBars": 4,
+          "closePrice": 4015.428836276705,
+          "effectiveEntry": 4008.545,
+          "maxAdverse": 4018.1,
+          "maxFavorable": 4000.78
+        }
+      }
+    },
+    {
+      "ts": "2026-07-08T14:44:00.000Z",
+      "side": "sell",
+      "entry": 4036.33,
+      "atr": 13.1239430444224,
+      "direction": "bearish",
+      "rangeHigh": 4125.25,
+      "rangeLow": 4116.49,
+      "breakoutTs": "2026-07-08T13:30:00.000Z",
+      "confirmationTs": "2026-07-08T14:30:00.000Z",
+      "sl": 4044.2043658266534,
+      "tp": 4016.6440854333664,
+      "results": {
+        "8": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        },
+        "15": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        },
+        "30": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        },
+        "60": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        },
+        "240": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        },
+        "natural": {
+          "outcome": "loss",
+          "r": -1.0337449570739194,
+          "holdBars": 8,
+          "closePrice": 4044.4793658266535,
+          "effectiveEntry": 4036.055,
+          "maxAdverse": 4046.3,
+          "maxFavorable": 4033.93
+        }
+      }
+    },
+    {
+      "ts": "2026-07-13T13:59:00.000Z",
+      "side": "sell",
+      "entry": 4043.05,
+      "atr": 8.710031850483475,
+      "direction": "bearish",
+      "rangeHigh": 4061.22,
+      "rangeLow": 4049.05,
+      "breakoutTs": "2026-07-13T13:45:00.000Z",
+      "confirmationTs": "2026-07-13T13:45:00.000Z",
+      "sl": 4048.2760191102902,
+      "tp": 4029.984952224275,
+      "results": {
+        "8": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        },
+        "15": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        },
+        "30": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        },
+        "60": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        },
+        "240": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        },
+        "natural": {
+          "outcome": "win",
+          "r": 2.2750416831518856,
+          "holdBars": 8,
+          "closePrice": 4030.259952224275,
+          "effectiveEntry": 4042.775,
+          "maxAdverse": 4046.83,
+          "maxFavorable": 4029.73
+        }
+      }
+    }
+  ]
+}

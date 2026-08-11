@@ -1,0 +1,29 @@
+[
+  {
+    "symbol": "GBPUSD",
+    "side": "sell",
+    "entry": 1.3257369799999998,
+    "sl": 1.3260719799999998,
+    "tp": 1.3254019799999999,
+    "ts": "2026-06-29T20:00:00.000Z",
+    "causalLineage": [],
+    "entryType": "market",
+    "atr_5": 0.0006699999999999929,
+    "spread_pips": 1.26,
+    "outcome": "loss",
+    "r": -1,
+    "rRealized": -15.916358208955828,
+    "holdBars": 1,
+    "closePrice": 1.3260719799999998,
+    "effectiveEntry": 1.32074,
+    "maxAdverse": 1.32074,
+    "maxFavorable": 1.32074,
+    "invalidReason": "gap_through",
+    "driftPips": 49.96979999999817,
+    "realizedRisk": 0.005331979999999792,
+    "executed": true,
+    "plannedR": -1,
+    "realizedR": -15.916358208955828,
+    "heatDropped": false
+  }
+]

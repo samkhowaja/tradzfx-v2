@@ -1,0 +1,72 @@
+{
+  "mode": "read_only",
+  "tf": "15m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "GBPUSD",
+      "status": "OK",
+      "candles": 272,
+      "pivots": 12,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 1.33035,
+          "ts": "2026-07-27T14:45:00.000Z",
+          "availableAtTs": "2026-07-27T14:45:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T15:00:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T15:15:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "GBPUSD|15m|1785155400000|low|1.33035|2|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785155400000|low|1.33035|2",
+          "level": 1.33035,
+          "eventTs": "2026-07-27T14:45:00.000Z",
+          "availableAt": "2026-07-27T15:00:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-27T14:45:00.000Z",
+          "sourceCenterTs": "2026-07-27T12:30:00.000Z",
+          "sourceKind": "low",
+          "trendDirection": "bearish",
+          "establishedTrend": "bearish",
+          "trendDirectionAtBreak": "bearish",
+          "establishedTrendAtBreak": "bearish",
+          "laterPivotExists": true,
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "GBPUSD|15m|1785173400000|low|1.32833|4|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785173400000|low|1.32833|4",
+          "level": 1.32833,
+          "eventTs": "2026-07-28T09:45:00.000Z",
+          "availableAt": "2026-07-28T10:00:00.000Z",
+          "sourceScale": "external",
+          "sourceConfirmationTs": "2026-07-27T19:45:00.000Z",
+          "sourceCenterTs": "2026-07-27T17:30:00.000Z",
+          "sourceKind": "low",
+          "trendDirection": "bearish",
+          "establishedTrend": "bearish",
+          "trendDirectionAtBreak": "bearish",
+          "establishedTrendAtBreak": "bearish",
+          "laterPivotExists": true,
+          "classification": "CAUSAL_ONLY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 1,
+        "CAUSAL_ONLY": 1
+      }
+    }
+  ]
+}

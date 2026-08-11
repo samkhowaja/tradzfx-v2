@@ -1,0 +1,10 @@
+[backtest-pit-v2] Strategy: waqar_v2_xau_sweep_20pip | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-28T18:14:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 126 raw signals (5 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 16 deduped) | signal query 93ms | prefetch 420ms | setup-engine N/Ams | simulate 6ms
+  Executed: 105 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 39 | Losses: 66 | Timeouts: 0
+  WR: 37.1% | Net R: -15.80 | Avg Win: 1.08R | Avg Loss: -0.88R

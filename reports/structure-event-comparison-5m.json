@@ -1,0 +1,409 @@
+{
+  "mode": "read_only",
+  "tf": "5m",
+  "days": 2,
+  "results": [
+    {
+      "symbol": "XAUUSD",
+      "status": "OK",
+      "candles": 787,
+      "pivots": 75,
+      "legacy": [
+        {
+          "eventType": "choch",
+          "direction": "bearish",
+          "level": 4054.72,
+          "ts": "2026-07-26T20:50:00.000Z",
+          "availableAtTs": "2026-07-26T20:50:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "opposingSweepTs": "2026-07-26T20:50:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "mss",
+          "direction": "bearish",
+          "level": 4056.14,
+          "ts": "2026-07-26T20:50:00.000Z",
+          "availableAtTs": "2026-07-26T20:50:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "opposingSweepTs": "2026-07-26T20:50:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4054.13,
+          "ts": "2026-07-28T01:15:00.000Z",
+          "availableAtTs": "2026-07-28T01:15:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T01:20:00.000Z",
+          "htfAligned": false,
+          "isCisd": false
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4042.44,
+          "ts": "2026-07-28T02:55:00.000Z",
+          "availableAtTs": "2026-07-28T02:55:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T03:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4040.09,
+          "ts": "2026-07-28T05:30:00.000Z",
+          "availableAtTs": "2026-07-28T05:30:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T05:35:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T05:40:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 4034.95,
+          "ts": "2026-07-28T09:35:00.000Z",
+          "availableAtTs": "2026-07-28T09:35:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-28T09:40:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T15:15:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "XAUUSD|5m|1785020400000|low|4054.72|0|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785020400000|low|4054.72|0",
+          "level": 4054.72,
+          "eventTs": "2026-07-26T20:50:00.000Z",
+          "availableAt": "2026-07-26T20:55:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785099000000|low|4054.13|18|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785099000000|low|4054.13|18",
+          "level": 4054.13,
+          "eventTs": "2026-07-28T01:15:00.000Z",
+          "availableAt": "2026-07-28T01:20:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785204000000|low|4042.44|56|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785204000000|low|4042.44|56",
+          "level": 4042.44,
+          "eventTs": "2026-07-28T02:55:00.000Z",
+          "availableAt": "2026-07-28T03:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785214800000|low|4040.09|61|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785214800000|low|4040.09|61",
+          "level": 4040.09,
+          "eventTs": "2026-07-28T05:30:00.000Z",
+          "availableAt": "2026-07-28T05:35:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "XAUUSD|5m|1785216900000|low|4034.95|62|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785216900000|low|4034.95|62",
+          "level": 4034.95,
+          "eventTs": "2026-07-28T09:35:00.000Z",
+          "availableAt": "2026-07-28T09:40:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "CAUSAL_ONLY": 1,
+        "MATCHES_LEGACY": 4
+      }
+    },
+    {
+      "symbol": "GBPUSD",
+      "status": "OK",
+      "candles": 815,
+      "pivots": 54,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 1.33561,
+          "ts": "2026-07-27T00:10:00.000Z",
+          "availableAtTs": "2026-07-27T00:10:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T00:20:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T00:45:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 1.33621,
+          "ts": "2026-07-27T01:55:00.000Z",
+          "availableAtTs": "2026-07-27T01:55:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T02:00:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "GBPUSD|5m|1785103200000|high|1.33561|1|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785103200000|high|1.33561|1",
+          "level": 1.33561,
+          "eventTs": "2026-07-27T00:10:00.000Z",
+          "availableAt": "2026-07-27T00:15:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "GBPUSD|5m|1785112200000|high|1.33621|3|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785112200000|high|1.33621|3",
+          "level": 1.33621,
+          "eventTs": "2026-07-27T01:55:00.000Z",
+          "availableAt": "2026-07-27T02:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "GBPUSD|5m|1785156000000|low|1.33035|21|mss|bearish",
+          "eventType": "mss",
+          "direction": "bearish",
+          "levelId": "1785156000000|low|1.33035|21",
+          "level": 1.33035,
+          "eventTs": "2026-07-27T14:50:00.000Z",
+          "availableAt": "2026-07-27T14:55:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        },
+        {
+          "identity": "GBPUSD|5m|1785164100000|low|1.32986|24|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785164100000|low|1.32986|24",
+          "level": 1.32986,
+          "eventTs": "2026-07-27T17:00:00.000Z",
+          "availableAt": "2026-07-27T17:05:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        },
+        {
+          "identity": "GBPUSD|5m|1785178500000|low|1.32861|31|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785178500000|low|1.32861|31",
+          "level": 1.32861,
+          "eventTs": "2026-07-27T20:40:00.000Z",
+          "availableAt": "2026-07-27T20:45:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        },
+        {
+          "identity": "GBPUSD|5m|1785216900000|low|1.32847|44|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785216900000|low|1.32847|44",
+          "level": 1.32847,
+          "eventTs": "2026-07-28T09:50:00.000Z",
+          "availableAt": "2026-07-28T09:55:00.000Z",
+          "classification": "CAUSAL_ONLY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 2,
+        "CAUSAL_ONLY": 4
+      }
+    },
+    {
+      "symbol": "USDJPY",
+      "status": "OK",
+      "candles": 815,
+      "pivots": 61,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 163.827,
+          "ts": "2026-07-26T21:00:00.000Z",
+          "availableAtTs": "2026-07-26T21:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T21:05:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T08:25:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 163.511,
+          "ts": "2026-07-27T01:55:00.000Z",
+          "availableAtTs": "2026-07-27T01:55:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T02:00:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T02:05:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bearish",
+          "level": 163.449,
+          "ts": "2026-07-27T07:20:00.000Z",
+          "availableAtTs": "2026-07-27T07:20:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T07:25:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T07:40:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "USDJPY|5m|1785022500000|low|163.827|0|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785022500000|low|163.827|0",
+          "level": 163.827,
+          "eventTs": "2026-07-26T21:00:00.000Z",
+          "availableAt": "2026-07-26T21:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "USDJPY|5m|1785099900000|low|163.511|4|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785099900000|low|163.511|4",
+          "level": 163.511,
+          "eventTs": "2026-07-27T01:55:00.000Z",
+          "availableAt": "2026-07-27T02:00:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "USDJPY|5m|1785117600000|low|163.449|10|bos|bearish",
+          "eventType": "bos",
+          "direction": "bearish",
+          "levelId": "1785117600000|low|163.449|10",
+          "level": 163.449,
+          "eventTs": "2026-07-27T07:20:00.000Z",
+          "availableAt": "2026-07-27T07:25:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 3
+      }
+    },
+    {
+      "symbol": "AUDUSD",
+      "status": "OK",
+      "candles": 815,
+      "pivots": 78,
+      "legacy": [
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.69803,
+          "ts": "2026-07-26T21:00:00.000Z",
+          "availableAtTs": "2026-07-26T21:00:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-26T21:05:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-28T04:00:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.70023,
+          "ts": "2026-07-26T22:00:00.000Z",
+          "availableAtTs": "2026-07-26T22:00:00.000Z",
+          "strength": "medium",
+          "confirmed": false,
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-26T22:05:00.000Z"
+        },
+        {
+          "eventType": "bos",
+          "direction": "bullish",
+          "level": 0.7006,
+          "ts": "2026-07-27T06:30:00.000Z",
+          "availableAtTs": "2026-07-27T06:30:00.000Z",
+          "strength": "medium",
+          "confirmed": true,
+          "confirmationTs": "2026-07-27T06:35:00.000Z",
+          "htfAligned": false,
+          "isCisd": false,
+          "invalidatedAt": "2026-07-27T06:50:00.000Z"
+        }
+      ],
+      "causal": [
+        {
+          "identity": "AUDUSD|5m|1785019200000|high|0.69803|0|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785019200000|high|0.69803|0",
+          "level": 0.69803,
+          "eventTs": "2026-07-26T21:00:00.000Z",
+          "availableAt": "2026-07-26T21:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "AUDUSD|5m|1785100800000|high|0.70023|16|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785100800000|high|0.70023|16",
+          "level": 0.70023,
+          "eventTs": "2026-07-26T22:00:00.000Z",
+          "availableAt": "2026-07-26T22:05:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        },
+        {
+          "identity": "AUDUSD|5m|1785103200000|high|0.7006|18|bos|bullish",
+          "eventType": "bos",
+          "direction": "bullish",
+          "levelId": "1785103200000|high|0.7006|18",
+          "level": 0.7006,
+          "eventTs": "2026-07-27T06:30:00.000Z",
+          "availableAt": "2026-07-27T06:35:00.000Z",
+          "classification": "MATCHES_LEGACY"
+        }
+      ],
+      "classificationCounts": {
+        "MATCHES_LEGACY": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: waqar_ebook_v1 | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 2880 derived bars -> signals before 2026-04-28T18:25:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for EURUSD: features_zone@1h=STALE(15.47h>2h), features_zone@1m=STALE(15.47h>2h) | features_htf_bias@15m=STALE_STATE, features_pricing@1h=STALE_STATE, features_atr@1m=STALE_STATE, features_zone@1h=PRODUCER_STALE, features_zone@1m=PRODUCER_STALE | lifecycle_stale_features_zone, lifecycle_stale_features_zone. Run migration 101 + refresh-lifecycle / backfill features before trusting results.

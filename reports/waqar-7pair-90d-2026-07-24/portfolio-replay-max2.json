@@ -1,0 +1,499 @@
+{
+  "generatedAt": "2026-07-24T15:58:12.536Z",
+  "range": {
+    "from": "2026-04-25T00:00:00.000Z",
+    "to": "2026-07-24T00:00:00.000Z"
+  },
+  "contract": {
+    "maxConcurrentPerSymbol": 1,
+    "maxConcurrentTotal": 2,
+    "ordering": "ts ASC, symbol ASC, sourceIndex ASC",
+    "closeTimeSource": "exported closeTs"
+  },
+  "baseline": {
+    "trades": 51,
+    "wins": 31,
+    "losses": 20,
+    "winRatePct": 60.8,
+    "plannedR": 66.74,
+    "realizedR": 57.44
+  },
+  "portfolio": {
+    "trades": 42,
+    "wins": 27,
+    "losses": 15,
+    "winRatePct": 64.3,
+    "plannedR": 60.18,
+    "realizedR": 52.37
+  },
+  "heatDropped": {
+    "trades": 9,
+    "wins": 4,
+    "losses": 5,
+    "winRatePct": 44.4,
+    "plannedR": 6.56,
+    "realizedR": 5.07
+  },
+  "dropReasons": {
+    "maxConcurrentPerSymbol": 8,
+    "maxConcurrentTotal": 1
+  },
+  "bySymbol": {
+    "EURUSD": {
+      "baseline": {
+        "trades": 11,
+        "wins": 8,
+        "losses": 3,
+        "winRatePct": 72.7,
+        "plannedR": 19.44,
+        "realizedR": 16.12
+      },
+      "accepted": {
+        "trades": 10,
+        "wins": 7,
+        "losses": 3,
+        "winRatePct": 70,
+        "plannedR": 16.58,
+        "realizedR": 13.61
+      },
+      "dropped": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRatePct": 100,
+        "plannedR": 2.86,
+        "realizedR": 2.51
+      }
+    },
+    "GBPUSD": {
+      "baseline": {
+        "trades": 9,
+        "wins": 8,
+        "losses": 1,
+        "winRatePct": 88.9,
+        "plannedR": 20.96,
+        "realizedR": 18.03
+      },
+      "accepted": {
+        "trades": 8,
+        "wins": 7,
+        "losses": 1,
+        "winRatePct": 87.5,
+        "plannedR": 18.28,
+        "realizedR": 16
+      },
+      "dropped": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRatePct": 100,
+        "plannedR": 2.68,
+        "realizedR": 2.03
+      }
+    },
+    "AUDUSD": {
+      "baseline": {
+        "trades": 5,
+        "wins": 0,
+        "losses": 5,
+        "winRatePct": 0,
+        "plannedR": -4.58,
+        "realizedR": -5
+      },
+      "accepted": {
+        "trades": 4,
+        "wins": 0,
+        "losses": 4,
+        "winRatePct": 0,
+        "plannedR": -3.82,
+        "realizedR": -4
+      },
+      "dropped": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.76,
+        "realizedR": -1
+      }
+    },
+    "NZDUSD": {
+      "baseline": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.8,
+        "realizedR": -1
+      },
+      "accepted": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.8,
+        "realizedR": -1
+      },
+      "dropped": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRatePct": 0,
+        "plannedR": 0,
+        "realizedR": 0
+      }
+    },
+    "USDCAD": {
+      "baseline": {
+        "trades": 7,
+        "wins": 2,
+        "losses": 5,
+        "winRatePct": 28.6,
+        "plannedR": 0.1,
+        "realizedR": -0.65
+      },
+      "accepted": {
+        "trades": 6,
+        "wins": 2,
+        "losses": 4,
+        "winRatePct": 33.3,
+        "plannedR": 0.8,
+        "realizedR": 0.35
+      },
+      "dropped": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.7,
+        "realizedR": -1
+      }
+    },
+    "USDCHF": {
+      "baseline": {
+        "trades": 4,
+        "wins": 2,
+        "losses": 2,
+        "winRatePct": 50,
+        "plannedR": 3.28,
+        "realizedR": 2.3
+      },
+      "accepted": {
+        "trades": 2,
+        "wins": 2,
+        "losses": 0,
+        "winRatePct": 100,
+        "plannedR": 5.46,
+        "realizedR": 4.3
+      },
+      "dropped": {
+        "trades": 2,
+        "wins": 0,
+        "losses": 2,
+        "winRatePct": 0,
+        "plannedR": -2.18,
+        "realizedR": -2
+      }
+    },
+    "USDJPY": {
+      "baseline": {
+        "trades": 14,
+        "wins": 11,
+        "losses": 3,
+        "winRatePct": 78.6,
+        "plannedR": 28.34,
+        "realizedR": 27.64
+      },
+      "accepted": {
+        "trades": 11,
+        "wins": 9,
+        "losses": 2,
+        "winRatePct": 81.8,
+        "plannedR": 23.68,
+        "realizedR": 23.11
+      },
+      "dropped": {
+        "trades": 3,
+        "wins": 2,
+        "losses": 1,
+        "winRatePct": 66.7,
+        "plannedR": 4.66,
+        "realizedR": 4.53
+      }
+    }
+  },
+  "droppedTrades": [
+    {
+      "symbol": "EURUSD",
+      "side": "buy",
+      "ts": "2026-04-27T07:15:00.000Z",
+      "closeTs": "2026-04-27T08:08:00.000Z",
+      "entry": 1.1731,
+      "effectiveEntry": 1.17317,
+      "stopLoss": 1.1726,
+      "takeProfit": 1.1746,
+      "entryType": "market",
+      "outcome": "win",
+      "r": 2.8600000000003996,
+      "rRealized": 2.5087719298248143,
+      "driftPips": 0.700000000000145,
+      "realizedRisk": 0.0005699999999999594,
+      "holdBars": 53,
+      "maxAdverse": 1.1729,
+      "maxFavorable": 1.17463,
+      "sourceIndex": 1,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "EURUSD",
+          "ts": "2026-04-27T07:00:00.000Z",
+          "closeTs": "2026-04-27T07:57:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDJPY",
+      "side": "buy",
+      "ts": "2026-05-20T13:30:00.000Z",
+      "closeTs": "2026-05-20T14:15:00.000Z",
+      "entry": 159.05,
+      "effectiveEntry": 159.06,
+      "stopLoss": 159,
+      "takeProfit": 159.20000000000002,
+      "entryType": "market",
+      "outcome": "loss",
+      "r": -1.1999999999997726,
+      "rRealized": -1,
+      "driftPips": 0.9999999999990905,
+      "realizedRisk": 0.060000000000002274,
+      "holdBars": 45,
+      "maxAdverse": 158.862,
+      "maxFavorable": 159.159,
+      "sourceIndex": 2,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "USDJPY",
+          "ts": "2026-05-20T13:15:00.000Z",
+          "closeTs": "2026-05-20T14:15:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "GBPUSD",
+      "side": "sell",
+      "ts": "2026-06-18T08:00:00.000Z",
+      "closeTs": "2026-06-18T08:13:00.000Z",
+      "entry": 1.3296,
+      "effectiveEntry": 1.32944,
+      "stopLoss": 1.3300999999999998,
+      "takeProfit": 1.3280999999999998,
+      "entryType": "market",
+      "outcome": "win",
+      "r": 2.680000000000533,
+      "rRealized": 2.0303030303035707,
+      "driftPips": 1.5999999999993797,
+      "realizedRisk": 0.0006599999999998829,
+      "holdBars": 13,
+      "maxAdverse": 1.3296,
+      "maxFavorable": 1.328,
+      "sourceIndex": 8,
+      "heatDropReason": "maxConcurrentTotal",
+      "activeAtDecision": [
+        {
+          "symbol": "USDJPY",
+          "ts": "2026-06-18T07:30:00.000Z",
+          "closeTs": "2026-06-18T08:57:00.000Z"
+        },
+        {
+          "symbol": "EURUSD",
+          "ts": "2026-06-18T08:00:00.000Z",
+          "closeTs": "2026-06-18T08:33:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDJPY",
+      "side": "buy",
+      "ts": "2026-06-18T08:00:00.000Z",
+      "closeTs": "2026-06-18T08:57:00.000Z",
+      "entry": 160.58,
+      "effectiveEntry": 160.588,
+      "stopLoss": 160.53,
+      "takeProfit": 160.73000000000002,
+      "entryType": "market",
+      "outcome": "win",
+      "r": 2.839999999999841,
+      "rRealized": 2.4482758620696923,
+      "driftPips": 0.7999999999981355,
+      "realizedRisk": 0.057999999999992724,
+      "holdBars": 57,
+      "maxAdverse": 160.587,
+      "maxFavorable": 160.75,
+      "sourceIndex": 7,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "USDJPY",
+          "ts": "2026-06-18T07:30:00.000Z",
+          "closeTs": "2026-06-18T08:57:00.000Z"
+        },
+        {
+          "symbol": "EURUSD",
+          "ts": "2026-06-18T08:00:00.000Z",
+          "closeTs": "2026-06-18T08:33:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "AUDUSD",
+      "side": "buy",
+      "ts": "2026-07-15T13:30:00.000Z",
+      "closeTs": "2026-07-15T14:53:00.000Z",
+      "entry": 0.6988000000000001,
+      "effectiveEntry": 0.69868,
+      "stopLoss": 0.6983000000000001,
+      "takeProfit": 0.7003,
+      "entryType": "market",
+      "outcome": "loss",
+      "r": -0.7599999999997336,
+      "rRealized": -1,
+      "driftPips": 1.2000000000012,
+      "realizedRisk": 0.0003799999999998249,
+      "holdBars": 83,
+      "maxAdverse": 0.69827,
+      "maxFavorable": 0.69899,
+      "sourceIndex": 3,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "AUDUSD",
+          "ts": "2026-07-15T13:15:00.000Z",
+          "closeTs": "2026-07-15T15:14:00.000Z"
+        },
+        {
+          "symbol": "USDCHF",
+          "ts": "2026-07-15T13:15:00.000Z",
+          "closeTs": "2026-07-15T15:14:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDCAD",
+      "side": "sell",
+      "ts": "2026-07-17T13:30:00.000Z",
+      "closeTs": "2026-07-17T13:37:00.000Z",
+      "entry": 1.4015,
+      "effectiveEntry": 1.40165,
+      "stopLoss": 1.402,
+      "takeProfit": 1.4,
+      "entryType": "market",
+      "outcome": "loss",
+      "r": -0.6999999999997779,
+      "rRealized": -1,
+      "driftPips": 1.500000000000945,
+      "realizedRisk": 0.00034999999999985043,
+      "holdBars": 7,
+      "maxAdverse": 1.40203,
+      "maxFavorable": 1.40137,
+      "sourceIndex": 4,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "USDCAD",
+          "ts": "2026-07-17T13:15:00.000Z",
+          "closeTs": "2026-07-17T14:17:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDJPY",
+      "side": "buy",
+      "ts": "2026-07-20T13:45:00.000Z",
+      "closeTs": "2026-07-20T14:31:00.000Z",
+      "entry": 162.41,
+      "effectiveEntry": 162.409,
+      "stopLoss": 162.35999999999999,
+      "takeProfit": 162.56,
+      "entryType": "market",
+      "outcome": "win",
+      "r": 3.0199999999995226,
+      "rRealized": 3.0816326530610234,
+      "driftPips": 0.10000000000047748,
+      "realizedRisk": 0.049000000000006594,
+      "holdBars": 46,
+      "maxAdverse": 162.377,
+      "maxFavorable": 162.566,
+      "sourceIndex": 11,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "EURUSD",
+          "ts": "2026-07-20T13:00:00.000Z",
+          "closeTs": "2026-07-20T14:40:00.000Z"
+        },
+        {
+          "symbol": "USDJPY",
+          "ts": "2026-07-20T13:00:00.000Z",
+          "closeTs": "2026-07-20T14:09:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDCHF",
+      "side": "buy",
+      "ts": "2026-07-21T13:30:00.000Z",
+      "closeTs": "2026-07-21T14:13:00.000Z",
+      "entry": 0.8112,
+      "effectiveEntry": 0.81138,
+      "stopLoss": 0.8107000000000001,
+      "takeProfit": 0.8127,
+      "entryType": "market",
+      "outcome": "loss",
+      "r": -1.3599999999999557,
+      "rRealized": -1,
+      "driftPips": 1.7999999999995797,
+      "realizedRisk": 0.0006799999999999029,
+      "holdBars": 43,
+      "maxAdverse": 0.8107,
+      "maxFavorable": 0.81202,
+      "sourceIndex": 2,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "USDCHF",
+          "ts": "2026-07-21T13:15:00.000Z",
+          "closeTs": "2026-07-21T14:38:00.000Z"
+        }
+      ]
+    },
+    {
+      "symbol": "USDCHF",
+      "side": "buy",
+      "ts": "2026-07-21T13:45:00.000Z",
+      "closeTs": "2026-07-21T13:48:00.000Z",
+      "entry": 0.8119000000000001,
+      "effectiveEntry": 0.81181,
+      "stopLoss": 0.8114000000000001,
+      "takeProfit": 0.8134,
+      "entryType": "market",
+      "outcome": "loss",
+      "r": -0.8199999999999111,
+      "rRealized": -1,
+      "driftPips": 0.900000000000345,
+      "realizedRisk": 0.00040999999999991044,
+      "holdBars": 3,
+      "maxAdverse": 0.81139,
+      "maxFavorable": 0.81182,
+      "sourceIndex": 3,
+      "heatDropReason": "maxConcurrentPerSymbol",
+      "activeAtDecision": [
+        {
+          "symbol": "USDCHF",
+          "ts": "2026-07-21T13:15:00.000Z",
+          "closeTs": "2026-07-21T14:38:00.000Z"
+        }
+      ]
+    }
+  ]
+}

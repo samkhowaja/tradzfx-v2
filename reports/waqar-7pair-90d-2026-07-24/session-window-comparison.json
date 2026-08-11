@@ -1,0 +1,380 @@
+{
+  "generatedAt": "2026-07-24T16:40:17.133Z",
+  "contract": {
+    "baseline": "locked original 51 trades",
+    "londonUtc": "07:00-08:00 inclusive signal anchors",
+    "overlapUtc": "13:00-14:00 inclusive signal anchors",
+    "comparison": "post-trade slice; identical setup/risk/drift contract",
+    "warning": "small per-pair samples; descriptive, not promotion evidence"
+  },
+  "portfolio": {
+    "baseline": {
+      "LONDON": {
+        "trades": 25,
+        "wins": 18,
+        "losses": 7,
+        "winRatePct": 72,
+        "plannedR": 43.42,
+        "realizedR": 37.7,
+        "avgRealizedR": 1.51,
+        "profitFactor": 6.39
+      },
+      "OVERLAP": {
+        "trades": 26,
+        "wins": 13,
+        "losses": 13,
+        "winRatePct": 50,
+        "plannedR": 23.32,
+        "realizedR": 19.74,
+        "avgRealizedR": 0.76,
+        "profitFactor": 2.52
+      }
+    },
+    "thesisDeduplicated": {
+      "LONDON": {
+        "trades": 24,
+        "wins": 17,
+        "losses": 7,
+        "winRatePct": 70.8,
+        "plannedR": 40.74,
+        "realizedR": 35.67,
+        "avgRealizedR": 1.49,
+        "profitFactor": 6.1
+      },
+      "OVERLAP": {
+        "trades": 20,
+        "wins": 12,
+        "losses": 8,
+        "winRatePct": 60,
+        "plannedR": 25.14,
+        "realizedR": 21.66,
+        "avgRealizedR": 1.08,
+        "profitFactor": 3.71
+      }
+    }
+  },
+  "bySymbol": {
+    "EURUSD": {
+      "baseline": {
+        "LONDON": {
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRatePct": 75,
+          "plannedR": 14.8,
+          "realizedR": 12.24,
+          "avgRealizedR": 1.53,
+          "profitFactor": 7.12
+        },
+        "OVERLAP": {
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRatePct": 66.7,
+          "plannedR": 4.64,
+          "realizedR": 3.88,
+          "avgRealizedR": 1.29,
+          "profitFactor": 4.88
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRatePct": 75,
+          "plannedR": 14.8,
+          "realizedR": 12.24,
+          "avgRealizedR": 1.53,
+          "profitFactor": 7.12
+        },
+        "OVERLAP": {
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "winRatePct": 66.7,
+          "plannedR": 4.64,
+          "realizedR": 3.88,
+          "avgRealizedR": 1.29,
+          "profitFactor": 4.88
+        }
+      }
+    },
+    "GBPUSD": {
+      "baseline": {
+        "LONDON": {
+          "trades": 8,
+          "wins": 7,
+          "losses": 1,
+          "winRatePct": 87.5,
+          "plannedR": 18.06,
+          "realizedR": 15.39,
+          "avgRealizedR": 1.92,
+          "profitFactor": 16.39
+        },
+        "OVERLAP": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "winRatePct": 100,
+          "plannedR": 2.9,
+          "realizedR": 2.64,
+          "avgRealizedR": 2.64,
+          "profitFactor": 2.64
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 7,
+          "wins": 6,
+          "losses": 1,
+          "winRatePct": 85.7,
+          "plannedR": 15.38,
+          "realizedR": 13.36,
+          "avgRealizedR": 1.91,
+          "profitFactor": 14.36
+        },
+        "OVERLAP": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "winRatePct": 100,
+          "plannedR": 2.9,
+          "realizedR": 2.64,
+          "avgRealizedR": 2.64,
+          "profitFactor": 2.64
+        }
+      }
+    },
+    "AUDUSD": {
+      "baseline": {
+        "LONDON": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRatePct": 0,
+          "plannedR": -1.8,
+          "realizedR": -2,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 3,
+          "wins": 0,
+          "losses": 3,
+          "winRatePct": 0,
+          "plannedR": -2.78,
+          "realizedR": -3,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRatePct": 0,
+          "plannedR": -1.8,
+          "realizedR": -2,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRatePct": 0,
+          "plannedR": -2.02,
+          "realizedR": -2,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        }
+      }
+    },
+    "NZDUSD": {
+      "baseline": {
+        "LONDON": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "winRatePct": 0,
+          "plannedR": -0.8,
+          "realizedR": -1,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRatePct": 0,
+          "plannedR": 0,
+          "realizedR": 0,
+          "avgRealizedR": 0,
+          "profitFactor": 0
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "winRatePct": 0,
+          "plannedR": -0.8,
+          "realizedR": -1,
+          "avgRealizedR": -1,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRatePct": 0,
+          "plannedR": 0,
+          "realizedR": 0,
+          "avgRealizedR": 0,
+          "profitFactor": 0
+        }
+      }
+    },
+    "USDCAD": {
+      "baseline": {
+        "LONDON": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRatePct": 50,
+          "plannedR": 1.42,
+          "realizedR": 1.23,
+          "avgRealizedR": 0.61,
+          "profitFactor": 2.23
+        },
+        "OVERLAP": {
+          "trades": 5,
+          "wins": 1,
+          "losses": 4,
+          "winRatePct": 20,
+          "plannedR": -1.32,
+          "realizedR": -1.87,
+          "avgRealizedR": -0.37,
+          "profitFactor": 0.53
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "winRatePct": 50,
+          "plannedR": 1.42,
+          "realizedR": 1.23,
+          "avgRealizedR": 0.61,
+          "profitFactor": 2.23
+        },
+        "OVERLAP": {
+          "trades": 4,
+          "wins": 1,
+          "losses": 3,
+          "winRatePct": 25,
+          "plannedR": -0.62,
+          "realizedR": -0.87,
+          "avgRealizedR": -0.22,
+          "profitFactor": 0.71
+        }
+      }
+    },
+    "USDCHF": {
+      "baseline": {
+        "LONDON": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRatePct": 0,
+          "plannedR": 0,
+          "realizedR": 0,
+          "avgRealizedR": 0,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 4,
+          "wins": 2,
+          "losses": 2,
+          "winRatePct": 50,
+          "plannedR": 3.28,
+          "realizedR": 2.3,
+          "avgRealizedR": 0.57,
+          "profitFactor": 2.15
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRatePct": 0,
+          "plannedR": 0,
+          "realizedR": 0,
+          "avgRealizedR": 0,
+          "profitFactor": 0
+        },
+        "OVERLAP": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "winRatePct": 100,
+          "plannedR": 5.46,
+          "realizedR": 4.3,
+          "avgRealizedR": 2.15,
+          "profitFactor": 4.3
+        }
+      }
+    },
+    "USDJPY": {
+      "baseline": {
+        "LONDON": {
+          "trades": 4,
+          "wins": 4,
+          "losses": 0,
+          "winRatePct": 100,
+          "plannedR": 11.74,
+          "realizedR": 11.85,
+          "avgRealizedR": 2.96,
+          "profitFactor": 11.85
+        },
+        "OVERLAP": {
+          "trades": 10,
+          "wins": 7,
+          "losses": 3,
+          "winRatePct": 70,
+          "plannedR": 16.6,
+          "realizedR": 15.8,
+          "avgRealizedR": 1.58,
+          "profitFactor": 6.27
+        }
+      },
+      "thesisDeduplicated": {
+        "LONDON": {
+          "trades": 4,
+          "wins": 4,
+          "losses": 0,
+          "winRatePct": 100,
+          "plannedR": 11.74,
+          "realizedR": 11.85,
+          "avgRealizedR": 2.96,
+          "profitFactor": 11.85
+        },
+        "OVERLAP": {
+          "trades": 8,
+          "wins": 6,
+          "losses": 2,
+          "winRatePct": 75,
+          "plannedR": 14.78,
+          "realizedR": 13.72,
+          "avgRealizedR": 1.71,
+          "profitFactor": 7.86
+        }
+      }
+    }
+  }
+}

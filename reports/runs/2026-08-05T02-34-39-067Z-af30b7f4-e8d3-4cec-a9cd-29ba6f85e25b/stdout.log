@@ -1,0 +1,25 @@
+[backtest-pit-v2] Trusted-window gate: PASS (windows: [48], setHash: ac56b104d1a9, detectors: window-certifier-v5.2-dxy-formula@20260805)
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-28 → 2026-08-04 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-29T00:33:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+
+[backtest-pit-v2] BLOCKED_SYSTEM_QUALITY for EURUSD: features_bias@5m=STALE_STATE, features_pricing@5m=STALE_STATE, features_atr@5m=STALE_STATE, features_zone@5m=PRODUCER_STALE, features_structure@5m=BLOCKED_VERSION, features_moving_average@5m=STALE_STATE | capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_BLOCKED_VERSION_features_structure@5m, capability_STALE_STATE_features_moving_average@5m. Run migration 101 + refresh-lifecycle / backfill features before trusting results.
+Coverage for EURUSD:
+  features_bias@5m: 311
+  features_moving_average@5m: 5909
+  features_zone@5m: 295
+  features_structure@5m: 29
+  features_zone_retest@5m: 146
+  features_displacement@5m: 311
+  features_pricing@5m: 311
+  features_atr@5m: 2796
+  features_session@1m: 311 (optional)
+  market.candles_1m_canonical@1m: 10017
+  market.candles_5m_canonical@5m: 2015
+
+Data quality verdict:
+  EURUSD: BLOCKED_SYSTEM_QUALITY (capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_PRODUCER_STALE_features_zone@5m, capability_BLOCKED_VERSION_features_structure@5m, capability_STALE_STATE_features_moving_average@5m, capability_PRODUCER_STALE_EVENT_features_displacement@5m, capability_PRODUCER_STALE_EVENT_features_zone_retest@5m)
+
+PREFLIGHT VERDICT: BLOCKED_SYSTEM_QUALITY for EURUSD — fix data before backtesting.

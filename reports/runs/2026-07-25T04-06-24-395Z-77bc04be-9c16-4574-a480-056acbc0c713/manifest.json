@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-25T04-06-24-395Z-77bc04be-9c16-4574-a480-056acbc0c713",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-25T04:06:24.395Z",
+  "finishedAt": "2026-07-25T04:06:33.613Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "pro_ltf_scalp_eurusd_v1",
+  "specHash": "97b115627f24060b704726dcde11aa00af3676f0792e82e69ab32a6e32e5dd27",
+  "symbol": "USDCHF",
+  "window": {
+    "from": "2026-07-13T00:00:00.000Z",
+    "to": "2026-07-20T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-20T00:00:00.000Z",
+  "readinessManifestHash": "3721fb7642aff558424f9e0e43f420006d0676bb002df6426ab703aad8710d66",
+  "arguments": [
+    "USDCHF",
+    "7",
+    "pro_ltf_scalp_eurusd_v1",
+    "--end=2026-07-20",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "493369d160eb7b2dd309349a36fec9c1a282dc2e26725310be922bdb41703d83",
+      "bytes": 789
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "f83dbeda6f2641dbd345339622f5f2594fa9eca8420ccaa4c2a195d7a547dbca",
+      "bytes": 3245
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "c16868100734ea9c5eaa63bc0120fd1bbc969fa81df81a5e4bf9e17633e774bf",
+      "bytes": 53643
+    }
+  }
+}

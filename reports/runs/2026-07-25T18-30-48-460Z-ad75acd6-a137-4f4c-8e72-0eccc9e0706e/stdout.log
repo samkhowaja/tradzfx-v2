@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: scarface_5m_orb | signalSource: orb
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: orb_breakout | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-04-27T02:26:00.000Z skipped
+[backtest-pit-v2] Symbols: EURUSD
+

@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: dol_ifvg | signalSource: generic
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: fvg_continuation | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-06-20 → 2026-07-20 (30 days)
+[backtest-pit-v2] Warmup: 120 derived bars -> signals before 2026-06-20T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+XAUUSD: 105 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 10 deduped) | signal query 35ms | prefetch 267ms | setup-engine N/Ams | simulate 5ms
+  Executed: 76 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 19 | Heat dropped: 0
+  Gate skips: rateLimit: 6 signals today for dol_ifvg (max=6)=13, session: Session=OFF_HOURS not in allowed=[ASIA, LONDON, OVERLAP, NY]=6
+  Wins: 20 | Losses: 56 | Timeouts: 0
+  WR: 26.3% | Net R: -36.44 | Avg Win: 0.48R | Avg Loss: -0.82R

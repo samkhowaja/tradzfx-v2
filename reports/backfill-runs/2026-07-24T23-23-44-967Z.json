@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-07-24T23:23:44.967Z",
+  "finishedAt": "2026-07-24T23:24:47.011Z",
+  "symbols": [
+    "XAUUSD"
+  ],
+  "timeframes": [
+    "15m"
+  ],
+  "requestedFeatures": [
+    "features_pricing",
+    "features_atr"
+  ],
+  "cells": [
+    {
+      "feature": "features_pricing",
+      "symbol": "XAUUSD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-04-07T04:30:00.000Z",
+      "sourceMaxTs": "2026-07-24T23:00:00.000Z",
+      "persistedRows": 7570,
+      "persistedMinTs": "2026-04-07T04:30:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:45:00.000Z",
+      "producerRunId": "17686488",
+      "producerStatus": "done",
+      "producerVersion": "2.1.0",
+      "producerWatermarkTs": "2026-07-24T20:45:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    },
+    {
+      "feature": "features_atr",
+      "symbol": "XAUUSD",
+      "tf": "15m",
+      "mode": "dense",
+      "sourceMinTs": "2026-04-07T04:30:00.000Z",
+      "sourceMaxTs": "2026-07-24T23:00:00.000Z",
+      "persistedRows": 25386,
+      "persistedMinTs": "2026-04-07T04:30:00.000Z",
+      "persistedMaxTs": "2026-07-24T20:45:00.000Z",
+      "producerRunId": "17686487",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-07-24T20:45:00.000Z",
+      "producerSourceMaxTs": "2026-07-24T20:45:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": null,
+      "duplicateAnchors": null,
+      "expectedAnchors": null,
+      "nullRows": null,
+      "verdict": "BLOCKED_EDGE",
+      "reason": "producer_source_edge_behind"
+    }
+  ],
+  "summary": {
+    "barsProcessed": 8568,
+    "errors": 2,
+    "readyCells": 0,
+    "blockedCells": 2
+  }
+}

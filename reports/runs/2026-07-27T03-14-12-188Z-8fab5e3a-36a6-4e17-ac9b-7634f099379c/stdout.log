@@ -1,0 +1,12 @@
+[backtest-pit-v2] Strategy: doyle_sd | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 200 derived bars -> signals before 2026-07-19T16:40:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+[backtest-pit-v2] DEGRADED data quality for USDCHF: capability_STALE_STATE_features_bias@5m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m, capability_STALE_STATE_features_moving_average@5m
+USDCHF: 15 raw signals (0 skipped for warmup, 2 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 60ms | prefetch 48ms | setup-engine N/Ams | simulate 2ms
+  Executed: 8 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 5 | Heat dropped: 0
+  Gate skips: rateLimit=5
+  Wins: 7 | Losses: 1 | Timeouts: 0
+  WR: 87.5% | Net R: 7.87 | Avg Win: 1.27R | Avg Loss: -1.00R

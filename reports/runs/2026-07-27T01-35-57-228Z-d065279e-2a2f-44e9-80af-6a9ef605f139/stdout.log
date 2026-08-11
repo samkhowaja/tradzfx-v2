@@ -1,0 +1,8 @@
+[backtest-pit-v2] Strategy: watukushay_fe | signalSource: indicator
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 50 derived bars -> signals before 2026-07-21T02:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+[backtest-pit-v2] DEGRADED data quality for USDCHF: capability_STALE_STATE_features_bias@1h, capability_STALE_STATE_features_pricing@15m, capability_STALE_STATE_features_atr@1h, capability_STALE_STATE_features_indicator@1h
+USDCHF: no signals

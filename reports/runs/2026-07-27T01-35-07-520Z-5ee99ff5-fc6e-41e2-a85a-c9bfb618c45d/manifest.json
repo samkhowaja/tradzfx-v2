@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-27T01-35-07-520Z-5ee99ff5-fc6e-41e2-a85a-c9bfb618c45d",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-27T01:35:07.520Z",
+  "finishedAt": "2026-07-27T01:35:13.041Z",
+  "exitCode": 0,
+  "gitSha": "3885af240f7c3efb09416d42474476e1e08c1dde",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_live_paper",
+  "specHash": "310f1c69169b03bc96f734995e4b9ce7b00e19311883fd7303ce35b846aa0815",
+  "symbol": "USDJPY",
+  "window": {
+    "from": "2026-07-19T00:00:00.000Z",
+    "to": "2026-07-26T00:00:00.000Z"
+  },
+  "mode": "fast",
+  "setupProfile": "skip",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T00:00:00.000Z",
+  "readinessManifestHash": "0c3d419d7b66c19a2f4f9c91ab521de3173bfe5be64ccea10b6782007792853d",
+  "arguments": [
+    "USDJPY",
+    "7",
+    "waqar_v2_live_paper",
+    "--end=2026-07-26",
+    "--mode=fast"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "9f0aa21c10651b426e7f8f9c8e755bcdfb5d326bde00634969dfef7be4adb544",
+      "bytes": 965
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "67da530ea9a9e0df0a7ff0efcc282fbb573e7db9bca5a51217b3cf0886f9d51f",
+      "bytes": 3704
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "5bdbb9574941c1716872ce161b09a79af9c908195402f0ca1180052e80a3505c",
+      "bytes": 94395
+    }
+  }
+}

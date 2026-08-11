@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-08-04T18:40:55.084Z",
+  "frozenVersion": "candle-detector-v3-robust@20260804",
+  "readOnly": true,
+  "symbols": {
+    "XAUUSD": {
+      "quarantine": {
+        "v2Count": 114,
+        "v3Count": 118,
+        "both": 112,
+        "v3Only": 6,
+        "v2Only": 2
+      },
+      "v3FlagCounts": {
+        "LARGE_JUMP_ROBUST": 115,
+        "UNEXPECTED_GAP": 7
+      },
+      "falsePositiveAssessment": {
+        "calendarExplainedGaps": 2,
+        "dxySyntheticBoundaryExplained": 0
+      },
+      "missedCorruption": {
+        "invalidOhlcOrImpossibleSpreadNotInV3": 0,
+        "sample": []
+      },
+      "candidateWindows": 0
+    },
+    "EURUSD": {
+      "quarantine": {
+        "v2Count": 43,
+        "v3Count": 24,
+        "both": 19,
+        "v3Only": 4,
+        "v2Only": 24
+      },
+      "v3FlagCounts": {
+        "LARGE_JUMP_ROBUST": 22,
+        "UNEXPECTED_GAP": 3
+      },
+      "falsePositiveAssessment": {
+        "calendarExplainedGaps": 3,
+        "dxySyntheticBoundaryExplained": 0
+      },
+      "missedCorruption": {
+        "invalidOhlcOrImpossibleSpreadNotInV3": 0,
+        "sample": []
+      },
+      "candidateWindows": 1
+    },
+    "USDJPY": {
+      "quarantine": {
+        "v2Count": 51,
+        "v3Count": 22,
+        "both": 18,
+        "v3Only": 4,
+        "v2Only": 33
+      },
+      "v3FlagCounts": {
+        "LARGE_JUMP_ROBUST": 21,
+        "UNEXPECTED_GAP": 3
+      },
+      "falsePositiveAssessment": {
+        "calendarExplainedGaps": 3,
+        "dxySyntheticBoundaryExplained": 0
+      },
+      "missedCorruption": {
+        "invalidOhlcOrImpossibleSpreadNotInV3": 0,
+        "sample": []
+      },
+      "candidateWindows": 0
+    },
+    "DXY": {
+      "quarantine": {
+        "v2Count": 5,
+        "v3Count": 4,
+        "both": 4,
+        "v3Only": 0,
+        "v2Only": 1
+      },
+      "v3FlagCounts": {
+        "LARGE_JUMP_ROBUST": 2,
+        "UNEXPECTED_GAP": 2
+      },
+      "falsePositiveAssessment": {
+        "calendarExplainedGaps": 0,
+        "dxySyntheticBoundaryExplained": 0
+      },
+      "missedCorruption": {
+        "invalidOhlcOrImpossibleSpreadNotInV3": 0,
+        "sample": []
+      },
+      "candidateWindows": 1
+    }
+  }
+}

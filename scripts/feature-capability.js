@@ -20,6 +20,22 @@ const CANONICAL_CANDLE_TABLES = Object.freeze({
 });
 const VALID_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
+// Capability scans touch many small metadata queries. Keep them bounded so a
+// large strategy set cannot serialize for hours or exhaust the DB pool.
+async function mapLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let next = 0;
+  async function consume() {
+    while (true) {
+      const index = next++;
+      if (index >= items.length) return;
+      results[index] = await worker(items[index], index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, consume));
+  return results;
+}
+
 function assertIdent(name) {
   if (!VALID_IDENT.test(name)) throw new Error(`Unsafe SQL identifier: ${name}`);
   return name;
@@ -180,8 +196,10 @@ async function collectCapabilityMatrix(pool, opts = {}) {
   const tableColumns = new Map();
   const dataEdges = new Map();
 
-  for (const [featureName, contract] of Object.entries(FEATURE_REGISTRY)) {
-    if (requestedFeatures && !requestedFeatures.has(featureName)) continue;
+  const featureEntries = Object.entries(FEATURE_REGISTRY)
+    .filter(([featureName]) => !requestedFeatures || requestedFeatures.has(featureName));
+
+  for (const [featureName, contract] of featureEntries) {
     const table = contract.table ?? featureName;
     if (!tableColumns.has(table)) tableColumns.set(table, await tableInfo(pool, table));
     const columns = tableColumns.get(table);
@@ -192,18 +210,24 @@ async function collectCapabilityMatrix(pool, opts = {}) {
       : contract.requiredColumns.slice();
     const tfList = hasTf ? tfs : [null];
 
-    for (const symbol of symbols) {
-      for (const tf of tfList) {
+    const cells = symbols.flatMap((symbol) => tfList.map((tf) => ({ symbol, tf })));
+    const cellRows = await mapLimit(cells, opts.concurrency ?? 8, async ({ symbol, tf }) => {
         const edgeKey = `${symbol}:${tf ?? "1m"}`;
-        if (!dataEdges.has(edgeKey)) dataEdges.set(edgeKey, await dataEdge(pool, symbol, to, tf ?? "1m"));
-        const edge = dataEdges.get(edgeKey);
+        if (!dataEdges.has(edgeKey)) {
+          dataEdges.set(edgeKey, dataEdge(pool, symbol, to, tf ?? "1m"));
+        }
+        const edgeValue = dataEdges.get(edgeKey);
+        const edge = edgeValue && typeof edgeValue.then === "function" ? await edgeValue : edgeValue;
+        if (edgeValue && typeof edgeValue.then === "function") dataEdges.set(edgeKey, edge);
         let stats = { rows90d: 0, latestTs: null, engineVersions: [] };
         let producer = null;
         let lifecycle = null;
         if (tableExists && missingColumns.length === 0) {
-          stats = await featureStats(pool, table, hasTf, columns.has("engine_ver"), symbol, tf, from, to);
-          producer = await producerStats(pool, table, symbol, tf);
-          lifecycle = await lifecycleStats(pool, table, symbol, tf, edge);
+          [stats, producer, lifecycle] = await Promise.all([
+            featureStats(pool, table, hasTf, columns.has("engine_ver"), symbol, tf, from, to),
+            producerStats(pool, table, symbol, tf),
+            lifecycleStats(pool, table, symbol, tf, edge),
+          ]);
         }
 
         const latestAgeHours = stats.latestTs ? ageHours(stats.latestTs, edge ?? to) : null;
@@ -241,9 +265,9 @@ async function collectCapabilityMatrix(pool, opts = {}) {
           dataEdgeTs: fmtIso(edge),
         };
         row.verdict = classifyVerdict(row);
-        rows.push(row);
-      }
-    }
+        return row;
+      });
+    rows.push(...cellRows);
   }
 
   return {

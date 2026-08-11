@@ -1,0 +1,11 @@
+[backtest-pit-v2] Strategy: pro_ltf_scalp_eurusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-19 → 2026-07-26 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-19T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCAD
+
+[backtest-pit-v2] DEGRADED data quality for USDCAD: capability_STALE_STATE_features_bias@15m, capability_STALE_STATE_features_pricing@5m, capability_STALE_STATE_features_atr@5m
+USDCAD: 11 raw signals (0 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 6 deduped) | signal query 26ms | prefetch 86ms | setup-engine N/Ams | simulate 4ms
+  Executed: 5 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 0 | Heat dropped: 0
+  Wins: 1 | Losses: 4 | Timeouts: 0
+  WR: 20.0% | Net R: -1.44 | Avg Win: 1.56R | Avg Loss: -0.75R

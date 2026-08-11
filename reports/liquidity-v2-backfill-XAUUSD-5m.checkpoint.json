@@ -1,0 +1,17 @@
+{
+  "symbol": "XAUUSD",
+  "tf": "5m",
+  "phase": "events",
+  "requestedFeatures": [
+    "features_session_range_v2",
+    "features_liquidity_event_v2"
+  ],
+  "lookbackBars": 2000,
+  "rangeStart": "2026-07-10T21:00:00.000Z",
+  "rangeEnd": "2026-07-10T21:05:00.000Z",
+  "lastCompletedTs": "2026-07-10T21:00:00.000Z",
+  "processed": 1,
+  "total": 1,
+  "errors": 0,
+  "updatedAt": "2026-07-24T03:38:03.404Z"
+}

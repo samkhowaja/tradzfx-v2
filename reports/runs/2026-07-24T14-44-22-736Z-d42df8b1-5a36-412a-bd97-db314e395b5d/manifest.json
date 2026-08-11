@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-24T14-44-22-736Z-d42df8b1-5a36-412a-bd97-db314e395b5d",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-24T14:44:22.736Z",
+  "finishedAt": "2026-07-24T14:44:37.569Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "waqar_v2_bst_corrected_7pair_shadow",
+  "specHash": "e317e1368c3a362a3c193609bca7695622dec072877f2b5d4bb7269e32c7bc0d",
+  "symbol": "GBPUSD",
+  "window": {
+    "from": "2026-04-25T00:00:00.000Z",
+    "to": "2026-07-24T00:00:00.000Z"
+  },
+  "mode": "research",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-24T00:00:00.000Z",
+  "readinessManifestHash": "3e3128f3670b803ac9cde55e64593e1b08530138c766d3091b19d6037d46437c",
+  "arguments": [
+    "GBPUSD",
+    "90",
+    "waqar_v2_bst_corrected_7pair_shadow",
+    "--spec-file=packages/strategies/src/specs/waqar_v2_bst_corrected_7pair_shadow.yaml",
+    "--start=2026-04-25T00:00:00.000Z",
+    "--end=2026-07-24T00:00:00.000Z",
+    "--mode=research",
+    "--setup-profile=strict",
+    "--intrabar=sl_first",
+    "--drift-gate=live",
+    "--json",
+    "--trades"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "7ebee48938e471dfa439e5a26d9cbfc627002e62bda6ff06c8587ab62783a123",
+      "bytes": 894
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "8d8cf42df9cda3f214d5568a688829c850743106d33fae44217aae636a503bb6",
+      "bytes": 1017
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "ec2c24d4f7fd9c57c1942f2213667c57f98a7c8d1929aaca2285db590a30bb43",
+      "bytes": 8838
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "82307bbbc789c367eaa7d9ff99e7cb284c81ddeda59898334f1804dcb65f2c2b",
+      "bytes": 5946
+    }
+  }
+}

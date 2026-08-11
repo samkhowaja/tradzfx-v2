@@ -1,0 +1,6 @@
+[backtest-pit-v2] Strategy: xauusd_v1 | signalSource: zone
+[backtest-pit-v2] Mode: research | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-04-26 → 2026-07-25 (90 days)
+[backtest-pit-v2] Warmup: 1152 derived bars -> signals before 2026-04-30T18:10:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+

@@ -1,0 +1,49 @@
+familyId,strategyId,active,entry_logic,tp_method,sl_method,minRR,timeframe,symbols,issues
+keylevel_bounce,keylevel_bounce,false,Structure break (15m) + zone retest,sl * 3.0,50 pips,3.0,15m,XAUUSD,Deprecated base
+keylevel_bounce,keylevel_bounce_v1,true,Structure break (15m) + zone retest,sl * 3.0,50 pips,3.0,15m,XAUUSD,Partial impl
+keylevel_bounce,keylevel_bounce_v1_4r,true,Structure break (15m) + zone retest,sl * 4.0,50 pips,4.0,15m,XAUUSD,HTF bias filter
+keylevel_bounce,keylevel_bounce_v1_fx,true,Structure break (15m) + zone retest,sl * 4.0,50 pips,4.0,15m,EURUSD;GBPUSD,FX only
+keylevel_bounce,keylevel_bounce_v1_limit,true,Structure break (15m) + zone retest,sl * 4.0,50 pips,4.0,15m,XAUUSD,Limit entry
+keylevel_bounce,keylevel_bounce_v1_wider,true,Structure break (15m) + zone retest,sl * 3.0,80 pips,3.0,15m,XAUUSD,SL tweak only
+keylevel_bounce,keylevel_bounce_v2,true,Structure break (15m) + zone retest (1m),sl * 4.0,ATR(15m)*2,4.0,15m/1m,XAUUSD,1m confirm added
+keylevel_bounce,keylevel_bounce_v3,true,Structure break (15m) + zone retest,sl * 4.0,50 pips,4.0,15m,XAUUSD,Quality filter
+keylevel_bounce,keylevel_bounce_v4,true,Structure break (15m) + zone retest,sl * 4.0,50 pips,4.0,15m,XAUUSD,4h HTF bias
+keylevel_bounce,keylevel_bounce_v5_longs,true,Structure break (15m; bullish only),sl * 4.0,50 pips,4.0,15m,XAUUSD,Longs only
+keylevel_bounce,keylevel_bounce_v5_shorts,true,Structure break (15m; bearish only),sl * 4.0,50 pips,4.0,15m,XAUUSD,Shorts only
+keylevel_bounce,keylevel_bounce_v6_ny_overlap_shorts,true,Structure break (15m; bearish),sl * 4.0,50 pips,4.0,15m,XAUUSD,NY/OVERLAP only
+keylevel_bounce,keylevel_bounce_v7_shorts_time,true,Structure break (15m; bearish),sl * 4.0,50 pips,4.0,15m,XAUUSD,Hour filter
+keylevel_bounce,keylevel_bounce_v8_levels,true,Structure break (15m; bearish),nearest_profit_pivot (-2pips),50 pips,1.5,15m,XAUUSD,CONTRADICTORY minRR
+keylevel_bounce,keylevel_bounce_v8b_zone_tp,true,Structure break (15m; bearish),opposing_zone_profit (-2pips),50 pips,1.5,15m,XAUUSD,CONTRADICTORY minRR
+keylevel_bounce,keylevel_bounce_v8c_min3,true,Structure break (15m; bearish),nearest_profit_pivot (-2pips),50 pips,???,15m,XAUUSD,MISSING minRR
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m,true,iFVG (5m) + structure (5m),sl * 2.0,ATR(5m)*1.5,2.0,5m,XAUUSD,Base template
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_3r,false,iFVG (5m) + structure (5m),sl * 3.0,ATR(5m)*1.5,3.0,5m,XAUUSD,Inactive 3R
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon,false,iFVG (5m) + structure (5m),nearest_profit_pivot,ATR(5m)*1.5,1.0,5m,XAUUSD,Inactive runon
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r,true,iFVG (5m) + structure (5m; +CHOCH),nearest_profit_pivot,ATR(5m)*1.5,1.5,5m,XAUUSD,PRIMARY LIVE
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r_age15,false,iFVG (5m; age<=15) + structure,nearest_profit_pivot,ATR(5m)*1.5,1.5,5m,XAUUSD,Inactive age filter
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r_notight,false,iFVG (5m; no strength) + structure,nearest_profit_pivot,ATR(5m)*1.5,1.5,5m,XAUUSD,Inactive loose filter
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r_notight_origwindow,false,iFVG (5m; no strength) + structure,nearest_profit_pivot,ATR(5m)*1.5,1.5,5m,XAUUSD,Inactive orig window
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r_ob_tp,true,iFVG (5m) + structure (5m),opposing_OB_beyond_minRR,ATR(5m)*1.5,1.5,5m,XAUUSD,OB TP variant
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_runon_15r_zone_tp,true,iFVG (5m) + structure (5m),opposing_zone_beyond_minRR,ATR(5m)*1.5,1.5,5m,XAUUSD,Zone TP variant
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r,false,iFVG (5m) + structure (5m),sl * 10,10 pips,10.0,5m,XAUUSD,UNREALISTIC 100-pip TP
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply,false,iFVG (5m) + structure (5m),sl * 10,10 pips,10.0,5m,XAUUSD,UNREALISTIC demand/supply
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_ob_tp,false,iFVG (5m) + structure (5m),opposing_OB,10 pips,10.0,5m,XAUUSD,minRR CONFLICT
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_15m_tp,false,iFVG (5m) + structure (5m),15m pivot,10 pips,10.0,5m,XAUUSD,TP FORMULA UNCLEAR
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_1h_tp,false,iFVG (5m) + structure (5m),1h pivot,10 pips,10.0,5m,XAUUSD,TP FORMULA UNCLEAR
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_pivot_5m_tp,false,iFVG (5m) + structure (5m),5m pivot,10 pips,10.0,5m,XAUUSD,TP FORMULA UNCLEAR
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_profit,false,iFVG (5m) + structure (5m),opposing_zone,10 pips,10.0,5m,XAUUSD,minRR CONFLICT
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp,true,iFVG (5m) + structure (5m),zone_beyond_minRR,10 pips,10.0,5m,XAUUSD,UNREALISTIC 100-pip TP
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_1h,false,iFVG (5m) + structure (5m),1h zone TP,10 pips,10.0,5m,XAUUSD,Inactive experimental
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_5m,false,iFVG (5m) + structure (5m),5m zone TP,10 pips,10.0,5m,XAUUSD,Inactive experimental
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx,true,iFVG (5m) + structure (5m),zone TP beyond minRR,10 pips,10.0,5m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY,FX majors only
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter,false,iFVG (5m; strength) + structure,zone TP,10 pips,10.0,5m,XAUUSD,Inactive redundant
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_ifvgfilter_loose,false,iFVG (5m; strength>=0.6) + structure,zone TP,10 pips,10.0,5m,XAUUSD,Inactive redundant
+smart_risk_ob_ifvg_1m,smart_risk_ob_ifvg_1m_sniper_10r_zone_tp,false,iFVG (5m) + structure (5m),zone TP beyond minRR,10 pips,10.0,5m,XAUUSD,Inactive redundant
+orb_classic,orb_classic,true,ORB displacement (15m),sl * 2.0,orb_midpoint,2.0,15m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Standalone ✓
+scarface_5m_orb,scarface_5m_orb,true,ORB + candle pattern (1m),sl * 2.0,ATR(1m)*1.0,2.0,1m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY,Standalone ✓
+doyle_sd,doyle_sd,true,MSB + zone retest (5m),sl * 2.5,ATR(5m)*1.2,2.5,5m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Standalone ✓
+forex_strategy_orb,forex_strategy_orb,true,Zone retest + displacement (5m),sl * 2.0,ATR(5m)*1.2,2.0,5m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Standalone ✓
+waqar_v2,waqar_v2,true,Structure break (1m) + zone retest (1m),sl * 3.0,5 pips,3.0,1m,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY,Standalone ✓
+xauusd_v1,xauusd_v1,true,Structure (5m) + zone retest + liquidity sweep,sl * 3.0,ATR(5m)*1.5,2.5,5m,XAUUSD,Standalone ✓
+watukushay,watukushay,false,RSI(20) pullback (1h),sl * 1.0,ATR(1h)*0.5,1.0,1h,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Deprecated base
+watukushay,watukushay_fe,true,RSI(20) pullback (1h),sl * 1.0,ATR(1h)*0.5,1.0,1h,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Active variant
+watukushay,watukushay_no1,true,MA cross SMA(15/250) (1h),sl * 1.0,ATR(1h)*0.5,1.0,1h,EURUSD;GBPUSD;AUDUSD;NZDUSD;USDCAD;USDCHF;USDJPY;XAUUSD,Different entry logic

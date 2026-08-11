@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-06T22:16:01.470Z",
+  "finishedAt": "2026-08-06T22:40:37.726Z",
+  "symbols": [
+    "XAUUSD"
+  ],
+  "timeframes": [
+    "1m"
+  ],
+  "requestedFeatures": [
+    "features_session",
+    "features_spread"
+  ],
+  "trustedGate": {
+    "perSymbol": {
+      "XAUUSD": {
+        "mode": "require",
+        "windowIds": [
+          46,
+          64,
+          74,
+          94,
+          117
+        ],
+        "windowSetHash": "941489225c11f40b494535722404ce69740e6b5e93174915f11bcf44b5a09325",
+        "detectors": [
+          "window-certifier-v5.2-dxy-formula@20260805",
+          "window-certifier-v5.3-spreadzero-keep@20260805"
+        ],
+        "canonicalVersions": [
+          "canonical-m186-exclude-skip@20260805",
+          "canonical-m186-exclude-skip@20260806"
+        ],
+        "gatedAt": "2026-08-06T22:16:02.003Z"
+      }
+    },
+    "mode": "require",
+    "windowSetHash": "27ea82c3605a68b9dac761b60ee5971919d06819b619e59b3de7bf2e92caba47"
+  },
+  "cells": [
+    {
+      "feature": "features_session",
+      "symbol": "XAUUSD",
+      "tf": "1m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-19T22:05:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:53:00.000Z",
+      "persistedRows": 19077,
+      "persistedMinTs": "2026-07-19T22:05:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:53:00.000Z",
+      "producerRunId": "24980533",
+      "producerStatus": "done",
+      "producerVersion": "1.2.0",
+      "producerWatermarkTs": "2026-08-06T18:53:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:53:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 0,
+      "expectedAnchors": 19077,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    },
+    {
+      "feature": "features_spread",
+      "symbol": "XAUUSD",
+      "tf": "1m",
+      "mode": "dense",
+      "sourceMinTs": "2026-07-19T22:05:00.000Z",
+      "sourceMaxTs": "2026-08-06T18:53:00.000Z",
+      "persistedRows": 19077,
+      "persistedMinTs": "2026-07-19T22:05:00.000Z",
+      "persistedMaxTs": "2026-08-06T18:53:00.000Z",
+      "producerRunId": "24980534",
+      "producerStatus": "done",
+      "producerVersion": "1.0.0",
+      "producerWatermarkTs": "2026-08-06T18:53:00.000Z",
+      "producerSourceMaxTs": "2026-08-06T18:53:00.000Z",
+      "persistRejected": 0,
+      "missingAnchors": 0,
+      "duplicateAnchors": 0,
+      "expectedAnchors": 19077,
+      "nullRows": 0,
+      "verdict": "READY",
+      "reason": null
+    }
+  ],
+  "summary": {
+    "barsProcessed": 24826,
+    "errors": 0,
+    "readyCells": 2,
+    "blockedCells": 0
+  }
+}

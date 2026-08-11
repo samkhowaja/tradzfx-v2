@@ -1,0 +1,137 @@
+{
+  "spec": "internal_wave_v2_xau_research",
+  "mode": "full",
+  "research": false,
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "symbol": "XAUUSD",
+  "days": 90,
+  "rawSignals": 0,
+  "setupBlocked": 0,
+  "deduped": 0,
+  "executed": 0,
+  "skipped": 0,
+  "heatDropped": 0,
+  "spreadQuarantined": 0,
+  "candlesQuarantined": 0,
+  "gateSkips": {},
+  "stageCounts": {},
+  "dataQuality": "BLOCKED_SYSTEM_QUALITY",
+  "blockReasons": [
+    "lifecycle_stale_features_zone"
+  ],
+  "lifecycleCorruption": [],
+  "coverage": [
+    {
+      "table": "features_direction_state",
+      "tf": "1h",
+      "isCandle": false,
+      "required": true,
+      "rows": 1417,
+      "expectedRows": 1800,
+      "densityRatio": 0.7872,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_liquidity_event_v2",
+      "tf": "5m",
+      "isCandle": false,
+      "required": true,
+      "rows": 1980,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_displacement",
+      "tf": "5m",
+      "isCandle": false,
+      "required": true,
+      "rows": 15732,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_zone",
+      "tf": "15m",
+      "isCandle": false,
+      "required": true,
+      "rows": 24992,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_pricing",
+      "tf": "15m",
+      "isCandle": false,
+      "required": true,
+      "rows": 6143,
+      "expectedRows": 7200,
+      "densityRatio": 0.8532,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_atr",
+      "tf": "15m",
+      "isCandle": false,
+      "required": true,
+      "rows": 21009,
+      "expectedRows": 7200,
+      "densityRatio": 2.9179,
+      "insufficientDensity": false
+    },
+    {
+      "table": "features_session",
+      "tf": "1m",
+      "isCandle": false,
+      "required": false,
+      "rows": 3235,
+      "expectedRows": 108000,
+      "densityRatio": 0.03,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_1m_canonical",
+      "tf": "1m",
+      "isCandle": true,
+      "required": true,
+      "rows": 106549,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_15m_canonical",
+      "tf": "15m",
+      "isCandle": true,
+      "required": true,
+      "rows": 7116,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    },
+    {
+      "table": "market.candles_5m_canonical",
+      "tf": "5m",
+      "isCandle": true,
+      "required": true,
+      "rows": 21321,
+      "expectedRows": null,
+      "densityRatio": null,
+      "insufficientDensity": false
+    }
+  ],
+  "wins": 0,
+  "losses": 0,
+  "timeouts": 0,
+  "winRate": 0,
+  "netR": 0,
+  "avgWinR": 0,
+  "avgLossR": 0,
+  "longCount": 0,
+  "shortCount": 0,
+  "avgHoldBars": 0,
+  "queryMs": 0
+}

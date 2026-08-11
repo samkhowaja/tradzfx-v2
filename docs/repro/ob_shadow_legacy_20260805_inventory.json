@@ -1,0 +1,523 @@
+{
+  "captured_at": "2026-08-05T22:38:26.563Z",
+  "tables": {
+    "order_block_state_history_shadow": {
+      "rows": "2194641",
+      "total_bytes": "784334848",
+      "table_bytes": "450510848",
+      "index_bytes": "333668352",
+      "columns": [
+        {
+          "column_name": "event_id",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "state_version",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "observed_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "degree",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "top",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "bottom",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "body_top",
+          "data_type": "double precision",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "body_bottom",
+          "data_type": "double precision",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "is_fresh",
+          "data_type": "boolean",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "first_touch_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "fill_pct",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "mitigated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "invalidated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "engine_ver",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "input_hash",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "effective_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "change_kind",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        }
+      ]
+    },
+    "order_block_event_shadow": {
+      "rows": "29460",
+      "total_bytes": "8880128",
+      "table_bytes": "4177920",
+      "index_bytes": "4661248",
+      "columns": [
+        {
+          "column_name": "event_id",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "logical_id",
+          "data_type": "bytea",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "symbol",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "tf",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "formed_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "source_event_ts",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "source_event_type",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "source_event_direction",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "source_event_level",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "ob_kind",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "first_observed_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": "clock_timestamp()"
+        }
+      ]
+    },
+    "order_block_state_shadow": {
+      "rows": "29460",
+      "total_bytes": "7282688",
+      "table_bytes": "6127616",
+      "index_bytes": "1114112",
+      "columns": [
+        {
+          "column_name": "event_id",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "degree",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "top",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "bottom",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "body_top",
+          "data_type": "double precision",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "body_bottom",
+          "data_type": "double precision",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "is_fresh",
+          "data_type": "boolean",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "first_touch_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "fill_pct",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": "0"
+        },
+        {
+          "column_name": "mitigated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "invalidated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "engine_ver",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "input_hash",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "state_version",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        }
+      ]
+    },
+    "order_block_lifecycle_replay_shadow": {
+      "rows": "2825",
+      "total_bytes": "1392640",
+      "table_bytes": "737280",
+      "index_bytes": "614400",
+      "columns": [
+        {
+          "column_name": "event_id",
+          "data_type": "bigint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "effective_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "transition_kind",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "is_fresh",
+          "data_type": "boolean",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "first_touch_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "fill_pct",
+          "data_type": "double precision",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "column_name": "mitigated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "invalidated_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "column_name": "replayed_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "NO",
+          "column_default": "clock_timestamp()"
+        },
+        {
+          "column_name": "replay_version",
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        }
+      ]
+    }
+  },
+  "trigger": {
+    "tgname": "trg_mirror_order_block_event_state_shadow",
+    "on_table": "features_order_block",
+    "tgenabled": "O",
+    "trigger_def": "CREATE TRIGGER trg_mirror_order_block_event_state_shadow AFTER INSERT OR UPDATE OF logical_id, is_fresh, first_touch_at, fill_pct, mitigated_at, invalidated_at ON public.features_order_block FOR EACH ROW EXECUTE FUNCTION mirror_order_block_event_state_shadow()"
+  },
+  "function": {
+    "proname": "mirror_order_block_event_state_shadow",
+    "function_def": "CREATE OR REPLACE FUNCTION public.mirror_order_block_event_state_shadow()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\r\nDECLARE\r\n  v_event_id BIGINT;\r\n  v_formed_at TIMESTAMPTZ := COALESCE(NEW.formation_ts, NEW.ts);\r\n  v_now TIMESTAMPTZ := clock_timestamp();\r\n  v_state_version BIGINT;\r\n  v_effective_at TIMESTAMPTZ;\r\n  v_change_kind TEXT;\r\n  v_prior public.order_block_state_shadow%ROWTYPE;\r\n  v_had_prior BOOLEAN := FALSE;\r\n  v_lifecycle_changed BOOLEAN := FALSE;\r\n  v_geometry_changed BOOLEAN := FALSE;\r\nBEGIN\r\n  IF NEW.logical_id IS NULL THEN\r\n    RETURN NEW;\r\n  END IF;\r\n\r\n  INSERT INTO public.order_block_event_shadow (\r\n    logical_id, symbol, tf, formed_at,\r\n    source_event_ts, source_event_type, source_event_direction, source_event_level,\r\n    ob_kind\r\n  ) VALUES (\r\n    NEW.logical_id, NEW.symbol, NEW.tf, v_formed_at,\r\n    NEW.source_event_ts, NEW.source_event_type, NEW.source_event_direction, NEW.source_event_level,\r\n    NEW.ob_kind\r\n  )\r\n  ON CONFLICT (logical_id) DO NOTHING;\r\n\r\n  SELECT event_id INTO STRICT v_event_id\r\n  FROM public.order_block_event_shadow\r\n  WHERE logical_id = NEW.logical_id;\r\n\r\n  IF NEW.first_touch_at IS NOT NULL AND NEW.first_touch_at < v_formed_at THEN\r\n    RAISE EXCEPTION 'order-block first_touch_at precedes formation for logical_id %', encode(NEW.logical_id, 'hex');\r\n  END IF;\r\n\r\n  SELECT * INTO v_prior\r\n  FROM public.order_block_state_shadow\r\n  WHERE event_id = v_event_id\r\n  FOR UPDATE;\r\n  v_had_prior := FOUND;\r\n\r\n  IF v_had_prior THEN\r\n    v_lifecycle_changed :=\r\n      (v_prior.is_fresh, v_prior.first_touch_at, v_prior.fill_pct,\r\n       v_prior.mitigated_at, v_prior.invalidated_at)\r\n      IS DISTINCT FROM\r\n      (COALESCE(NEW.is_fresh, TRUE), NEW.first_touch_at, COALESCE(NEW.fill_pct, 0),\r\n       NEW.mitigated_at, NEW.invalidated_at);\r\n    v_geometry_changed :=\r\n      (v_prior.degree, v_prior.top, v_prior.bottom, v_prior.body_top, v_prior.body_bottom,\r\n       v_prior.engine_ver, v_prior.input_hash)\r\n      IS DISTINCT FROM\r\n      (NEW.degree, NEW.top, NEW.bottom, NEW.body_top, NEW.body_bottom,\r\n       NEW.engine_ver, NEW.input_hash);\r\n  END IF;\r\n\r\n  INSERT INTO public.order_block_state_shadow (\r\n    event_id, degree, top, bottom, body_top, body_bottom,\r\n    is_fresh, first_touch_at, fill_pct, mitigated_at, invalidated_at,\r\n    engine_ver, input_hash, state_version, updated_at\r\n  ) VALUES (\r\n    v_event_id, NEW.degree, NEW.top, NEW.bottom, NEW.body_top, NEW.body_bottom,\r\n    COALESCE(NEW.is_fresh, TRUE), NEW.first_touch_at,\r\n    COALESCE(NEW.fill_pct, 0), NEW.mitigated_at, NEW.invalidated_at,\r\n    NEW.engine_ver, NEW.input_hash, 1, v_now\r\n  )\r\n  ON CONFLICT (event_id) DO UPDATE SET\r\n    degree = EXCLUDED.degree,\r\n    top = EXCLUDED.top,\r\n    bottom = EXCLUDED.bottom,\r\n    body_top = EXCLUDED.body_top,\r\n    body_bottom = EXCLUDED.body_bottom,\r\n    is_fresh = EXCLUDED.is_fresh,\r\n    first_touch_at = EXCLUDED.first_touch_at,\r\n    fill_pct = EXCLUDED.fill_pct,\r\n    mitigated_at = EXCLUDED.mitigated_at,\r\n    invalidated_at = EXCLUDED.invalidated_at,\r\n    engine_ver = EXCLUDED.engine_ver,\r\n    input_hash = EXCLUDED.input_hash,\r\n    state_version = order_block_state_shadow.state_version + 1,\r\n    updated_at = EXCLUDED.updated_at\r\n  WHERE (order_block_state_shadow.degree,\r\n         order_block_state_shadow.top,\r\n         order_block_state_shadow.bottom,\r\n         order_block_state_shadow.body_top,\r\n         order_block_state_shadow.body_bottom,\r\n         order_block_state_shadow.is_fresh,\r\n         order_block_state_shadow.first_touch_at,\r\n         order_block_state_shadow.fill_pct,\r\n         order_block_state_shadow.mitigated_at,\r\n         order_block_state_shadow.invalidated_at,\r\n         order_block_state_shadow.engine_ver,\r\n         order_block_state_shadow.input_hash)\r\n    IS DISTINCT FROM\r\n        (EXCLUDED.degree,\r\n         EXCLUDED.top,\r\n         EXCLUDED.bottom,\r\n         EXCLUDED.body_top,\r\n         EXCLUDED.body_bottom,\r\n         EXCLUDED.is_fresh,\r\n         EXCLUDED.first_touch_at,\r\n         EXCLUDED.fill_pct,\r\n         EXCLUDED.mitigated_at,\r\n         EXCLUDED.invalidated_at,\r\n         EXCLUDED.engine_ver,\r\n         EXCLUDED.input_hash)\r\n  RETURNING state_version INTO v_state_version;\r\n\r\n  IF v_state_version IS NOT NULL THEN\r\n    IF NOT v_had_prior THEN\r\n      v_effective_at := GREATEST(\r\n        v_formed_at,\r\n        COALESCE(NEW.first_touch_at, '-infinity'::timestamptz),\r\n        COALESCE(NEW.mitigated_at, '-infinity'::timestamptz),\r\n        COALESCE(NEW.invalidated_at, '-infinity'::timestamptz)\r\n      );\r\n      v_change_kind := CASE\r\n        WHEN NEW.first_touch_at IS NOT NULL OR NEW.mitigated_at IS NOT NULL\r\n          OR NEW.invalidated_at IS NOT NULL OR NOT COALESCE(NEW.is_fresh, TRUE)\r\n        THEN 'lifecycle_snapshot'\r\n        ELSE 'observation'\r\n      END;\r\n    ELSIF v_lifecycle_changed THEN\r\n      v_effective_at := GREATEST(\r\n        v_formed_at,\r\n        COALESCE(NEW.first_touch_at, '-infinity'::timestamptz),\r\n        COALESCE(NEW.mitigated_at, '-infinity'::timestamptz),\r\n        COALESCE(NEW.invalidated_at, '-infinity'::timestamptz)\r\n      );\r\n      v_change_kind := 'lifecycle_transition';\r\n    ELSIF v_geometry_changed THEN\r\n      v_effective_at := v_now;\r\n      v_change_kind := 'geometry_revision';\r\n    ELSE\r\n      v_effective_at := v_now;\r\n      v_change_kind := 'observation';\r\n    END IF;\r\n\r\n    INSERT INTO public.order_block_state_history_shadow (\r\n      event_id, state_version, observed_at, effective_at, change_kind,\r\n      degree, top, bottom, body_top, body_bottom,\r\n      is_fresh, first_touch_at, fill_pct, mitigated_at, invalidated_at, engine_ver, input_hash\r\n    ) VALUES (\r\n      v_event_id, v_state_version, v_now, v_effective_at, v_change_kind,\r\n      NEW.degree, NEW.top, NEW.bottom, NEW.body_top, NEW.body_bottom,\r\n      COALESCE(NEW.is_fresh, TRUE), NEW.first_touch_at, COALESCE(NEW.fill_pct, 0),\r\n      NEW.mitigated_at, NEW.invalidated_at, NEW.engine_ver, NEW.input_hash\r\n    );\r\n  END IF;\r\n\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  "indexes": [
+    {
+      "index_name": "order_block_event_shadow_pkey",
+      "on_table": "order_block_event_shadow",
+      "index_def": "CREATE UNIQUE INDEX order_block_event_shadow_pkey ON public.order_block_event_shadow USING btree (event_id)",
+      "idx_bytes": "679936"
+    },
+    {
+      "index_name": "order_block_event_shadow_logical_id_key",
+      "on_table": "order_block_event_shadow",
+      "index_def": "CREATE UNIQUE INDEX order_block_event_shadow_logical_id_key ON public.order_block_event_shadow USING btree (logical_id)",
+      "idx_bytes": "2326528"
+    },
+    {
+      "index_name": "idx_order_block_event_shadow_anchor",
+      "on_table": "order_block_event_shadow",
+      "index_def": "CREATE INDEX idx_order_block_event_shadow_anchor ON public.order_block_event_shadow USING btree (symbol, tf, formed_at DESC)",
+      "idx_bytes": "1654784"
+    },
+    {
+      "index_name": "order_block_state_shadow_pkey",
+      "on_table": "order_block_state_shadow",
+      "index_def": "CREATE UNIQUE INDEX order_block_state_shadow_pkey ON public.order_block_state_shadow USING btree (event_id)",
+      "idx_bytes": "1114112"
+    },
+    {
+      "index_name": "idx_order_block_state_history_shadow_observed",
+      "on_table": "order_block_state_history_shadow",
+      "index_def": "CREATE INDEX idx_order_block_state_history_shadow_observed ON public.order_block_state_history_shadow USING btree (event_id, observed_at DESC)",
+      "idx_bytes": "101244928"
+    },
+    {
+      "index_name": "order_block_state_history_shadow_pkey",
+      "on_table": "order_block_state_history_shadow",
+      "index_def": "CREATE UNIQUE INDEX order_block_state_history_shadow_pkey ON public.order_block_state_history_shadow USING btree (event_id, state_version)",
+      "idx_bytes": "98852864"
+    },
+    {
+      "index_name": "idx_order_block_state_history_shadow_effective",
+      "on_table": "order_block_state_history_shadow",
+      "index_def": "CREATE INDEX idx_order_block_state_history_shadow_effective ON public.order_block_state_history_shadow USING btree (event_id, effective_at DESC, state_version DESC)",
+      "idx_bytes": "133570560"
+    },
+    {
+      "index_name": "order_block_lifecycle_replay_shadow_pkey",
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "index_def": "CREATE UNIQUE INDEX order_block_lifecycle_replay_shadow_pkey ON public.order_block_lifecycle_replay_shadow USING btree (event_id, effective_at)",
+      "idx_bytes": "221184"
+    },
+    {
+      "index_name": "idx_order_block_lifecycle_replay_shadow_pit",
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "index_def": "CREATE INDEX idx_order_block_lifecycle_replay_shadow_pit ON public.order_block_lifecycle_replay_shadow USING btree (event_id, effective_at DESC)",
+      "idx_bytes": "196608"
+    },
+    {
+      "index_name": "idx_order_block_lifecycle_replay_shadow_effective",
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "index_def": "CREATE INDEX idx_order_block_lifecycle_replay_shadow_effective ON public.order_block_lifecycle_replay_shadow USING btree (effective_at DESC, event_id)",
+      "idx_bytes": "196608"
+    }
+  ],
+  "constraints": [
+    {
+      "on_table": "order_block_event_shadow",
+      "conname": "order_block_event_shadow_logical_id_32_check",
+      "contype": "c",
+      "def": "CHECK ((octet_length(logical_id) = 32))"
+    },
+    {
+      "on_table": "order_block_event_shadow",
+      "conname": "order_block_event_shadow_logical_id_key",
+      "contype": "u",
+      "def": "UNIQUE (logical_id)"
+    },
+    {
+      "on_table": "order_block_event_shadow",
+      "conname": "order_block_event_shadow_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (event_id)"
+    },
+    {
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "conname": "order_block_lifecycle_replay_shadow_event_id_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (event_id) REFERENCES order_block_event_shadow(event_id) ON DELETE RESTRICT"
+    },
+    {
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "conname": "order_block_lifecycle_replay_shadow_fill_check",
+      "contype": "c",
+      "def": "CHECK (((fill_pct >= (0)::double precision) AND (fill_pct <= (1)::double precision)))"
+    },
+    {
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "conname": "order_block_lifecycle_replay_shadow_kind_check",
+      "contype": "c",
+      "def": "CHECK ((transition_kind = ANY (ARRAY['formation'::text, 'first_touch'::text, 'fill_progress'::text, 'mitigation'::text, 'invalidation'::text])))"
+    },
+    {
+      "on_table": "order_block_lifecycle_replay_shadow",
+      "conname": "order_block_lifecycle_replay_shadow_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (event_id, effective_at)"
+    },
+    {
+      "on_table": "order_block_state_history_shadow",
+      "conname": "order_block_state_history_shadow_change_kind_check",
+      "contype": "c",
+      "def": "CHECK ((change_kind = ANY (ARRAY['observation'::text, 'geometry_revision'::text, 'lifecycle_transition'::text, 'lifecycle_snapshot'::text])))"
+    },
+    {
+      "on_table": "order_block_state_history_shadow",
+      "conname": "order_block_state_history_shadow_event_id_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (event_id) REFERENCES order_block_event_shadow(event_id) ON DELETE RESTRICT"
+    },
+    {
+      "on_table": "order_block_state_history_shadow",
+      "conname": "order_block_state_history_shadow_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (event_id, state_version)"
+    },
+    {
+      "on_table": "order_block_state_shadow",
+      "conname": "order_block_state_shadow_event_id_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (event_id) REFERENCES order_block_event_shadow(event_id) ON DELETE RESTRICT"
+    },
+    {
+      "on_table": "order_block_state_shadow",
+      "conname": "order_block_state_shadow_fill_check",
+      "contype": "c",
+      "def": "CHECK (((fill_pct >= (0)::double precision) AND (fill_pct <= (1)::double precision)))"
+    },
+    {
+      "on_table": "order_block_state_shadow",
+      "conname": "order_block_state_shadow_geometry_check",
+      "contype": "c",
+      "def": "CHECK ((bottom <= top))"
+    },
+    {
+      "on_table": "order_block_state_shadow",
+      "conname": "order_block_state_shadow_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (event_id)"
+    }
+  ],
+  "ranges": {
+    "hist_min": "2026-07-18T01:48:33.118Z",
+    "hist_max": "2026-08-03T03:58:34.933Z",
+    "event_min": "2026-01-01T12:22:00.000Z",
+    "event_max": "2026-07-31T13:15:00.000Z",
+    "state_min": "2026-07-18T01:49:36.818Z",
+    "state_max": "2026-08-03T03:58:34.933Z",
+    "replay_min": "2026-07-18T11:13:37.700Z",
+    "replay_max": "2026-07-18T11:58:51.404Z"
+  }
+}

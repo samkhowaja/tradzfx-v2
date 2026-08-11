@@ -1,0 +1,39 @@
+{
+  "mode": "read_only",
+  "tf": "1h",
+  "days": 30,
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "status": "OK",
+      "warning": "DB pivots lack confirmation_ts; replay uses ts fallback",
+      "candles": 672,
+      "pivots": 66,
+      "productionEvents": 4,
+      "causalEvents": 119,
+      "causalTypes": {
+        "mss": 66,
+        "bos": 43,
+        "choch": 10
+      }
+    },
+    {
+      "symbol": "GBPJPY",
+      "status": "NO_CANDLES"
+    },
+    {
+      "symbol": "XAUUSD",
+      "status": "OK",
+      "warning": "DB pivots lack confirmation_ts; replay uses ts fallback",
+      "candles": 633,
+      "pivots": 62,
+      "productionEvents": 1,
+      "causalEvents": 108,
+      "causalTypes": {
+        "mss": 62,
+        "bos": 38,
+        "choch": 8
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+[backtest-pit-v2] Strategy: apex_scalp_ob_v1 | signalSource: zone
+[backtest-pit-v2] Mode: fast | setupProfile: skip | setupFamily: zone_reversal | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-13 → 2026-07-20 (7 days)
+[backtest-pit-v2] Warmup: 480 derived bars -> signals before 2026-07-13T08:00:00.000Z skipped
+[backtest-pit-v2] Symbols: USDCHF
+
+USDCHF: no signals

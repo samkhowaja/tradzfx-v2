@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-06T03-18-34-142Z-8c4f2968-a84b-43c9-a0f5-3a66670fdf64",
+  "parentAuditId": null,
+  "status": "BLOCKED",
+  "startedAt": "2026-08-06T03:18:34.142Z",
+  "finishedAt": "2026-08-06T03:18:38.271Z",
+  "exitCode": 1,
+  "gitSha": "9fef5b0b137c864b90c09222d065e366e3b7d5a9",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "doyle_sd",
+  "specHash": "3d95c2e2c03ca9b54ab7bd2a721c6d48c41507078af6e0cb0000d230da97b78d",
+  "symbol": "EURUSD",
+  "window": {
+    "from": "2026-07-18T01:40:00.000Z",
+    "to": "2026-07-25T01:40:00.000Z"
+  },
+  "mode": "deterministic",
+  "setupProfile": "strict",
+  "intrabarMode": "close",
+  "dataEdge": "2026-07-25T01:40:00.000Z",
+  "trustedGate": {
+    "mode": "require",
+    "windowIds": [
+      48
+    ],
+    "windowSetHash": "ac56b104d1a9ccd9332ab2ae3e3afa8ab46476e24a63eb7e56af756029a7d2aa",
+    "detectors": [
+      "window-certifier-v5.2-dxy-formula@20260805"
+    ],
+    "canonicalVersions": [
+      "canonical-m186-exclude-skip@20260805"
+    ],
+    "gatedAt": "2026-08-06T03:18:34.236Z"
+  },
+  "readinessManifestHash": "abd79812112db21f184660090d99b732bea4e264d21f119646dea5501653a5ea",
+  "arguments": [
+    "EURUSD",
+    "7",
+    "doyle_sd",
+    "--start=2026-07-18T01:40:00Z",
+    "--end=2026-07-25T01:40:00Z",
+    "--mode=deterministic",
+    "--persist",
+    "--json"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "a9b99b6403633b2c541c3da19f97a7183945bfb6b748a84aeaceab78bcd48ffa",
+      "bytes": 493
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "ab475efda027191f49858b7af975ac0376c6be67712da57e726264c0da99bf71",
+      "bytes": 938
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "c5091881f2a44ae4edddb5992c03002d70f37134cb3d6456ae3ef06150e28843",
+      "bytes": 3374
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    }
+  }
+}

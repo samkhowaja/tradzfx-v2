@@ -1,0 +1,1428 @@
+{
+  "generatedAt": "2026-07-19T14:18:28.404Z",
+  "total": 48,
+  "ready": 1,
+  "blocked": 47,
+  "byTemplate": {
+    "unsupported": 18,
+    "trend_cross": 4,
+    "declared_staged": 1,
+    "zone_setup_entry": 1,
+    "orb_breakout": 4,
+    "liquidity_sweep_reversal": 1,
+    "zone_entry": 18,
+    "indicator_trigger": 1
+  },
+  "rows": [
+    {
+      "file": "a_plus_orb_fvg_5m.yaml",
+      "id": "a_plus_orb_fvg_5m",
+      "familyId": "a_plus_orb_fvg",
+      "active": true,
+      "signalSource": "fvg",
+      "symbols": "AUDUSD,EURUSD,GBPUSD,NZDUSD,USDCAD,USDCHF,USDJPY,USDSEK,XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "doyle_sd.yaml",
+      "id": "doyle_sd",
+      "familyId": "doyle_sd",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY,XAUUSD",
+      "template": "trend_cross",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_moving_average",
+        "features_zone",
+        "features_structure",
+        "features_zone_retest"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@5m"
+      ],
+      "entryEvents": [
+        "features_structure@5m"
+      ],
+      "blockers": [
+        "staged template 'trend_cross' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "fib_golden_50ema_4h.yaml",
+      "id": "fib_golden_50ema_4h",
+      "familyId": "fib_golden",
+      "active": false,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,XAUUSD",
+      "template": "trend_cross",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_moving_average",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@4h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'trend_cross' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "fib_golden_avwap_4h.yaml",
+      "id": "fib_golden_avwap_4h",
+      "familyId": "fib_golden",
+      "active": false,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@4h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "fib_golden_swapzone_4h.yaml",
+      "id": "fib_golden_swapzone_4h",
+      "familyId": "fib_golden",
+      "active": false,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@4h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@4h"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "five_one_scalp_staged_v1.yaml",
+      "id": "five_one_scalp_staged_v1",
+      "familyId": "five_one_scalp",
+      "active": false,
+      "signalSource": "generic",
+      "symbols": "XAUUSD",
+      "template": "declared_staged",
+      "status": "READY",
+      "features": [
+        "features_structure",
+        "features_zone",
+        "features_direction_state"
+      ],
+      "contexts": [
+        "features_direction_state@5m"
+      ],
+      "setupEvents": [
+        "features_structure@5m"
+      ],
+      "zones": [
+        "features_zone@5m"
+      ],
+      "entryEvents": [
+        "features_structure@1m"
+      ],
+      "blockers": [],
+      "validationErrors": []
+    },
+    {
+      "file": "five_one_scalp_v1.yaml",
+      "id": "five_one_scalp_v1",
+      "familyId": "five_one_scalp",
+      "active": true,
+      "signalSource": "generic",
+      "symbols": "XAUUSD",
+      "template": "zone_setup_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_structure",
+        "features_direction_state",
+        "features_zone"
+      ],
+      "contexts": [
+        "features_direction_state@5m"
+      ],
+      "setupEvents": [
+        "features_structure@5m"
+      ],
+      "zones": [
+        "features_zone@1m"
+      ],
+      "entryEvents": [
+        "features_structure@1m"
+      ],
+      "blockers": [
+        "staged template 'zone_setup_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "forex_strategy_orb.yaml",
+      "id": "forex_strategy_orb",
+      "familyId": "forex_strategy_orb",
+      "active": true,
+      "signalSource": "orb",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY,XAUUSD",
+      "template": "orb_breakout",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_opening_range",
+        "features_zone",
+        "features_displacement",
+        "features_zone_retest"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'orb_breakout' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_9sma_scalper_1m.yaml",
+      "id": "gold_9sma_scalper_1m",
+      "familyId": "gold_9sma_scalper",
+      "active": true,
+      "signalSource": "moving_average",
+      "symbols": "XAUUSD",
+      "template": "trend_cross",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_moving_average",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'trend_cross' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_anti_bias_sniper_v1.yaml",
+      "id": "gold_anti_bias_sniper_v1",
+      "familyId": "gold_anti_bias_sniper",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "liquidity_sweep_reversal",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_sweep",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_sweep@5m",
+        "features_structure@5m"
+      ],
+      "blockers": [
+        "staged template 'liquidity_sweep_reversal' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_mssnr_scalper_1m.yaml",
+      "id": "gold_mssnr_scalper_1m",
+      "familyId": "gold_mssnr_scalper",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_structure",
+        "features_bias",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [
+        "features_structure@5m"
+      ],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_scalp_1_ob_ifvg.yaml",
+      "id": "gold_scalp_1_ob_ifvg",
+      "familyId": "gold_scalp_1_ob_ifvg",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_order_block",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_order_block@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_scalp_2_breaker_block.yaml",
+      "id": "gold_scalp_2_breaker_block",
+      "familyId": "gold_scalp_2_breaker_block",
+      "active": true,
+      "signalSource": "generic",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_structure@5m",
+        "features_structure@5m"
+      ],
+      "blockers": [
+        "staged template 'unsupported' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "gold_scalp_3_choch_fvg.yaml",
+      "id": "gold_scalp_3_choch_fvg",
+      "familyId": "gold_scalp_3_choch_fvg",
+      "active": true,
+      "signalSource": "generic",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_structure",
+        "features_zone",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [
+        "features_structure@1h"
+      ],
+      "zones": [
+        "features_zone@1h",
+        "features_ifvg@15m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce.yaml",
+      "id": "keylevel_bounce",
+      "familyId": "keylevel_bounce",
+      "active": false,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v1.yaml",
+      "id": "keylevel_bounce_v1",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "ALL",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [],
+      "contexts": [],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no explicit directional context condition",
+        "no causal entry event condition"
+      ],
+      "validationErrors": [
+        "keylevel_bounce_v1: risk.sl is required",
+        "keylevel_bounce_v1: risk.tp is required",
+        "keylevel_bounce_v1: risk.minRR is required",
+        "keylevel_bounce_v1: risk.timeoutBars is required"
+      ]
+    },
+    {
+      "file": "keylevel_bounce_v1_4r.yaml",
+      "id": "keylevel_bounce_v1_4r",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v1_fx.yaml",
+      "id": "keylevel_bounce_v1_fx",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v1_limit.yaml",
+      "id": "keylevel_bounce_v1_limit",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v1_wider.yaml",
+      "id": "keylevel_bounce_v1_wider",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v2.yaml",
+      "id": "keylevel_bounce_v2",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v3.yaml",
+      "id": "keylevel_bounce_v3",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v4.yaml",
+      "id": "keylevel_bounce_v4",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h",
+        "features_bias@4h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v5_longs.yaml",
+      "id": "keylevel_bounce_v5_longs",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v5_shorts.yaml",
+      "id": "keylevel_bounce_v5_shorts",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v6_ny_overlap_shorts.yaml",
+      "id": "keylevel_bounce_v6_ny_overlap_shorts",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v7_shorts_time.yaml",
+      "id": "keylevel_bounce_v7_shorts_time",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v8_levels.yaml",
+      "id": "keylevel_bounce_v8_levels",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v8b_zone_tp.yaml",
+      "id": "keylevel_bounce_v8b_zone_tp",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "keylevel_bounce_v8c_min3.yaml",
+      "id": "keylevel_bounce_v8c_min3",
+      "familyId": "keylevel_bounce",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_pricing",
+        "features_zone",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_zone@15m"
+      ],
+      "entryEvents": [
+        "features_structure@15m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "lewis_kelly_smc_ny_shorts.yaml",
+      "id": "lewis_kelly_smc_ny_shorts",
+      "familyId": "lewis_kelly_smc",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_htf_bias",
+        "features_pricing",
+        "features_zone_retest",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@15m",
+        "features_htf_bias@4h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_structure@1m"
+      ],
+      "blockers": [
+        "staged template 'unsupported' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "orb_classic.yaml",
+      "id": "orb_classic",
+      "familyId": "orb_classic",
+      "active": true,
+      "signalSource": "orb",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY,XAUUSD",
+      "template": "orb_breakout",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_session",
+        "features_opening_range",
+        "features_displacement"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_displacement@15m"
+      ],
+      "blockers": [
+        "staged template 'orb_breakout' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "orb_scalper_1m.yaml",
+      "id": "orb_scalper_1m",
+      "familyId": "orb_scalper",
+      "active": true,
+      "signalSource": "orb",
+      "symbols": "XAUUSD",
+      "template": "orb_breakout",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_session",
+        "features_opening_range",
+        "features_displacement"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_displacement@15m"
+      ],
+      "blockers": [
+        "staged template 'orb_breakout' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "pb_blake_2026_smc.yaml",
+      "id": "pb_blake_2026_smc",
+      "familyId": "pb_blake_2026_smc",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD,EURUSD,GBPUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [],
+      "setupEvents": [],
+      "zones": [
+        "features_ifvg@5m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no explicit directional context condition",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "scalper_20sma_1m.yaml",
+      "id": "scalper_20sma_1m",
+      "familyId": "scalper_20sma",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,NZDUSD,USDCAD,USDCHF",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_candle_pattern"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "scarface_5m_orb.yaml",
+      "id": "scarface_5m_orb",
+      "familyId": "scarface_5m_orb",
+      "active": true,
+      "signalSource": "orb",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY",
+      "template": "orb_breakout",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_opening_range",
+        "features_candle_pattern",
+        "features_displacement"
+      ],
+      "contexts": [
+        "features_bias@5m"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_displacement@1m"
+      ],
+      "blockers": [
+        "staged template 'orb_breakout' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m.yaml",
+      "id": "smart_risk_ob_ifvg_1m",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r_ob_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_ob_tp",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_runon_15r_zone_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_runon_15r_zone_tp",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp.yaml",
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx.yaml",
+      "id": "smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx",
+      "familyId": "smart_risk_ob_ifvg_1m",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_zone",
+        "features_pricing",
+        "features_ifvg"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@15m",
+        "features_ifvg@5m"
+      ],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no causal entry event condition"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "waqar_ebook_v1.yaml",
+      "id": "waqar_ebook_v1",
+      "familyId": "waqar_v2",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_zone",
+        "features_htf_bias",
+        "features_pricing",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_htf_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@1h",
+        "features_zone@1m"
+      ],
+      "entryEvents": [
+        "features_structure@1m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "waqar_v2.yaml",
+      "id": "waqar_v2",
+      "familyId": "waqar_v2",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_zone",
+        "features_htf_bias",
+        "features_pricing",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_htf_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@1h",
+        "features_zone@1m"
+      ],
+      "entryEvents": [
+        "features_structure@1m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "watukushay.yaml",
+      "id": "watukushay",
+      "familyId": "watukushay",
+      "active": false,
+      "signalSource": "indicator",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY,XAUUSD",
+      "template": "indicator_trigger",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_indicator",
+        "features_displacement"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [
+        "features_displacement@1h"
+      ],
+      "blockers": [
+        "staged template 'indicator_trigger' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "watukushay_fe.yaml",
+      "id": "watukushay_fe",
+      "familyId": "watukushay",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "ALL",
+      "template": "unsupported",
+      "status": "BLOCKED_MAPPING",
+      "features": [],
+      "contexts": [],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'unsupported' not implemented",
+        "no explicit directional context condition",
+        "no causal entry event condition"
+      ],
+      "validationErrors": [
+        "watukushay_fe: risk.sl is required",
+        "watukushay_fe: risk.tp is required",
+        "watukushay_fe: risk.minRR is required",
+        "watukushay_fe: risk.timeoutBars is required"
+      ]
+    },
+    {
+      "file": "watukushay_no1.yaml",
+      "id": "watukushay_no1",
+      "familyId": "watukushay",
+      "active": true,
+      "signalSource": "moving_average",
+      "symbols": "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDCAD,USDCHF,USDJPY,XAUUSD",
+      "template": "trend_cross",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_bias",
+        "features_moving_average"
+      ],
+      "contexts": [
+        "features_bias@1h"
+      ],
+      "setupEvents": [],
+      "zones": [],
+      "entryEvents": [],
+      "blockers": [
+        "staged template 'trend_cross' not implemented"
+      ],
+      "validationErrors": []
+    },
+    {
+      "file": "xauusd_v1.yaml",
+      "id": "xauusd_v1",
+      "familyId": "xauusd_v1",
+      "active": true,
+      "signalSource": "zone",
+      "symbols": "XAUUSD",
+      "template": "zone_entry",
+      "status": "BLOCKED_MAPPING",
+      "features": [
+        "features_zone",
+        "features_bias",
+        "features_pricing",
+        "features_time_of_day_edge",
+        "features_structure"
+      ],
+      "contexts": [
+        "features_bias@15m"
+      ],
+      "setupEvents": [],
+      "zones": [
+        "features_zone@1h",
+        "features_zone@5m"
+      ],
+      "entryEvents": [
+        "features_structure@5m"
+      ],
+      "blockers": [
+        "staged template 'zone_entry' not implemented"
+      ],
+      "validationErrors": []
+    }
+  ]
+}

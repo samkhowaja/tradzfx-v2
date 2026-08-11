@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-26T04-55-59-928Z-e1705e25-40ff-45da-b7f5-7e50a0c99131",
+  "parentAuditId": null,
+  "status": "SUCCEEDED",
+  "startedAt": "2026-07-26T04:55:59.928Z",
+  "finishedAt": "2026-07-26T04:56:22.752Z",
+  "exitCode": 0,
+  "gitSha": "55157e2600fd3807fc929936d9a6009668a0a592",
+  "harnessVersion": "pit-v2.immutable-run-store.v1",
+  "specId": "doyle_sd",
+  "specHash": "9af49aaba017a58863ab887c8fd15287be88529b0f6dab17e5d4a31d179f4d5b",
+  "symbol": "XAUUSD",
+  "window": {
+    "from": "2026-04-27T04:46:00.000Z",
+    "to": "2026-07-26T04:46:00.000Z"
+  },
+  "mode": "full",
+  "setupProfile": "strict",
+  "intrabarMode": "sl_first",
+  "dataEdge": "2026-07-26T04:46:00.000Z",
+  "readinessManifestHash": "0062835e2c2841a53f7a81d7b474ec5fb7a6001adb849373cc05acb0175a60c0",
+  "arguments": [
+    "XAUUSD",
+    "90",
+    "doyle_sd",
+    "--persist"
+  ],
+  "error": null,
+  "artifacts": {
+    "stdout": {
+      "file": "stdout.log",
+      "sha256": "782dc649c49b5db46ef282e04ef00926ca0a62b8cda61e1b491e139b1b99f3ef",
+      "bytes": 1794
+    },
+    "stderr": {
+      "file": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "summary": {
+      "file": "summary.json",
+      "sha256": "e3df50a56be0e3717105e0bca92a0d7f86ecd0714d33a5b79dd6bf3f82fcfb1b",
+      "bytes": 4101
+    },
+    "trades": {
+      "file": "trades.json",
+      "sha256": "7e05830b8f9806f109bc36bf7be1b90179f0f6386aec647464810e88d6f08b26",
+      "bytes": 598373
+    }
+  }
+}

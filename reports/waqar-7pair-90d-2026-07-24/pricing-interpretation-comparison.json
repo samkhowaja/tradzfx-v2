@@ -1,0 +1,290 @@
+{
+  "generatedAt": "2026-07-24T16:47:32.824Z",
+  "contract": {
+    "interval": [
+      "2026-04-25T00:00:00.000Z",
+      "2026-07-24T00:00:00.000Z"
+    ],
+    "symbols": [
+      "EURUSD",
+      "GBPUSD",
+      "AUDUSD",
+      "NZDUSD",
+      "USDCAD",
+      "USDCHF",
+      "USDJPY"
+    ],
+    "setupProfile": "strict",
+    "intrabar": "sl_first",
+    "driftGate": "live",
+    "windowsUtc": [
+      "07:00-08:00",
+      "13:00-14:00"
+    ],
+    "continuationPricing": "bullish premium; bearish discount",
+    "ebookReversalPricing": "bullish discount; bearish premium",
+    "warning": "Research-only. Locked 51-trade continuation baseline compared with current counterfactual run."
+  },
+  "continuation": {
+    "overall": {
+      "trades": 51,
+      "wins": 31,
+      "losses": 20,
+      "winRatePct": 60.8,
+      "plannedR": 66.74,
+      "realizedR": 57.44,
+      "avgRealizedR": 1.13,
+      "profitFactor": 3.87
+    },
+    "sessions": {
+      "LONDON": {
+        "trades": 25,
+        "wins": 18,
+        "losses": 7,
+        "winRatePct": 72,
+        "plannedR": 43.42,
+        "realizedR": 37.7,
+        "avgRealizedR": 1.51,
+        "profitFactor": 6.39
+      },
+      "OVERLAP": {
+        "trades": 26,
+        "wins": 13,
+        "losses": 13,
+        "winRatePct": 50,
+        "plannedR": 23.32,
+        "realizedR": 19.74,
+        "avgRealizedR": 0.76,
+        "profitFactor": 2.52
+      }
+    },
+    "bySymbol": {
+      "EURUSD": {
+        "trades": 11,
+        "wins": 8,
+        "losses": 3,
+        "winRatePct": 72.7,
+        "plannedR": 19.44,
+        "realizedR": 16.12,
+        "avgRealizedR": 1.47,
+        "profitFactor": 6.37
+      },
+      "GBPUSD": {
+        "trades": 9,
+        "wins": 8,
+        "losses": 1,
+        "winRatePct": 88.9,
+        "plannedR": 20.96,
+        "realizedR": 18.03,
+        "avgRealizedR": 2,
+        "profitFactor": 19.03
+      },
+      "AUDUSD": {
+        "trades": 5,
+        "wins": 0,
+        "losses": 5,
+        "winRatePct": 0,
+        "plannedR": -4.58,
+        "realizedR": -5,
+        "avgRealizedR": -1,
+        "profitFactor": 0
+      },
+      "NZDUSD": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.8,
+        "realizedR": -1,
+        "avgRealizedR": -1,
+        "profitFactor": 0
+      },
+      "USDCAD": {
+        "trades": 7,
+        "wins": 2,
+        "losses": 5,
+        "winRatePct": 28.6,
+        "plannedR": 0.1,
+        "realizedR": -0.65,
+        "avgRealizedR": -0.09,
+        "profitFactor": 0.87
+      },
+      "USDCHF": {
+        "trades": 4,
+        "wins": 2,
+        "losses": 2,
+        "winRatePct": 50,
+        "plannedR": 3.28,
+        "realizedR": 2.3,
+        "avgRealizedR": 0.57,
+        "profitFactor": 2.15
+      },
+      "USDJPY": {
+        "trades": 14,
+        "wins": 11,
+        "losses": 3,
+        "winRatePct": 78.6,
+        "plannedR": 28.34,
+        "realizedR": 27.64,
+        "avgRealizedR": 1.97,
+        "profitFactor": 10.21
+      }
+    }
+  },
+  "ebookReversal": {
+    "overall": {
+      "trades": 6,
+      "wins": 2,
+      "losses": 4,
+      "winRatePct": 33.3,
+      "plannedR": 1.78,
+      "realizedR": 1.79,
+      "avgRealizedR": 0.3,
+      "profitFactor": 1.45
+    },
+    "sessions": {
+      "LONDON": {
+        "trades": 3,
+        "wins": 1,
+        "losses": 2,
+        "winRatePct": 33.3,
+        "plannedR": 1.36,
+        "realizedR": 1.76,
+        "avgRealizedR": 0.59,
+        "profitFactor": 1.88
+      },
+      "OVERLAP": {
+        "trades": 3,
+        "wins": 1,
+        "losses": 2,
+        "winRatePct": 33.3,
+        "plannedR": 0.42,
+        "realizedR": 0.03,
+        "avgRealizedR": 0.01,
+        "profitFactor": 1.02
+      }
+    },
+    "bySymbol": {
+      "EURUSD": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRatePct": 0,
+        "plannedR": 0,
+        "realizedR": 0,
+        "avgRealizedR": 0,
+        "profitFactor": 0
+      },
+      "GBPUSD": {
+        "trades": 2,
+        "wins": 1,
+        "losses": 1,
+        "winRatePct": 50,
+        "plannedR": 1.7,
+        "realizedR": 1.03,
+        "avgRealizedR": 0.52,
+        "profitFactor": 2.03
+      },
+      "AUDUSD": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRatePct": 100,
+        "plannedR": 3.16,
+        "realizedR": 3.76,
+        "avgRealizedR": 3.76,
+        "profitFactor": 3.76
+      },
+      "NZDUSD": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRatePct": 0,
+        "plannedR": 0,
+        "realizedR": 0,
+        "avgRealizedR": 0,
+        "profitFactor": 0
+      },
+      "USDCAD": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.92,
+        "realizedR": -1,
+        "avgRealizedR": -1,
+        "profitFactor": 0
+      },
+      "USDCHF": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -0.88,
+        "realizedR": -1,
+        "avgRealizedR": -1,
+        "profitFactor": 0
+      },
+      "USDJPY": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRatePct": 0,
+        "plannedR": -1.28,
+        "realizedR": -1,
+        "avgRealizedR": -1,
+        "profitFactor": 0
+      }
+    }
+  },
+  "ebookTrades": [
+    {
+      "symbol": "GBPUSD",
+      "ts": "2026-06-19T13:00:00.000Z",
+      "side": "sell",
+      "outcome": "win",
+      "r": 2.680000000000089,
+      "rRealized": 2.030303030302551
+    },
+    {
+      "symbol": "GBPUSD",
+      "ts": "2026-06-19T14:00:00.000Z",
+      "side": "sell",
+      "outcome": "loss",
+      "r": -0.9800000000003108,
+      "rRealized": -1
+    },
+    {
+      "symbol": "AUDUSD",
+      "ts": "2026-07-17T08:00:00.000Z",
+      "side": "sell",
+      "outcome": "win",
+      "r": 3.1600000000001778,
+      "rRealized": 3.7619047619047743
+    },
+    {
+      "symbol": "USDCAD",
+      "ts": "2026-06-19T08:00:00.000Z",
+      "side": "buy",
+      "outcome": "loss",
+      "r": -0.9199999999999112,
+      "rRealized": -1
+    },
+    {
+      "symbol": "USDCHF",
+      "ts": "2026-07-17T08:00:00.000Z",
+      "side": "sell",
+      "outcome": "loss",
+      "r": -0.8800000000000888,
+      "rRealized": -1
+    },
+    {
+      "symbol": "USDJPY",
+      "ts": "2026-06-17T13:15:00.000Z",
+      "side": "buy",
+      "outcome": "loss",
+      "r": -1.2800000000001364,
+      "rRealized": -1
+    }
+  ]
+}

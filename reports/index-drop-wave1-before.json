@@ -1,0 +1,16 @@
+{
+  "ts": "2026-08-05T18:08:05.138Z",
+  "indexes": [
+    {
+      "indexrelname": "idx_feature_cache_lookup",
+      "bytes": "377241600",
+      "idx_scan": "0"
+    },
+    {
+      "indexrelname": "idx_features_zone_retest_pit",
+      "bytes": "666615808",
+      "idx_scan": "0"
+    }
+  ],
+  "db_bytes": "50591217331"
+}
