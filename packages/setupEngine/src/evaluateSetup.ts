@@ -1,5 +1,6 @@
 import type { Pool, Queryable, TimeFrame, BiasNode, Direction } from "@tm/shared";
 import type { SetupEvaluation, EvaluationInput, EvaluationContext, SetupGrade, SetupStatus, EntryZone, EvidenceItem, SetupDirection } from "./types";
+import { buildSetupEvaluatorIdentity } from "./evaluatorIdentity";
 import { buildContext, buildContextBatch } from "./contextBuilder";
 import { getCalibrationTuning } from "./calibrationTuning";
 import { runHardRules } from "./rules/hardRules";
@@ -157,6 +158,13 @@ export async function evaluateSetup(
         reason,
         inputEndTs: (input.asOf ?? new Date()).toISOString(),
       },
+      lineage: buildSetupEvaluatorIdentity({
+        evaluationEnvironment: input.evaluationEnvironment ?? "backtest",
+        strategyId: input.strategyId,
+        strategyFamilyId: input.familyId,
+        strategySpecVersion: input.strategySpecVersion,
+        signalContextHash: input.signalContextHash,
+      }),
     };
   }
   if (ctx.blockedData) {
@@ -240,6 +248,13 @@ async function finalizeSetup(
     evidence,
     featuresUsed: ctx.featuresUsed,
     blockedData: ctx.blockedData,
+    lineage: buildSetupEvaluatorIdentity({
+      evaluationEnvironment: ctx.evaluationEnvironment ?? "backtest",
+      strategyId: ctx.strategyId,
+      strategyFamilyId: ctx.familyId,
+      strategySpecVersion: ctx.strategySpecVersion,
+      signalContextHash: ctx.signalContextHash,
+    }),
   };
 }
 
@@ -263,6 +278,13 @@ function buildBlockedEvaluation(
     warnings: runSoftRules(ctx),
     evidence: [],
     featuresUsed: ctx.featuresUsed,
+    lineage: buildSetupEvaluatorIdentity({
+      evaluationEnvironment: ctx.evaluationEnvironment ?? "backtest",
+      strategyId: ctx.strategyId,
+      strategyFamilyId: ctx.familyId,
+      strategySpecVersion: ctx.strategySpecVersion,
+      signalContextHash: ctx.signalContextHash,
+    }),
   };
 }
 
@@ -360,6 +382,9 @@ export async function evaluateSetupBatch(
     const familyIds = g.inputs.map((inp) => inp.familyId);
     const signalSources = g.inputs.map((inp) => inp.signalSource);
     const signalZones = g.inputs.map((inp) => inp.signalZone);
+    const evaluationEnvironments = g.inputs.map((inp) => inp.evaluationEnvironment);
+    const strategySpecVersions = g.inputs.map((inp) => inp.strategySpecVersion);
+    const signalContextHashes = g.inputs.map((inp) => inp.signalContextHash);
     const backtest = g.inputs[0].backtest;
 
     const contexts = await buildContextBatch(pool, g.symbol, g.tf, asOfs, {
@@ -370,6 +395,9 @@ export async function evaluateSetupBatch(
       familyIds,
       signalSources,
       signalZones,
+      evaluationEnvironments,
+      strategySpecVersions,
+      signalContextHashes,
       backtest,
     });
 

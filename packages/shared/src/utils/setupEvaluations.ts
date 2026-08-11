@@ -23,8 +23,17 @@ export interface SetupEvaluationSnapshot {
   /** Lifecycle status: candidate | triggered | filled | completed | invalidated | blocked | ready | waiting */
   setupStatus?: string;
   /** Deterministic hash of the evaluation context for skip-dedup */
-  contextHash?: string;
-}
+  contextHash?: string;  /** Evaluator lineage (migration 194). Persisted when present; NULL columns otherwise. */
+  lineage?: {
+    evaluatorId: string;
+    evaluatorVersion: string;
+    setupEngineVersion: string;
+    strategyId?: string;
+    strategyFamilyId?: string;
+    strategySpecVersion?: string;
+    signalContextHash?: string;
+    evaluationEnvironment: string;
+  };}
 
 export interface GradeCalibrationRow {
   grade: string;
@@ -50,8 +59,12 @@ export async function recordSetupEvaluation(
       symbol, tf, ts, grade, direction, confidence,
       entry_zone, stop_loss, take_profit, risk_reward,
       evidence, warnings, block_reasons, order_id,
-      setup_status, context_hash
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      setup_status, context_hash,
+      evaluator_id, evaluator_version, setup_engine_version,
+      strategy_id, strategy_family_id, strategy_spec_version,
+      signal_context_hash, evaluation_environment
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+              $17, $18, $19, $20, $21, $22, $23, $24)
     ON CONFLICT (symbol, tf, ts, direction, order_id)
     WHERE order_id IS NOT NULL
     DO NOTHING`,
@@ -72,6 +85,14 @@ export async function recordSetupEvaluation(
       orderId ?? null,
       snapshot.setupStatus ?? null,
       snapshot.contextHash ?? null,
+      snapshot.lineage?.evaluatorId ?? null,
+      snapshot.lineage?.evaluatorVersion ?? null,
+      snapshot.lineage?.setupEngineVersion ?? null,
+      snapshot.lineage?.strategyId ?? null,
+      snapshot.lineage?.strategyFamilyId ?? null,
+      snapshot.lineage?.strategySpecVersion ?? null,
+      snapshot.lineage?.signalContextHash ?? null,
+      snapshot.lineage?.evaluationEnvironment ?? null,
     ]
   );
 }

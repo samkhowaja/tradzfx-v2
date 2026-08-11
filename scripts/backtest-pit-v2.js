@@ -2455,6 +2455,9 @@ async function main() {
             ? { top: sig.zone_top, bottom: sig.zone_bottom, zoneKind: sig.zone_kind ?? undefined }
             : undefined,
           backtest: { activePositionCount: 0, spreadPips: sessionSpread, sessionName: session },
+          evaluationEnvironment: "pit",
+          strategySpecVersion: spec.version,
+          signalContextHash: hash,
         });
         inputToEligible.push({ eligibleIdx: i, hash });
       });
@@ -2478,13 +2481,32 @@ async function main() {
           for (const row of cachedRows) {
             cachedByHash.set(row.context_hash, row);
           }
+          // Strict lineage gate (migration 194): a cached row is reusable only
+          // when its lineage columns are populated and match the current
+          // evaluator + strategy identity. Legacy rows (NULL lineage, written
+          // before this gate) are treated as misses so they are re-evaluated
+          // and re-persisted with full lineage. Audit scripts can opt into the
+          // old permissive behavior with TM_SETUP_CACHE_ALLOW_LEGACY_NULL=1.
+          const allowLegacyNullLineage = process.env.TM_SETUP_CACHE_ALLOW_LEGACY_NULL === "1";
+          const canReuseCachedEvaluation = (row) => {
+            if (!row) return false;
+            if (row.evaluator_id == null) return allowLegacyNullLineage;
+            if (row.evaluator_id !== "setup_engine") return false;
+            if (row.setup_engine_version !== SETUP_ENGINE_VERSION) return false;
+            if (spec.id != null && row.strategy_id !== spec.id) return false;
+            if (spec.familyId != null && row.strategy_family_id !== spec.familyId) return false;
+            return true;
+          };
           // Filter setupInputs/inputToEligible: remove entries whose hash has a cached result
           const filteredInputs = [];
           const filteredMap = [];
           let persistentCacheHits = 0;
+          let lineageRejected = 0;
           for (let k = 0; k < setupInputs.length; k++) {
             const { eligibleIdx, hash } = inputToEligible[k];
-            const cached = cachedByHash.get(hash);
+            const candidate = cachedByHash.get(hash);
+            const cached = candidate && canReuseCachedEvaluation(candidate) ? candidate : null;
+            if (candidate && !cached) lineageRejected++;
             if (cached) {
               const result = {
                 grade: cached.setup_status === "blocked" ? "BLOCK"
@@ -2510,8 +2532,8 @@ async function main() {
               filteredMap.push(inputToEligible[k]);
             }
           }
-          if (persistentCacheHits > 0) {
-            console.log(`  [setup-cache] ${persistentCacheHits} persistent hits, ${filteredInputs.length} remaining for evaluation`);
+          if (persistentCacheHits > 0 || lineageRejected > 0) {
+            console.log(`  [setup-cache] ${persistentCacheHits} persistent hits, ${lineageRejected} lineage-rejected, ${filteredInputs.length} remaining for evaluation`);
           }
           // Replace arrays with filtered versions
           setupInputs.length = 0;
@@ -2548,8 +2570,12 @@ async function main() {
                     symbol, tf, ts, grade, direction, confidence,
                     entry_zone, stop_loss, take_profit, risk_reward,
                     evidence, warnings, block_reasons,
-                    setup_status, context_hash
-                  ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                    setup_status, context_hash,
+                    evaluator_id, evaluator_version, setup_engine_version,
+                    strategy_id, strategy_family_id, strategy_spec_version,
+                    signal_context_hash, evaluation_environment
+                  ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,
+                            $16,$17,$18,$19,$20,$21,$22,$23)
                   ON CONFLICT (context_hash)
                   WHERE context_hash IS NOT NULL
                   DO NOTHING`,
@@ -2569,6 +2595,14 @@ async function main() {
                     result.blockReasons ?? [],
                     result.grade === "BLOCK" ? "blocked" : result.grade === "A+" || result.grade === "A" ? "ready" : "waiting",
                     hash,
+                    "setup_engine",
+                    SETUP_ENGINE_VERSION,
+                    SETUP_ENGINE_VERSION,
+                    spec.id ?? null,
+                    spec.familyId ?? null,
+                    spec.version ?? null,
+                    hash,
+                    "pit",
                   ]
                 );
                 setupEvalsPersisted++;

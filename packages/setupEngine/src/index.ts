@@ -1,4 +1,5 @@
 export * from "./types";
+export * from "./evaluatorIdentity";
 export * from "./evaluateSetup";
 export * from "./contextBuilder";
 export * from "./rules/hardRules";

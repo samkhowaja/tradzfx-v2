@@ -1,4 +1,5 @@
 import type { TimeFrame, BiasNode } from "@tm/shared";
+import type { EvaluationEnvironment, SetupEvaluatorIdentity } from "./evaluatorIdentity";
 
 export type SetupDirection = "long" | "short" | "neutral";
 export type SetupGrade = "A+" | "A" | "B" | "C" | "BLOCK";
@@ -36,6 +37,12 @@ export interface SetupEvaluation {
   evidence: EvidenceItem[];
   featuresUsed: string[];
   blockedData?: BlockedData;
+  /**
+   * Evaluator lineage. Present on every evaluation once the engine stamps it
+   * in finalizeSetup / buildBlockedEvaluation. Persisted to setup_evaluations
+   * so the PIT cache can enforce strict provenance (migration 194).
+   */
+  lineage?: SetupEvaluatorIdentity;
 }
 
 export interface BlockedData {
@@ -76,6 +83,12 @@ export interface EvaluationInput {
    * further from the zone than 1.5 ATR even though the zone is valid.
    */
   signalZone?: { top: number; bottom: number; zoneKind?: string } | null;
+  /** Environment the evaluation runs in (live runner vs PIT backtest). Drives lineage stamping. */
+  evaluationEnvironment?: EvaluationEnvironment;
+  /** Strategy spec version, persisted into lineage for cache provenance. */
+  strategySpecVersion?: string;
+  /** buildSignalContextHash output; persisted as signal_context_hash on PIT rows. */
+  signalContextHash?: string;
   /** Optional overrides used by the backtest harness to control environment-specific state. */
   backtest?: {
     activePositionCount?: number;
@@ -143,6 +156,9 @@ export interface EvaluationContext {
   strategyId?: string;
   familyId?: string;
   signalSource?: EvaluationInput["signalSource"];
+  evaluationEnvironment?: EvaluationEnvironment;
+  strategySpecVersion?: string;
+  signalContextHash?: string;
   direction: SetupDirection;
   minRR: number;
   latestCandle: { o: number; h: number; l: number; c: number; v?: number; ts?: Date } | null;

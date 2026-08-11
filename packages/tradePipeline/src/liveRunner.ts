@@ -1067,6 +1067,10 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         tf: primaryTf,
         asOf: signal.ts,
         direction: signal.side === "buy" ? "long" : "short",
+        strategyId: strategySpec.id,
+        familyId: strategySpec.familyId,
+        strategySpecVersion: strategySpec.version,
+        evaluationEnvironment: "live",
       });
       setupSnapshot = {
         symbol: setupEval.symbol,
@@ -1082,6 +1086,7 @@ export async function runLivePipeline(opts: LiveRunOptions): Promise<LiveRunResu
         evidence: setupEval.evidence,
         warnings: setupEval.warnings,
         blockReasons: setupEval.blockReasons,
+        lineage: setupEval.lineage,
       };
     } catch (err: any) {
       // Fail-closed: if setup evaluation throws (DB error, missing data, grader

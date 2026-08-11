@@ -111,6 +111,9 @@ export async function buildContext(
     strategyId: input.strategyId,
     familyId: input.familyId,
     signalSource: input.signalSource,
+    evaluationEnvironment: input.evaluationEnvironment,
+    strategySpecVersion: input.strategySpecVersion,
+    signalContextHash: input.signalContextHash,
     direction,
     minRR: input.minRR ?? 2,
     latestCandle,
@@ -879,6 +882,12 @@ export interface BuildContextBatchOptions {
   signalSources?: Array<EvaluationInput["signalSource"] | undefined>;
   /** Per-input compiler-identified signal zone. Same length as asOfs. */
   signalZones?: Array<EvaluationInput["signalZone"] | undefined>;
+  /** Per-input environment (live/pit). Same length as asOfs. */
+  evaluationEnvironments?: Array<EvaluationInput["evaluationEnvironment"] | undefined>;
+  /** Per-input strategy spec version. Same length as asOfs. */
+  strategySpecVersions?: Array<string | undefined>;
+  /** Per-input PIT signal context hash. Same length as asOfs. */
+  signalContextHashes?: Array<string | undefined>;
   /** Shared backtest overrides applied to every input. */
   backtest?: EvaluationInput["backtest"];
 }
@@ -961,6 +970,9 @@ export async function buildContextBatch(
       strategyId: opts.strategyIds?.[i],
       familyId: opts.familyIds?.[i],
       signalSource: opts.signalSources?.[i],
+      evaluationEnvironment: opts.evaluationEnvironments?.[i],
+      strategySpecVersion: opts.strategySpecVersions?.[i],
+      signalContextHash: opts.signalContextHashes?.[i],
       direction,
       minRR: opts.minRRs?.[i] ?? 2,
       latestCandle,
