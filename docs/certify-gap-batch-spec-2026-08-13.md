@@ -103,3 +103,45 @@ This batch executes ONLY when ALL are true:
   adjudicate per-window as needed — none in this gap).
 - `features_atr` 15m 3× lineage density (2,631/877) — dedupe is a separate,
   ATR-lineage decision; untouched here.
+
+## 8. Read-only evidence run (2026-08-13T14:47Z) — results
+
+Executed the read-only portion only (§3 steps 1 + 3). **No DB writes** — no
+`UPDATE`, no candidate insert, no promotion. Authorization switch untouched.
+
+| Check | Result |
+|---|---|
+| `pnpm calendar:parity` | **passed=true, 0 mismatches** |
+| Canonical 1m coverage (07-08T03:33Z→07-18T01:34Z) | **13,656 candles**, full 15/15 buckets |
+| Residual eligibility rows (07-13T14:16Z, 07-14T12:30Z) | both `state=BLOCKED`, **structural_ok=true → revalidatable** |
+| **ATR parity (v1.2.0 recompute vs `features_atr`)** | **0/10 samples match** |
+
+Evidence file: `reports/gap-readonly-proof-2026-08-13.json` (gitignored).
+
+### ⚠ ATR parity FAILURE — blocker raised
+
+Recomputed v1.2.0 ATR from current `candles_15m` (and from 1m-derived buckets) does
+**not** reproduce the stored `features_atr` values for any of 10 sampled ts in the gap:
+
+- Example `2026-07-17T20:45Z` ATR(5): stored `4.084` vs recomputed `4.722` (cagg) /
+  `4.470` (1m-derived). Verified the recompute script against an isolated raw query —
+  identical, so not a script bug.
+- Stored rows: `engine_ver=1.2.0`, `lineage_state='legacy_untrusted'`, **all lineage
+  stamps NULL** (`canonical_version`, `eligibility_model_version`,
+  `broker_policy_version`, `detector_version`, `validator_version`, `input_start_ts`,
+  `input_end_ts`, `generated_at`).
+- Window/broker scan: no candle window (any broker, ±40 bars) reproduces `4.084`;
+  the value appears elsewhere in the series → **stored rows reflect a different candle
+  history than present** (data drift since stamp), not window misalignment.
+- `features_atr` for XAUUSD 15m were (re)generated 2026-08-06→08-10, yet still diverge.
+
+**Implication:** §3 step 3a (ATR parity) currently **FAILS**. Per the authorization
+switch this is independent of the trustedWindow gate (which reads `candles_1m` +
+quarantine, not `features_atr`), so certification is *not* blocked by it — but the
+**XAUUSD 15m ATR lineage relaxation hold is reinforced**: stored ATR is untrustworthy
+for the gap until ATR is recomputed against current canonical candles and its lineage
+stamps are populated. That ATR repair is **out of scope** for this batch (held item).
+
+**Net:** trustedWindow certification may proceed (calendar parity + coverage green);
+ATR lineage must remain fail-closed and needs its own recompute-and-stamp batch.
+
