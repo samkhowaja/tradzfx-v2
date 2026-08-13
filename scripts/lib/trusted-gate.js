@@ -28,9 +28,12 @@ const { canonicalJson, sha256 } = require("./immutable-run-store.js");
  */
 async function evaluateTrustedGate(queryable, symbols, from, to) {
   const { rows: trustedAll } = await queryable.query(
-    `SELECT window_id, symbol, window_start, window_end, detector_version, canonical_version
+    `SELECT window_id, symbol, window_start, window_end, detector_version, canonical_version,
+            gate_summary
      FROM market.trusted_windows
      WHERE status = 'trusted' AND symbol = ANY($1) AND timeframe = '1m'
+       AND detector_version IS NOT NULL AND canonical_version IS NOT NULL
+       AND gate_summary IS NOT NULL
      ORDER BY symbol, window_start`,
     [symbols]
   );

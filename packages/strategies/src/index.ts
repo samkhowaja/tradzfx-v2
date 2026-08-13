@@ -6,6 +6,7 @@ export * from "./staged";
 export * from "./progressive";
 export * from "./provenance";
 export * from "./readinessRequirements";
+export * from "./strategyDependencies";
 
 // Feature semantics contract — single source of truth for compiler, PIT backtest,
 // live runner, and setup engine. Exported explicitly (not `export *`) to avoid

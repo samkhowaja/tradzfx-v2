@@ -31,3 +31,8 @@ export * from "./db/featureUniverse";
 export * from "./db/pgErrors";
 export * from "./readiness/freshness";
 export * from "./readiness/verdict";
+export * from "./governance/blockerCodes";
+export * from "./governance/preflightEvaluator";
+export * from "./governance/certificationDsl";
+export * from "./governance/preflightAdapters";
+export * from "./governance/preflightEvidence";

@@ -20,6 +20,7 @@
  */
 require("dotenv").config({ path: ".env.local" });
 const { Pool } = require("pg");
+const { canonicalJson, sha256 } = require("./lib/immutable-run-store.js");
 
 const CANONICAL_VERSION = `canonical-m186-exclude-skip@${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`;
 
@@ -105,6 +106,20 @@ async function main() {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    const current = await client.query(
+      `SELECT window_id, detector_version, canonical_version, gate_summary, status
+       FROM market.trusted_windows ${promoteWhereFixed}`,
+      [reviewer, CANONICAL_VERSION, ...params]
+    );
+    if (!demote) {
+      const invalid = current.rows.filter((r) =>
+        r.status !== "candidate" ||
+        (Array.isArray(r.gate_summary?.blockers) && r.gate_summary.blockers.length > 0)
+      );
+      if (invalid.length) {
+        throw new Error(`promotion preflight failed for window(s): ${invalid.map((r) => r.window_id).join(",")}`);
+      }
+    }
     let res;
     if (demote) {
       res = await client.query(
@@ -120,6 +135,17 @@ async function main() {
          ${promoteWhereFixed}`,
         [reviewer, CANONICAL_VERSION, ...params]
       );
+      for (const row of current.rows) {
+        await client.query(
+          `INSERT INTO market.trusted_window_events
+             (window_id, event_type, from_status, to_status, detector_version,
+              canonical_version, gate_summary_hash, actor, reason)
+           VALUES ($1, 'promoted', 'candidate', 'trusted', $2, $3, $4, $5, $6)`,
+          [row.window_id, row.detector_version, CANONICAL_VERSION,
+            sha256(canonicalJson(row.gate_summary || {})), reviewer,
+            "explicit manual promotion after candidate preflight"]
+        );
+      }
     }
     await client.query("COMMIT");
     console.log(`\n${demote ? "Demoted" : "Promoted"}: ${res.rowCount} window(s) by ${reviewer}.`);
