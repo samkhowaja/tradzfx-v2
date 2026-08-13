@@ -112,3 +112,58 @@ event window. No corroboration + no event → **UNKNOWN_EVENT** (do NOT guess KE
 - No `--apply` / no decision writes without explicit authorization.
 - No gate flips. No migration 193. ATR lineage held. Ingestion closed. features_zone untouched.
 - UNKNOWN_EVENT rows stay blocking — adjudication is not obligated to zero them.
+
+## 7. Corroboration rubric (grounded in `report-corroboration.js`, 2026-08-13)
+
+Cheap corroboration computed read-only: same-minute cross-symbol co-movement, DXY sign
+check, event-minute clustering. Result over 634 rows: **395 corroborated / 239 isolated /
+223 event clusters.**
+
+| Symbol | n | corroborated | isolated | DXY confirm | DXY contradict |
+|---|---|---|---|---|---|
+| EURUSD | 64 | 63 | 1 | 56 | 2 |
+| USDJPY | 68 | 62 | 6 | 60 | 7 |
+| GBPUSD | 75 | 62 | 13 | 54 | 16 |
+| USDCHF | 28 | 23 | 5 | 14 | 13 |
+| AUDUSD | 52 | 30 | 22 | 20 | 9 |
+| NZDUSD | 48 | 29 | 19 | 20 | 17 |
+| USDSEK | 87 | 46 | 41 | 35 | 24 |
+| XAUUSD | 212 | 80 | 132 | 76 | 89 |
+
+### 7.1 The split that matters
+
+- **Majors are nearly all corroborated.** EURUSD 63/64, USDJPY 62/68, GBPUSD 62/75.
+  When EURUSD spikes, DXY moves opposite and GBPUSD/AUDUSD move with it — classic
+  USD-complex event signature. These are strong KEEP candidates.
+- **XAUUSD flips it: 132/212 isolated, and 89 DXY-contradict vs 76 confirm.** Gold's
+  large 1m moves are frequently *idiosyncratic* — safe-haven flows, geopolitical shocks,
+  thin-liquidity metals repricing — NOT USD-driven. XAUUSD needs a different evidentiary
+  bar than FX majors.
+
+### 7.2 Per-class KEEP rubric (what counts as "enough evidence")
+
+| Class | KEEP if | Stay UNKNOWN_EVENT if |
+|---|---|---|
+| **FX majors** (EUR/GBP/JPY/CHF/AUD/NZD/CAD) | `coMoveCount ≥ 1` OR `dxySign=confirm`. Co-movement IS the corroboration — an isolated major jump with zero peers is the anomaly. | `coMoveCount=0` AND `dxySign≠confirm` AND no known event. |
+| **USDSEK** | Lower co-movement baseline (thin Nordic tape). KEEP if `dxySign=confirm` OR a documented Scandi/Riksbank event, even with `coMoveCount=0`. | isolated AND DXY-contradict AND no event. |
+| **XAUUSD** | Do NOT require FX co-movement. KEEP if (a) lands in a multi-symbol event cluster, OR (b) documented macro/geopolitical event window, OR (c) DXY-confirm. Idiosyncratic gold moves are expected. | isolated AND no event AND DXY-contradict. |
+| **DXY** | Only non-boundary rows adjudicated. KEEP iff ≥2 components jumped same-direction (formula check). | otherwise. |
+
+### 7.3 Practical review scope
+
+- **~395 corroborated rows** (majors + DXY-confirmed XAUUSD) → batch-review by event
+  cluster (223 clusters); most resolve to KEEP on the co-movement signature alone.
+  Sample-check ~15 clusters against external charts to validate the rubric, then the
+  rest follow.
+- **239 isolated rows** are the genuine human queue. Of these, **132 XAUUSD** are the
+  bulk and mostly need an external/event check (gold idiosyncrasy means co-movement is
+  the wrong tool). The ~107 isolated FX/SEK rows are the harder anomalies — a major that
+  jumped with no peer confirmation is exactly what quarantine exists to hold.
+
+### 7.4 What the rubric forbids
+
+- No KEEP on magnitude alone. No KEEP on "looks plausible." Corroboration or a cited
+  event is mandatory.
+- DXY-contradict is not auto-EXCLUDE (gold legitimately diverges); it only blocks the
+  cheap corroboration path and pushes the row to the human/external rung.
+- No auto-apply. Decisions recorded in the hand-curated file, applied once, authorized.
