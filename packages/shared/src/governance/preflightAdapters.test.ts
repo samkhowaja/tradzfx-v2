@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHtfAnchorMaps, buildReadOnlyPreflightChecks, diagnoseHtfSourceWindow, findFirstIncompleteHtfAnchor, validateHtfAnchors } from "./preflightAdapters";
+import { buildHtfAnchorMaps, buildReadOnlyPreflightChecks, diagnoseHtfSourceWindow, findFirstIncompleteHtfAnchor, trustedWindowChain, validateHtfAnchors } from "./preflightAdapters";
 
 describe("read-only preflight adapters", () => {
   it("uses SELECT-only queries and fails closed for caller-owned evidence", async () => {
@@ -105,5 +105,53 @@ describe("read-only preflight adapters", () => {
       firstMissingSource: "2026-08-11T00:02:00.000Z",
       lastPresentSource: "2026-08-11T00:03:00.000Z",
     });
+  });
+
+  it("trustedWindowChain covers a contiguous chain", () => {
+    const result = trustedWindowChain([
+      { window_id: 1, window_start: "2026-07-08T00:00:00Z", window_end: "2026-07-10T00:00:00Z" },
+      { window_id: 2, window_start: "2026-07-10T00:00:00Z", window_end: "2026-07-15T00:00:00Z" },
+      { window_id: 3, window_start: "2026-07-14T00:00:00Z", window_end: "2026-07-20T00:00:00Z" },
+    ], "2026-07-08T00:00:00Z", "2026-07-19T00:00:00Z");
+    expect(result.covered).toBe(true);
+    expect(result.windowIds).toEqual([1, 2, 3]);
+    expect(result.firstGapStart).toBeNull();
+  });
+
+  it("trustedWindowChain rejects a mid-chain gap and reports it", () => {
+    const result = trustedWindowChain([
+      { window_id: 1, window_start: "2026-07-08T00:00:00Z", window_end: "2026-07-10T00:00:00Z" },
+      { window_id: 2, window_start: "2026-07-12T00:00:00Z", window_end: "2026-07-20T00:00:00Z" },
+    ], "2026-07-08T00:00:00Z", "2026-07-19T00:00:00Z");
+    expect(result.covered).toBe(false);
+    expect(result.firstGapStart).toBe("2026-07-10T00:00:00.000Z");
+    expect(result.firstGapEnd).toBe("2026-07-12T00:00:00.000Z");
+  });
+
+  it("trustedWindowChain rejects a trailing gap after the last window", () => {
+    const result = trustedWindowChain([
+      { window_id: 1, window_start: "2026-07-08T00:00:00Z", window_end: "2026-07-10T00:00:00Z" },
+    ], "2026-07-08T00:00:00Z", "2026-07-19T00:00:00Z");
+    expect(result.covered).toBe(false);
+    expect(result.firstGapStart).toBe("2026-07-10T00:00:00.000Z");
+    expect(result.firstGapEnd).toBe("2026-07-19T00:00:00.000Z");
+  });
+
+  it("trustedWindowChain rejects when no window reaches the range start", () => {
+    const result = trustedWindowChain([
+      { window_id: 1, window_start: "2026-07-18T01:34:00Z", window_end: "2026-07-19T01:58:00Z" },
+    ], "2026-07-08T03:35:00Z", "2026-07-23T00:00:00Z");
+    expect(result.covered).toBe(false);
+    expect(result.firstGapStart).toBe("2026-07-08T03:35:00.000Z");
+    expect(result.firstGapEnd).toBe("2026-07-18T01:34:00.000Z");
+  });
+
+  it("trustedWindowChain ignores empty/inverted windows", () => {
+    const result = trustedWindowChain([
+      { window_id: 9, window_start: "2026-07-10T00:00:00Z", window_end: "2026-07-10T00:00:00Z" },
+      { window_id: 1, window_start: "2026-07-08T00:00:00Z", window_end: "2026-07-19T00:00:00Z" },
+    ], "2026-07-08T00:00:00Z", "2026-07-19T00:00:00Z");
+    expect(result.covered).toBe(true);
+    expect(result.windowIds).toEqual([1]);
   });
 });

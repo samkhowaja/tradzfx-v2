@@ -288,16 +288,78 @@ export async function checkCanonicalEligibility(db: Queryable, ctx: CandidateCon
   return { ok, status: ok ? "PASS" : "FAIL", reason: row && Number(row.rows ?? 0) === 0 ? "gap" : "eligibility", evidence: evidence(ctx, { requiredWindow: window, canonical: row ?? { missing: true }, timeframeCoverage }) };
 }
 
+/**
+ * Greedy trusted-window chain coverage over 1m windows. Mirrors the runtime
+ * gate semantics in scripts/lib/trusted-gate.js (evaluateTrustedGate): trust
+ * is a 1m-canonical property, windows chain, and only rows with non-null
+ * detector_version/canonical_version/gate_summary are consumable.
+ *
+ * Calendar-expected coverage breaks (weekend close, XAUUSD daily halt) still
+ * interrupt the chain here — windows are certified on tradable history, so a
+ * break means an uncertified island, not a calendar artifact.
+ */
+export function trustedWindowChain(
+  windows: ReadonlyArray<{ window_id: number | string; window_start: string; window_end: string }>,
+  fromTs: string,
+  toTs: string,
+): { covered: boolean; windowIds: number[]; firstGapStart: string | null; firstGapEnd: string | null } {
+  const sorted = [...windows]
+    .map((w) => ({ id: Number(w.window_id), start: new Date(String(w.window_start)).getTime(), end: new Date(String(w.window_end)).getTime() }))
+    .filter((w) => Number.isFinite(w.start) && Number.isFinite(w.end) && w.end > w.start)
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+  const from = new Date(String(fromTs)).getTime();
+  const to = new Date(String(toTs)).getTime();
+  let cursor = from;
+  const used: number[] = [];
+  let firstGapStart: string | null = null;
+  let firstGapEnd: string | null = null;
+  for (const w of sorted) {
+    if (w.end <= cursor) continue;
+    if (w.start > cursor) {
+      if (firstGapStart === null) {
+        firstGapStart = new Date(cursor).toISOString();
+        firstGapEnd = new Date(Math.min(w.start, to)).toISOString();
+      }
+      continue; // gap before this window — chain broken, but keep scanning for evidence
+    }
+    cursor = Math.max(cursor, w.end);
+    used.push(w.id);
+    if (cursor >= to) break;
+  }
+  const covered = cursor >= to;
+  if (!covered && firstGapStart === null && cursor < to) {
+    // chain ended before target — trailing gap after last window
+    firstGapStart = new Date(cursor).toISOString();
+    firstGapEnd = new Date(to).toISOString();
+  }
+  return { covered, windowIds: used.sort((a, b) => a - b), firstGapStart, firstGapEnd };
+}
+
 export async function checkTrustedPrehistory(db: Queryable, ctx: CandidateContext): Promise<PreflightCheck> {
   const window = await expandedWindow(db, ctx);
-  const row = await selectOne(db, `
-    SELECT window_id, detector_version, canonical_version
+  // Trusted windows are certified at 1m (trusted-gate.js hardcodes timeframe='1m').
+  // Do NOT filter by ctx.timeframe — a 15m strategy consumes the same 1m trust chain.
+  const result = await db.query(`
+    SELECT window_id, window_start, window_end, detector_version, canonical_version
     FROM market.trusted_windows
-    WHERE symbol = $1 AND timeframe = $2 AND status = 'trusted'
-      AND window_start <= $3 AND window_end >= $4
-    ORDER BY window_start DESC LIMIT 1`, [ctx.symbol, ctx.timeframe, window.from, ctx.toTs]);
-  const ok = Boolean(row);
-  return { ok, status: ok ? "PASS" : "BLOCKED_UNKNOWN", evidence: evidence(ctx, { requiredWindow: window, trustedWindow: row ?? { missing: true } }) };
+    WHERE symbol = $1 AND timeframe = '1m' AND status = 'trusted'
+      AND detector_version IS NOT NULL AND canonical_version IS NOT NULL AND gate_summary IS NOT NULL
+    ORDER BY window_start`, [ctx.symbol]);
+  const windows = result.rows as Array<{ window_id: number | string; window_start: string; window_end: string; detector_version: string; canonical_version: string }>;
+  const chain = trustedWindowChain(windows, window.from, window.to);
+  const ok = chain.covered && windows.length > 0;
+  const used = new Set(chain.windowIds.map(Number));
+  const usedRows = windows.filter((w) => used.has(Number(w.window_id)));
+  return {
+    ok,
+    status: ok ? "PASS" : "BLOCKED_UNKNOWN",
+    evidence: evidence(ctx, {
+      requiredWindow: window,
+      trustedWindow: ok
+        ? { chain: true, windowIds: chain.windowIds, detectors: [...new Set(usedRows.map((w) => w.detector_version))], canonicalVersions: [...new Set(usedRows.map((w) => w.canonical_version))] }
+        : { missing: true, trustedWindowRows: windows.length, firstGapStart: chain.firstGapStart, firstGapEnd: chain.firstGapEnd },
+    }),
+  };
 }
 
 export async function checkFeatureLineage(db: Queryable, ctx: CandidateContext): Promise<PreflightCheck> {
