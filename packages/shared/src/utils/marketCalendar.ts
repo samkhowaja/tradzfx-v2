@@ -236,6 +236,14 @@ export const STRUCTURAL_BROKER_HOLES: { symbol: string; startUTC: string; endExc
     provenanceArtifact: "request fefc1b2b-87cc-4f53-98e3-871e25b8df5d / artifact 96648c09-6468-4270-a6be-0cd3ad49518f (sha256 91d76e20ae8ef5703cbf2b40cc2c513397f4a597f1d3a4b93e1f8b5117f6a982), terminal 1xTrade-Server login 296743, retrieved 2026-08-07T06:35:04Z, verdict MATCH 53 bars 0 mismatches",
     verified: "2026-08-07 reports/candle-request-fefc1b2b-87cc-4f53-98e3-871e25b8df5d.json",
   },
+  {
+    symbol: "XAUUSD",
+    startUTC: "2026-07-19T01:59:00Z",
+    endExclusiveUTC: "2026-07-19T02:00:00Z",
+    reason: "1-minute absence inside the registered Sunday session [00:00,02:00): raw and canonical both end at 01:58 and resume 22:05; the only missing bar inside the session window (generate_series diff 2026-08-13). Broker-side absence, not pipeline loss.",
+    provenanceArtifact: "PENDING: evidence class 3 (on-demand terminal CopyRates) not yet obtained - ingestion closed, no market.candle_requests row covers this window. Classes 1+2 confirmed via raw survey (temp/_hole_20260719.cjs, _session_missing.cjs). Until class 3 lands this hole stays BLOCKING (expected-incomplete treatment requires complete provenance).",
+    verified: "PENDING - 2026-08-13 docs/sunday-session-registry-and-0159-hole-2026-08-13.md",
+  },
 ];
 
 export function inStructuralBrokerHole(ts: Date, symbol?: string): boolean {
