@@ -42,6 +42,54 @@ export const DAILY_BREAKS_BY_SYMBOL: Record<string, DailyBreak[]> = {
   XAUUSD: [{ startHourUTC: 21, endHourUTC: 22 }],
 };
 
+/**
+ * Date-keyed Sunday metals session overrides (Option C, decided 2026-08-13).
+ *
+ * The base calendar is strictly FX 24/5: Sunday < 21:00 UTC is closed. The
+ * 1xTrade metals feed, however, streams XAUUSD on SOME Sundays from ~00:00 UTC
+ * (4 of the 12 Sundays surveyed 2026-05-24..2026-08-09 ran 00:00->23:59; the
+ * other 8 only resumed ~22:0x). No static rule is truthful: a blanket open
+ * manufactures false gaps on non-streaming Sundays; a blanket close labels
+ * real streamed bars as canonical leaks. So each empirically verified Sunday
+ * session is recorded here, keyed by UTC date, and `isTradableInstant` treats
+ * registered instants as tradable for that symbol on that date only.
+ *
+ * Fail-closed: a Sunday with NO registry entry stays closed — bars present
+ * then are flagged as anomalies (potential leaks) until someone surveys the
+ * raw feed and registers (or rejects) the session. A registered session makes
+ * the whole window tradable for certification, so real holes inside it (e.g.
+ * 2026-07-19 01:59->22:04) surface as genuine missing bars, not calendar
+ * artifacts.
+ *
+ * Evidence pattern mirrors STRUCTURAL_BROKER_HOLES: raw feed survey + audit.
+ */
+export const SUNDAY_SESSION_BY_SYMBOL_DATE: Record<string, Record<string, { session: { startHourUTC: number; endHourUTC: number }[]; evidence: string }>> = {
+  XAUUSD: {
+    "2026-07-12": { session: [{ startHourUTC: 0, endHourUTC: 21 }], evidence: "raw 1m survey 2026-08-13: 1254 bars 00:00-20:53 UTC, broker 1x Trade Ltd." },
+    "2026-07-19": { session: [{ startHourUTC: 0, endHourUTC: 2 }], evidence: "raw 1m survey 2026-08-13: 119 bars 00:00-01:58 UTC then gap to 22:05 reopen; intra-session hole 01:59-22:04 stays fail-closed (real missing bars)" },
+    "2026-07-26": { session: [{ startHourUTC: 0, endHourUTC: 21 }], evidence: "raw 1m survey 2026-08-13: 1255 bars 00:00-20:54 UTC, broker 1x Trade Ltd." },
+    "2026-08-02": { session: [{ startHourUTC: 0, endHourUTC: 21 }], evidence: "raw 1m survey 2026-08-13: 1253 bars 00:00-20:52 UTC, broker 1x Trade Ltd." },
+    "2026-08-09": { session: [{ startHourUTC: 0, endHourUTC: 21 }], evidence: "raw 1m survey 2026-08-13: 1255 bars 00:00-20:54 UTC, broker 1x Trade Ltd." },
+  },
+};
+
+/** Is the bar-open instant inside a registered Sunday session override? */
+function inSundaySession(ts: Date, symbol?: string): boolean {
+  if (!symbol) return false;
+  const byDate = SUNDAY_SESSION_BY_SYMBOL_DATE[symbol];
+  if (!byDate) return false;
+  if (ts.getUTCDay() !== 0) return false;
+  const dateKey = ts.toISOString().slice(0, 10);
+  const entry = byDate[dateKey];
+  if (!entry) return false;
+  const minutes = ts.getUTCHours() * 60 + ts.getUTCMinutes();
+  return entry.session.some(({ startHourUTC, endHourUTC }) => {
+    const s = startHourUTC * 60;
+    const e = endHourUTC * 60;
+    return s < e ? minutes >= s && minutes < e : minutes >= s || minutes < e;
+  });
+}
+
 /** Is the bar-open instant inside a configured daily break for the symbol? */
 function inDailyBreak(ts: Date, symbol?: string): boolean {
   if (!symbol) return false;
@@ -80,6 +128,7 @@ export function filterWeekdayCandles<T extends { ts: Date }>(candles: T[], symbo
  * Bar-open instants for our tfs are minute-zero aligned, so an hour check is exact.
  */
 export function isTradableInstant(ts: Date, symbol?: string): boolean {
+  if (inSundaySession(ts, symbol)) return true; // date-keyed metals override (before weekend check)
   const dow = ts.getUTCDay();
   const h = ts.getUTCHours();
   if (dow === 6) return false; // Saturday

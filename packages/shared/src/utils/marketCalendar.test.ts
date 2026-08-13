@@ -106,3 +106,61 @@ describe("per-symbol daily break (XAUUSD gold halt ~21:00 UTC)", () => {
     expect(expectedTradableBars("1h", mon, friClose, "XAUUSD")).toBe(113);
   });
 });
+
+describe("date-keyed Sunday metals session overrides (SUNDAY_SESSION_BY_SYMBOL_DATE)", () => {
+  it.each([
+    // Registered full-stream Sunday 2026-07-12 (00:00-21:00 session).
+    ["2026-07-12T00:00:00.000Z", true],  // session start
+    ["2026-07-12T10:30:00.000Z", true],  // mid-session
+    ["2026-07-12T20:59:00.000Z", true],  // session tail
+    ["2026-07-12T21:00:00.000Z", false], // daily break still applies
+    ["2026-07-12T22:00:00.000Z", true],  // post-break (FX week open)
+    // Registered partial Sunday 2026-07-19 (00:00-02:00 session only).
+    ["2026-07-19T00:00:00.000Z", true],
+    ["2026-07-19T01:59:00.000Z", true],
+    ["2026-07-19T02:00:00.000Z", false], // past session end, before FX open
+    ["2026-07-19T10:00:00.000Z", false], // intra-day hole: NOT registered -> closed
+    ["2026-07-19T21:00:00.000Z", false], // FX open hour but XAU daily break
+    ["2026-07-19T22:00:00.000Z", true],
+    // Unregistered Sunday stays fully closed before 21:00 (fail-closed).
+    ["2026-07-05T00:00:00.000Z", false],
+    ["2026-07-05T10:00:00.000Z", false],
+    ["2026-07-05T21:00:00.000Z", false], // XAU daily break
+    ["2026-07-05T22:00:00.000Z", true],
+  ])("XAUUSD %s -> %s", (iso, want) => {
+    expect(isTradableInstant(d(iso), "XAUUSD")).toBe(want);
+  });
+
+  it("registry is symbol-scoped: EURUSD Sunday stays closed on a registered XAUUSD date", () => {
+    expect(isTradableInstant(d("2026-07-12T10:00:00.000Z"), "EURUSD")).toBe(false);
+    expect(isTradableInstant(d("2026-07-12T10:00:00.000Z"), "XAUUSD")).toBe(true);
+  });
+
+  it("no symbol -> base FX calendar (Sunday pre-open closed)", () => {
+    expect(isTradableInstant(d("2026-07-12T10:00:00.000Z"))).toBe(false);
+  });
+
+  it("expectedTradableBars counts a registered Sunday session", () => {
+    const sun = d("2026-07-12T00:00:00.000Z");
+    const sunEnd = d("2026-07-12T23:59:00.000Z");
+    // Base FX (no symbol, no daily break): 21:00, 22:00, 23:00 are tradable -> 3.
+    expect(expectedTradableBars("1h", sun, sunEnd)).toBe(3);
+    // XAUUSD: 21:00 is the daily break -> base 2; registered session adds
+    // 00:00..20:00 (21 bars) -> 23.
+    expect(expectedTradableBars("1h", sun, sunEnd, "XAUUSD")).toBe(23);
+  });
+
+  it("expectedTradableBars on an unregistered Sunday matches base FX calendar", () => {
+    const sun = d("2026-07-05T00:00:00.000Z");
+    const sunEnd = d("2026-07-05T23:59:00.000Z");
+    expect(expectedTradableBars("1h", sun, sunEnd, "XAUUSD")).toBe(2);
+  });
+
+  it("partial Sunday 2026-07-19 counts only the registered 00:00-02:00 window + post-break", () => {
+    const sun = d("2026-07-19T00:00:00.000Z");
+    const sunEnd = d("2026-07-19T23:59:00.000Z");
+    // Registered 00:00,01:00 (2) + post-break 22:00,23:00 (2) = 4. The 02:00-20:59
+    // hole and the 21:00 break bar stay closed.
+    expect(expectedTradableBars("1h", sun, sunEnd, "XAUUSD")).toBe(4);
+  });
+});
