@@ -44,7 +44,16 @@ async function main() {
     process.exit(1);
   }
   const doc = JSON.parse(fs.readFileSync(PROPOSALS_PATH, 'utf8'));
-  const batch = (doc.proposals ?? []).filter((p) => p.proposedDecision === DECISION);
+  // Scaffold guard: a scaffold file (scaffoldOnly:true) carries SUGGESTED dispositions.
+  // Refuse to apply any row a human has not explicitly flipped to humanReviewed:true.
+  if (doc.scaffoldOnly === true) {
+    const unreviewed = (doc.proposals ?? []).filter((p) => p.humanReviewed !== true && p.proposedDecision === DECISION);
+    if (unreviewed.length) {
+      console.error(`REFUSED: ${unreviewed.length} ${DECISION} row(s) in scaffold ${PROPOSALS_PATH} have humanReviewed!=true. Adjudicate and flip humanReviewed before --apply.`);
+      process.exit(1);
+    }
+  }
+  const batch = (doc.proposals ?? []).filter((p) => p.proposedDecision === DECISION && (doc.scaffoldOnly === true ? p.humanReviewed === true : true));
   if (!batch.length) {
     console.log(JSON.stringify({ applied: 0, skipped: 0, reason: `no ${DECISION} proposals in ${PROPOSALS_PATH}` }));
     return;
