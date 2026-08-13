@@ -67,7 +67,7 @@ export async function validateCandleEligibility(
   try {
     const { rows } = await pool.query<any>(
       `SELECT c.o,c.h,c.l,c.c,c.spread,p.policy_id,
-          COALESCE(bool_or(q.superseded_at IS NULL AND
+          COALESCE(bool_or(q.id IS NOT NULL AND q.superseded_at IS NULL AND
             (q.approved_at IS NULL OR q.decision <> 'KEEP')), false) blocked,
           COUNT(q.id)::int evidence_count
        FROM candles_1m c

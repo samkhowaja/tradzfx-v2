@@ -17,4 +17,14 @@ describe("candle eligibility transitions", () => {
     })).resolves.toBe(true);
     expect(query.mock.calls[0][0]).toContain("state = 'VALIDATING'");
   });
+
+  it("blocked aggregation requires a real quarantine row (NULL-join regression)", async () => {
+    // Regression: without `q.id IS NOT NULL`, the LEFT JOIN's synthetic all-NULL row
+    // evaluates `q.superseded_at IS NULL` = TRUE, marking every un-quarantined candle
+    // BLOCKED (the 2026-08-03/04 XAUUSD 315-row false-BLOCKED cluster).
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const src = readFileSync(join(__dirname, "candleEligibility.ts"), "utf8");
+    expect(src).toContain("bool_or(q.id IS NOT NULL AND q.superseded_at IS NULL");
+  });
 });
