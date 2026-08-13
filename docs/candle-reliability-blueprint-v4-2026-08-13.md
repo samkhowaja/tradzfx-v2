@@ -139,3 +139,39 @@ Launch requires BOTH green: (1) technical eligibility (certified candles + compl
 lineage + deterministic parity + no unresolved required intervals) AND (2) permission,
 activated through the separate governed process. Authorization never overrides technical
 failure. Permission remains INACTIVE and independent of technical eligibility.
+
+## 11. §3+§4 evidence run (2026-08-13, read-only, zero writes)
+
+**§3 backlog rebuild** (`reports/quarantine-unknown-backlog-v4-2026-08-13.json`):
+- Total active UNKNOWN = **642** (356 v2-calendar + 286 v3-robust) — confirmed.
+- v2-calendar flags: 350 `LARGE_JUMP_RELATIVE`, 3 `UNEXPECTED_GAP`, 3 both.
+- v3-robust flags: 275 `LARGE_JUMP_ROBUST`, 8 jump+gap, 3 gap-only.
+- Per-symbol (v2/v3): XAUUSD 104/109, USDJPY 50/19, USDSEK 47/41, EURUSD 43/21,
+  GBPUSD 40/36, AUDUSD 29/24, NZDUSD 26/23, USDCHF 17/12, USDCAD 0/1.
+- **Dominant flag across both detectors = LARGE_JUMP.** UNEXPECTED_GAP-only is rare (6).
+
+**§4 alternate-broker replacement** (`reports/alternate-broker-replacement-2026-08-13.json/.md`):
+- 642 active rows: **502 have NO alternate-broker candle** (no replacement evidence);
+  **138 have an alternate** (1x Trade Ltd. vs OANDA Corporation).
+- All 138 classified **UNKNOWN** — none clear REPLACE or KEEP. Evidence dims on the 138:
+  - `blockedInvalidOHLC:0`, `altInvalidOHLC:0` → neither side structurally impossible
+    → **no REPLACE_CANDIDATE** (REPLACE requires the blocked candle to be INVALID_OHLC).
+  - `calendarExplainedOnly:0` → none calendar-explained → **no KEEP_CANDIDATE**.
+  - `bothSpreadSane:0` → spread never "sane" on both sides (zero/unresolved-spread blocker).
+  - close agree ≤0.3%: 24; close diverge >0.3%: 114 → brokers materially disagree on most.
+
+**Consequence for §5:** the alternate-broker path **cannot clear any of the 642**. The
+burn-down is therefore a **LARGE_JUMP adjudication**, decided on structural validity +
+calendar + v4 median/MAD re-classification — NOT on broker replacement. Practical split:
+- 24 close-agree rows (both valid, spreads the only blocker) → strongest **KEEP**
+  candidates after v4 MAD says the jump is genuine-but-real.
+- 114 close-diverge rows (both valid, brokers disagree) → need independent evidence
+  (DXY/component or HTF cross-check); stay UNKNOWN until resolved.
+- 502 no-alternate rows → KEEP (real move) / EXCLUDE (corruption) / UNKNOWN by v4 MAD
+  + calendar; no replacement evidence exists.
+
+This validates the blueprint's core claim: detector freeze is not the milestone —
+**the LARGE_JUMP decision policy over the 642 is.** §5 `propose-quarantine-decisions.js`
+is the next read-only step (joins this §4 report + no-alternate bucketing into a proposal
+file for human review; zero writes until `--apply` is explicitly authorized).
+
