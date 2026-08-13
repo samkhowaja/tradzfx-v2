@@ -1,15 +1,30 @@
 import type { Queryable } from "../utils/db";
 import type { CandidateContext, PreflightCheck, PreflightChecks } from "./preflightEvaluator";
-import { expectedTradableBars, tradableBarStarts } from "../utils/marketCalendar";
+import { expectedTradableBars, inBreakEdgeWindow, isTradableInstant, tradableBarStarts } from "../utils/marketCalendar";
 import type { TimeFrame } from "../types/feature";
 
 type Row = Record<string, unknown>;
+
+/**
+ * 1m source slots an HTF anchor is expected to cover for certification.
+ * A slot is expected only when the market is open per the FX 24/5 calendar
+ * AND outside the broker break-edge halt/resume window (the feed never sends
+ * those minutes, so their absence is expected closure, not a missing bar).
+ * Fail-closed: any expected slot absent from the canonical 1m source set is a
+ * genuine missing bar and blocks the anchor.
+ */
+export function expectedHtfSourceSlots(anchor: string, sourceBarsPerHtf: number, symbol?: string): string[] {
+  return Array.from({ length: sourceBarsPerHtf }, (_, i) => new Date(new Date(anchor).getTime() + i * 60_000))
+    .filter((slot) => isTradableInstant(slot, symbol) && !inBreakEdgeWindow(slot, symbol))
+    .map((slot) => slot.toISOString());
+}
 
 export function validateHtfAnchors(
   expectedAnchors: readonly string[],
   htfAnchors: readonly string[],
   sourceAnchorsByHtf: ReadonlyMap<string, readonly string[]>,
   sourceBarsPerHtf: number,
+  symbol?: string,
 ) {
   const htf = new Set(htfAnchors);
   let missingHtf = 0;
@@ -19,9 +34,8 @@ export function validateHtfAnchors(
   for (const anchor of expectedAnchors) {
     if (!htf.has(anchor)) { missingHtf++; continue; }
     const source = sourceAnchorsByHtf.get(anchor) ?? [];
-    const expected = Array.from({ length: sourceBarsPerHtf }, (_, i) =>
-      new Date(new Date(anchor).getTime() + i * 60_000).toISOString());
-    if (source.length !== expected.length || expected.some((ts) => !source.includes(ts))) incompleteSource++;
+    const expectedSlots = expectedHtfSourceSlots(anchor, sourceBarsPerHtf, symbol);
+    if (expectedSlots.some((ts) => !source.includes(ts))) incompleteSource++;
   }
   return {
     missingHtf,
@@ -58,12 +72,12 @@ export function findFirstIncompleteHtfAnchor(
   expectedAnchors: readonly string[],
   sourceAnchorsByHtf: ReadonlyMap<string, readonly string[]>,
   sourceBarsPerHtf: number,
+  symbol?: string,
 ): string | null {
   return expectedAnchors.find((anchor) => {
     const sources = sourceAnchorsByHtf.get(anchor) ?? [];
-    const expected = Array.from({ length: sourceBarsPerHtf }, (_, i) =>
-      new Date(new Date(anchor).getTime() + i * 60_000).toISOString());
-    return sources.length !== sourceBarsPerHtf || expected.some((ts) => !sources.includes(ts));
+    const expectedSlots = expectedHtfSourceSlots(anchor, sourceBarsPerHtf, symbol);
+    return expectedSlots.some((ts) => !sources.includes(ts));
   }) ?? null;
 }
 
@@ -71,14 +85,14 @@ export function diagnoseHtfSourceWindow(
   anchor: string,
   sources: readonly string[],
   sourceBarsPerHtf: number,
+  symbol?: string,
 ) {
-  const expected = Array.from({ length: sourceBarsPerHtf }, (_, i) =>
-    new Date(new Date(anchor).getTime() + i * 60_000).toISOString());
+  const expectedSlots = expectedHtfSourceSlots(anchor, sourceBarsPerHtf, symbol);
   const present = [...sources].sort();
-  const missing = expected.filter((ts) => !sources.includes(ts));
+  const missing = expectedSlots.filter((ts) => !sources.includes(ts));
   return {
     anchor,
-    expectedCount: expected.length,
+    expectedCount: expectedSlots.length,
     actualCount: sources.length,
     firstMissingSource: missing[0] ?? null,
     lastPresentSource: present.at(-1) ?? null,
@@ -213,11 +227,16 @@ async function canonicalTimeframeReports(db: Queryable, ctx: CandidateContext, w
         const canonicalSources = new Map(
           [...anchorMaps.sources.entries()].filter(([anchor]) => expectedAnchorSet.has(anchor)),
         );
-        const validation = validateHtfAnchors(expectedAnchors, canonicalHtfAnchors, canonicalSources, minutes);
+        const validation = validateHtfAnchors(expectedAnchors, canonicalHtfAnchors, canonicalSources, minutes, ctx.symbol);
+        // MISSING with a non-null source_ts = a present canonical 1m bar with no
+        // eligibility row (unevaluated) — always a blocker. Absent slots (no row at
+        // all) don't appear here; they're handled by validateHtfAnchors, which is
+        // calendar-aware (expected closure during weekend/halt/break-edge is not a
+        // missing bar). BLOCKED/ERROR on a present row always blocks.
         const blockedSourceRows = rawRows.filter((r) => ["BLOCKED", "ERROR", "MISSING"].includes(String(r.eligibility_state))).length;
-        const firstIncompleteAnchor = findFirstIncompleteHtfAnchor(expectedAnchors, canonicalSources, minutes);
+        const firstIncompleteAnchor = findFirstIncompleteHtfAnchor(expectedAnchors, canonicalSources, minutes, ctx.symbol);
         const incompleteSourceDiagnosis = firstIncompleteAnchor
-          ? diagnoseHtfSourceWindow(firstIncompleteAnchor, canonicalSources.get(firstIncompleteAnchor) ?? [], minutes)
+          ? diagnoseHtfSourceWindow(firstIncompleteAnchor, canonicalSources.get(firstIncompleteAnchor) ?? [], minutes, ctx.symbol)
           : null;
         const blockedSourceTimestamps = rawRows
           .filter((r) => r.source_ts != null && ["BLOCKED", "ERROR", "MISSING"].includes(String(r.eligibility_state)))
@@ -230,7 +249,7 @@ async function canonicalTimeframeReports(db: Queryable, ctx: CandidateContext, w
       const hasUnexpectedGap = present !== expectedBars;
       const closedBarChecked = tf === "1m" ? blocked === 0 : closureFailures === 0 && blocked === 0 && anchorValidation.closedBarChecked === true;
       const warmup = await selectOne(db, `SELECT MIN(ts) AS first_ts, MAX(ts) AS last_ts, COUNT(*)::int AS rows FROM ${table} WHERE symbol = $1 AND ts < $2`, [ctx.symbol, targetWindow.from]);
-      reports.push({ timeframe: tf, table, expectedBars, presentBars: present, blockedBars: blocked, firstBarTs: row?.first_ts ?? null, lastBarTs: row?.last_ts ?? null, hasUnexpectedGap, closedBarChecked, closureFailures, anchorDiagnosis, anchorValidation, warmup: { firstTs: warmup?.first_ts ?? null, lastTs: warmup?.last_ts ?? null, rows: Number(warmup?.rows ?? 0), requiredFrom: window.from, requiredTo: targetWindow.from, status: warmup?.first_ts ? "PRESENT_NON_CANONICAL" : "MISSING" }, calendarPolicyVersion: "market-calendar-v1", htfSourceVersion: "canonical-1m-raw-lineage-v1", oneMinuteClosurePolicyVersion: "closure-v1", status: blocked ? "BLOCKED_ANOMALY" : hasUnexpectedGap || !closedBarChecked ? "FAIL" : "PASS" });
+      reports.push({ timeframe: tf, table, expectedBars, presentBars: present, blockedBars: blocked, firstBarTs: row?.first_ts ?? null, lastBarTs: row?.last_ts ?? null, hasUnexpectedGap, closedBarChecked, closureFailures, anchorDiagnosis, anchorValidation, warmup: { firstTs: warmup?.first_ts ?? null, lastTs: warmup?.last_ts ?? null, rows: Number(warmup?.rows ?? 0), requiredFrom: window.from, requiredTo: targetWindow.from, status: warmup?.first_ts ? "PRESENT_NON_CANONICAL" : "MISSING" }, calendarPolicyVersion: "market-calendar-v1", htfSourceVersion: "canonical-1m-raw-lineage-v2-calendar-aware", oneMinuteClosurePolicyVersion: "closure-v1", status: blocked ? "BLOCKED_ANOMALY" : hasUnexpectedGap || !closedBarChecked ? "FAIL" : "PASS" });
     } catch (error) {
       console.error(`[preflight] canonical timeframe ${tf} failed:`, error instanceof Error ? error.message : String(error));
       reports.push({ timeframe: tf, table, expectedBars: null, presentBars: 0, blockedBars: 0, hasUnexpectedGap: true, closedBarChecked: false, status: "BLOCKED_UNKNOWN", reason: error instanceof Error ? error.message : String(error) });

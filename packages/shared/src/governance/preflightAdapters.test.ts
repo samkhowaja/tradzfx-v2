@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHtfAnchorMaps, buildReadOnlyPreflightChecks, diagnoseHtfSourceWindow, findFirstIncompleteHtfAnchor, trustedWindowChain, validateHtfAnchors } from "./preflightAdapters";
+import { buildHtfAnchorMaps, buildReadOnlyPreflightChecks, diagnoseHtfSourceWindow, expectedHtfSourceSlots, findFirstIncompleteHtfAnchor, trustedWindowChain, validateHtfAnchors } from "./preflightAdapters";
 
 describe("read-only preflight adapters", () => {
   it("uses SELECT-only queries and fails closed for caller-owned evidence", async () => {
@@ -105,6 +105,96 @@ describe("read-only preflight adapters", () => {
       firstMissingSource: "2026-08-11T00:02:00.000Z",
       lastPresentSource: "2026-08-11T00:03:00.000Z",
     });
+  });
+
+  // Calendar-aware source expectations (Sunday reopen / broker halt-edge policy).
+  // XAUUSD 2026-07-19 is a Sunday: FX week opens 21:00 UTC, broker break-edge
+  // resume is 22:05 UTC. So the 22:00 15m anchor expects only 22:05..22:14 (10 slots);
+  // 22:00..22:04 are expected closure, not missing bars.
+  const sundayReopenSources = Array.from({ length: 10 }, (_, i) =>
+    new Date(Date.parse("2026-07-19T22:05:00Z") + i * 60_000).toISOString());
+
+  it("passes a Sunday-reopen 15m anchor whose only missing slots are expected closure", () => {
+    const result = validateHtfAnchors(
+      ["2026-07-19T22:00:00.000Z"],
+      ["2026-07-19T22:00:00.000Z"],
+      new Map([["2026-07-19T22:00:00.000Z", sundayReopenSources]]),
+      15,
+      "XAUUSD",
+    );
+    expect(result).toEqual({ missingHtf: 0, incompleteSource: 0, extraHtf: 0, closedBarChecked: true });
+  });
+
+  it("without symbol threading the same Sunday-reopen anchor still fails (raw-minute expectation)", () => {
+    const result = validateHtfAnchors(
+      ["2026-07-19T22:00:00.000Z"],
+      ["2026-07-19T22:00:00.000Z"],
+      new Map([["2026-07-19T22:00:00.000Z", sundayReopenSources]]),
+      15,
+    );
+    expect(result.incompleteSource).toBe(1);
+    expect(result.closedBarChecked).toBe(false);
+  });
+
+  it("stays fail-closed for a genuinely missing tradable slot mid-session", () => {
+    const withGap = sundayReopenSources.filter((ts) => ts !== "2026-07-19T22:07:00.000Z");
+    const result = validateHtfAnchors(
+      ["2026-07-19T22:00:00.000Z"],
+      ["2026-07-19T22:00:00.000Z"],
+      new Map([["2026-07-19T22:00:00.000Z", withGap]]),
+      15,
+      "XAUUSD",
+    );
+    expect(result.incompleteSource).toBe(1);
+    expect(result.closedBarChecked).toBe(false);
+  });
+
+  it("findFirstIncompleteHtfAnchor skips expected-closure anchors but flags real gaps", () => {
+    expect(findFirstIncompleteHtfAnchor(
+      ["2026-07-19T22:00:00.000Z"],
+      new Map([["2026-07-19T22:00:00.000Z", sundayReopenSources]]),
+      15,
+      "XAUUSD",
+    )).toBeNull();
+    const withGap = sundayReopenSources.filter((ts) => ts !== "2026-07-19T22:09:00.000Z");
+    expect(findFirstIncompleteHtfAnchor(
+      ["2026-07-19T22:00:00.000Z"],
+      new Map([["2026-07-19T22:00:00.000Z", withGap]]),
+      15,
+      "XAUUSD",
+    )).toBe("2026-07-19T22:00:00.000Z");
+  });
+
+  it("diagnoses the Sunday-reopen anchor against tradable-expected slots only", () => {
+    expect(diagnoseHtfSourceWindow("2026-07-19T22:00:00.000Z", sundayReopenSources, 15, "XAUUSD")).toEqual({
+      anchor: "2026-07-19T22:00:00.000Z",
+      expectedCount: 10,
+      actualCount: 10,
+      firstMissingSource: null,
+      lastPresentSource: "2026-07-19T22:14:00.000Z",
+    });
+  });
+
+  it("diagnoses a genuine mid-session gap as the first missing tradable slot", () => {
+    const withGap = sundayReopenSources.filter((ts) => ts !== "2026-07-19T22:07:00.000Z");
+    const diagnosis = diagnoseHtfSourceWindow("2026-07-19T22:00:00.000Z", withGap, 15, "XAUUSD");
+    expect(diagnosis.expectedCount).toBe(10);
+    expect(diagnosis.actualCount).toBe(9);
+    expect(diagnosis.firstMissingSource).toBe("2026-07-19T22:07:00.000Z");
+  });
+
+  it("expectedHtfSourceSlots excludes weekend, daily-halt, and break-edge slots", () => {
+    // XAUUSD Friday 2026-07-17 20:45 15m anchor: 20:45..20:49 tradable,
+    // 20:50..20:59 break-edge halt, 21:00+ daily halt then weekend close.
+    expect(expectedHtfSourceSlots("2026-07-17T20:45:00.000Z", 15, "XAUUSD")).toEqual([
+      "2026-07-17T20:45:00.000Z",
+      "2026-07-17T20:46:00.000Z",
+      "2026-07-17T20:47:00.000Z",
+      "2026-07-17T20:48:00.000Z",
+      "2026-07-17T20:49:00.000Z",
+    ]);
+    // A fully open mid-week anchor expects all 15 slots.
+    expect(expectedHtfSourceSlots("2026-08-11T00:00:00.000Z", 15, "XAUUSD")).toHaveLength(15);
   });
 
   it("trustedWindowChain covers a contiguous chain", () => {
