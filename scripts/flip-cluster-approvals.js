@@ -32,6 +32,7 @@ const { Client } = require('pg');
 const CLUSTERS_PATH = path.join('reports', 'adjudication-clusters-v4-2026-08-13.json');
 const SCAFFOLD_PATH = path.join('reports', 'adjudication-decisions-v4-2026-08-13.scaffold.json');
 const OUT_PATH = path.join('reports', 'adjudication-decisions-v4-2026-08-13.approved.json');
+const OUT_EXCLUDE_PATH = path.join('reports', 'adjudication-decisions-v4-2026-08-13.excluded.json');
 const WRITE = process.argv.includes('--write');
 
 async function main() {
@@ -40,12 +41,13 @@ async function main() {
   const byId = new Map(scaffold.proposals.map(p => [p.quarantineId, p]));
 
   const approvedClusters = clusters.clusters.filter(c => c.clusterReviewed === true && c.clusterDecision === 'KEEP');
-  const rejectedClusters = clusters.clusters.filter(c => c.clusterReviewed === true && c.clusterDecision !== 'KEEP');
+  const excludeClusters = clusters.clusters.filter(c => c.clusterReviewed === true && c.clusterDecision === 'EXCLUDE');
+  const rejectedClusters = clusters.clusters.filter(c => c.clusterReviewed === true && c.clusterDecision !== 'KEEP' && c.clusterDecision !== 'EXCLUDE');
   const unreviewed = clusters.clusters.filter(c => c.clusterReviewed !== true);
 
-  // gather candidate row ids from approved clusters
+  // gather candidate row ids from KEEP + EXCLUDE clusters (EXCLUDE rows may be scaffold UNKNOWN_EVENT)
   const candidateIds = new Set();
-  for (const c of approvedClusters) for (const id of c.quarantineIds) candidateIds.add(id);
+  for (const c of [...approvedClusters, ...excludeClusters]) for (const id of c.quarantineIds) candidateIds.add(id);
 
   // live DB conflict check (idempotency + refuse-overwrite)
   const client = new Client({
@@ -62,7 +64,37 @@ async function main() {
   }
 
   const approvedRows = [];
+  const excludedRows = [];
   const skipped = [];
+
+  // EXCLUDE clusters: human overrides scaffold. Guards = membership + live DB UNKNOWN.
+  // Signature re-check is N/A (an EXCLUDE cluster is by definition rejecting the KEEP signature).
+  for (const c of excludeClusters) {
+    for (const id of c.quarantineIds) {
+      const row = byId.get(id);
+      const dbRow = live.get(id);
+      let why = null;
+      if (!row) why = 'not-in-scaffold';
+      else if (row.eventTime !== c.eventTime) why = 'eventTime-mismatch';
+      else if (!c.symbols.includes(row.symbol)) why = 'symbol-not-in-cluster';
+      else if (!dbRow) why = 'not-in-db';
+      else if (dbRow.superseded_at !== null) why = 'db-superseded';
+      else if (dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
+
+      if (why) skipped.push({ quarantineId: id, clusterId: c.clusterId, symbol: row?.symbol ?? dbRow?.symbol, decision: 'EXCLUDE', why });
+      else excludedRows.push({
+        ...row,
+        proposedDecision: 'EXCLUDE', // human cluster override beats scaffold suggestion
+        humanReviewed: true,
+        approvedViaClusterId: c.clusterId,
+        clusterSignature: c.signature,
+        macroEventTag: c.macroEventTag ?? null,
+        basis: `[CLUSTER-EXCLUDED ${c.clusterId}${c.macroEventTag ? ' ' + c.macroEventTag : ''}] ${c.excludeReason ?? 'human cluster exclusion'}`,
+      });
+    }
+  }
+
+  // KEEP clusters: full guard set incl. signature re-check.
   for (const c of approvedClusters) {
     for (const id of c.quarantineIds) {
       const row = byId.get(id);
@@ -78,13 +110,14 @@ async function main() {
       else if (dbRow.superseded_at !== null) why = 'db-superseded';
       else if (dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
 
-      if (why) skipped.push({ quarantineId: id, clusterId: c.clusterId, symbol: row?.symbol ?? dbRow?.symbol, why });
+      if (why) skipped.push({ quarantineId: id, clusterId: c.clusterId, symbol: row?.symbol ?? dbRow?.symbol, decision: 'KEEP', why });
       else approvedRows.push({
         ...row,
         humanReviewed: true,
         approvedViaClusterId: c.clusterId,
         clusterSignature: c.signature,
-        basis: `[CLUSTER-APPROVED ${c.clusterId} ${c.signature}] ${row.basis}`,
+        macroEventTag: c.macroEventTag ?? null,
+        basis: `[CLUSTER-APPROVED ${c.clusterId} ${c.signature}${c.macroEventTag ? ' ' + c.macroEventTag : ''}] ${row.basis}`,
       });
     }
   }
@@ -92,10 +125,12 @@ async function main() {
   const summary = {
     clustersTotal: clusters.clusters.length,
     clustersApproved: approvedClusters.length,
-    clustersRejected: rejectedClusters.length,
+    clustersExcluded: excludeClusters.length,
+    clustersRejectedOther: rejectedClusters.length,
     clustersUnreviewed: unreviewed.length,
     rowsApproved: approvedRows.length,
-    rowsSkippedFromApprovedClusters: skipped.length,
+    rowsExcluded: excludedRows.length,
+    rowsSkipped: skipped.length,
     bySignature: {},
   };
   for (const c of approvedClusters) summary.bySignature[c.signature] = (summary.bySignature[c.signature] ?? 0) + 1;
@@ -107,18 +142,24 @@ async function main() {
   }
 
   if (WRITE) {
-    if (approvedRows.length === 0) { console.log('NOTHING TO WRITE: no approved rows.'); }
+    const prov = { clustersFile: CLUSTERS_PATH, scaffoldFile: SCAFFOLD_PATH, flipScript: 'scripts/flip-cluster-approvals.js' };
+    if (approvedRows.length === 0) { console.log('NO KEEP ROWS to write.'); }
     else {
-      const out = {
-        generatedAt: new Date().toISOString(),
-        scaffoldOnly: false,
-        reviewer: 'human-cluster-review',
-        note: 'Row-level fan-out of cluster approvals. Every row passed signature re-check + live DB UNKNOWN check. UNKNOWN_EVENT rows absent — they remain blocking.',
-        provenance: { clustersFile: CLUSTERS_PATH, scaffoldFile: SCAFFOLD_PATH, flipScript: 'scripts/flip-cluster-approvals.js' },
-        proposals: approvedRows,
-      };
-      fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 2));
-      console.log(`WROTE ${OUT_PATH} (${approvedRows.length} rows, scaffoldOnly:false)`);
+      fs.writeFileSync(OUT_PATH, JSON.stringify({
+        generatedAt: new Date().toISOString(), scaffoldOnly: false, reviewer: 'human-cluster-review',
+        note: 'KEEP fan-out. Every row passed signature re-check + live DB UNKNOWN check. UNKNOWN_EVENT absent.',
+        provenance: prov, proposals: approvedRows,
+      }, null, 2));
+      console.log(`WROTE ${OUT_PATH} (${approvedRows.length} KEEP rows, scaffoldOnly:false)`);
+    }
+    if (excludedRows.length === 0) { console.log('NO EXCLUDE ROWS to write.'); }
+    else {
+      fs.writeFileSync(OUT_EXCLUDE_PATH, JSON.stringify({
+        generatedAt: new Date().toISOString(), scaffoldOnly: false, reviewer: 'human-cluster-review',
+        note: 'EXCLUDE fan-out (human cluster override). Membership + live DB UNKNOWN checked. Apply with --decision=EXCLUDE.',
+        provenance: prov, proposals: excludedRows,
+      }, null, 2));
+      console.log(`WROTE ${OUT_EXCLUDE_PATH} (${excludedRows.length} EXCLUDE rows, scaffoldOnly:false)`);
     }
   } else {
     console.log('DRY-RUN (pass --write to emit approved decision file)');
