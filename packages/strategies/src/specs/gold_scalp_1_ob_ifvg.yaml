@@ -1,6 +1,7 @@
 id: gold_scalp_1_ob_ifvg
 familyId: gold_scalp_1_ob_ifvg
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Gold Scalp 1 — HTF Order Block + iFVG Entry"
 version: "1.0.0"

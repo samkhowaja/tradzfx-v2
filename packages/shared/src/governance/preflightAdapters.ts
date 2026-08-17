@@ -412,7 +412,7 @@ export async function buildReadOnlyPreflightChecks(db: Queryable, ctx: Candidate
   // callers provide evidence through the pure evaluator input contract.
   const window = await expandedWindow(db, ctx);
   const blocked = { ok: false, status: "BLOCKED_UNKNOWN" as const, evidence: evidence(ctx, { source: "caller-required", requiredWindow: window, dependencies: ctx.dependencies ?? [] }) };
-  const dxy = ctx.strategyId === "watukushay_no1"
+  const dxy = ctx.dxyDependency === "not_required"
     ? { ok: true, status: "NOT_REQUIRED" as const, evidence: evidence(ctx, { policy: "NOT_REQUIRED", reason: "strategy has no DXY dependency" }) }
     : blocked;
   const parity = { ok: false, status: "NOT_RUN" as const, evidence: evidence(ctx, { source: "separate parity workflow" }) };

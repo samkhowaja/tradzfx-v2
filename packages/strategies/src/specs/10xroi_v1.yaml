@@ -1,6 +1,7 @@
 id: 10xroi_v1
 familyId: 10xroi
 active: true
+dxyDependency: not_required
 experimental: true
 name: "10XROI V1 — Push-Pull 10R"
 version: "1.0.0"

@@ -1,0 +1,25 @@
+{
+  "schema": "cluster-adjudication-log-readonly-v1",
+  "generatedAt": "2026-08-15T07:24:00Z",
+  "authority": "NON_AUTHORITATIVE",
+  "databaseWrites": 0,
+  "sourceStateChanges": 0,
+  "clusterA": {
+    "populationClaim": 315,
+    "observedCurrentSnapshot": 311,
+    "decision": "UNKNOWN",
+    "reason": "Population definitions do not reconcile; alternate provenance and complete per-candle evidence insufficient."
+  },
+  "singletonB": {
+    "eventTime": "2026-08-02T22:05:00Z",
+    "decision": "UNKNOWN",
+    "reason": "No evidence supports KEEP, EXCLUDE, or REPLACED without bound provenance and full price/spread review."
+  },
+  "lockedExceptions": [
+    "DXY 2026-07-07T21:04:00Z",
+    "DXY 2026-07-07T21:05:00Z",
+    "2026-07-19T01:59:00Z structural hole"
+  ],
+  "allowedDecisions": ["KEEP", "EXCLUDE", "REPLACED", "UNKNOWN"],
+  "appliedDecisions": 0
+}

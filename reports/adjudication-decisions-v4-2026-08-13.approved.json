@@ -1,0 +1,2008 @@
+{
+  "generatedAt": "2026-08-14T01:07:16.365Z",
+  "scaffoldOnly": false,
+  "reviewer": "human-cluster-review",
+  "note": "KEEP fan-out. Every row passed signature re-check + live DB UNKNOWN check. UNKNOWN_EVENT absent.",
+  "provenance": {
+    "clustersFile": "reports\\adjudication-clusters-v4-2026-08-13.json",
+    "scaffoldFile": "reports\\adjudication-decisions-v4-2026-08-13.scaffold.json",
+    "flipScript": "scripts/flip-cluster-approvals.js"
+  },
+  "proposals": [
+    {
+      "quarantineId": "1075",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 21.01522842639494,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: EURUSD,EURUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "642",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 21.01522842639494,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: EURUSD,EURUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1099",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 22.435129740518647,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "676",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 22.435129740518647,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1135",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 22.295597484276524,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "729",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 22.295597484276524,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,NZDUSD,NZDUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1167",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 17.970479704797754,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "768",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 17.970479704797754,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD,USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1189",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 20.092307692307728,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "800",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 20.092307692307728,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (10 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD,NZDUSD,NZDUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1242",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 18.966165413534423,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "888",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 18.966165413534423,
+      "session": "offhours",
+      "coMoveCount": 10,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:00:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:00:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "643",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 12.407547169811115,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: EURUSD,EURUSD,GBPUSD,GBPUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1076",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 12.407547169811115,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: EURUSD,EURUSD,GBPUSD,GBPUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1100",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 13.110419906687357,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,GBPUSD,GBPUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "677",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 13.110419906687357,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD",
+        "GBPUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,GBPUSD,GBPUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1138",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 6.791452442159368,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "732",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 6.791452442159368,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "USDCHF",
+        "USDCHF"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,USDCHF,USDCHF)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1192",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 6.690570096808903,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "803",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 6.690570096808903,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:05:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (6 peers: AUDUSD,AUDUSD,EURUSD,EURUSD,GBPUSD,GBPUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:05:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "680",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 5.707941929974313,
+      "session": "offhours",
+      "coMoveCount": 5,
+      "coSymbols": [
+        "AUDUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:12:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (5 peers: AUDUSD,GBPUSD,NZDUSD,NZDUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:12:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1103",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 5.707941929974313,
+      "session": "offhours",
+      "coMoveCount": 5,
+      "coSymbols": [
+        "AUDUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:12:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (5 peers: AUDUSD,GBPUSD,NZDUSD,NZDUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:12:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "894",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.066136815214298,
+      "session": "offhours",
+      "coMoveCount": 6,
+      "coSymbols": [
+        "AUDUSD",
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:12:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:12:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1101",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 9.23140269009049,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "678",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 9.23140269009049,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1139",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 5.604482531311791,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: EURUSD,EURUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "733",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 5.604482531311791,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: EURUSD,EURUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1246",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 5.449816990945934,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "892",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 5.449816990945934,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:09:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:09:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1079",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 5.861260053619265,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:11:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: GBPUSD,NZDUSD,NZDUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:11:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "646",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 5.861260053619265,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "GBPUSD",
+        "NZDUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:11:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: GBPUSD,NZDUSD,NZDUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:11:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "735",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.04899135446689,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "NZDUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:11:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: AUDUSD,AUDUSD,NZDUSD,NZDUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:11:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1169",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 7.847507331378278,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:11:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: AUDUSD,AUDUSD,GBPUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:11:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "770",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 7.847507331378278,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:11:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: AUDUSD,AUDUSD,GBPUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:11:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1060",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-04-12T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 20.853994490358332,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD"
+      ],
+      "dxySign": null,
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-04-12T21:03:00.000Z cross-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: EURUSD,EURUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-04-12T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "620",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-04-12T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 20.853994490358332,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD"
+      ],
+      "dxySign": null,
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-04-12T21:03:00.000Z cross-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: EURUSD,EURUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-04-12T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "660",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-04-12T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 22.203592814373085,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD"
+      ],
+      "dxySign": null,
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-04-12T21:03:00.000Z cross-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: AUDUSD,AUDUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-04-12T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1091",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-04-12T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 22.203592814373085,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "AUDUSD",
+        "AUDUSD"
+      ],
+      "dxySign": null,
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-04-12T21:03:00.000Z cross-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: AUDUSD,AUDUSD)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-04-12T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1077",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 8.751345532830847,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:06:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: NZDUSD,NZDUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:06:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "644",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 8.751345532830847,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:06:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: NZDUSD,NZDUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:06:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1102",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 7.05771248688346,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:10:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: GBPUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:10:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "679",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 7.05771248688346,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:10:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: GBPUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:10:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "734",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.659645232815987,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:10:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: EURUSD,EURUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:10:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "893",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.604833442194736,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "EURUSD",
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:10:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:10:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "681",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:13:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.798619102416578,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "NZDUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:13:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (3 peers: NZDUSD,NZDUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:13:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "895",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:13:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.598347314385905,
+      "session": "offhours",
+      "coMoveCount": 3,
+      "coSymbols": [
+        "EURUSD",
+        "NZDUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:13:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:13:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1136",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 13.31646323310498,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:03:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "730",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 13.31646323310498,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:03:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "801",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 11.736641221374057,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:03:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1190",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 11.736641221374057,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:03:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:03:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1137",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 9.165804181328832,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:04:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:04:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "731",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 9.165804181328832,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "USDCHF",
+        "USDCHF",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:04:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: USDCHF,USDCHF,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:04:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1191",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 8.340992647058822,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:04:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:04:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "802",
+      "symbol": "USDCHF",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 8.340992647058822,
+      "session": "offhours",
+      "coMoveCount": 4,
+      "coSymbols": [
+        "GBPUSD",
+        "GBPUSD",
+        "USDSEK",
+        "USDSEK"
+      ],
+      "dxySign": "contradict",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:04:00.000Z cross-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (4 peers: GBPUSD,GBPUSD,USDSEK,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:04:00.000Z",
+      "clusterSignature": "cross-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "682",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:17:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.135740971357375,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:17:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: GBPUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:17:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "896",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:17:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.33592534992222,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:17:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:17:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "683",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:19:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.6446444249341297,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:19:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: NZDUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:19:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "775",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:19:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.6622199848980945,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "EURUSD",
+        "USDSEK"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:19:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] cross-symbol co-move (2 peers: EURUSD,USDSEK)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:19:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "897",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:19:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 2.9909819639278767,
+      "session": "offhours",
+      "coMoveCount": 2,
+      "coSymbols": [
+        "EURUSD",
+        "NZDUSD"
+      ],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:19:00.000Z usd-complex-event warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:19:00.000Z",
+      "clusterSignature": "usd-complex-event",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "1078",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:08:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 7.015728476821129,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:08:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:08:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "645",
+      "symbol": "AUDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:08:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 7.015728476821129,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:08:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:08:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "875",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 6.8517217146872875,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-17T21:10:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-17T21:10:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1231",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-17T21:10:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 6.8517217146872875,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-17T21:10:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-17T21:10:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "876",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-17T21:12:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 6.362371277484045,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-17T21:12:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-17T21:12:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1232",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-17T21:12:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 6.362371277484045,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-17T21:12:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-17T21:12:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1307",
+      "symbol": "XAUUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-24T22:01:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 15.692908262849915,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-24T22:01:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-24T22:01:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "968",
+      "symbol": "XAUUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-24T22:01:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 15.692908262849915,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-24T22:01:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-24T22:01:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "1332",
+      "symbol": "XAUUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-14T22:01:00.000Z",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "jumpAtr": 17.56741316270558,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-14T22:01:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-14T22:01:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "993",
+      "symbol": "XAUUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-14T22:01:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 17.56741316270558,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-14T22:01:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-14T22:01:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    },
+    {
+      "quarantineId": "684",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:20:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.2451499118165734,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:20:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:20:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "685",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:21:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 2.9599504906728225,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:21:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:21:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "686",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:41:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.198628397256792,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:41:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:41:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "687",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:42:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.207177398829225,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:42:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:42:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "688",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:47:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.857865753832426,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:47:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:47:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "689",
+      "symbol": "EURUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:48:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.186314710404878,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:48:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:48:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "737",
+      "symbol": "GBPUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:16:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.1547844533677045,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:16:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:16:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "774",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-06-17T21:18:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 4.136155606407281,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-06-17T21:18:00.000Z single-symbol warsh-fomc-2026-06-17] [SUGGESTED-v4-rubric] DXY-confirm",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-06-17T21:18:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "warsh-fomc-2026-06-17"
+    },
+    {
+      "quarantineId": "877",
+      "symbol": "USDSEK",
+      "broker": "1x Trade Ltd.",
+      "eventTime": "2026-05-17T21:30:00.000Z",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "jumpAtr": 3.4618164297760012,
+      "session": "offhours",
+      "coMoveCount": 0,
+      "coSymbols": [],
+      "dxySign": "confirm",
+      "currentDecision": "UNKNOWN",
+      "proposedDecision": "KEEP",
+      "basis": "[CLUSTER-APPROVED 2026-05-17T21:30:00.000Z single-symbol fx-weekly-reopen] [SUGGESTED-v4-rubric] DXY-confirm (thin-tape baseline)",
+      "humanReviewed": true,
+      "approvedViaClusterId": "2026-05-17T21:30:00.000Z",
+      "clusterSignature": "single-symbol",
+      "macroEventTag": "fx-weekly-reopen"
+    }
+  ]
+}

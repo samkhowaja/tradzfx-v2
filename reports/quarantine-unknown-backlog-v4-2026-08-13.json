@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-08-13T19:53:18.124Z",
+  "detector_baseline": "candle-detector-v4-calibrated",
+  "note": "v3-robust + v2-calendar are historical/active UNKNOWN evidence; v4 is the active baseline. Read-only rebuild of the active UNKNOWN queue.",
+  "total_active_unknown": 642,
+  "by_detector": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "n": 356
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "n": 286
+    }
+  ],
+  "by_detector_symbol": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "XAUUSD",
+      "n": 104
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "USDSEK",
+      "n": 47
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "USDJPY",
+      "n": 50
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "USDCHF",
+      "n": 17
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "NZDUSD",
+      "n": 26
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "GBPUSD",
+      "n": 40
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "EURUSD",
+      "n": 43
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "symbol": "AUDUSD",
+      "n": 29
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "XAUUSD",
+      "n": 109
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "USDSEK",
+      "n": 41
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "USDJPY",
+      "n": 19
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "USDCHF",
+      "n": 12
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "USDCAD",
+      "n": 1
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "NZDUSD",
+      "n": 23
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "GBPUSD",
+      "n": 36
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "EURUSD",
+      "n": 21
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "symbol": "AUDUSD",
+      "n": 24
+    }
+  ],
+  "by_detector_broker": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "broker": "1x Trade Ltd.",
+      "n": 356
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "broker": "1x Trade Ltd.",
+      "n": 271
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "broker": "smoke-test",
+      "n": 8
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "broker": "OANDA Corporation",
+      "n": 7
+    }
+  ],
+  "by_detector_flags": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "flags": "{LARGE_JUMP_RELATIVE}",
+      "n": 350
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "flags": "{UNEXPECTED_GAP}",
+      "n": 3
+    },
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "flags": "{LARGE_JUMP_RELATIVE,UNEXPECTED_GAP}",
+      "n": 3
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "flags": "{LARGE_JUMP_ROBUST}",
+      "n": 275
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "flags": "{LARGE_JUMP_ROBUST,UNEXPECTED_GAP}",
+      "n": 8
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "flags": "{UNEXPECTED_GAP}",
+      "n": 3
+    }
+  ],
+  "ts_range_by_detector": [
+    {
+      "detector_version": "candle-detector-v2-calendar",
+      "mn": "2025-07-20T02:00:00.000Z",
+      "mx": "2026-08-02T21:49:00.000Z"
+    },
+    {
+      "detector_version": "candle-detector-v3-robust",
+      "mn": "2025-07-20T02:00:00.000Z",
+      "mx": "2026-08-03T06:54:00.000Z"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 id: scarface_5m_orb
 familyId: scarface_5m_orb
 active: true
+dxyDependency: not_required
 name: "Scarface 5m ORB"
 version: "1.1.0"
 description: >

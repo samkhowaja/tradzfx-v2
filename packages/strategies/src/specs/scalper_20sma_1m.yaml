@@ -1,6 +1,7 @@
 id: scalper_20sma_1m
 familyId: scalper_20sma
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Scalper 20SMA 1m"
 version: "1.0.0"

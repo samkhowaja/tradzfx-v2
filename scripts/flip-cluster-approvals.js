@@ -28,6 +28,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { Client } = require('pg');
+const { evaluateClusterDxyPolicy } = require('./cluster-dxy-policy.cjs');
 
 const CLUSTERS_PATH = path.join('reports', 'adjudication-clusters-v4-2026-08-13.json');
 const SCAFFOLD_PATH = path.join('reports', 'adjudication-decisions-v4-2026-08-13.scaffold.json');
@@ -77,9 +78,9 @@ async function main() {
       if (!row) why = 'not-in-scaffold';
       else if (row.eventTime !== c.eventTime) why = 'eventTime-mismatch';
       else if (!c.symbols.includes(row.symbol)) why = 'symbol-not-in-cluster';
-      else if (!dbRow) why = 'not-in-db';
-      else if (dbRow.superseded_at !== null) why = 'db-superseded';
-      else if (dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
+      if (!why && !dbRow) why = 'not-in-db';
+      else if (!why && dbRow.superseded_at !== null) why = 'db-superseded';
+      else if (!why && dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
 
       if (why) skipped.push({ quarantineId: id, clusterId: c.clusterId, symbol: row?.symbol ?? dbRow?.symbol, decision: 'EXCLUDE', why });
       else excludedRows.push({
@@ -104,11 +105,19 @@ async function main() {
       else if (row.proposedDecision !== 'KEEP') why = `scaffold-proposed-${row.proposedDecision}`;
       else if (row.eventTime !== c.eventTime) why = 'eventTime-mismatch';
       else if (!c.symbols.includes(row.symbol)) why = 'symbol-not-in-cluster';
-      else if (c.signature === 'usd-complex-event' && !((row.coMoveCount ?? 0) >= 1 && row.dxySign === 'confirm'))
-        why = 'signature-recheck-failed';
-      else if (!dbRow) why = 'not-in-db';
-      else if (dbRow.superseded_at !== null) why = 'db-superseded';
-      else if (dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
+      else {
+        const dxyPolicy = evaluateClusterDxyPolicy({
+          signature: c.signature,
+          coMoveCount: row.coMoveCount,
+          dxySign: row.dxySign,
+          dxyDependency: c.dxyDependency,
+        });
+        if (!dxyPolicy.allowed) why = dxyPolicy.reason === 'dxy_required_failed'
+          ? 'dxy-required-failed' : 'signature-recheck-failed';
+      }
+      if (!why && !dbRow) why = 'not-in-db';
+      else if (!why && dbRow.superseded_at !== null) why = 'db-superseded';
+      else if (!why && dbRow.decision !== 'UNKNOWN') why = `db-conflicting-decision-${dbRow.decision}`;
 
       if (why) skipped.push({ quarantineId: id, clusterId: c.clusterId, symbol: row?.symbol ?? dbRow?.symbol, decision: 'KEEP', why });
       else approvedRows.push({

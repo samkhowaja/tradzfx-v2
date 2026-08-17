@@ -1,6 +1,7 @@
 id: keylevel_bounce_v5_shorts
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V5 (shorts only)
 version: 6.0.0
 description: |

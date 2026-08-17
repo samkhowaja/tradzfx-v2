@@ -53,6 +53,7 @@ function applyVariantMetadata(
     version: variant.version,
     description: variant.description ?? base.description,
     active: "active" in variant ? (variant as { active?: boolean }).active : base.active,
+    dxyDependency: variant.dxyDependency ?? base.dxyDependency,
   };
 }
 

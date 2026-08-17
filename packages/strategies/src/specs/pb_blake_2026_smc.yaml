@@ -1,6 +1,7 @@
 id: pb_blake_2026_smc
 familyId: pb_blake_2026_smc
 active: true
+dxyDependency: not_required
 name: "PB Blake 2026 SMC — FVG/CISD/Rejection Block + IFG Confirmation"
 version: "1.0.0"
 description: >

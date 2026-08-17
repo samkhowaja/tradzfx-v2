@@ -1,6 +1,7 @@
 id: keylevel_bounce_v8_levels
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V8 (level-based TP)
 version: 9.0.0
 description: >

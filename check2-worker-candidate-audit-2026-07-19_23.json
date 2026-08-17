@@ -1,0 +1,10 @@
+◇ injected env (17) from .env.local // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+{
+  "interval": {
+    "from": "2026-07-19T00:00:00Z",
+    "to": "2026-07-23T00:00:00Z"
+  },
+  "lookbackBars": 500,
+  "jobSlices": 0,
+  "reports": []
+}

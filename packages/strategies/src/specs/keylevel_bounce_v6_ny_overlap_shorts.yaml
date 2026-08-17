@@ -1,6 +1,7 @@
 id: keylevel_bounce_v6_ny_overlap_shorts
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V6 (NY/OVERLAP shorts)
 version: 7.0.0
 description: >

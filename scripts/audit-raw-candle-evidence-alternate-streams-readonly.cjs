@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+'use strict';
+const path=require('path');
+require('dotenv').config({path:path.resolve(__dirname,'..','.env.local')});
+const {Pool}=require('pg');
+const tables=['candle_ingestion_run_evidence','candle_quarantine_evidence','candle_replacement_evidence','candle_reverification_evidence'];
+async function main(){const p=new Pool({host:process.env.TM_DB_HOST||'localhost',port:+(process.env.TM_DB_PORT||5432),database:process.env.TM_DB_NAME||'tradzfx_v2',user:process.env.TM_DB_USER||'postgres',password:process.env.TM_DB_PASSWORD});const c=await p.connect();try{await c.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const out=[];for(const table of tables){const cols=(await c.query(`SELECT column_name FROM information_schema.columns WHERE table_schema='market' AND table_name=$1`,[table])).rows.map(x=>x.column_name);const time=cols.includes('recorded_at')?'recorded_at':cols.includes('created_at')?'created_at':null;const count=(await c.query(`SELECT count(*)::bigint rows FROM market.${table}`)).rows[0].rows;let first=null,last=null;if(time){const r=(await c.query(`SELECT min(${time}) first_ts,max(${time}) last_ts FROM market.${table}`)).rows[0];first=r.first_ts;last=r.last_ts}out.push({table,rows:count,first_ts:first,last_ts:last,time_column:time,columns:cols})}await c.query('ROLLBACK');console.log(JSON.stringify({status:'READ_ONLY_AUDIT',database_writes:0,streams:out},null,2))}catch(e){try{await c.query('ROLLBACK')}catch{}throw e}finally{c.release();await p.end()}}main().catch(e=>{console.error(e);process.exitCode=1});

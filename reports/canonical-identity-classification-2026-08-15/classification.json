@@ -1,0 +1,5652 @@
+{
+  "schema": "canonical-identity-finding-classification-readonly-v1",
+  "authority": "NON_AUTHORITATIVE",
+  "source_hashes": {
+    "integrity": "06f8b41c3387a84234e3a7cb9c8053f440ba53cab6622c253ab077a09ca55acb",
+    "reconciliation": "6b12224e65437a8761a5449ae67f512b0ea69143a858afb55ac979a0cedfa129"
+  },
+  "accounting": {
+    "database_writes": 0,
+    "source_state_changes": 0,
+    "artifact_writes": 2
+  },
+  "population": {
+    "findings": 268,
+    "affected_identities": 268
+  },
+  "category_counts": {
+    "MULTIPLE_ACTIVE_EVIDENCE": 268
+  },
+  "identities": [
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "620",
+              "1060"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-13T14:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "621",
+              "1061"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "622",
+              "1062"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:16:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "623",
+              "1063"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:17:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "624",
+              "1064"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:21:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "625",
+              "1065"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-19T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "633",
+              "1066"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "634",
+              "1067"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "635",
+              "1068"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T02:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "636",
+              "1069"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-06T01:51:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "637",
+              "1070"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "638",
+              "1071"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "639",
+              "1072"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "640",
+              "1073"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "641",
+              "1074"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "642",
+              "1075"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "643",
+              "1076"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "644",
+              "1077"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "645",
+              "1078"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "646",
+              "1079"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "AUDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "648",
+              "1080"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "DXY|synthetic|1m|2026-07-07T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "654",
+              "1086"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "DXY|synthetic|1m|2026-07-07T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "656",
+              "1087"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "DXY|synthetic|1m|2026-07-15T13:47:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "657",
+              "1088"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "DXY|synthetic|1m|2026-07-17T23:54:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "658",
+              "1089"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "659",
+              "1090"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "660",
+              "1091"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "661",
+              "1092"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "662",
+              "1093"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "663",
+              "1094"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "664",
+              "1095"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:18:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "665",
+              "1096"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:19:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "666",
+              "1097"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "675",
+              "1098"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "676",
+              "1099"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "677",
+              "1100"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "678",
+              "1101"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "679",
+              "1102"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "680",
+              "1103"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "690",
+              "1104"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "691",
+              "1105"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "692",
+              "1106"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "693",
+              "1107"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:19:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "694",
+              "1108"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "707",
+              "1114"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "708",
+              "1115"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "709",
+              "1116"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "710",
+              "1117"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "711",
+              "1118"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:22:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "712",
+              "1119"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:23:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "713",
+              "1120"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-08T20:58:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "714",
+              "1121"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-10T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "715",
+              "1122"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "716",
+              "1123"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "717",
+              "1124"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "718",
+              "1125"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "719",
+              "1126"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "720",
+              "1127"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "721",
+              "1128"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:15:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "722",
+              "1129"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:16:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "723",
+              "1130"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:18:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "724",
+              "1131"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:36:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "726",
+              "1132"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:38:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "727",
+              "1133"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-05T20:58:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "728",
+              "1134"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "729",
+              "1135"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "730",
+              "1136"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "731",
+              "1137"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "732",
+              "1138"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "733",
+              "1139"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "739",
+              "1140"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "740",
+              "1141"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:14:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "741",
+              "1142"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:15:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "742",
+              "1143"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:37:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "743",
+              "1144"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:38:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "744",
+              "1145"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:57:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "745",
+              "1146"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:58:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "746",
+              "1147"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-12T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "751",
+              "1152"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-13T14:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "752",
+              "1153"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-16T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "753",
+              "1154"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:52:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "754",
+              "1155"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:56:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "755",
+              "1156"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "756",
+              "1157"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "757",
+              "1158"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-05-10T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "758",
+              "1159"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-06T01:47:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "759",
+              "1160"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "760",
+              "1161"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "761",
+              "1162"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "762",
+              "1163"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "763",
+              "1164"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "764",
+              "1165"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:15:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "765",
+              "1166"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "768",
+              "1167"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "769",
+              "1168"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "770",
+              "1169"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "771",
+              "1170"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "772",
+              "1171"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "NZDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "776",
+              "1172"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "787",
+              "1183"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "788",
+              "1184"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "789",
+              "1185"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "790",
+              "1186"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "791",
+              "1187"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "792",
+              "1188"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "800",
+              "1189"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "801",
+              "1190"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "802",
+              "1191"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "803",
+              "1192"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-29T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "810",
+              "1199"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "811",
+              "1200"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "812",
+              "1201"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "813",
+              "1202"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "814",
+              "1203"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:07:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "815",
+              "1204"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-04T03:45:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "827",
+              "1205"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "828",
+              "1206"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "829",
+              "1207"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "830",
+              "1208"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "831",
+              "1209"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "832",
+              "1210"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "844",
+              "1211"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "845",
+              "1212"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "846",
+              "1213"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "847",
+              "1214"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "848",
+              "1215"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDJPY|1x Trade Ltd.|1m|2026-07-31T08:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "860",
+              "1216"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-12T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "865",
+              "1221"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:07:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "866",
+              "1222"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "867",
+              "1223"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:14:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "868",
+              "1224"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-15T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "869",
+              "1225"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:40:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "870",
+              "1226"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:42:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "871",
+              "1227"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:17:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "872",
+              "1228"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:18:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "873",
+              "1229"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-04-25T01:50:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "874",
+              "1230"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "875",
+              "1231"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "876",
+              "1232"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "878",
+              "1233"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "879",
+              "1234"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-05-24T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "880",
+              "1235"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "881",
+              "1236"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "882",
+              "1237"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "883",
+              "1238"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "884",
+              "1239"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "885",
+              "1240"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "886",
+              "1241"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "888",
+              "1242"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "889",
+              "1243"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "890",
+              "1244"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "891",
+              "1245"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "892",
+              "1246"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "898",
+              "1247"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:15:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "899",
+              "1248"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:16:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "900",
+              "1249"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:26:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "901",
+              "1250"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "903",
+              "1251"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "904",
+              "1252"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:08:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "905",
+              "1253"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "USDSEK|1x Trade Ltd.|1m|2026-08-02T21:49:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "911",
+              "1254"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2025-07-20T02:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "923",
+              "1263"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2025-12-31T20:54:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "924",
+              "1264"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-01-01T10:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "925",
+              "1265"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T02:04:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "926",
+              "1266"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T14:13:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "927",
+              "1267"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T04:38:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "928",
+              "1268"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "930",
+              "1269"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-12T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "931",
+              "1270"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T15:03:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "932",
+              "1271"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T18:12:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "933",
+              "1272"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T12:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "934",
+              "1273"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "935",
+              "1274"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "936",
+              "1275"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "937",
+              "1276"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "938",
+              "1277"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-17T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "939",
+              "1278"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-19T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "940",
+              "1279"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-20T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "941",
+              "1280"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "942",
+              "1281"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "943",
+              "1282"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-24T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "944",
+              "1283"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "945",
+              "1284"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "946",
+              "1285"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "947",
+              "1286"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "948",
+              "1287"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "949",
+              "1288"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "950",
+              "1289"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "951",
+              "1290"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "952",
+              "1291"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "953",
+              "1292"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "954",
+              "1293"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "955",
+              "1294"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "956",
+              "1295"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "957",
+              "1296"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "958",
+              "1297"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "959",
+              "1298"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "960",
+              "1299"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-15T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "961",
+              "1300"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "962",
+              "1301"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "963",
+              "1302"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "964",
+              "1303"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "965",
+              "1304"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "966",
+              "1305"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "967",
+              "1306"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-24T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "968",
+              "1307"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "969",
+              "1308"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "970",
+              "1309"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "971",
+              "1310"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "972",
+              "1311"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "973",
+              "1312"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "974",
+              "1313"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-05-29T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "975",
+              "1314"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "976",
+              "1315"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "977",
+              "1316"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "978",
+              "1317"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "979",
+              "1318"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "980",
+              "1319"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-08T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "981",
+              "1320"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T21:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "982",
+              "1321"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "983",
+              "1322"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:45:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "984",
+              "1323"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:57:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "985",
+              "1324"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "986",
+              "1325"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "987",
+              "1326"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "988",
+              "1327"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T17:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "989",
+              "1328"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T20:59:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "990",
+              "1329"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "991",
+              "1330"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-12T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "992",
+              "1331"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-14T22:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "993",
+              "1332"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-15T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "994",
+              "1333"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T18:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "995",
+              "1334"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "996",
+              "1335"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "997",
+              "1336"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "998",
+              "1337"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "999",
+              "1338"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-19T17:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1000",
+              "1339"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1001",
+              "1340"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1002",
+              "1341"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:09:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1003",
+              "1342"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:10:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1004",
+              "1343"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T12:25:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1005",
+              "1344"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1006",
+              "1345"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1007",
+              "1346"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1008",
+              "1347"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1009",
+              "1348"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1010",
+              "1349"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-26T20:50:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1011",
+              "1350"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1012",
+              "1351"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1013",
+              "1352"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T01:07:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1014",
+              "1353"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1015",
+              "1354"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1016",
+              "1355"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:06:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1017",
+              "1356"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:17:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1018",
+              "1357"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1019",
+              "1358"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1020",
+              "1359"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1021",
+              "1360"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1022",
+              "1361"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1023",
+              "1362"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-03T17:01:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1024",
+              "1363"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T20:55:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1025",
+              "1364"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1026",
+              "1365"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1033",
+              "1371"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-26T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1034",
+              "1372"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-07-29T18:00:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1035",
+              "1373"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity_key": "XAUUSD|1x Trade Ltd.|1m|2026-08-02T22:05:00.000Z",
+      "categories": [
+        "MULTIPLE_ACTIVE_EVIDENCE"
+      ],
+      "findings": [
+        {
+          "kind": "MULTIPLE_ACTIVE_EVIDENCE_ROWS",
+          "detail": {
+            "ids": [
+              "1036",
+              "1374"
+            ],
+            "detector_versions": [
+              "candle-detector-v2-calendar",
+              "candle-detector-v3-robust"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "decision_diff_status": "UNPROVEN",
+  "status": "BLOCKED_IDENTITY_INTEGRITY"
+}

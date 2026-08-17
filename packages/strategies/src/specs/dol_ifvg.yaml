@@ -1,6 +1,7 @@
 id: dol_ifvg
 familyId: dol_ifvg
 active: true
+dxyDependency: not_required
 name: "DOL iFVG — Draw on Liquidity"
 version: "1.0.0"
 description: >

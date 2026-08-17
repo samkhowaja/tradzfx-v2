@@ -1,0 +1,3376 @@
+{
+  "generatedAt": "2026-08-14T02:23:14.546Z",
+  "readOnly": true,
+  "note": "Review unit = cluster. Set clusterReviewed:true (+ optional clusterDecision override) per cluster, then run the flip step to fan out to per-row humanReviewed:true in the decision file. Multi-symbol USD-complex clusters are the highest-confidence KEEP units.",
+  "summary": {
+    "keepRows": 384,
+    "totalClusters": 180,
+    "multiSymbolClusters": 31,
+    "singleSymbolClusters": 149,
+    "usdComplexClusters": 23,
+    "rowsInMultiSymbol": 147,
+    "rowsInSingle": 237
+  },
+  "clusters": [
+    {
+      "clusterId": "2026-06-17T21:00:00.000Z",
+      "eventTime": "2026-06-17T21:00:00.000Z",
+      "size": 12,
+      "symbols": [
+        "AUDUSD",
+        "EURUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDSEK"
+      ],
+      "dxyConfirms": 12,
+      "maxJumpAtr": 22.4,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1075",
+        "642",
+        "1099",
+        "676",
+        "1135",
+        "729",
+        "1167",
+        "768",
+        "1189",
+        "800",
+        "1242",
+        "888"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-11T21:00:00.000Z",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "size": 8,
+      "symbols": [
+        "AUDUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDSEK"
+      ],
+      "dxyConfirms": 8,
+      "maxJumpAtr": 22.3,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1071",
+        "638",
+        "1161",
+        "760",
+        "788",
+        "1184",
+        "1237",
+        "882"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:05:00.000Z",
+      "eventTime": "2026-06-17T21:05:00.000Z",
+      "size": 8,
+      "symbols": [
+        "AUDUSD",
+        "EURUSD",
+        "GBPUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 8,
+      "maxJumpAtr": 13.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "643",
+        "1076",
+        "1100",
+        "677",
+        "1138",
+        "732",
+        "1192",
+        "803"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:12:00.000Z",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "size": 7,
+      "symbols": [
+        "AUDUSD",
+        "EURUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 3,
+      "maxJumpAtr": 6.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "647",
+        "680",
+        "1103",
+        "736",
+        "1170",
+        "771",
+        "894"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-03-23T11:05:00.000Z",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "size": 6,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "XAUUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 14.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1110",
+        "1090",
+        "659",
+        "1114",
+        "707",
+        "1375"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:00:00.000Z",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "size": 6,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY"
+      ],
+      "dxyConfirms": 6,
+      "maxJumpAtr": 26.5,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1092",
+        "661",
+        "1115",
+        "708",
+        "1200",
+        "811"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:04:00.000Z",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "size": 6,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 12.4,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1093",
+        "662",
+        "1116",
+        "709",
+        "1202",
+        "813"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:09:00.000Z",
+      "eventTime": "2026-06-17T21:09:00.000Z",
+      "size": 6,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 6,
+      "maxJumpAtr": 9.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1101",
+        "678",
+        "1139",
+        "733",
+        "1246",
+        "892"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-11T21:08:00.000Z",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "size": 6,
+      "symbols": [
+        "NZDUSD",
+        "USDCHF",
+        "USDSEK"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 8.5,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1164",
+        "763",
+        "790",
+        "1186",
+        "1240",
+        "885"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:11:00.000Z",
+      "eventTime": "2026-06-17T21:11:00.000Z",
+      "size": 5,
+      "symbols": [
+        "AUDUSD",
+        "GBPUSD",
+        "NZDUSD"
+      ],
+      "dxyConfirms": 5,
+      "maxJumpAtr": 7.8,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1079",
+        "646",
+        "735",
+        "1169",
+        "770"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-04-12T21:03:00.000Z",
+      "eventTime": "2026-04-12T21:03:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "EURUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 22.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1060",
+        "620",
+        "660",
+        "1091"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-27T01:56:00.000Z",
+      "eventTime": "2026-04-27T01:56:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "NZDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 15.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "634",
+        "1067",
+        "1158",
+        "757"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:03:00.000Z",
+      "eventTime": "2026-06-11T21:03:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 12.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "639",
+        "1072",
+        "789",
+        "1185"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:11:00.000Z",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 8,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "640",
+        "1073",
+        "792",
+        "1188"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:06:00.000Z",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "NZDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 10,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1077",
+        "644",
+        "1168",
+        "769"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-07-14T12:30:00.000Z",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "size": 4,
+      "symbols": [
+        "AUDUSD",
+        "NZDUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 14.6,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "648",
+        "1080",
+        "1172",
+        "776"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-05T20:55:00.000Z",
+      "eventTime": "2026-06-05T20:55:00.000Z",
+      "size": 4,
+      "symbols": [
+        "EURUSD",
+        "XAUUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 22.6,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "675",
+        "1098",
+        "1319",
+        "980"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:10:00.000Z",
+      "eventTime": "2026-06-17T21:10:00.000Z",
+      "size": 4,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 7.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1102",
+        "679",
+        "734",
+        "893"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:13:00.000Z",
+      "eventTime": "2026-06-17T21:13:00.000Z",
+      "size": 4,
+      "symbols": [
+        "EURUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "681",
+        "1171",
+        "772",
+        "895"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-18T21:00:00.000Z",
+      "eventTime": "2026-06-18T21:00:00.000Z",
+      "size": 4,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 24.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1104",
+        "690",
+        "1140",
+        "739"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:03:00.000Z",
+      "eventTime": "2026-06-18T21:03:00.000Z",
+      "size": 4,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 13.8,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1105",
+        "691",
+        "1141",
+        "740"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:03:00.000Z",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "size": 4,
+      "symbols": [
+        "GBPUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 13.3,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1136",
+        "730",
+        "801",
+        "1190"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:04:00.000Z",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "size": 4,
+      "symbols": [
+        "GBPUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 9.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1137",
+        "731",
+        "1191",
+        "802"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-11T21:07:00.000Z",
+      "eventTime": "2026-06-11T21:07:00.000Z",
+      "size": 4,
+      "symbols": [
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 9.2,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1163",
+        "762",
+        "884",
+        "1239"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-06T01:50:00.000Z",
+      "eventTime": "2026-06-06T01:50:00.000Z",
+      "size": 4,
+      "symbols": [
+        "USDCHF",
+        "USDSEK"
+      ],
+      "dxyConfirms": 4,
+      "maxJumpAtr": 22.8,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1183",
+        "787",
+        "1236",
+        "881"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:12:00.000Z",
+      "eventTime": "2026-06-11T21:12:00.000Z",
+      "size": 3,
+      "symbols": [
+        "AUDUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 3,
+      "maxJumpAtr": 6.4,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1074",
+        "641",
+        "887"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:17:00.000Z",
+      "eventTime": "2026-06-17T21:17:00.000Z",
+      "size": 3,
+      "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 4.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "682",
+        "738",
+        "896"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:19:00.000Z",
+      "eventTime": "2026-06-17T21:19:00.000Z",
+      "size": 3,
+      "symbols": [
+        "EURUSD",
+        "NZDUSD",
+        "USDSEK"
+      ],
+      "dxyConfirms": 3,
+      "maxJumpAtr": 3.7,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "683",
+        "775",
+        "897"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-11T21:13:00.000Z",
+      "eventTime": "2026-06-11T21:13:00.000Z",
+      "size": 3,
+      "symbols": [
+        "NZDUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1165",
+        "764",
+        "793"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:15:00.000Z",
+      "eventTime": "2026-06-11T21:15:00.000Z",
+      "size": 3,
+      "symbols": [
+        "NZDUSD",
+        "USDCHF"
+      ],
+      "dxyConfirms": 3,
+      "maxJumpAtr": 5.1,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1166",
+        "765",
+        "795"
+      ],
+      "signature": "usd-complex-event",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-03-26T20:11:00.000Z",
+      "eventTime": "2026-03-26T20:11:00.000Z",
+      "size": 2,
+      "symbols": [
+        "AUDUSD",
+        "XAUUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 17.6,
+      "multiSymbol": true,
+      "quarantineIds": [
+        "1081",
+        "1378"
+      ],
+      "signature": "cross-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-27T02:00:00.000Z",
+      "eventTime": "2026-04-27T02:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "AUDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "636",
+        "1069"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-06T01:51:00.000Z",
+      "eventTime": "2026-06-06T01:51:00.000Z",
+      "size": 2,
+      "symbols": [
+        "AUDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 22.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1070",
+        "637"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:08:00.000Z",
+      "eventTime": "2026-06-17T21:08:00.000Z",
+      "size": 2,
+      "symbols": [
+        "AUDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1078",
+        "645"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-04-30T22:08:00.000Z",
+      "eventTime": "2026-04-30T22:08:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 20.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1094",
+        "663"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:09:00.000Z",
+      "eventTime": "2026-04-30T22:09:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1095",
+        "664"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:18:00.000Z",
+      "eventTime": "2026-04-30T22:18:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1096",
+        "665"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:19:00.000Z",
+      "eventTime": "2026-04-30T22:19:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "666",
+        "1097"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:12:00.000Z",
+      "eventTime": "2026-06-18T21:12:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 9.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1106",
+        "692"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:13:00.000Z",
+      "eventTime": "2026-06-18T21:13:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1107",
+        "693"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:19:00.000Z",
+      "eventTime": "2026-06-18T21:19:00.000Z",
+      "size": 2,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1108",
+        "694"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:09:00.000Z",
+      "eventTime": "2026-04-30T21:09:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1117",
+        "710"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:10:00.000Z",
+      "eventTime": "2026-04-30T21:10:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1118",
+        "711"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:22:00.000Z",
+      "eventTime": "2026-04-30T22:22:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 25.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1119",
+        "712"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:23:00.000Z",
+      "eventTime": "2026-04-30T22:23:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1120",
+        "713"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-08T20:58:00.000Z",
+      "eventTime": "2026-05-08T20:58:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 19.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1121",
+        "714"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-14T21:00:00.000Z",
+      "eventTime": "2026-05-14T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 24.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1123",
+        "716"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-14T21:03:00.000Z",
+      "eventTime": "2026-05-14T21:03:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1124",
+        "717"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-14T21:13:00.000Z",
+      "eventTime": "2026-05-14T21:13:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1126",
+        "719"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:00:00.000Z",
+      "eventTime": "2026-05-18T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 22.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1127",
+        "720"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:04:00.000Z",
+      "eventTime": "2026-05-18T21:04:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1128",
+        "721"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:15:00.000Z",
+      "eventTime": "2026-05-18T21:15:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1129",
+        "722"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:16:00.000Z",
+      "eventTime": "2026-05-18T21:16:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1130",
+        "723"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:18:00.000Z",
+      "eventTime": "2026-05-18T21:18:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1131",
+        "724"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T22:36:00.000Z",
+      "eventTime": "2026-05-18T22:36:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 26,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1132",
+        "726"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T22:38:00.000Z",
+      "eventTime": "2026-05-18T22:38:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1133",
+        "727"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-05T20:58:00.000Z",
+      "eventTime": "2026-06-05T20:58:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 21.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1134",
+        "728"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T22:37:00.000Z",
+      "eventTime": "2026-06-18T22:37:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 25.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1144",
+        "743"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T22:57:00.000Z",
+      "eventTime": "2026-06-18T22:57:00.000Z",
+      "size": 2,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 9.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1146",
+        "745"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-06T01:47:00.000Z",
+      "eventTime": "2026-06-06T01:47:00.000Z",
+      "size": 2,
+      "symbols": [
+        "NZDUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 22.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1160",
+        "759"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-29T21:00:00.000Z",
+      "eventTime": "2026-04-29T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 21.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1199",
+        "810"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:03:00.000Z",
+      "eventTime": "2026-04-30T21:03:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 14.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1201",
+        "812"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:05:00.000Z",
+      "eventTime": "2026-04-30T21:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1203",
+        "814"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:07:00.000Z",
+      "eventTime": "2026-04-30T21:07:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1204",
+        "815"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-04T03:45:00.000Z",
+      "eventTime": "2026-05-04T03:45:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 21,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1205",
+        "827"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:00:00.000Z",
+      "eventTime": "2026-05-06T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 22.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1206",
+        "828"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:05:00.000Z",
+      "eventTime": "2026-05-06T21:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1207",
+        "829"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:10:00.000Z",
+      "eventTime": "2026-05-06T21:10:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 9.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1208",
+        "830"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:12:00.000Z",
+      "eventTime": "2026-05-06T21:12:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1209",
+        "831"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:13:00.000Z",
+      "eventTime": "2026-05-06T21:13:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1210",
+        "832"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:00:00.000Z",
+      "eventTime": "2026-07-02T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 25.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1211",
+        "844"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:03:00.000Z",
+      "eventTime": "2026-07-02T21:03:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1212",
+        "845"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:10:00.000Z",
+      "eventTime": "2026-07-02T21:10:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 9.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1213",
+        "846"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:11:00.000Z",
+      "eventTime": "2026-07-02T21:11:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1214",
+        "847"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-25T01:50:00.000Z",
+      "eventTime": "2026-04-25T01:50:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 14.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "874",
+        "1230"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-17T21:10:00.000Z",
+      "eventTime": "2026-05-17T21:10:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "875",
+        "1231"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-17T21:12:00.000Z",
+      "eventTime": "2026-05-17T21:12:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "876",
+        "1232"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:05:00.000Z",
+      "eventTime": "2026-06-11T21:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "883",
+        "1238"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-08T21:15:00.000Z",
+      "eventTime": "2026-07-08T21:15:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "899",
+        "1248"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-08T21:16:00.000Z",
+      "eventTime": "2026-07-08T21:16:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 6.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1249",
+        "900"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-08T21:26:00.000Z",
+      "eventTime": "2026-07-08T21:26:00.000Z",
+      "size": 2,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1250",
+        "901"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-27T20:59:00.000Z",
+      "eventTime": "2026-04-27T20:59:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 17.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1284",
+        "945"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-29T22:01:00.000Z",
+      "eventTime": "2026-04-29T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 16.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "950",
+        "1289"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T22:01:00.000Z",
+      "eventTime": "2026-04-30T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 17.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1291",
+        "952"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T22:01:00.000Z",
+      "eventTime": "2026-05-06T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 14.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1295",
+        "956"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-11T22:01:00.000Z",
+      "eventTime": "2026-05-11T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 14.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1297",
+        "958"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-14T22:01:00.000Z",
+      "eventTime": "2026-05-14T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 10.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1299",
+        "960"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T22:01:00.000Z",
+      "eventTime": "2026-05-18T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 9.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "963",
+        "1302"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-20T22:01:00.000Z",
+      "eventTime": "2026-05-20T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 15,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1306",
+        "967"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-24T22:01:00.000Z",
+      "eventTime": "2026-05-24T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 15.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1307",
+        "968"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T21:00:00.000Z",
+      "eventTime": "2026-05-28T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 24.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "973",
+        "1312"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:01:00.000Z",
+      "eventTime": "2026-05-28T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 17.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1313",
+        "974"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-09T21:00:00.000Z",
+      "eventTime": "2026-06-09T21:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 23.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1321",
+        "982"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-09T22:01:00.000Z",
+      "eventTime": "2026-06-09T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 17.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1322",
+        "983"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-10T07:45:00.000Z",
+      "eventTime": "2026-06-10T07:45:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 21.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1323",
+        "984"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-10T07:57:00.000Z",
+      "eventTime": "2026-06-10T07:57:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1324",
+        "985"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-10T22:01:00.000Z",
+      "eventTime": "2026-06-10T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 19.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1327",
+        "988"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T20:59:00.000Z",
+      "eventTime": "2026-06-11T20:59:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 22,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "990",
+        "1329"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T22:01:00.000Z",
+      "eventTime": "2026-06-11T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 18.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1330",
+        "991"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-14T22:01:00.000Z",
+      "eventTime": "2026-06-14T22:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 17.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1332",
+        "993"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T18:00:00.000Z",
+      "eventTime": "2026-06-17T18:00:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1334",
+        "995"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T22:05:00.000Z",
+      "eventTime": "2026-06-17T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 19.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1336",
+        "997"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T22:05:00.000Z",
+      "eventTime": "2026-06-18T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 20.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1338",
+        "999"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-19T17:01:00.000Z",
+      "eventTime": "2026-06-19T17:01:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 15.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1339",
+        "1000"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-23T22:05:00.000Z",
+      "eventTime": "2026-06-23T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1002",
+        "1341"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-23T23:09:00.000Z",
+      "eventTime": "2026-06-23T23:09:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1003",
+        "1342"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-23T23:10:00.000Z",
+      "eventTime": "2026-06-23T23:10:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 8.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1343",
+        "1004"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-24T12:25:00.000Z",
+      "eventTime": "2026-06-24T12:25:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1005",
+        "1344"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-24T20:55:00.000Z",
+      "eventTime": "2026-06-24T20:55:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 18.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1345",
+        "1006"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-24T22:05:00.000Z",
+      "eventTime": "2026-06-24T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1007",
+        "1346"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-25T12:30:00.000Z",
+      "eventTime": "2026-06-25T12:30:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 7.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1347",
+        "1008"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-25T22:05:00.000Z",
+      "eventTime": "2026-06-25T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 11.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1349",
+        "1010"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-29T20:55:00.000Z",
+      "eventTime": "2026-06-29T20:55:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 21.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1351",
+        "1012"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-30T01:07:00.000Z",
+      "eventTime": "2026-06-30T01:07:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 5.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1353",
+        "1014"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-30T22:05:00.000Z",
+      "eventTime": "2026-06-30T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 13.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1016",
+        "1355"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-01T20:55:00.000Z",
+      "eventTime": "2026-07-01T20:55:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 18.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1358",
+        "1019"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T12:30:00.000Z",
+      "eventTime": "2026-07-02T12:30:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1360",
+        "1021"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T22:05:00.000Z",
+      "eventTime": "2026-07-02T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 15.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1362",
+        "1023"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-07T22:05:00.000Z",
+      "eventTime": "2026-07-07T22:05:00.000Z",
+      "size": 2,
+      "symbols": [
+        "XAUUSD"
+      ],
+      "dxyConfirms": 2,
+      "maxJumpAtr": 12.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1026",
+        "1365"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:18:00.000Z",
+      "eventTime": "2026-05-28T22:18:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 10.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "667"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:19:00.000Z",
+      "eventTime": "2026-05-28T22:19:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "668"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:26:00.000Z",
+      "eventTime": "2026-05-28T22:26:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 6.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "669"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:27:00.000Z",
+      "eventTime": "2026-05-28T22:27:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 6.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "670"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:29:00.000Z",
+      "eventTime": "2026-05-28T22:29:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 5.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "671"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:30:00.000Z",
+      "eventTime": "2026-05-28T22:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "672"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:52:00.000Z",
+      "eventTime": "2026-05-28T22:52:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 5.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "673"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-28T22:53:00.000Z",
+      "eventTime": "2026-05-28T22:53:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "674"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:20:00.000Z",
+      "eventTime": "2026-06-17T21:20:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "684"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:21:00.000Z",
+      "eventTime": "2026-06-17T21:21:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "685"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:41:00.000Z",
+      "eventTime": "2026-06-17T21:41:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "686"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:42:00.000Z",
+      "eventTime": "2026-06-17T21:42:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "687"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:47:00.000Z",
+      "eventTime": "2026-06-17T21:47:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "688"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:48:00.000Z",
+      "eventTime": "2026-06-17T21:48:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "689"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-18T21:20:00.000Z",
+      "eventTime": "2026-06-18T21:20:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "695"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:23:00.000Z",
+      "eventTime": "2026-06-18T21:23:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "696"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:24:00.000Z",
+      "eventTime": "2026-06-18T21:24:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "697"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:25:00.000Z",
+      "eventTime": "2026-06-18T21:25:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "698"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:26:00.000Z",
+      "eventTime": "2026-06-18T21:26:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "699"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:29:00.000Z",
+      "eventTime": "2026-06-18T21:29:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "700"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-18T21:30:00.000Z",
+      "eventTime": "2026-06-18T21:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "EURUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "701"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-18T21:19:00.000Z",
+      "eventTime": "2026-05-18T21:19:00.000Z",
+      "size": 1,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "725"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-17T21:16:00.000Z",
+      "eventTime": "2026-06-17T21:16:00.000Z",
+      "size": 1,
+      "symbols": [
+        "GBPUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "737"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-06-17T21:18:00.000Z",
+      "eventTime": "2026-06-17T21:18:00.000Z",
+      "size": 1,
+      "symbols": [
+        "NZDUSD"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "774"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": true,
+      "clusterDecision": "KEEP",
+      "macroEventTag": "warsh-fomc-2026-06-17",
+      "reviewNote": "Weekday 21:00 UTC usd-complex macro event; chart-confirmed."
+    },
+    {
+      "clusterId": "2026-07-14T15:30:00.000Z",
+      "eventTime": "2026-07-14T15:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "NZDUSD"
+      ],
+      "dxyConfirms": 0,
+      "maxJumpAtr": 0,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "1175"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:14:00.000Z",
+      "eventTime": "2026-06-11T21:14:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDCHF"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "794"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:25:00.000Z",
+      "eventTime": "2026-06-11T21:25:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDCHF"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "796"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-06-11T21:44:00.000Z",
+      "eventTime": "2026-06-11T21:44:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDCHF"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 5.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "799"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:08:00.000Z",
+      "eventTime": "2026-04-30T21:08:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.9,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "816"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:11:00.000Z",
+      "eventTime": "2026-04-30T21:11:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "817"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:12:00.000Z",
+      "eventTime": "2026-04-30T21:12:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "818"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:13:00.000Z",
+      "eventTime": "2026-04-30T21:13:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "819"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:15:00.000Z",
+      "eventTime": "2026-04-30T21:15:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "820"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:18:00.000Z",
+      "eventTime": "2026-04-30T21:18:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "821"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:19:00.000Z",
+      "eventTime": "2026-04-30T21:19:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "822"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:29:00.000Z",
+      "eventTime": "2026-04-30T21:29:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "823"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:30:00.000Z",
+      "eventTime": "2026-04-30T21:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "824"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:39:00.000Z",
+      "eventTime": "2026-04-30T21:39:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "825"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-04-30T21:40:00.000Z",
+      "eventTime": "2026-04-30T21:40:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "826"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:14:00.000Z",
+      "eventTime": "2026-05-06T21:14:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "833"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:17:00.000Z",
+      "eventTime": "2026-05-06T21:17:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.1,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "834"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:18:00.000Z",
+      "eventTime": "2026-05-06T21:18:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "835"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:21:00.000Z",
+      "eventTime": "2026-05-06T21:21:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "836"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:30:00.000Z",
+      "eventTime": "2026-05-06T21:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "839"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:34:00.000Z",
+      "eventTime": "2026-05-06T21:34:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "840"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:35:00.000Z",
+      "eventTime": "2026-05-06T21:35:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "841"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:36:00.000Z",
+      "eventTime": "2026-05-06T21:36:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "842"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-06T21:38:00.000Z",
+      "eventTime": "2026-05-06T21:38:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.2,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "843"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:14:00.000Z",
+      "eventTime": "2026-07-02T21:14:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.8,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "849"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:22:00.000Z",
+      "eventTime": "2026-07-02T21:22:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "850"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:24:00.000Z",
+      "eventTime": "2026-07-02T21:24:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "851"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:25:00.000Z",
+      "eventTime": "2026-07-02T21:25:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "852"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:26:00.000Z",
+      "eventTime": "2026-07-02T21:26:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "853"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:28:00.000Z",
+      "eventTime": "2026-07-02T21:28:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.7,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "854"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:29:00.000Z",
+      "eventTime": "2026-07-02T21:29:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 2.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "855"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:43:00.000Z",
+      "eventTime": "2026-07-02T21:43:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "856"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:45:00.000Z",
+      "eventTime": "2026-07-02T21:45:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "857"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-02T21:53:00.000Z",
+      "eventTime": "2026-07-02T21:53:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDJPY"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.6,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "858"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-05-17T21:30:00.000Z",
+      "eventTime": "2026-05-17T21:30:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 3.5,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "877"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-08T21:27:00.000Z",
+      "eventTime": "2026-07-08T21:27:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.3,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "902"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    },
+    {
+      "clusterId": "2026-07-15T21:48:00.000Z",
+      "eventTime": "2026-07-15T21:48:00.000Z",
+      "size": 1,
+      "symbols": [
+        "USDSEK"
+      ],
+      "dxyConfirms": 1,
+      "maxJumpAtr": 4.4,
+      "multiSymbol": false,
+      "quarantineIds": [
+        "909"
+      ],
+      "signature": "single-symbol",
+      "clusterReviewed": false,
+      "clusterDecision": "KEEP"
+    }
+  ],
+  "reviewedAt": "2026-08-14T02:52:44.882Z",
+  "reviewPolicy": "v4-human-2026-08-13"
+}

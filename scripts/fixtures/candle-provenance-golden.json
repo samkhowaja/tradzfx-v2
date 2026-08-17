@@ -1,0 +1,19 @@
+{
+  "algorithm": "sha256-v1-utc-canonical-number",
+  "rows": [
+    {
+      "symbol": "TEST",
+      "broker": "TEST",
+      "timeframe": "1m",
+      "candle_ts": "2026-01-01T00:00:00.000Z",
+      "o": 1,
+      "h": 2,
+      "l": 0,
+      "c": 1,
+      "v": 1,
+      "spread": 0,
+      "digits": 5,
+      "expected_hash": "6623d77aceb9b5db9a9027f75bc962fc6bd2c78a2e6b91fa9542c4b7d1a8d2b2"
+    }
+  ]
+}

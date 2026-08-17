@@ -1,6 +1,7 @@
 id: apex_scalp
 familyId: apex_scalp
 active: true
+dxyDependency: not_required
 name: "Apex Scalp — direction → setup → 1m entry (A+ setups only)"
 version: "1.0.0"
 description: >

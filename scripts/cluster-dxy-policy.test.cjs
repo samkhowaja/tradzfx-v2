@@ -1,0 +1,10 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { evaluateClusterDxyPolicy } = require('./cluster-dxy-policy.cjs');
+const base = { signature: 'usd-complex-event', coMoveCount: 1, dxySign: 'contradict' };
+test('required DXY dependency blocks contradiction', () => assert.equal(evaluateClusterDxyPolicy({ ...base, dxyDependency: 'required' }).reason, 'dxy_required_failed'));
+test('optional DXY dependency keeps core event', () => assert.equal(evaluateClusterDxyPolicy({ ...base, dxyDependency: 'optional' }).allowed, true));
+test('not-required DXY dependency keeps core event', () => assert.equal(evaluateClusterDxyPolicy({ ...base, dxyDependency: 'not_required' }).allowed, true));
+test('missing policy fails closed', () => assert.equal(evaluateClusterDxyPolicy(base).reason, 'dxy_required_failed'));
+test('core signature still blocks without co-move', () => assert.equal(evaluateClusterDxyPolicy({ ...base, coMoveCount: 0, dxyDependency: 'not_required' }).reason, 'core_signature_failed'));

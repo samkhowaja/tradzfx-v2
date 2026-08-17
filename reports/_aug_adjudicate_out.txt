@@ -1,0 +1,8 @@
+﻿node : column c.open does not exist
+At line:1 char:1
++ node temp\_aug_adjudicate.cjs 2>&1 | Select-Object -Skip 1 | Out-File ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (column c.open does not exist:Stri 
+   ng) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

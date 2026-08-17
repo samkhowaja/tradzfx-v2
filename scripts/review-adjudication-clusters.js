@@ -26,6 +26,8 @@ const fs = require('fs');
 const PATH = 'reports/adjudication-clusters-v4-2026-08-13.json';
 const WRITE = process.argv.includes('--write');
 const CHARTS_OK = process.argv.includes('--confirm-charts');
+const COHORTS_ARG = process.argv.find(a => a.startsWith('--cohorts='));
+const COHORTS = COHORTS_ARG ? COHORTS_ARG.split('=')[1].split(',').map(s => s.trim()).filter(Boolean) : null;
 
 const doc = JSON.parse(fs.readFileSync(PATH, 'utf8'));
 
@@ -62,10 +64,12 @@ function classify(cl) {
 
 const plan = [];
 let skippedCharts = 0;
+let skippedScope = 0;
 for (const cl of doc.clusters) {
   if (cl.clusterReviewed === true) continue; // idempotent: don't re-decide
   const c = classify(cl);
   if (!c) continue;
+  if (COHORTS && !COHORTS.includes(c.tag)) { skippedScope++; continue; }
   if (c.needsCharts && c.decision === 'KEEP' && !CHARTS_OK) { skippedCharts++; plan.push({ clusterId: cl.clusterId, action: 'SKIP-needs-confirm-charts', decision: c.decision, tag: c.tag }); continue; }
   plan.push({ clusterId: cl.clusterId, action: 'FLIP', decision: c.decision, tag: c.tag, size: cl.size, symbols: cl.symbols.join(','), signature: cl.signature });
   if (WRITE) {
@@ -80,8 +84,10 @@ for (const cl of doc.clusters) {
 const summary = {
   mode: WRITE ? 'WRITE' : 'DRY-RUN',
   chartsConfirmed: CHARTS_OK,
+  cohortScope: COHORTS,
   plannedFlips: plan.filter(p => p.action === 'FLIP').length,
   skippedNeedsCharts: skippedCharts,
+  skippedOutOfScope: skippedScope,
   keep: plan.filter(p => p.decision === 'KEEP' && p.action === 'FLIP').length,
   unknownEvent: plan.filter(p => p.decision === 'UNKNOWN_EVENT' && p.action === 'FLIP').length,
 };

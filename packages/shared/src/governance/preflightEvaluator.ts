@@ -17,6 +17,7 @@ export interface CandidateContext {
   timeframe: string;
   fromTs: string;
   toTs: string;
+  dxyDependency?: "required" | "optional" | "not_required";
   [key: string]: unknown;
 }
 
@@ -81,7 +82,11 @@ export function evaluatePreflight(
   if (!checks.trustedPrehistory.ok) blockers.push(trustedPrehistoryBlock(evidence(checks.trustedPrehistory)));
   if (!checks.warmup.ok) blockers.push(warmupBlock(evidence(checks.warmup)));
   if (!checks.featureLineage.ok) blockers.push(featureLineageBlock(evidence(checks.featureLineage)));
-  if (!checks.dxy.ok) blockers.push(dxyPolicyBlock(evidence(checks.dxy)));
+  // Missing policy stays fail-closed for legacy callers. Only explicit
+  // not_required/optional policies downgrade DXY failure to advisory.
+  if (!checks.dxy.ok && candidate.dxyDependency !== "not_required" && candidate.dxyDependency !== "optional") {
+    blockers.push(dxyPolicyBlock(evidence(checks.dxy)));
+  }
   if (!checks.setupLineage.ok) blockers.push(setupCacheLineageBlock(evidence(checks.setupLineage)));
   if (!checks.parity.ok) blockers.push(parityUnverifiedBlock(evidence(checks.parity)));
 

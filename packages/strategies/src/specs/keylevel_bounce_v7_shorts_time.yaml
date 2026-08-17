@@ -1,6 +1,7 @@
 id: keylevel_bounce_v7_shorts_time
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V7 (shorts, selected hours)
 version: 8.0.0
 description: >

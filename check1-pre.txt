@@ -1,0 +1,13 @@
+◇ injected env (17) from .env.local // tip: ⌘ enable debugging { debug: true }
+
+=== Check 1 pre | watukushay_no1 XAUUSD 1h 2026-07-01T00:00:00Z..2026-07-23T00:00:00Z ===
+
+slice counts (symbol+tf+window):
+  total=288 null_lineage=288 non_null=0 with_context_hash=287
+distinct lineage tuples in slice:
+  evaluator_id=null eval_ver=null engine_ver=null strat=null fam=null spec_ver=null env=null
+anchor row 2026-07-22T14:00Z:
+  id=10196 grade=C conf=60 status=null ctx=null evaluator=null env=null strat=null
+  id=14791 grade=C conf=48 status=waiting ctx=b8e205d02822c8fca6a7e9f6df26fa21 evaluator=null env=null strat=null
+global setup_evaluations lineage:
+  total=9289 null_lineage=9289

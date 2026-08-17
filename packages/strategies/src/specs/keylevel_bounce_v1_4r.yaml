@@ -1,6 +1,7 @@
 id: keylevel_bounce_v1_4r
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V1 (4R target)
 version: 2.0.0
 description: |

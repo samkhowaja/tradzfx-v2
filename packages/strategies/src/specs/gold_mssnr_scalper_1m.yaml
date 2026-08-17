@@ -1,6 +1,7 @@
 id: gold_mssnr_scalper_1m
 familyId: gold_mssnr_scalper
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Gold MSSNR Scalper 1m"
 version: "1.0.0"

@@ -1,6 +1,7 @@
 id: waqar_v2_xau_research
 familyId: waqar_v2
 active: true
+dxyDependency: not_required
 name: "Waqar Asim Scalp — XAUUSD Research"
 version: "3.1.0-xau.1"
 description: >

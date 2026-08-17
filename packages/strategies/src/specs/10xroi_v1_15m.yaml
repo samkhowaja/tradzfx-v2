@@ -1,6 +1,7 @@
 id: 10xroi_v1_15m
 familyId: 10xroi
 active: true
+dxyDependency: not_required
 name: "10XROI V1 — 15m"
 version: "1.0.0"
 description: "10XROI on 15m TF. 15m push-pull + daily bias + 15m candle confirmation. SL = ATR(15m)*1.0, 10R."

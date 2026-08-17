@@ -1,6 +1,7 @@
 id: lewis_kelly_smc_ny_shorts
 familyId: lewis_kelly_smc
 active: true
+dxyDependency: not_required
 name: Lewis Kelly SMC NY Shorts
 version: 2.0.0
 description: >

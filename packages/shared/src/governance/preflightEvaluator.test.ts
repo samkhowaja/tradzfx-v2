@@ -61,4 +61,15 @@ describe("preflight evaluator", () => {
     expect(envelope.checks.find((check) => check.id === "parity")?.status).toBe("NOT_RUN");
     expect(envelope.overallStatus).toBe("NOT_RUN");
   });
+
+  it("downgrades failed DXY check for explicit advisory policies", () => {
+    const input = checks();
+    input.dxy = { ok: false };
+    expect(evaluatePreflight({ ...candidate, dxyDependency: "not_required" }, input).blockers)
+      .not.toContainEqual(expect.objectContaining({ code: "BLOCKED_DXY_POLICY" }));
+    expect(evaluatePreflight({ ...candidate, dxyDependency: "optional" }, input).blockers)
+      .not.toContainEqual(expect.objectContaining({ code: "BLOCKED_DXY_POLICY" }));
+    expect(evaluatePreflight({ ...candidate, dxyDependency: "required" }, input).blockers)
+      .toContainEqual(expect.objectContaining({ code: "BLOCKED_DXY_POLICY" }));
+  });
 });

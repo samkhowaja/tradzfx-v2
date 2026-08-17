@@ -1,0 +1,30 @@
+◇ injected env (17) from .env.local // tip: ⌘ enable debugging { debug: true }
+{
+  "interval": {
+    "symbol": "XAUUSD",
+    "from": "2026-07-19T00:00:00Z",
+    "to": "2026-07-23T00:00:00Z"
+  },
+  "lookbackBars": 500,
+  "featureJobSlices": 0,
+  "auditSlices": 1,
+  "reports": [
+    {
+      "symbol": "XAUUSD",
+      "endTs": "2026-07-23T00:00:00Z",
+      "lookbackBars": 500,
+      "candidateCount": 500,
+      "claimOkCount": 0,
+      "claimOkWouldCleanCount": 0,
+      "claimOkWouldBlockedCount": 0,
+      "existingCleanCount": 500,
+      "existingBlockedCount": 0,
+      "existingValidatingCount": 0,
+      "claimErrorCount": 0,
+      "readyCount": 500,
+      "blockedByEligibilityCount": 0,
+      "blockedByQuarantineCount": 0,
+      "blockedUnknownCount": 0
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+◇ injected env (17) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+[backtest-pit-v2] WARNING: trusted-window gate OFF (--trusted=off) — results are research-only, not gating evidence.
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-01 → 2026-07-23 (22 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-11T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+[backtest-pit-v2] WARNING (research): Canonical candle interval unresolved for XAUUSD; backtest aborted (17 quarantined candles) — continuing under --trusted=off
+XAUUSD: 269 raw signals (148 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 294ms | prefetch 169ms | setup-engine 11688ms | simulate 11693ms
+  Setup evaluations: 121 persisted, 121 evaluated, 0 context-hash skips
+  Executed: 29 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 91 | Heat dropped: 1
+  Gate skips: volatility=66, session=12, spread=10, rateLimit=3
+  Wins: 9 | Losses: 20 | Timeouts: 0
+  WR: 31.0% | Net R: 2.95 | Avg Win: 1.88R | Avg Loss: -0.70R

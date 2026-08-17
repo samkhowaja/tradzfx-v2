@@ -1,6 +1,7 @@
 id: waqar_v2_live_paper
 familyId: waqar_v2
 active: true
+dxyDependency: not_required
 name: "Waqar Asim Scalp — Live Paper (thesis dedup)"
 version: "3.1.0-paper.1"
 description: >

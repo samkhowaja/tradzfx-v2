@@ -1,0 +1,12 @@
+{
+  "schema": "parity-harness-report-readonly-v1",
+  "generatedAt": "2026-08-15T07:24:00Z",
+  "mode": "DRY_RUN_NOT_EXECUTED",
+  "authority": "NON_AUTHORITATIVE",
+  "databaseWrites": 0,
+  "sourceStateChanges": 0,
+  "reason": "Execution blocked: detector v3.1 not certified, unresolved canonical blockers remain, and ATR lineage is non-authoritative.",
+  "scope": ["XAUUSD 15m", "EURUSD 5m", "USDJPY 5m"],
+  "hardBoundaries": ["2026-07-19T01:59:00Z", "2026-07-07T21:04:00Z", "2026-07-07T21:05:00Z"],
+  "result": "BLOCKED_PRECONDITION"
+}

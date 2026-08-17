@@ -1,5 +1,5 @@
 import type { StrategySpec } from "@tm/shared";
-import { resolveReadinessRequirements } from "@tm/strategies";
+import { resolveDxyDependency, resolveReadinessRequirements } from "@tm/strategies";
 
 export const DXY_NON_AUTHORITATIVE_BLOCKED = "DXY_NON_AUTHORITATIVE_BLOCKED";
 
@@ -19,6 +19,7 @@ export function assertExecutionAllowedByDxyPolicy(
   evaluationOnly: boolean,
 ): void {
   if (evaluationOnly) return;
+  if (resolveDxyDependency(spec) !== "required") return;
   const dependency = findNonAuthoritativeDxyDependency(spec);
   if (dependency) {
     throw new Error(`${DXY_NON_AUTHORITATIVE_BLOCKED}:${dependency}`);

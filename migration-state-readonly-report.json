@@ -1,0 +1,1148 @@
+{
+  "authority": "NON_AUTHORITATIVE",
+  "writes": 0,
+  "readOnly": true,
+  "method": "object-presence-audit",
+  "identity": {
+    "database": "tradzfx_v2",
+    "db_user": "postgres",
+    "server_version": "17.9",
+    "snapshot_txid": "133013833"
+  },
+  "catalog": [
+    {
+      "version": "001_schema",
+      "applied_at": "2026-07-02T01:20:45.830Z"
+    },
+    {
+      "version": "002_orders_ea_columns",
+      "applied_at": "2026-07-02T01:20:45.835Z"
+    },
+    {
+      "version": "003_orders_close_pnl",
+      "applied_at": "2026-07-02T01:20:45.837Z"
+    },
+    {
+      "version": "004_strategy_specs",
+      "applied_at": "2026-07-02T01:20:45.842Z"
+    },
+    {
+      "version": "005_candle_pattern",
+      "applied_at": "2026-07-02T01:20:45.850Z"
+    },
+    {
+      "version": "006_extensions",
+      "applied_at": "2026-07-02T01:20:45.854Z"
+    },
+    {
+      "version": "007_features_indicator",
+      "applied_at": "2026-07-02T01:20:45.860Z"
+    },
+    {
+      "version": "008_opening_range",
+      "applied_at": "2026-07-02T01:20:45.865Z"
+    },
+    {
+      "version": "009_session_hl",
+      "applied_at": "2026-07-02T01:20:45.870Z"
+    },
+    {
+      "version": "010_ema_cross",
+      "applied_at": "2026-07-02T01:20:45.876Z"
+    },
+    {
+      "version": "011_session_daily_tf_ts",
+      "applied_at": "2026-07-02T01:20:45.884Z"
+    },
+    {
+      "version": "012_session_tf",
+      "applied_at": "2026-07-02T01:20:45.891Z"
+    },
+    {
+      "version": "013_indicator_batch",
+      "applied_at": "2026-07-02T01:20:45.908Z"
+    },
+    {
+      "version": "014_autovacuum_feature_tables",
+      "applied_at": "2026-07-02T01:20:45.911Z"
+    },
+    {
+      "version": "015_ohlcv_aggregates",
+      "applied_at": "2026-07-02T01:20:45.951Z"
+    },
+    {
+      "version": "016_ohlcv_incremental_rollup",
+      "applied_at": "2026-07-02T01:20:45.953Z"
+    },
+    {
+      "version": "017_timescale_hypertables_and_caggs",
+      "applied_at": "2026-07-02T01:23:55.638Z"
+    },
+    {
+      "version": "018_phase1_snapshot_result_model",
+      "applied_at": "2026-07-02T01:23:55.735Z"
+    },
+    {
+      "version": "019_sma_cross",
+      "applied_at": "2026-07-02T01:23:55.739Z"
+    },
+    {
+      "version": "020_zone_retest",
+      "applied_at": "2026-07-02T01:23:55.744Z"
+    },
+    {
+      "version": "021_correlation",
+      "applied_at": "2026-07-02T01:23:55.750Z"
+    },
+    {
+      "version": "022_time_of_day_edge",
+      "applied_at": "2026-07-02T01:23:55.756Z"
+    },
+    {
+      "version": "023_liquidity_pools",
+      "applied_at": "2026-07-02T01:23:55.763Z"
+    },
+    {
+      "version": "024_position_commands",
+      "applied_at": "2026-07-02T01:23:55.770Z"
+    },
+    {
+      "version": "025_orders_trail_state",
+      "applied_at": "2026-07-02T01:23:55.772Z"
+    },
+    {
+      "version": "026_mt5_terminals",
+      "applied_at": "2026-07-02T01:23:55.779Z"
+    },
+    {
+      "version": "027_feature_lifecycle",
+      "applied_at": "2026-07-02T01:23:55.785Z"
+    },
+    {
+      "version": "028_ifvg_originating_zone",
+      "applied_at": "2026-07-02T01:23:55.789Z"
+    },
+    {
+      "version": "029_order_blocks",
+      "applied_at": "2026-07-02T01:23:55.795Z"
+    },
+    {
+      "version": "030_eq_liquidity",
+      "applied_at": "2026-07-02T01:23:55.800Z"
+    },
+    {
+      "version": "031_pit_freshness",
+      "applied_at": "2026-07-02T01:23:55.801Z"
+    },
+    {
+      "version": "032_incremental_lifecycle",
+      "applied_at": "2026-07-02T01:23:55.806Z"
+    },
+    {
+      "version": "033_zone_direction",
+      "applied_at": "2026-07-02T01:23:55.807Z"
+    },
+    {
+      "version": "034_liquidity_side",
+      "applied_at": "2026-07-02T01:23:55.808Z"
+    },
+    {
+      "version": "035_optimize_lifecycle_refresh",
+      "applied_at": "2026-07-02T01:23:55.815Z"
+    },
+    {
+      "version": "036_fix_sweep_structure_lifecycle",
+      "applied_at": "2026-07-02T01:23:55.816Z"
+    },
+    {
+      "version": "037_features_htf_bias",
+      "applied_at": "2026-07-02T01:23:55.821Z"
+    },
+    {
+      "version": "038_candles_spread",
+      "applied_at": "2026-07-02T01:23:55.822Z"
+    },
+    {
+      "version": "039_features_spread",
+      "applied_at": "2026-07-02T01:23:55.828Z"
+    },
+    {
+      "version": "040_pricing_pip_size",
+      "applied_at": "2026-07-02T01:23:55.829Z"
+    },
+    {
+      "version": "041_backfill_htf_bias",
+      "applied_at": "2026-07-02T01:23:55.832Z"
+    },
+    {
+      "version": "042_lifecycle_first_touch",
+      "applied_at": "2026-07-02T01:23:55.838Z"
+    },
+    {
+      "version": "043_lifecycle_per_table_checkpoint",
+      "applied_at": "2026-07-02T01:23:55.844Z"
+    },
+    {
+      "version": "044_feature_cache_output",
+      "applied_at": "2026-07-02T01:23:55.846Z"
+    },
+    {
+      "version": "045_fix_sweep_structure_is_fresh",
+      "applied_at": "2026-07-02T01:23:55.848Z"
+    },
+    {
+      "version": "046_optimize_ifvg_lifecycle",
+      "applied_at": "2026-07-02T01:23:55.849Z"
+    },
+    {
+      "version": "047_pipeline_trigger_state",
+      "applied_at": "2026-07-02T01:23:55.853Z"
+    },
+    {
+      "version": "048_features_bias_regime",
+      "applied_at": "2026-07-02T01:23:55.855Z"
+    },
+    {
+      "version": "049_order_block_body",
+      "applied_at": "2026-07-02T01:23:55.856Z"
+    },
+    {
+      "version": "050_features_structure_v2",
+      "applied_at": "2026-07-02T01:23:55.859Z"
+    },
+    {
+      "version": "051_ifvg_confirmation",
+      "applied_at": "2026-07-02T01:23:55.860Z"
+    },
+    {
+      "version": "052_fix_ifvg_lifecycle",
+      "applied_at": "2026-07-02T01:23:55.861Z"
+    },
+    {
+      "version": "053_zone_outcomes",
+      "applied_at": "2026-07-02T01:23:55.867Z"
+    },
+    {
+      "version": "054_zone_quality_rank",
+      "applied_at": "2026-07-02T01:23:55.868Z"
+    },
+    {
+      "version": "055_dynamic_ote",
+      "applied_at": "2026-07-02T01:23:55.870Z"
+    },
+    {
+      "version": "056_htf_bias_tree",
+      "applied_at": "2026-07-02T01:23:55.871Z"
+    },
+    {
+      "version": "057_setup_evaluations",
+      "applied_at": "2026-07-02T01:23:55.877Z"
+    },
+    {
+      "version": "058_backtest_results",
+      "applied_at": "2026-07-02T01:23:55.886Z"
+    },
+    {
+      "version": "059_feature_jobs",
+      "applied_at": "2026-07-02T01:23:55.905Z"
+    },
+    {
+      "version": "060_calibration_tuning",
+      "applied_at": "2026-07-02T01:23:55.910Z"
+    },
+    {
+      "version": "061_calibration_tuning_v2",
+      "applied_at": "2026-07-02T01:23:55.926Z"
+    },
+    {
+      "version": "062_mt5_terminals_equity",
+      "applied_at": "2026-07-02T01:23:55.927Z"
+    },
+    {
+      "version": "063_order_execution_profile",
+      "applied_at": "2026-07-02T01:23:55.930Z"
+    },
+    {
+      "version": "064_position_commands_close_reason",
+      "applied_at": "2026-07-02T01:23:55.931Z"
+    },
+    {
+      "version": "065_dedup_live_signal_and_pipeline_bucket_lock",
+      "applied_at": "2026-07-02T01:23:55.952Z"
+    },
+    {
+      "version": "066_deactivate_unused_live_strategies",
+      "applied_at": "2026-07-02T01:23:55.954Z"
+    },
+    {
+      "version": "067_position_commands_terminal_key",
+      "applied_at": "2026-07-02T01:23:55.956Z"
+    },
+    {
+      "version": "068_market_levels",
+      "applied_at": "2026-07-02T01:23:55.963Z"
+    },
+    {
+      "version": "069_fix_features_structure_v2_columns",
+      "applied_at": "2026-07-02T01:23:56.007Z"
+    },
+    {
+      "version": "070_sync_strategy_specs_paper_mode",
+      "applied_at": "2026-07-02T01:23:56.011Z"
+    },
+    {
+      "version": "071_dedup_setup_evaluations",
+      "applied_at": "2026-07-02T01:23:56.016Z"
+    },
+    {
+      "version": "072_add_signal_fingerprint",
+      "applied_at": "2026-07-02T01:23:56.019Z"
+    },
+    {
+      "version": "073_position_commands_idempotency",
+      "applied_at": "2026-07-02T01:23:56.049Z"
+    },
+    {
+      "version": "074_live_signal_rejections",
+      "applied_at": "2026-07-02T01:23:56.056Z"
+    },
+    {
+      "version": "075_strategy_families_and_variants",
+      "applied_at": "2026-07-02T01:23:56.144Z"
+    },
+    {
+      "version": "076_orders_family_id",
+      "applied_at": "2026-07-02T01:23:56.150Z"
+    },
+    {
+      "version": "077_truncate_strategies_fresh_start",
+      "applied_at": "2026-07-02T01:23:56.419Z"
+    },
+    {
+      "version": "078_backtest_results_excursions",
+      "applied_at": "2026-07-02T13:18:47.113Z"
+    },
+    {
+      "version": "079_sweep_type_and_event_idempotency",
+      "applied_at": "2026-07-02T13:18:47.120Z"
+    },
+    {
+      "version": "080_lifecycle_pk_fix",
+      "applied_at": "2026-07-02T13:32:02.784Z"
+    },
+    {
+      "version": "081_pit_feature_indexes",
+      "applied_at": "2026-07-02T15:09:06.951Z"
+    },
+    {
+      "version": "082_backtest_variant_linkage",
+      "applied_at": "2026-07-02T16:10:57.085Z"
+    },
+    {
+      "version": "083_pit_fresh_zone_indexes",
+      "applied_at": "2026-07-02T22:27:22.645Z"
+    },
+    {
+      "version": "084_backtest_results_source",
+      "applied_at": "2026-07-08T11:45:19.197Z"
+    },
+    {
+      "version": "085_lifecycle_fast_lookup",
+      "applied_at": "2026-07-12T01:55:48.361Z"
+    },
+    {
+      "version": "086_market_levels_view",
+      "applied_at": "2026-07-12T01:55:53.948Z"
+    },
+    {
+      "version": "087_bias_score_hhhl",
+      "applied_at": "2026-07-12T01:55:54.205Z"
+    },
+    {
+      "version": "088_features_fvg",
+      "applied_at": "2026-07-12T01:55:54.236Z"
+    },
+    {
+      "version": "089_backtest_results_heat",
+      "applied_at": "2026-07-12T01:55:54.239Z"
+    },
+    {
+      "version": "090_consolidate_moving_average",
+      "applied_at": "2026-07-12T01:56:11.372Z"
+    },
+    {
+      "version": "091_drop_legacy_fresh_functions",
+      "applied_at": "2026-07-12T01:56:21.912Z"
+    },
+    {
+      "version": "092_htf_bias_local_agreement",
+      "applied_at": "2026-07-12T01:56:21.918Z"
+    },
+    {
+      "version": "093_zone_touch_retest_counts",
+      "applied_at": "2026-07-12T01:56:21.926Z"
+    },
+    {
+      "version": "094_market_levels_touch_count",
+      "applied_at": "2026-07-12T01:56:21.932Z"
+    },
+    {
+      "version": "095_zone_direction_pk",
+      "applied_at": "2026-07-12T01:56:35.548Z"
+    },
+    {
+      "version": "096_candles_broker_namespace",
+      "applied_at": "2026-07-12T01:56:55.556Z"
+    },
+    {
+      "version": "096_restore_zone_lifecycle",
+      "applied_at": "2026-07-12T01:56:55.572Z"
+    },
+    {
+      "version": "096_zone_direction_pk_fix",
+      "applied_at": "2026-07-12T01:56:35.553Z"
+    },
+    {
+      "version": "097_risk_state",
+      "applied_at": "2026-07-12T01:56:55.585Z"
+    },
+    {
+      "version": "097_zone_direction_pk_fix_v2",
+      "applied_at": "2026-07-12T01:56:35.554Z"
+    },
+    {
+      "version": "097_zone_lifecycle_tf_filter",
+      "applied_at": "2026-07-12T01:56:55.599Z"
+    },
+    {
+      "version": "098_features_session_pk_tf",
+      "applied_at": "2026-07-08T13:43:18.314Z"
+    },
+    {
+      "version": "098_zone_direction_pk_fix_v3",
+      "applied_at": "2026-07-12T01:56:35.555Z"
+    },
+    {
+      "version": "099_features_fvg_consolidation",
+      "applied_at": "2026-07-12T01:57:04.293Z"
+    },
+    {
+      "version": "099_features_fvg_consolidation.sql",
+      "applied_at": "2026-07-09T04:59:43.998Z"
+    },
+    {
+      "version": "099_zone_direction_pk_fix_v4",
+      "applied_at": "2026-07-12T01:56:35.556Z"
+    },
+    {
+      "version": "100_candle_coverage_and_cagg_refresh",
+      "applied_at": "2026-07-12T01:57:09.479Z"
+    },
+    {
+      "version": "100_zone_direction_pk_fix_v5",
+      "applied_at": "2026-07-12T01:56:35.556Z"
+    },
+    {
+      "version": "101_ifvg_scar_repair_and_lifecycle_invariants",
+      "applied_at": "2026-07-12T01:56:35.557Z"
+    },
+    {
+      "version": "102_sweep_target_type",
+      "applied_at": "2026-07-12T01:56:35.557Z"
+    },
+    {
+      "version": "103_market_data_contracts",
+      "applied_at": "2026-07-12T01:56:35.558Z"
+    },
+    {
+      "version": "104_lifecycle_lateral_bound",
+      "applied_at": "2026-07-12T01:56:35.561Z"
+    },
+    {
+      "version": "105_features_direction_state",
+      "applied_at": "2026-07-12T01:56:35.566Z"
+    },
+    {
+      "version": "106_candle_coverage_market_calendar",
+      "applied_at": "2026-07-12T01:56:35.572Z"
+    },
+    {
+      "version": "107_zone_pit_covering_index",
+      "applied_at": "2026-07-12T01:56:35.573Z"
+    },
+    {
+      "version": "108_add_missing_feature_lifecycle",
+      "applied_at": "2026-07-12T01:56:35.573Z"
+    },
+    {
+      "version": "108_missing_feature_lifecycle",
+      "applied_at": "2026-07-12T01:57:09.488Z"
+    },
+    {
+      "version": "109_bound_zone_lifecycle_fill_scan",
+      "applied_at": "2026-07-12T05:29:43.316Z"
+    },
+    {
+      "version": "110_zone_lifecycle_tf_checkpoint",
+      "applied_at": "2026-07-12T05:34:12.424Z"
+    },
+    {
+      "version": "111_zone_lifecycle_separate_touch_counts",
+      "applied_at": "2026-07-12T05:36:21.847Z"
+    },
+    {
+      "version": "112_zone_touch_event_ledger",
+      "applied_at": "2026-07-12T05:44:59.065Z"
+    },
+    {
+      "version": "113_market_zone_objects",
+      "applied_at": "2026-07-12T05:55:29.050Z"
+    },
+    {
+      "version": "114_strategy_signal_candidates",
+      "applied_at": "2026-07-12T17:09:51.247Z"
+    },
+    {
+      "version": "115_fx_weekend_calendar_guard",
+      "applied_at": "2026-07-14T04:47:06.470Z"
+    },
+    {
+      "version": "115_strategy_signal_candidates_identity",
+      "applied_at": "2026-07-12T17:09:51.250Z"
+    },
+    {
+      "version": "116_atr_zero_row_constraint",
+      "applied_at": "2026-07-14T04:47:06.502Z"
+    },
+    {
+      "version": "117_zone_lifecycle_open_only",
+      "applied_at": "2026-07-14T04:47:06.548Z"
+    },
+    {
+      "version": "118_setup_evaluations_lifecycle",
+      "applied_at": "2026-07-14T05:42:48.523Z"
+    },
+    {
+      "version": "119_setup_evaluations_context_hash_index",
+      "applied_at": "2026-07-15T13:25:42.485Z"
+    },
+    {
+      "version": "120_pipeline_health_view",
+      "applied_at": "2026-07-15T13:25:42.536Z"
+    },
+    {
+      "version": "121_live_signal_dedup_unique",
+      "applied_at": "2026-07-15T13:25:42.549Z"
+    },
+    {
+      "version": "122_opening_range_lifecycle",
+      "applied_at": "2026-07-17T09:37:11.839Z"
+    },
+    {
+      "version": "123_risk_state_per_symbol",
+      "applied_at": "2026-07-17T09:37:11.849Z"
+    },
+    {
+      "version": "124_rejection_log_retention",
+      "applied_at": "2026-07-17T09:37:11.851Z"
+    },
+    {
+      "version": "125_spec_version_tracking",
+      "applied_at": "2026-07-17T09:37:11.875Z"
+    },
+    {
+      "version": "126_feature_pipeline_universe",
+      "applied_at": "2026-07-17T09:37:12.423Z"
+    },
+    {
+      "version": "127_canonical_broker_arbitration",
+      "applied_at": "2026-07-17T10:20:43.970Z"
+    },
+    {
+      "version": "128_canonical_lifecycle_candles",
+      "applied_at": "2026-07-17T11:28:56.759Z"
+    },
+    {
+      "version": "129_canonical_htf_projections",
+      "applied_at": "2026-07-17T11:58:03.625Z"
+    },
+    {
+      "version": "130_policy_transition_refresh_audit",
+      "applied_at": "2026-07-17T13:07:40.200Z"
+    },
+    {
+      "version": "131_quality_scored_session_failover",
+      "applied_at": "2026-07-17T13:15:32.548Z"
+    },
+    {
+      "version": "132_drop_duplicate_zone_touch_index",
+      "applied_at": "2026-07-17T18:21:39.772Z"
+    },
+    {
+      "version": "133_drop_duplicate_feature_snapshot_hash_index",
+      "applied_at": "2026-07-17T18:21:39.781Z"
+    },
+    {
+      "version": "134_drop_duplicate_strategy_snapshot_hash_index",
+      "applied_at": "2026-07-17T18:21:39.788Z"
+    },
+    {
+      "version": "135_snapshot_binary_hash_shadows",
+      "applied_at": "2026-07-18T00:34:22.334Z"
+    },
+    {
+      "version": "136_feature_snapshot_binary_hash_unique",
+      "applied_at": "2026-07-18T00:34:22.344Z"
+    },
+    {
+      "version": "137_strategy_snapshot_binary_hash_unique",
+      "applied_at": "2026-07-18T00:34:22.348Z"
+    },
+    {
+      "version": "138_order_block_logical_identity",
+      "applied_at": "2026-07-18T01:05:15.433Z"
+    },
+    {
+      "version": "139_order_block_logical_identity_unique",
+      "applied_at": "2026-07-18T01:05:15.448Z"
+    },
+    {
+      "version": "140_drop_order_block_logical_identity_unique",
+      "applied_at": "2026-07-18T01:06:24.671Z"
+    },
+    {
+      "version": "141_order_block_logical_identity_observation",
+      "applied_at": "2026-07-18T01:06:24.688Z"
+    },
+    {
+      "version": "142_order_block_event_state_shadow",
+      "applied_at": "2026-07-18T01:24:34.030Z"
+    },
+    {
+      "version": "143_order_block_shadow_effective_time",
+      "applied_at": "2026-07-18T02:18:20.817Z"
+    },
+    {
+      "version": "144_order_block_lifecycle_replay_shadow",
+      "applied_at": "2026-07-18T02:38:50.509Z"
+    },
+    {
+      "version": "145_order_block_lifecycle_replay_fill_progress",
+      "applied_at": "2026-07-18T02:42:28.865Z"
+    },
+    {
+      "version": "146_order_block_lifecycle_canonical_semantics",
+      "applied_at": "2026-07-18T02:57:35.460Z"
+    },
+    {
+      "version": "147_features_volatility_normalized",
+      "applied_at": "2026-07-19T18:30:01.029Z"
+    },
+    {
+      "version": "153_signal_replay_audit",
+      "applied_at": "2026-07-20T15:46:05.947Z"
+    },
+    {
+      "version": "154_compiled_strategy_snapshot",
+      "applied_at": "2026-07-20T15:46:06.026Z"
+    },
+    {
+      "version": "155_compiled_strategy_source_revision",
+      "applied_at": "2026-07-20T16:14:16.463Z"
+    },
+    {
+      "version": "156_features_push_pull",
+      "applied_at": "2026-07-21T05:04:05.859Z"
+    },
+    {
+      "version": "157_live_signal_dedup_timebucket",
+      "applied_at": "2026-07-21T19:16:26.719Z"
+    },
+    {
+      "version": "158_fix_duplicate_108_lifecycle_functions",
+      "applied_at": "2026-07-22T02:59:49.200Z"
+    },
+    {
+      "version": "159_zone_lifecycle_open_rescan",
+      "applied_at": "2026-07-22T02:59:49.216Z"
+    },
+    {
+      "version": "160_lifecycle_sweep_structure_ifvg_open_rescan",
+      "applied_at": "2026-07-22T02:59:49.219Z"
+    },
+    {
+      "version": "161_canonical_zones_shadow",
+      "applied_at": "2026-07-22T02:59:49.258Z"
+    },
+    {
+      "version": "162_zone_retest_lifecycle_columns",
+      "applied_at": "2026-07-22T07:14:03.041Z"
+    },
+    {
+      "version": "163_progressive_setup_lifecycle",
+      "applied_at": "2026-07-23T14:07:57.264Z"
+    },
+    {
+      "version": "164_progressive_shadow_checkpoint",
+      "applied_at": "2026-07-23T15:00:40.686Z"
+    },
+    {
+      "version": "165_progressive_terminal_node_evidence",
+      "applied_at": "2026-07-23T16:10:07.893Z"
+    },
+    {
+      "version": "166_progressive_shadow_canary_runs",
+      "applied_at": "2026-07-23T20:54:30.594Z"
+    },
+    {
+      "version": "167_killzone_session_liquidity_v2",
+      "applied_at": "2026-07-24T00:33:01.436Z"
+    },
+    {
+      "version": "168_thesis_dedup_fingerprint",
+      "applied_at": "2026-07-24T18:10:05.593Z"
+    },
+    {
+      "version": "169_zone_fvg_metadata",
+      "applied_at": "2026-07-27T04:44:42.347Z"
+    },
+    {
+      "version": "170_volatility_profile_pit_versions",
+      "applied_at": "2026-07-27T16:51:19.165Z"
+    },
+    {
+      "version": "171_causal_timestamps",
+      "applied_at": "2026-07-30T18:07:06.207Z"
+    },
+    {
+      "version": "172_structure_causal_metadata",
+      "applied_at": "2026-07-30T21:36:17.801Z"
+    },
+    {
+      "version": "173_restore_market_levels_directional_view",
+      "applied_at": "2026-08-03T01:45:01.283Z"
+    },
+    {
+      "version": "174_candle_quarantine_policy",
+      "applied_at": "2026-08-03T05:07:14.207Z"
+    },
+    {
+      "version": "175_candle_quarantine_decision_gate",
+      "applied_at": "2026-08-03T05:16:12.626Z"
+    },
+    {
+      "version": "176_supersede_stale_candle_quarantine",
+      "applied_at": "2026-08-03T11:43:59.567Z"
+    },
+    {
+      "version": "177_supersede_all_v1_candle_evidence",
+      "applied_at": "2026-08-03T11:44:26.877Z"
+    },
+    {
+      "version": "178_supersede_noncanonical_quarantine",
+      "applied_at": "2026-08-03T11:59:16.800Z"
+    },
+    {
+      "version": "179_candle_eligibility_state",
+      "applied_at": "2026-08-03T19:56:21.604Z"
+    },
+    {
+      "version": "180_lineage_blocked_data",
+      "applied_at": "2026-08-03T23:02:25.658Z"
+    },
+    {
+      "version": "181_candle_replacement_evidence",
+      "applied_at": "2026-08-04T00:27:54.153Z"
+    },
+    {
+      "version": "182_broker_identity_corrections",
+      "applied_at": "2026-08-04T06:13:51.819Z"
+    },
+    {
+      "version": "183_detector_freeze_trusted_windows",
+      "applied_at": "2026-08-04T07:40:23.236Z"
+    },
+    {
+      "version": "184_canonical_gap_classifier",
+      "applied_at": "2026-08-04T08:51:23.441Z"
+    },
+    {
+      "version": "185_trusted_window_idempotency",
+      "applied_at": "2026-08-04T09:05:22.310Z"
+    },
+    {
+      "version": "186_canonical_exclude_skip",
+      "applied_at": "2026-08-05T15:11:54.186Z"
+    },
+    {
+      "version": "187_candle_producer_lineage",
+      "applied_at": "2026-08-07T09:05:57.909Z"
+    },
+    {
+      "version": "187_golden_corridors",
+      "applied_at": "2026-08-05T15:11:54.300Z"
+    },
+    {
+      "version": "188_candle_request_channel",
+      "applied_at": "2026-08-07T09:05:57.924Z"
+    },
+    {
+      "version": "189_candle_lineage_void",
+      "applied_at": "2026-08-07T09:05:57.925Z"
+    },
+    {
+      "version": "189_lineage_void_strike",
+      "applied_at": "2026-08-11T15:51:10.293Z"
+    },
+    {
+      "version": "190_candle_ingestion_runs",
+      "applied_at": "2026-08-07T09:16:17.138Z"
+    },
+    {
+      "version": "191_lineage_ingestion_fk",
+      "applied_at": "2026-08-07T09:16:17.144Z"
+    },
+    {
+      "version": "192_lineage_ingestion_nullable",
+      "applied_at": "2026-08-07T15:08:23.928Z"
+    },
+    {
+      "version": "193_candle_provenance_layers",
+      "applied_at": "2026-08-11T15:51:10.802Z"
+    },
+    {
+      "version": "194_setup_evaluations_lineage",
+      "applied_at": "2026-08-11T15:51:10.807Z"
+    }
+  ],
+  "candidateCatalogs": [
+    {
+      "table_schema": "public",
+      "table_name": "schema_migrations"
+    }
+  ],
+  "structural_187": {
+    "status": "STRUCTURALLY_PRESENT",
+    "missing": []
+  },
+  "structural_193": {
+    "status": "STRUCTURALLY_PRESENT",
+    "missing": []
+  },
+  "relations": [
+    {
+      "schema_name": "market",
+      "relation_name": "candle_authority_snapshot",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "candle_calendar_policy",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "candle_ingestion_run_evidence",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "candle_producer_lineage",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "candle_quarantine_evidence",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "canonical_candle_selection_lineage",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "htf_authority_bundle",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "htf_authority_bundle_parent",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "htf_candle_derivation_child",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "htf_candle_derivation_lineage",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence",
+      "relkind": "r"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "xauusd_expected_minute",
+      "relkind": "r"
+    }
+  ],
+  "functions": [
+    {
+      "schema_name": "market",
+      "proname": "calendar_policy_hash",
+      "args": "p_policy_id text, p_calendar_version text, p_timezone text, p_effective_from timestamp with time zone, p_effective_to timestamp with time zone, p_weekend_close_dow smallint, p_weekend_close_hour smallint, p_weekend_reopen_dow smallint, p_weekend_reopen_hour smallint, p_daily_break_start_hour smallint, p_daily_break_minutes smallint"
+    },
+    {
+      "schema_name": "market",
+      "proname": "candle_authority_hash",
+      "args": "p_symbol text, p_broker text, p_policy_version text, p_quarantine_version text, p_calendar_version text, p_effective_from timestamp with time zone, p_effective_to timestamp with time zone, p_broker_allowed boolean, p_quarantine_state text, p_calendar_rule text, p_calendar_policy_sha256 text"
+    },
+    {
+      "schema_name": "market",
+      "proname": "canonical_number",
+      "args": "p_value double precision"
+    },
+    {
+      "schema_name": "market",
+      "proname": "finalize_authority_bundle",
+      "args": "p_bundle_id bigint"
+    },
+    {
+      "schema_name": "market",
+      "proname": "provenance_field",
+      "args": "p_value text"
+    },
+    {
+      "schema_name": "market",
+      "proname": "provenance_nullable_field",
+      "args": "p_value text"
+    },
+    {
+      "schema_name": "market",
+      "proname": "quarantine_evidence_hash",
+      "args": "p_symbol text, p_broker text, p_timeframe text, p_candle_ts timestamp with time zone, p_source_key text, p_anomaly_flags jsonb, p_severity text, p_detector_version text, p_detector_parameters jsonb, p_decision text, p_approval_identity text, p_approval_ts timestamp with time zone, p_supersedes bigint, p_active boolean"
+    },
+    {
+      "schema_name": "market",
+      "proname": "raw_candle_hash",
+      "args": "p_symbol text, p_broker text, p_timeframe text, p_candle_ts timestamp with time zone, p_o double precision, p_h double precision, p_l double precision, p_c double precision, p_v bigint, p_spread double precision, p_digits smallint"
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_authority_bundle_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_authority_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_candle_producer_lineage_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_candle_provenance_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_provenance_run_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "reject_quarantine_mutation",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "resolve_candle_authority",
+      "args": "p_symbol text, p_broker text, p_candle_ts timestamp with time zone"
+    },
+    {
+      "schema_name": "market",
+      "proname": "resolve_quarantine_evidence",
+      "args": "p_symbol text, p_broker text, p_candle_ts timestamp with time zone, p_policy_version text"
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_15m_derivation_children",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_authority_bundle_deferred",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_authority_bundle_set",
+      "args": "p_bundle_id bigint"
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_calendar_policy",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_candle_authority_snapshot",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_candle_provenance_insert",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "validate_quarantine_evidence",
+      "args": ""
+    },
+    {
+      "schema_name": "market",
+      "proname": "xauusd_expected_minutes",
+      "args": "p_interval_start timestamp with time zone, p_interval_end timestamp with time zone, p_calendar_version text"
+    }
+  ],
+  "indexes": [
+    {
+      "schemaname": "market",
+      "indexname": "candle_authority_snapshot_nonoverlap",
+      "tablename": "candle_authority_snapshot"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_authority_snapshot_pkey",
+      "tablename": "candle_authority_snapshot"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_authority_snapshot_symbol_broker_policy_version_quar_key",
+      "tablename": "candle_authority_snapshot"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_bar_lineage_bar_idx",
+      "tablename": "candle_bar_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_bar_lineage_pkey",
+      "tablename": "candle_bar_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_bar_lineage_symbol_broker_ts_artifact_id_key",
+      "tablename": "candle_bar_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_producer_lineage_lookup",
+      "tablename": "candle_producer_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_producer_lineage_pkey",
+      "tablename": "candle_producer_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_producer_lineage_symbol_broker_candle_ts_source_key__key",
+      "tablename": "candle_producer_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_producer_lineage_symbol_candle_ts_producer_run_id_key",
+      "tablename": "candle_producer_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_quarantine_evidence_pkey",
+      "tablename": "candle_quarantine_evidence"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "candle_quarantine_evidence_symbol_broker_candle_ts_policy_v_key",
+      "tablename": "candle_quarantine_evidence"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "canonical_candle_selection_lineage_pkey",
+      "tablename": "canonical_candle_selection_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_authority_bundle_parent_authority_bundle_id_raw_evidenc_key",
+      "tablename": "htf_authority_bundle_parent"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_authority_bundle_parent_pkey",
+      "tablename": "htf_authority_bundle_parent"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_authority_bundle_pkey",
+      "tablename": "htf_authority_bundle"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_authority_bundle_symbol_timeframe_interval_start_interv_key",
+      "tablename": "htf_authority_bundle"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_candle_derivation_lineage_pkey",
+      "tablename": "htf_candle_derivation_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "htf_candle_derivation_lineage_symbol_timeframe_candle_ts_ca_key",
+      "tablename": "htf_candle_derivation_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "idx_candle_authority_lookup",
+      "tablename": "candle_authority_snapshot"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "idx_candle_quarantine_lookup",
+      "tablename": "candle_quarantine_evidence"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "idx_canonical_candle_lineage_lookup",
+      "tablename": "canonical_candle_selection_lineage"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "idx_xauusd_expected_minute_interval",
+      "tablename": "xauusd_expected_minute"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "uq_quarantine_one_successor",
+      "tablename": "candle_quarantine_evidence"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "xauusd_expected_minute_interval_start_interval_end_minute_t_key",
+      "tablename": "xauusd_expected_minute"
+    },
+    {
+      "schemaname": "market",
+      "indexname": "xauusd_expected_minute_pkey",
+      "tablename": "xauusd_expected_minute"
+    }
+  ]
+}

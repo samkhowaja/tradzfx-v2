@@ -2,6 +2,7 @@ id: doyle_sd
 familyId: doyle_sd
 setupFamily: zone_reversal
 active: true
+dxyDependency: not_required
 name: "Doyle Supply/Demand"
 version: "1.1.0"
 description: >

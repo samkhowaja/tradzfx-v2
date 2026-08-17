@@ -74,7 +74,8 @@ async function main() {
         FROM returns_base r
         LEFT JOIN baselines b ON b.symbol = r.symbol
           AND b.effective_broker = raw.effective_broker_identity(r.broker)
-        LEFT JOIN deviations d USING (symbol, broker)
+        LEFT JOIN deviations d
+          ON d.symbol = r.symbol AND d.broker = r.broker
       ), evidence AS (
         SELECT *, ARRAY_REMOVE(ARRAY[
           CASE WHEN h < l OR h < GREATEST(o,c) OR l > LEAST(o,c) THEN 'INVALID_OHLC' END,

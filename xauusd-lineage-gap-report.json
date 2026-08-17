@@ -1,0 +1,469 @@
+{
+  "authority": "NON_AUTHORITATIVE",
+  "writes": 0,
+  "writes_performed": 0,
+  "readOnly": true,
+  "artifactType": "LINEAGE_GAP_DIAGNOSTIC",
+  "schemaVersion": "lineage-gap-report-v1",
+  "generationTimestamp": "2026-08-14T16:13:19.929Z",
+  "dbIdentity": {
+    "database": "tradzfx_v2",
+    "server_version_num": "170009"
+  },
+  "isolationLevel": "repeatable read",
+  "detectorVersion": "candle-detector-v3-robust",
+  "symbol": "XAUUSD",
+  "broker": "1x Trade Ltd.",
+  "timeframe": "1m",
+  "window": {
+    "start": "2026-07-18T01:34:00.000Z",
+    "end": "2026-07-19T01:58:00.000Z"
+  },
+  "sourceEdge": "2026-07-18T01:34:00.000Z",
+  "canonicalEdge": "2026-07-19T01:58:00.000Z",
+  "status": "BLOCKED_LINEAGE_GAP",
+  "approvalEvidenceGenerated": false,
+  "rowCounts": {
+    "canonical": 1465,
+    "raw": 1465,
+    "quarantine": 1,
+    "replacementEvidence": 0
+  },
+  "canonical": {
+    "rows": 1465,
+    "identityProjected": false
+  },
+  "raw": {
+    "rows": 1465,
+    "identityColumnPresent": false
+  },
+  "quarantine": {
+    "rows": 1,
+    "rowsWithRawSourceKey": 1
+  },
+  "replacementEvidence": {
+    "rows": 0
+  },
+  "missingFields": [
+    "public.candles_1m immutable per-row source identity",
+    "market.candles_1m_canonical projected selected raw source identity",
+    "detector/evidence identity binding",
+    "replacement identity binding",
+    "downstream feature/artifact binding"
+  ],
+  "missingContracts": [
+    "public.candles_1m immutable per-row source identity",
+    "market.candles_1m_canonical projected selected raw source identity"
+  ],
+  "nonReconstructionStatement": "Never infer source identity from symbol, timestamp, or broker. Timestamp-plus-broker matching is not lineage.",
+  "deterministicOrdering": "schemaColumns ordered by schema, table, ordinal_position; database rows ordered by timestamp and broker; object keys hashed lexicographically; locale-sensitive sorting unused.",
+  "hashSemantics": "reportHash identifies deterministic evidence state; generationTimestamp and reportHash are excluded from hash input.",
+  "consequence": "Canonical values may be observed, but raw-to-canonical lineage cannot be represented or approved.",
+  "requiredSchemaContract": [
+    "raw immutable source_key or id",
+    "canonical projection of selected raw identity",
+    "quarantine and replacement keys bound to that identity"
+  ],
+  "schemaColumns": [
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 1,
+      "column_name": "id",
+      "data_type": "bigint"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 2,
+      "column_name": "symbol",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 3,
+      "column_name": "timeframe",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 4,
+      "column_name": "event_time",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 5,
+      "column_name": "blocked_broker",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 6,
+      "column_name": "alternate_broker",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 7,
+      "column_name": "blocked_source_key",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 8,
+      "column_name": "alternate_source_key",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 9,
+      "column_name": "blocked_ohlc",
+      "data_type": "jsonb"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 10,
+      "column_name": "alternate_ohlc",
+      "data_type": "jsonb"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 11,
+      "column_name": "checks",
+      "data_type": "jsonb"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 12,
+      "column_name": "detector_version",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 13,
+      "column_name": "validator_version",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 14,
+      "column_name": "decision",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 15,
+      "column_name": "reviewed_by",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 16,
+      "column_name": "reviewed_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 17,
+      "column_name": "notes",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "ordinal_position": 18,
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 1,
+      "column_name": "symbol",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 2,
+      "column_name": "ts",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 3,
+      "column_name": "o",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 4,
+      "column_name": "h",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 5,
+      "column_name": "l",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 6,
+      "column_name": "c",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 7,
+      "column_name": "v",
+      "data_type": "bigint"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 8,
+      "column_name": "spread",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 9,
+      "column_name": "broker",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 10,
+      "column_name": "digits",
+      "data_type": "smallint"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 11,
+      "column_name": "policy_id",
+      "data_type": "bigint"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candles_1m_canonical",
+      "ordinal_position": 12,
+      "column_name": "effective_broker_identity",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 1,
+      "column_name": "id",
+      "data_type": "bigint"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 2,
+      "column_name": "symbol",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 3,
+      "column_name": "broker",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 4,
+      "column_name": "timeframe",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 5,
+      "column_name": "event_time",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 6,
+      "column_name": "raw_source_key",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 7,
+      "column_name": "flags",
+      "data_type": "ARRAY"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 8,
+      "column_name": "severity",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 9,
+      "column_name": "detector_version",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 10,
+      "column_name": "detector_params",
+      "data_type": "jsonb"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 11,
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 12,
+      "column_name": "approved_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 13,
+      "column_name": "approved_by",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 14,
+      "column_name": "decision",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 15,
+      "column_name": "notes",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 16,
+      "column_name": "superseded_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candle_quarantine",
+      "ordinal_position": 17,
+      "column_name": "superseded_by",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 1,
+      "column_name": "symbol",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 2,
+      "column_name": "ts",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 3,
+      "column_name": "o",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 4,
+      "column_name": "h",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 5,
+      "column_name": "l",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 6,
+      "column_name": "c",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 7,
+      "column_name": "v",
+      "data_type": "bigint"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 8,
+      "column_name": "spread",
+      "data_type": "double precision"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 9,
+      "column_name": "broker",
+      "data_type": "text"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "candles_1m",
+      "ordinal_position": 10,
+      "column_name": "digits",
+      "data_type": "smallint"
+    }
+  ],
+  "reportHash": "26ace0c0fd02fc0ed0f5116716a347a4320bb6b91b50264e6be53aa3ad910666"
+}

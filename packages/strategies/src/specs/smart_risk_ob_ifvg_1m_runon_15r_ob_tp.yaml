@@ -1,6 +1,7 @@
 id: smart_risk_ob_ifvg_1m_runon_15r_ob_tp
 familyId: smart_risk_ob_ifvg_1m
 active: true
+dxyDependency: not_required
 name: Smart Risk Scalp 1 — OB + iFVG (run-on to next opposing order block beyond 1.5R, fixed fallback)
 version: 1.0.2
 description: >

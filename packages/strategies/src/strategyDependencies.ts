@@ -1,4 +1,4 @@
-import type { StrategySpec, TimeFrame } from "@tm/shared";
+import type { DxyDependency, StrategySpec, TimeFrame } from "@tm/shared";
 import { extractRequiredFeatures } from "./compiler";
 import { getFeatureContract } from "./featureRegistry";
 
@@ -15,7 +15,15 @@ export interface StrategyDependencies {
   dependencies: StrategyDependency[];
   maxLookbackBars: number;
   requiresDxy: boolean;
+  dxyDependency: DxyDependency;
   sessions: string[];
+}
+
+export function resolveDxyDependency(spec: StrategySpec): DxyDependency {
+  if (spec.dxyDependency) return spec.dxyDependency;
+  if (spec.id === "watukushay_no1") return "not_required";
+  const serialized = JSON.stringify(spec);
+  return /\bDXY\b/i.test(serialized) ? "required" : "not_required";
 }
 
 export function extractStrategyDependencies(spec: StrategySpec): StrategyDependencies {
@@ -44,12 +52,13 @@ export function extractStrategyDependencies(spec: StrategySpec): StrategyDepende
     50,
   );
   const sessions = (spec.filters?.sessions ?? []).map(String);
-  const serialized = JSON.stringify(spec);
+  const dxyDependency = resolveDxyDependency(spec);
   return {
     strategyId: spec.id,
     dependencies,
     maxLookbackBars,
-    requiresDxy: /\bDXY\b/i.test(serialized),
+    requiresDxy: dxyDependency === "required",
+    dxyDependency,
     sessions,
   };
 }

@@ -1,0 +1,950 @@
+{
+  "schema_version": "candle-blocker-v2-v3-readonly-audit-v1",
+  "authority": "NON_AUTHORITATIVE",
+  "generated_at": "2026-08-15T06:33:09.586Z",
+  "audit": {
+    "started_at": "2026-08-15T06:32:42.331Z",
+    "ended_at": "2026-08-15T06:33:09.586Z",
+    "canonical_edge": "2026-08-04T07:54:00Z",
+    "git_commit": "a5d916533d8f39f80b0f340ba8ab8b5f5ee293cb",
+    "database": {
+      "database_name": "tradzfx_v2",
+      "server_version": "17.9",
+      "transaction_isolation": "repeatable read"
+    },
+    "transaction": "REPEATABLE READ READ ONLY",
+    "mandatory_symbols": [
+      "USDJPY",
+      "USDSEK",
+      "XAUUSD",
+      "DXY"
+    ],
+    "additional_active_blocker_symbols": [
+      "AUDUSD",
+      "EURUSD",
+      "GBPUSD",
+      "NZDUSD",
+      "USDCHF"
+    ],
+    "effective_broker_policy": [
+      {
+        "symbol": "AUDUSD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "1",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "DXY",
+        "broker_id": "synthetic",
+        "policy_id": "9",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "EURUSD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "8",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "GBPUSD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "10",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "NZDUSD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "2",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "USDCAD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "6",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "USDCHF",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "3",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "USDJPY",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "5",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "USDSEK",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "7",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      },
+      {
+        "symbol": "XAUUSD",
+        "broker_id": "1x Trade Ltd.",
+        "policy_id": "4",
+        "priority": 1,
+        "effective_from": null,
+        "effective_to": null
+      }
+    ]
+  },
+  "accounting": {
+    "database_writes": 0,
+    "source_state_changes": 0,
+    "artifact_writes": 2
+  },
+  "batch_1_blocker_snapshot": {
+    "population": {
+      "active_blocker_rows": 543,
+      "distinct_candle_identities": 311,
+      "active_symbols": [
+        "AUDUSD",
+        "DXY",
+        "EURUSD",
+        "GBPUSD",
+        "NZDUSD",
+        "USDCHF",
+        "USDJPY",
+        "USDSEK",
+        "XAUUSD"
+      ]
+    },
+    "counts": {
+      "by_symbol": {
+        "AUDUSD": 38,
+        "DXY": 3,
+        "EURUSD": 41,
+        "GBPUSD": 61,
+        "NZDUSD": 41,
+        "USDCHF": 19,
+        "USDJPY": 67,
+        "USDSEK": 67,
+        "XAUUSD": 206
+      },
+      "by_broker": {
+        "1x Trade Ltd.": 540,
+        "synthetic": 3
+      },
+      "by_timeframe": {
+        "1m": 543
+      },
+      "by_flag_occurrence": {
+        "LARGE_JUMP_RELATIVE": 308,
+        "LARGE_JUMP_ROBUST": 229,
+        "UNEXPECTED_GAP": 12
+      },
+      "by_severity": {
+        "HIGH": 537,
+        "MEDIUM": 6
+      },
+      "by_decision": {
+        "EXCLUDE": 8,
+        "UNRESOLVED": 535
+      },
+      "symbol_broker": {
+        "AUDUSD|1x Trade Ltd.": 38,
+        "DXY|synthetic": 3,
+        "EURUSD|1x Trade Ltd.": 41,
+        "GBPUSD|1x Trade Ltd.": 61,
+        "NZDUSD|1x Trade Ltd.": 41,
+        "USDCHF|1x Trade Ltd.": 19,
+        "USDJPY|1x Trade Ltd.": 67,
+        "USDSEK|1x Trade Ltd.": 67,
+        "XAUUSD|1x Trade Ltd.": 206
+      },
+      "symbol_flag": {
+        "AUDUSD|LARGE_JUMP_RELATIVE": 23,
+        "AUDUSD|LARGE_JUMP_ROBUST": 15,
+        "DXY|LARGE_JUMP_RELATIVE": 2,
+        "DXY|LARGE_JUMP_ROBUST": 1,
+        "EURUSD|LARGE_JUMP_RELATIVE": 28,
+        "EURUSD|LARGE_JUMP_ROBUST": 13,
+        "GBPUSD|LARGE_JUMP_RELATIVE": 32,
+        "GBPUSD|LARGE_JUMP_ROBUST": 29,
+        "NZDUSD|LARGE_JUMP_RELATIVE": 22,
+        "NZDUSD|LARGE_JUMP_ROBUST": 19,
+        "USDCHF|LARGE_JUMP_RELATIVE": 13,
+        "USDCHF|LARGE_JUMP_ROBUST": 6,
+        "USDJPY|LARGE_JUMP_RELATIVE": 50,
+        "USDJPY|LARGE_JUMP_ROBUST": 17,
+        "USDSEK|LARGE_JUMP_RELATIVE": 37,
+        "USDSEK|LARGE_JUMP_ROBUST": 30,
+        "XAUUSD|LARGE_JUMP_RELATIVE": 101,
+        "XAUUSD|LARGE_JUMP_ROBUST": 99,
+        "XAUUSD|UNEXPECTED_GAP": 12
+      },
+      "symbol_decision": {
+        "AUDUSD|UNRESOLVED": 38,
+        "DXY|EXCLUDE": 3,
+        "EURUSD|UNRESOLVED": 41,
+        "GBPUSD|UNRESOLVED": 61,
+        "NZDUSD|EXCLUDE": 2,
+        "NZDUSD|UNRESOLVED": 39,
+        "USDCHF|UNRESOLVED": 19,
+        "USDJPY|UNRESOLVED": 67,
+        "USDSEK|UNRESOLVED": 67,
+        "XAUUSD|EXCLUDE": 3,
+        "XAUUSD|UNRESOLVED": 203
+      },
+      "symbol_broker_timeframe_flag": {
+        "AUDUSD|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 23,
+        "AUDUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 15,
+        "DXY|synthetic|1m|LARGE_JUMP_RELATIVE": 2,
+        "DXY|synthetic|1m|LARGE_JUMP_ROBUST": 1,
+        "EURUSD|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 28,
+        "EURUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 13,
+        "GBPUSD|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 32,
+        "GBPUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 29,
+        "NZDUSD|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 22,
+        "NZDUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 19,
+        "USDCHF|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 13,
+        "USDCHF|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 6,
+        "USDJPY|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 50,
+        "USDJPY|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 17,
+        "USDSEK|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 37,
+        "USDSEK|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 30,
+        "XAUUSD|1x Trade Ltd.|1m|LARGE_JUMP_RELATIVE": 101,
+        "XAUUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST": 99,
+        "XAUUSD|1x Trade Ltd.|1m|UNEXPECTED_GAP": 12
+      },
+      "severity_decision": {
+        "HIGH|EXCLUDE": 8,
+        "HIGH|UNRESOLVED": 529,
+        "MEDIUM|UNRESOLVED": 6
+      }
+    },
+    "flag_semantics": {
+      "distinct_rows": 543,
+      "distinct_identities": 311,
+      "exploded_flag_occurrences": 549
+    },
+    "alternate_broker_availability": {
+      "HAS_ALTERNATE": 77,
+      "NO_ALTERNATE": 466
+    },
+    "superseded_report": {
+      "excluded_from_active_population": "superseded_at IS NOT NULL",
+      "count": 0
+    }
+  },
+  "batch_2_detector_comparison": {
+    "label": "V3_CANDIDATE_VALIDATION",
+    "same_snapshot_population": true,
+    "detector_versions": {
+      "v2": "candle-detector-v2-recomputed",
+      "v3": "candle-detector-v3-robust-candidate"
+    },
+    "counts": {
+      "by_symbol": {
+        "AUDUSD|OVERLAP": 3,
+        "AUDUSD|V2_ONLY": 32,
+        "AUDUSD|V3_ONLY": 31,
+        "DXY|OVERLAP": 2,
+        "DXY|V2_ONLY": 3,
+        "DXY|V3_ONLY": 3,
+        "EURUSD|OVERLAP": 3,
+        "EURUSD|V2_ONLY": 46,
+        "EURUSD|V3_ONLY": 46,
+        "GBPUSD|OVERLAP": 3,
+        "GBPUSD|V2_ONLY": 42,
+        "GBPUSD|V3_ONLY": 41,
+        "NZDUSD|OVERLAP": 4,
+        "NZDUSD|V2_ONLY": 28,
+        "NZDUSD|V3_ONLY": 27,
+        "USDCHF|OVERLAP": 4,
+        "USDCHF|V2_ONLY": 19,
+        "USDCHF|V3_ONLY": 18,
+        "USDJPY|OVERLAP": 3,
+        "USDJPY|V2_ONLY": 54,
+        "USDJPY|V3_ONLY": 53,
+        "USDSEK|OVERLAP": 2,
+        "USDSEK|V2_ONLY": 57,
+        "USDSEK|V3_ONLY": 17,
+        "XAUUSD|OVERLAP": 7,
+        "XAUUSD|V2_ONLY": 134,
+        "XAUUSD|V3_ONLY": 69
+      },
+      "by_broker": {
+        "1x Trade Ltd.|OVERLAP": 6,
+        "1x Trade Ltd.|V2_ONLY": 364,
+        "1x Trade Ltd.|V3_ONLY": 285,
+        "MT5|OVERLAP": 2,
+        "MT5|V2_ONLY": 32,
+        "MT5|V3_ONLY": 9,
+        "OANDA Corporation|OVERLAP": 21,
+        "OANDA Corporation|V2_ONLY": 9,
+        "OANDA Corporation|V3_ONLY": 8,
+        "smoke-test|V2_ONLY": 7,
+        "synthetic|OVERLAP": 2,
+        "synthetic|V2_ONLY": 3,
+        "synthetic|V3_ONLY": 3
+      },
+      "by_timeframe": {
+        "1m|OVERLAP": 31,
+        "1m|V2_ONLY": 415,
+        "1m|V3_ONLY": 305
+      },
+      "by_flag": {
+        "LARGE_JUMP_ROBUST|V3_ONLY": 305,
+        "LARGE_JUMP|V2_ONLY": 415,
+        "UNEXPECTED_GAP|OVERLAP": 31
+      },
+      "by_severity": {
+        "HIGH|OVERLAP": 10,
+        "HIGH|V2_ONLY": 415,
+        "HIGH|V3_ONLY": 305,
+        "MEDIUM|OVERLAP": 21
+      },
+      "full": {
+        "AUDUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 29,
+        "AUDUSD|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 29,
+        "AUDUSD|MT5|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "AUDUSD|MT5|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "AUDUSD|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "AUDUSD|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "AUDUSD|OANDA Corporation|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 1,
+        "AUDUSD|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 2,
+        "AUDUSD|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "DXY|synthetic|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 3,
+        "DXY|synthetic|1m|LARGE_JUMP|HIGH|V2_ONLY": 3,
+        "DXY|synthetic|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 2,
+        "EURUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 43,
+        "EURUSD|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 43,
+        "EURUSD|MT5|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 2,
+        "EURUSD|MT5|1m|LARGE_JUMP|HIGH|V2_ONLY": 2,
+        "EURUSD|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "EURUSD|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "EURUSD|OANDA Corporation|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 1,
+        "EURUSD|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 2,
+        "GBPUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 40,
+        "GBPUSD|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 40,
+        "GBPUSD|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "GBPUSD|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "GBPUSD|OANDA Corporation|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 1,
+        "GBPUSD|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 2,
+        "GBPUSD|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "NZDUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 26,
+        "NZDUSD|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 26,
+        "NZDUSD|MT5|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 1,
+        "NZDUSD|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "NZDUSD|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "NZDUSD|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 3,
+        "NZDUSD|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "USDCHF|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 17,
+        "USDCHF|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 17,
+        "USDCHF|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "USDCHF|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "USDCHF|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 4,
+        "USDCHF|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "USDJPY|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 51,
+        "USDJPY|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 51,
+        "USDJPY|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 2,
+        "USDJPY|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 2,
+        "USDJPY|OANDA Corporation|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 2,
+        "USDJPY|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 1,
+        "USDJPY|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "USDSEK|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 13,
+        "USDSEK|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 47,
+        "USDSEK|MT5|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 3,
+        "USDSEK|MT5|1m|LARGE_JUMP|HIGH|V2_ONLY": 7,
+        "USDSEK|OANDA Corporation|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 1,
+        "USDSEK|OANDA Corporation|1m|LARGE_JUMP|HIGH|V2_ONLY": 2,
+        "USDSEK|OANDA Corporation|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 1,
+        "USDSEK|OANDA Corporation|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 1,
+        "USDSEK|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1,
+        "XAUUSD|1x Trade Ltd.|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 66,
+        "XAUUSD|1x Trade Ltd.|1m|LARGE_JUMP|HIGH|V2_ONLY": 111,
+        "XAUUSD|1x Trade Ltd.|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 3,
+        "XAUUSD|1x Trade Ltd.|1m|UNEXPECTED_GAP|MEDIUM|OVERLAP": 3,
+        "XAUUSD|MT5|1m|LARGE_JUMP_ROBUST|HIGH|V3_ONLY": 3,
+        "XAUUSD|MT5|1m|LARGE_JUMP|HIGH|V2_ONLY": 22,
+        "XAUUSD|MT5|1m|UNEXPECTED_GAP|HIGH|OVERLAP": 1,
+        "XAUUSD|smoke-test|1m|LARGE_JUMP|HIGH|V2_ONLY": 1
+      }
+    },
+    "samples": {
+      "OVERLAP": [
+        {
+          "symbol": "AUDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-10T02:34:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "HIGH",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-08-03T06:53:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "DXY",
+          "broker": "synthetic",
+          "timeframe": "1m",
+          "ts": "2026-07-15T13:47:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "DXY",
+          "broker": "synthetic",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "EURUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-10T02:40:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "EURUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "EURUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-08-03T06:53:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "HIGH",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "GBPUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-10T02:39:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "HIGH",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "GBPUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "GBPUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-08-03T06:53:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "NZDUSD",
+          "broker": "MT5",
+          "timeframe": "1m",
+          "ts": "2026-06-22T21:27:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "NZDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-10T02:33:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "NZDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "NZDUSD",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-08-03T06:53:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "USDCHF",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-05-15T04:48:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "USDCHF",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-09T19:44:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "USDCHF",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-17T23:54:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "USDCHF",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-08-03T06:53:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "MEDIUM",
+          "classification": "OVERLAP"
+        },
+        {
+          "symbol": "USDJPY",
+          "broker": "OANDA Corporation",
+          "timeframe": "1m",
+          "ts": "2026-07-10T02:40:00.000Z",
+          "flag": "UNEXPECTED_GAP",
+          "severity": "HIGH",
+          "classification": "OVERLAP"
+        }
+      ],
+      "V2_ONLY": [
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-12T21:03:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-13T14:05:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:00:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:16:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:17:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:21:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:23:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:26:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:27:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:34:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:35:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:47:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:48:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-19T21:03:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T01:56:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T01:59:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T02:00:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-06T01:51:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-11T21:00:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-11T21:03:00.000Z",
+          "flag": "LARGE_JUMP",
+          "severity": "HIGH",
+          "classification": "V2_ONLY"
+        }
+      ],
+      "V3_ONLY": [
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-12T21:03:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-13T14:05:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:00:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:16:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:17:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:21:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:23:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:26:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:27:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:34:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:35:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:47:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-15T21:48:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-19T21:03:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T01:56:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T01:59:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-04-27T02:00:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-06T01:51:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-11T21:00:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        },
+        {
+          "symbol": "AUDUSD",
+          "broker": "1x Trade Ltd.",
+          "timeframe": "1m",
+          "ts": "2026-06-11T21:03:00.000Z",
+          "flag": "LARGE_JUMP_ROBUST",
+          "severity": "HIGH",
+          "classification": "V3_ONLY"
+        }
+      ]
+    },
+    "limitations": [
+      "v3 uses global symbol/effective-broker baselines, not rolling symbol+broker+timeframe baselines",
+      "USDJPY is not judged by a universal 0.005 ground truth; comparison is detector behavior only",
+      "USDSEK scale behavior requires manual review of genuine discontinuities",
+      "XAUUSD metal thresholds are candidate policy, not certified",
+      "DXY synthetic boundaries are not automatically approved",
+      "no detector output is an approval decision"
+    ]
+  },
+  "gate_status": {
+    "permission": "INACTIVE",
+    "technical_eligibility": "BLOCKED_UNKNOWN",
+    "shadow_run": "NO_SHADOW_RUN_YET",
+    "writes": 0,
+    "authority": "NON_AUTHORITATIVE"
+  }
+}

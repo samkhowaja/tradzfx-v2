@@ -1,6 +1,7 @@
 id: keylevel_bounce_v1
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V1
 version: 1.0.1
 description: >

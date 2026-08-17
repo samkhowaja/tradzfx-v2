@@ -1,6 +1,7 @@
 id: waqar_v2
 familyId: waqar_v2
 active: true
+dxyDependency: not_required
 name: "Waqar Asim Scalp"
 version: "3.1.0"
 description: >

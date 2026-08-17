@@ -1,0 +1,34 @@
+◇ injected env (17) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+[backtest-pit-v2] WARNING: trusted-window gate OFF (--trusted=off) — results are research-only, not gating evidence.
+[backtest-pit-v2] Strategy: watukushay_no1 | signalSource: moving_average
+[backtest-pit-v2] Mode: full | setupProfile: strict | setupFamily: indicator | intrabar: sl_first
+[backtest-pit-v2] Range: 2026-07-01 → 2026-07-23 (22 days)
+[backtest-pit-v2] Warmup: 250 derived bars -> signals before 2026-07-11T10:00:00.000Z skipped
+[backtest-pit-v2] Symbols: XAUUSD
+
+  DEBUG XAUUSD: {
+  symbol: 'XAUUSD',
+  ts: 2026-07-22T23:00:00.000Z,
+  bias_direction: 'bullish',
+  ma_fast: 4132.170666666668,
+  ma_slow: 4059.3052400000006,
+  signal_reference_price: 4132.170666666668,
+  planned_entry_price: 4118.96,
+  pricing_position: 'discount',
+  atr_1h: 11.06200000000008,
+  atr_5: 11.06200000000008,
+  side: 'buy',
+  entry_price: 4118.96,
+  stop_loss: 4113.429,
+  take_profit: 4124.491
+}
+[backtest-pit-v2] WARNING (research): Canonical candle interval unresolved for XAUUSD; backtest aborted (17 quarantined candles) — continuing under --trusted=off
+[prefetch-coverage-diagnostic] {"jobId":null,"symbol":"XAUUSD","timeframe":"1m","lookback":480,"rawStart":"2026-07-01T00:00:00.000Z","rawEnd":"2026-07-23T00:00:00.000Z","rawTimestampCount":27573,"canonicalTimestampCount":27573,"missingCanonicalTimestamps":[],"unexpectedCanonicalTimestamps":[],"duplicateTimestamps":{"raw":2742,"canonical":2740},"coverageRatio":1}
+  [prefetch] 30313 candles (0 quarantined) in 317ms
+  [setup-cache] 121 persistent hits, 0 lineage-rejected, 0 remaining for evaluation
+XAUUSD: 269 raw signals (148 skipped for warmup, 0 invalid compiler geometry, 0 invalid setup geometry, 0 setup-engine BLOCK, 0 drift rejected, 0 deduped) | signal query 309ms | prefetch 318ms | setup-engine 15ms | simulate 21ms
+  Executed: 29 | Drift rejected: 0 | Invalid outcomes: 0 | Timeouts: 0 | Skipped: 91 | Heat dropped: 1
+  Gate skips: volatility=66, session=12, spread=10, rateLimit=3
+  Wins: 9 | Losses: 20 | Timeouts: 0
+  WR: 31.0% | Net R: 2.95 | Avg Win: 1.88R | Avg Loss: -0.70R
+{"spec":"watukushay_no1","mode":"full","research":false,"setupProfile":"strict","intrabarMode":"sl_first","symbol":"XAUUSD","days":22,"rawSignals":269,"setupBlocked":0,"driftRejected":0,"driftRejectionReasons":{},"deduped":0,"executed":29,"skipped":91,"heatDropped":1,"spreadQuarantined":0,"candlesQuarantined":0,"gateSkips":{"volatility":66,"session":12,"spread":10,"rateLimit":3},"stageCounts":{"rawSignals":269,"warmupSkipped":148,"invalidGeometry":0,"setupInvalidGeometry":0,"setupBlocked":0,"setupBlockReasons":{},"simulated":121,"driftRejected":0,"driftRejectionReasons":{},"deduped":0,"gateSkipped":91,"gateSkipReasons":{"volatility":66,"session":12,"spread":10,"rateLimit":3},"invalidOutcomes":0,"invalidOutcomeReasons":{},"timeouts":0,"heatDropped":1,"spreadQuarantined":0,"candlesQuarantined":0,"executed":29},"dataQuality":"READY","lifecycleCorruption":[],"coverage":[{"table":"features_bias","tf":"1h","isCandle":false,"required":true,"rows":368,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_indicator","tf":"1h","isCandle":false,"required":true,"rows":3553,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_moving_average","tf":"1h","isCandle":false,"required":true,"rows":7116,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_pricing","tf":"15m","isCandle":false,"required":true,"rows":1485,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_atr","tf":"1h","isCandle":false,"required":true,"rows":1284,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"features_session","tf":"1m","isCandle":false,"required":false,"rows":4679,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"market.candles_1m_canonical","tf":"1m","isCandle":true,"required":true,"rows":30313,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"market.candles_15m_canonical","tf":"15m","isCandle":true,"required":true,"rows":1845,"expectedRows":null,"densityRatio":null,"insufficientDensity":false},{"table":"market.candles_1h_canonical","tf":"1h","isCandle":true,"required":true,"rows":463,"expectedRows":null,"densityRatio":null,"insufficientDensity":false}],"wins":9,"losses":20,"timeouts":0,"invalidOutcomes":0,"invalidOutcomeReasons":{},"winRate":0.3103448275862069,"netR":2.9468337271847567,"netRRealized":-27.10323958814418,"avgWinR":1.8829815252427506,"avgLossR":-0.7,"avgWinRRealized":0.8157057591158416,"avgLossRRealized":-1.7222295710093376,"avgDriftPips":88.2137931034477,"longCount":8,"shortCount":21,"avgHoldBars":14.137931034482758,"queryMs":309}

@@ -1,6 +1,7 @@
 id: smart_risk_ob_ifvg_1m_sniper_10r_demand_supply_zone_tp_fx
 familyId: smart_risk_ob_ifvg_1m
 active: true
+dxyDependency: not_required
 name: Smart Risk Sniper 10R — FX majors demand/supply + HTF zone TP
 version: 1.0.0
 description: >

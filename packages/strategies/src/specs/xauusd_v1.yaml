@@ -1,6 +1,7 @@
 id: xauusd_v1
 familyId: xauusd_v1
 active: true
+dxyDependency: optional
 name: "XAUUSD Engine-First Scalp V1"
 version: "1.2.0"
 description: >

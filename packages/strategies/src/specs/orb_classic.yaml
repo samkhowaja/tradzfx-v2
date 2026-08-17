@@ -2,6 +2,7 @@ id: orb_classic
 familyId: orb_classic
 setupFamily: orb_breakout
 active: true
+dxyDependency: not_required
 name: "ORB Classic"
 version: "1.1.0"
 description: >

@@ -1,6 +1,7 @@
 id: gold_scalp_2_breaker_block
 familyId: gold_scalp_2_breaker_block
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Gold Scalp 2 — Supply/Demand + Breaker Block"
 version: "1.0.0"

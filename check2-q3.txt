@@ -1,0 +1,10 @@
+◇ injected env (17) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+quarantine distribution (detector x decision x superseded x approved):
+  candle-detector-v1 decision=UNKNOWN superseded=true approved=false n=22
+  candle-detector-v2-calendar decision=UNKNOWN superseded=false approved=false n=17
+  candle-detector-v2-calendar decision=UNKNOWN superseded=true approved=false n=2
+  candle-detector-v3-robust decision=UNKNOWN superseded=false approved=false n=18
+
+blocking rows (unsuperseded, non-KEEP):
+  candle-detector-v2-calendar: 17
+  candle-detector-v3-robust: 18

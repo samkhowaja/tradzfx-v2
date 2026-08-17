@@ -1,6 +1,7 @@
 id: apex_scalp_orb_v1
 familyId: apex_scalp
 active: true
+dxyDependency: not_required
 name: "Apex Scalp: NY Opening Range Breakout (limit entry)"
 version: "1.0.0"
 description: >

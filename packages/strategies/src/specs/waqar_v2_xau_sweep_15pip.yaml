@@ -1,6 +1,7 @@
 id: waqar_v2_xau_sweep_15pip
 familyId: waqar_v2
 active: true
+dxyDependency: not_required
 name: "Waqar XAUUSD Sweep — 15pip SL"
 version: "3.1.0-xau-sweep.1"
 description: >

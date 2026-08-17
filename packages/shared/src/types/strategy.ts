@@ -8,6 +8,7 @@ import type { TimeFrame, Direction } from "./feature";
 export type Side = "buy" | "sell";
 
 export type FeatureContract = "CLEAN_2026_07" | "LEGACY";
+export type DxyDependency = "required" | "optional" | "not_required";
 
 export interface StrategySpec {
   id: string;
@@ -29,6 +30,8 @@ export interface StrategySpec {
   version: string;
   /** Causal feature contract. Omitted specs remain legacy for compatibility. */
   featureContract?: FeatureContract;
+  /** DXY usage policy. Omitted legacy specs are inferred conservatively. */
+  dxyDependency?: DxyDependency;
   description?: string;
   /** Whether this variant is active for live trading/backtests. */
   active?: boolean;

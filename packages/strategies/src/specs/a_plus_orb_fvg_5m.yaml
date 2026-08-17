@@ -2,6 +2,7 @@ id: a_plus_orb_fvg_5m
 familyId: a_plus_orb_fvg
 setupFamily: fvg_continuation
 active: true
+dxyDependency: not_required
 name: "A+ ORB FVG 5m"
 version: "1.0.0"
 description: >

@@ -1,0 +1,4900 @@
+{
+  "generated_at": "2026-08-15T06:41:32.460Z",
+  "mode": "read-only",
+  "schemas": [
+    "public",
+    "market"
+  ],
+  "totals": {
+    "indexes": 354,
+    "bytes": 10917961728,
+    "exact_duplicate_groups": 0,
+    "exact_duplicate_reclaimable_bytes": 0,
+    "redundant_prefix_candidates": 8,
+    "redundant_prefix_bytes": 186048512,
+    "never_scanned_non_constraint": 153
+  },
+  "exact_duplicates": [],
+  "redundant_prefix_candidates": [
+    {
+      "table": "public.features_moving_average",
+      "redundant_index": "idx_features_moving_average_symbol",
+      "redundant_bytes": 90832896,
+      "redundant_scans": 3699,
+      "covered_by": "idx_features_moving_average_cross_lookup",
+      "covered_by_bytes": 252305408
+    },
+    {
+      "table": "public.features_pricing",
+      "redundant_index": "idx_features_pricing_symbol",
+      "redundant_bytes": 33964032,
+      "redundant_scans": 1847,
+      "covered_by": "idx_features_pricing_pit_cover",
+      "covered_by_bytes": 48119808
+    },
+    {
+      "table": "public.features_zone",
+      "redundant_index": "idx_features_zone_symbol",
+      "redundant_bytes": 28540928,
+      "redundant_scans": 129,
+      "covered_by": "idx_features_zone_pit_cover",
+      "covered_by_bytes": 181559296
+    },
+    {
+      "table": "public.features_ifvg",
+      "redundant_index": "idx_features_ifvg_symbol",
+      "redundant_bytes": 14458880,
+      "redundant_scans": 8,
+      "covered_by": "idx_features_ifvg_pit_cover",
+      "covered_by_bytes": 142557184
+    },
+    {
+      "table": "public.features_structure",
+      "redundant_index": "idx_features_structure_symbol",
+      "redundant_bytes": 8126464,
+      "redundant_scans": 8,
+      "covered_by": "idx_features_structure_pit_cover",
+      "covered_by_bytes": 56745984
+    },
+    {
+      "table": "public.features_direction_state",
+      "redundant_index": "idx_features_direction_state_lookup",
+      "redundant_bytes": 7462912,
+      "redundant_scans": 12,
+      "covered_by": "idx_features_direction_state_pit",
+      "covered_by_bytes": 18669568
+    },
+    {
+      "table": "public.features_order_block",
+      "redundant_index": "idx_features_order_block_symbol",
+      "redundant_bytes": 2646016,
+      "redundant_scans": 8,
+      "covered_by": "idx_features_order_block_pit_cover",
+      "covered_by_bytes": 30466048
+    },
+    {
+      "table": "public.orders",
+      "redundant_index": "idx_orders_symbol_status",
+      "redundant_bytes": 16384,
+      "redundant_scans": 0,
+      "covered_by": "idx_orders_symbol",
+      "covered_by_bytes": 16384
+    }
+  ],
+  "never_scanned": [
+    {
+      "schema": "public",
+      "table_name": "features_moving_average",
+      "index_name": "idx_features_moving_average_cross_lookup",
+      "bytes": 252305408
+    },
+    {
+      "schema": "public",
+      "table_name": "features_indicator",
+      "index_name": "idx_features_indicator_name_period",
+      "bytes": 226115584
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_distinct",
+      "bytes": 193142784
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_cover",
+      "bytes": 181559296
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_outcomes",
+      "index_name": "idx_zone_outcomes_lookup",
+      "bytes": 109322240
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_pit_fresh",
+      "bytes": 73007104
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_pit_distinct",
+      "bytes": 64708608
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_fresh",
+      "bytes": 40124416
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_lifecycle",
+      "bytes": 39714816
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_cover",
+      "bytes": 30466048
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_target_type",
+      "bytes": 26927104
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_distinct",
+      "bytes": 26714112
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_touch",
+      "bytes": 22331392
+    },
+    {
+      "schema": "public",
+      "table_name": "features_direction_state",
+      "index_name": "idx_features_direction_state_pit",
+      "bytes": 18669568
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session",
+      "index_name": "idx_features_session_symbol",
+      "bytes": 18153472
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_retest",
+      "bytes": 18006016
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_originating_zone",
+      "bytes": 17932288
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_lifecycle",
+      "bytes": 16769024
+    },
+    {
+      "schema": "public",
+      "table_name": "features_candle_pattern",
+      "index_name": "idx_features_candle_pattern_name",
+      "bytes": 15400960
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pivot",
+      "index_name": "idx_features_pivot_confirmation_ts",
+      "bytes": 14737408
+    },
+    {
+      "schema": "public",
+      "table_name": "features_bollinger",
+      "index_name": "idx_features_bollinger_symbol",
+      "bytes": 14344192
+    },
+    {
+      "schema": "public",
+      "table_name": "features_keltner",
+      "index_name": "idx_features_keltner_symbol",
+      "bytes": 14327808
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_lifecycle",
+      "bytes": 12705792
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_open_lifecycle",
+      "bytes": 12525568
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_strategy",
+      "bytes": 12238848
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_fresh",
+      "bytes": 11886592
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_open_lifecycle",
+      "bytes": 8790016
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_available_at",
+      "bytes": 8593408
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_symbol",
+      "bytes": 8265728
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_lifecycle_scan",
+      "bytes": 7774208
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_lifecycle",
+      "bytes": 7684096
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_fresh",
+      "bytes": 6815744
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_source_level",
+      "bytes": 6807552
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_open_lifecycle",
+      "bytes": 6291456
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_created",
+      "bytes": 5955584
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_touch_events",
+      "index_name": "idx_zone_touch_events_symbol_tf_touch",
+      "bytes": 5840896
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_hl",
+      "index_name": "idx_features_session_hl_session",
+      "bytes": 4628480
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_level_v2",
+      "index_name": "idx_features_liquidity_level_v2_lifecycle",
+      "bytes": 3145728
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_lifecycle",
+      "bytes": 2891776
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_available_at",
+      "bytes": 2203648
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_open_lifecycle",
+      "bytes": 2179072
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_logical_id_observation",
+      "bytes": 1671168
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_open_lifecycle",
+      "bytes": 1138688
+    },
+    {
+      "schema": "public",
+      "table_name": "features_atr",
+      "index_name": "idx_features_atr_zero_check",
+      "bytes": 1138688
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_status_hash",
+      "bytes": 876544
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_event_inbox",
+      "index_name": "idx_progressive_setup_event_instance",
+      "bytes": 647168
+    },
+    {
+      "schema": "public",
+      "table_name": "features_eq_liquidity",
+      "index_name": "idx_features_eq_liquidity_symbol",
+      "bytes": 622592
+    },
+    {
+      "schema": "public",
+      "table_name": "features_opening_range",
+      "index_name": "idx_features_opening_range_minutes",
+      "bytes": 483328
+    },
+    {
+      "schema": "public",
+      "table_name": "features_correlation",
+      "index_name": "idx_features_correlation_lookup",
+      "bytes": 417792
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_jobs",
+      "index_name": "idx_feature_jobs_pending",
+      "bytes": 393216
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_event_v2",
+      "index_name": "idx_features_liquidity_event_v2_level",
+      "bytes": 344064
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_event_inbox",
+      "index_name": "idx_progressive_setup_event_pending",
+      "bytes": 335872
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "idx_progressive_setup_transition_timeline",
+      "bytes": 262144
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "index_name": "idx_progressive_shadow_canary_run_plan_clock",
+      "bytes": 253952
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_family_id",
+      "bytes": 204800
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_event_v2",
+      "index_name": "idx_features_liquidity_event_v2_known",
+      "bytes": 163840
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_symbol_tf",
+      "bytes": 155648
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_node",
+      "index_name": "idx_progressive_setup_node_source",
+      "bytes": 147456
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_grade",
+      "bytes": 131072
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_instance",
+      "index_name": "idx_progressive_setup_instance_active",
+      "bytes": 122880
+    },
+    {
+      "schema": "public",
+      "table_name": "market_zone_objects",
+      "index_name": "idx_market_zone_objects_lookup",
+      "bytes": 90112
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "index_name": "idx_progressive_shadow_canary_run_status",
+      "bytes": 81920
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_run_id",
+      "bytes": 73728
+    },
+    {
+      "schema": "public",
+      "table_name": "pipeline_trigger_state",
+      "index_name": "idx_pipeline_trigger_state_symbol_bucket",
+      "bytes": 73728
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_grade",
+      "bytes": 65536
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_heat_run_id",
+      "bytes": 65536
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_source",
+      "bytes": 57344
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "strategy_settings_snapshot_content_hash_bin_key",
+      "bytes": 40960
+    },
+    {
+      "schema": "public",
+      "table_name": "compiled_strategy_snapshot",
+      "index_name": "idx_compiled_strategy_snapshot_strategy",
+      "bytes": 40960
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_dedup_v2",
+      "bytes": 40960
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_node",
+      "index_name": "uq_progressive_setup_node_exclusive_evidence",
+      "bytes": 40960
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "idx_strategy_settings_snapshot_strategy",
+      "bytes": 32768
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_run",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_symbol",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_ts",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_symbol",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_strategy",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_ts",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_status",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_symbol_status",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_specs",
+      "index_name": "idx_strategy_specs_active",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "idx_feature_config_snapshot_created_at",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_deployment",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_trace",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_status",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_signal",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_deployment",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_pending",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_order",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "mt5_terminals",
+      "index_name": "idx_mt5_terminals_account",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "mt5_terminals",
+      "index_name": "idx_mt5_terminals_api_key",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "calibration_tuning",
+      "index_name": "idx_calibration_tuning_symbol_tf",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_terminal_status",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "setup_evaluations_unique_order_setup",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "orders_fingerprint_idx",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "live_signal_fingerprint_idx",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_sequence_number",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_pending_seq",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_variant_id",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_family_id",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "processed_ea_events",
+      "index_name": "idx_processed_ea_events_order_id",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_runs",
+      "index_name": "idx_backtest_runs_variant_id",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_heat_dropped",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_coverage",
+      "index_name": "idx_candle_coverage_refreshed",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "market_zone_objects",
+      "index_name": "idx_market_zone_objects_active",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "feature_config_snapshot_content_hash_bin_key",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "live_deployment",
+      "index_name": "idx_live_deployment_compiled_snapshot",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_checkpoint",
+      "index_name": "idx_progressive_shadow_checkpoint_source",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "trusted_windows",
+      "index_name": "uq_trusted_windows_candidate_identity",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "golden_corridor_sets",
+      "index_name": "uq_golden_corridor_active_span",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "golden_corridor_sets",
+      "index_name": "ix_golden_corridor_lookup",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_requests",
+      "index_name": "candle_requests_status_idx",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_bar_lineage",
+      "index_name": "candle_bar_lineage_bar_idx",
+      "bytes": 16384
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "idx_cpl_ingestion_run",
+      "bytes": 16384
+    },
+    {
+      "schema": "public",
+      "table_name": "ai_narratives",
+      "index_name": "idx_ai_narratives_symbol",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "ai_narratives",
+      "index_name": "idx_ai_narratives_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_strategy",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_status",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_type",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_signal",
+      "index_name": "idx_analysis_signal_run",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_signal",
+      "index_name": "idx_analysis_signal_symbol",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_run",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_symbol",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_outcome",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "live_fill",
+      "index_name": "idx_live_fill_order",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "live_fill",
+      "index_name": "idx_live_fill_ticket",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "features_fvg",
+      "index_name": "idx_features_fvg_symbol_tf_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_symbol_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_strategy_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_stage",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_symbol_ts",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "uq_strategy_signal_candidates_identity",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_fx_tradable_check",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_run",
+      "index_name": "idx_signal_replay_run_variant",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_result",
+      "index_name": "idx_signal_replay_result_mismatch",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "idx_features_push_pull_lookup",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "idx_features_push_pull_dir",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "features_push_pull_ts_idx",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "market_window_occurrences",
+      "index_name": "idx_market_window_occurrences_active",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_thesis_fingerprint",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_thesis_dedup",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_thesis_fingerprint",
+      "bytes": 8192
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_cache",
+      "index_name": "idx_feature_cache_trusted",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_runs",
+      "index_name": "idx_cir_artifact",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_reverification_evidence",
+      "index_name": "idx_cre_lookup",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_authority_snapshot",
+      "index_name": "idx_candle_authority_lookup",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "index_name": "uq_quarantine_one_successor",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "xauusd_expected_minute",
+      "index_name": "idx_xauusd_expected_minute_interval",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_run_evidence",
+      "index_name": "uq_cire_identity",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "uq_raw_one_successor",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "uq_canonical_one_successor",
+      "bytes": 8192
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_lineage",
+      "index_name": "uq_derivation_one_successor",
+      "bytes": 8192
+    }
+  ],
+  "inventory": [
+    {
+      "schema": "public",
+      "table_name": "schema_migrations",
+      "index_name": "schema_migrations_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 32768,
+      "scans": 201,
+      "definition": "CREATE UNIQUE INDEX schema_migrations_pkey ON public.schema_migrations USING btree (version)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_atr",
+      "index_name": "features_atr_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 439492608,
+      "scans": 1473,
+      "definition": "CREATE UNIQUE INDEX features_atr_pkey ON public.features_atr USING btree (symbol, tf, ts, period)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_atr",
+      "index_name": "idx_features_atr_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 186187776,
+      "scans": 1408,
+      "definition": "CREATE INDEX idx_features_atr_symbol ON public.features_atr USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pivot",
+      "index_name": "features_pivot_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 293904384,
+      "scans": 242,
+      "definition": "CREATE UNIQUE INDEX features_pivot_pkey ON public.features_pivot USING btree (symbol, tf, ts, kind, price)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pivot",
+      "index_name": "idx_features_pivot_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 68542464,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_pivot_symbol ON public.features_pivot USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "features_structure_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 7888896,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_structure_pkey ON public.features_structure USING btree (symbol, tf, ts, event_type)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8126464,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_structure_symbol ON public.features_structure USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "features_sweep_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 19718144,
+      "scans": 4,
+      "definition": "CREATE UNIQUE INDEX features_sweep_pkey ON public.features_sweep USING btree (symbol, tf, ts, direction)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 23715840,
+      "scans": 4,
+      "definition": "CREATE INDEX idx_features_sweep_symbol ON public.features_sweep USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 28540928,
+      "scans": 129,
+      "definition": "CREATE INDEX idx_features_zone_symbol ON public.features_zone USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pricing",
+      "index_name": "features_pricing_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 33980416,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_pricing_pkey ON public.features_pricing USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pricing",
+      "index_name": "idx_features_pricing_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 33964032,
+      "scans": 1847,
+      "definition": "CREATE INDEX idx_features_pricing_symbol ON public.features_pricing USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_bias",
+      "index_name": "features_bias_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 28958720,
+      "scans": 1,
+      "definition": "CREATE UNIQUE INDEX features_bias_pkey ON public.features_bias USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_bias",
+      "index_name": "idx_features_bias_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 30121984,
+      "scans": 155,
+      "definition": "CREATE INDEX idx_features_bias_symbol ON public.features_bias USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session",
+      "index_name": "idx_features_session_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 18153472,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_session_symbol ON public.features_session USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_displacement",
+      "index_name": "features_displacement_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 26927104,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_displacement_pkey ON public.features_displacement USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_displacement",
+      "index_name": "idx_features_displacement_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 28327936,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_displacement_symbol ON public.features_displacement USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_cache",
+      "index_name": "feature_cache_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 377241600,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_cache_pkey ON public.feature_cache USING btree (feature_name, input_hash)"
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "decision_trace_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 65536,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX decision_trace_pkey ON public.decision_trace USING btree (run_id, symbol, strategy_id, ts, node_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_run",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_decision_trace_run ON public.decision_trace USING btree (run_id, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_decision_trace_symbol ON public.decision_trace USING btree (symbol, strategy_id, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "decision_trace",
+      "index_name": "idx_decision_trace_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_decision_trace_ts ON public.decision_trace USING btree (ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "orders_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_symbol ON public.orders USING btree (symbol, status, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_strategy ON public.orders USING btree (strategy_id, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_ts ON public.orders USING btree (created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "ai_narratives",
+      "index_name": "ai_narratives_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX ai_narratives_pkey ON public.ai_narratives USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "ai_narratives",
+      "index_name": "idx_ai_narratives_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_ai_narratives_symbol ON public.ai_narratives USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "ai_narratives",
+      "index_name": "idx_ai_narratives_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_ai_narratives_ts ON public.ai_narratives USING btree (ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_status ON public.orders USING btree (status)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_symbol_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_symbol_status ON public.orders USING btree (symbol, status)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_specs",
+      "index_name": "strategy_specs_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX strategy_specs_pkey ON public.strategy_specs USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_specs",
+      "index_name": "idx_strategy_specs_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_strategy_specs_active ON public.strategy_specs USING btree (is_active)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_candle_pattern",
+      "index_name": "features_candle_pattern_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 17260544,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_candle_pattern_pkey ON public.features_candle_pattern USING btree (symbol, tf, ts, pattern_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_candle_pattern",
+      "index_name": "idx_features_candle_pattern_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16662528,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_candle_pattern_lookup ON public.features_candle_pattern USING btree (symbol, tf, ts DESC, pattern_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_candle_pattern",
+      "index_name": "idx_features_candle_pattern_name",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 15400960,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_candle_pattern_name ON public.features_candle_pattern USING btree (pattern_name, symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_fresh",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 6815744,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_fresh ON public.features_zone USING btree (symbol, tf, ts DESC, is_fresh) WHERE (is_fresh = true)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_indicator",
+      "index_name": "features_indicator_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 243580928,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_indicator_pkey ON public.features_indicator USING btree (symbol, tf, ts, indicator_name, period)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_indicator",
+      "index_name": "idx_features_indicator_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 215056384,
+      "scans": 29,
+      "definition": "CREATE INDEX idx_features_indicator_lookup ON public.features_indicator USING btree (symbol, tf, ts DESC, indicator_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_indicator",
+      "index_name": "idx_features_indicator_name_period",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 226115584,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_indicator_name_period ON public.features_indicator USING btree (indicator_name, period, symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_opening_range",
+      "index_name": "features_opening_range_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 827392,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_opening_range_pkey ON public.features_opening_range USING btree (symbol, date, session, range_minutes)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_opening_range",
+      "index_name": "idx_features_opening_range_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 434176,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_opening_range_lookup ON public.features_opening_range USING btree (symbol, date DESC, session)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_opening_range",
+      "index_name": "idx_features_opening_range_minutes",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 483328,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_opening_range_minutes ON public.features_opening_range USING btree (range_minutes, symbol, date DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_hl",
+      "index_name": "features_session_hl_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 4849664,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_session_hl_pkey ON public.features_session_hl USING btree (symbol, date, session)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_hl",
+      "index_name": "idx_features_session_hl_date",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 3432448,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_session_hl_date ON public.features_session_hl USING btree (symbol, date DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_hl",
+      "index_name": "idx_features_session_hl_session",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 4628480,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_session_hl_session ON public.features_session_hl USING btree (session, symbol, date DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_moving_average",
+      "index_name": "idx_features_moving_average_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 90832896,
+      "scans": 3699,
+      "definition": "CREATE INDEX idx_features_moving_average_symbol ON public.features_moving_average USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_bollinger",
+      "index_name": "features_bollinger_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 20832256,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_bollinger_pkey ON public.features_bollinger USING btree (symbol, tf, ts, period, multiplier)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_bollinger",
+      "index_name": "idx_features_bollinger_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 14344192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_bollinger_symbol ON public.features_bollinger USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_keltner",
+      "index_name": "features_keltner_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 20783104,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_keltner_pkey ON public.features_keltner USING btree (symbol, tf, ts, ema_period, atr_period, multiplier)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_keltner",
+      "index_name": "idx_features_keltner_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 14327808,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_keltner_symbol ON public.features_keltner USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "features_ifvg_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 102686720,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_ifvg_pkey ON public.features_ifvg USING btree (symbol, tf, ts, direction, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 14458880,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_ifvg_symbol ON public.features_ifvg USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "feature_config_snapshot_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 2,
+      "definition": "CREATE UNIQUE INDEX feature_config_snapshot_pkey ON public.feature_config_snapshot USING btree (snapshot_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "feature_config_snapshot_content_hash_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_config_snapshot_content_hash_key ON public.feature_config_snapshot USING btree (content_hash)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "idx_feature_config_snapshot_created_at",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_feature_config_snapshot_created_at ON public.feature_config_snapshot USING btree (created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "strategy_settings_snapshot_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 6,
+      "definition": "CREATE UNIQUE INDEX strategy_settings_snapshot_pkey ON public.strategy_settings_snapshot USING btree (snapshot_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "strategy_settings_snapshot_content_hash_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX strategy_settings_snapshot_content_hash_key ON public.strategy_settings_snapshot USING btree (content_hash)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "idx_strategy_settings_snapshot_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 32768,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_strategy_settings_snapshot_strategy ON public.strategy_settings_snapshot USING btree (strategy_id, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "analysis_run_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX analysis_run_pkey ON public.analysis_run USING btree (run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_run_strategy ON public.analysis_run USING btree (strategy_id, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_run_status ON public.analysis_run USING btree (status, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_run",
+      "index_name": "idx_analysis_run_type",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_run_type ON public.analysis_run USING btree (run_type, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_signal",
+      "index_name": "analysis_signal_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX analysis_signal_pkey ON public.analysis_signal USING btree (signal_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_signal",
+      "index_name": "idx_analysis_signal_run",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_signal_run ON public.analysis_signal USING btree (run_id, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_signal",
+      "index_name": "idx_analysis_signal_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_signal_symbol ON public.analysis_signal USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "analysis_trade_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX analysis_trade_pkey ON public.analysis_trade USING btree (trade_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_run",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_trade_run ON public.analysis_trade USING btree (run_id, open_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_trade_symbol ON public.analysis_trade USING btree (symbol, open_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "analysis_trade",
+      "index_name": "idx_analysis_trade_outcome",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_analysis_trade_outcome ON public.analysis_trade USING btree (outcome) WHERE (outcome IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_deployment",
+      "index_name": "live_deployment_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 10,
+      "definition": "CREATE UNIQUE INDEX live_deployment_pkey ON public.live_deployment USING btree (deployment_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_deployment",
+      "index_name": "idx_live_deployment_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE INDEX idx_live_deployment_active ON public.live_deployment USING btree (is_active, strategy_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_deployment",
+      "index_name": "idx_live_deployment_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40960,
+      "scans": 4,
+      "definition": "CREATE INDEX idx_live_deployment_strategy ON public.live_deployment USING btree (strategy_id, started_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "live_signal_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX live_signal_pkey ON public.live_signal USING btree (signal_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_deployment",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_deployment ON public.live_signal USING btree (deployment_id, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 6,
+      "definition": "CREATE INDEX idx_live_signal_symbol ON public.live_signal USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_trace",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_trace ON public.live_signal USING btree (gate_trace_run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "live_order_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX live_order_pkey ON public.live_order USING btree (order_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_order_status ON public.live_order USING btree (status, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_signal",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_order_signal ON public.live_order USING btree (signal_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_order",
+      "index_name": "idx_live_order_deployment",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_order_deployment ON public.live_order USING btree (deployment_id, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_fill",
+      "index_name": "live_fill_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX live_fill_pkey ON public.live_fill USING btree (fill_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_fill",
+      "index_name": "idx_live_fill_order",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_fill_order ON public.live_fill USING btree (order_id, fill_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_fill",
+      "index_name": "idx_live_fill_ticket",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_fill_ticket ON public.live_fill USING btree (mt5_ticket) WHERE (mt5_ticket IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone_retest",
+      "index_name": "idx_features_zone_retest_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 127451136,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_zone_retest_lookup ON public.features_zone_retest USING btree (symbol, tf, ts DESC, zone_kind)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_correlation",
+      "index_name": "features_correlation_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 327680,
+      "scans": 8,
+      "definition": "CREATE UNIQUE INDEX features_correlation_pkey ON public.features_correlation USING btree (symbol, tf, ts, reference_symbol)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_correlation",
+      "index_name": "idx_features_correlation_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 417792,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_correlation_lookup ON public.features_correlation USING btree (symbol, tf, ts DESC, reference_symbol)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_time_of_day_edge",
+      "index_name": "features_time_of_day_edge_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 24707072,
+      "scans": 4,
+      "definition": "CREATE UNIQUE INDEX features_time_of_day_edge_pkey ON public.features_time_of_day_edge USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_time_of_day_edge",
+      "index_name": "idx_features_time_of_day_edge_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 26222592,
+      "scans": 4,
+      "definition": "CREATE INDEX idx_features_time_of_day_edge_lookup ON public.features_time_of_day_edge USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_pools",
+      "index_name": "features_liquidity_pools_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 112836608,
+      "scans": 242,
+      "definition": "CREATE UNIQUE INDEX features_liquidity_pools_pkey ON public.features_liquidity_pools USING btree (symbol, tf, ts, kind)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_pools",
+      "index_name": "idx_features_liquidity_pools_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 29196288,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_liquidity_pools_lookup ON public.features_liquidity_pools USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "position_commands_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX position_commands_pkey ON public.position_commands USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_pending",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_position_commands_pending ON public.position_commands USING btree (status, created_at) WHERE (status = 'pending'::text)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_order",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_position_commands_order ON public.position_commands USING btree (order_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "mt5_terminals",
+      "index_name": "mt5_terminals_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX mt5_terminals_pkey ON public.mt5_terminals USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "mt5_terminals",
+      "index_name": "idx_mt5_terminals_account",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX idx_mt5_terminals_account ON public.mt5_terminals USING btree (platform, account_number, broker_server)"
+    },
+    {
+      "schema": "public",
+      "table_name": "mt5_terminals",
+      "index_name": "idx_mt5_terminals_api_key",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_mt5_terminals_api_key ON public.mt5_terminals USING btree (api_key)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 39714816,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_lifecycle ON public.features_zone USING btree (symbol, tf, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 12705792,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_ifvg_lifecycle ON public.features_ifvg USING btree (symbol, tf, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16769024,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_sweep_lifecycle ON public.features_sweep USING btree (symbol, tf, mitigated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 7684096,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_structure_lifecycle ON public.features_structure USING btree (symbol, tf, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_originating_zone",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 17932288,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_ifvg_originating_zone ON public.features_ifvg USING btree (symbol, tf, originating_zone_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "features_order_block_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 12705792,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_order_block_pkey ON public.features_order_block USING btree (symbol, tf, ts, ob_kind, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 2646016,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_order_block_symbol ON public.features_order_block USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 2891776,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_lifecycle ON public.features_order_block USING btree (symbol, tf, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_eq_liquidity",
+      "index_name": "features_eq_liquidity_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 1187840,
+      "scans": 242,
+      "definition": "CREATE UNIQUE INDEX features_eq_liquidity_pkey ON public.features_eq_liquidity USING btree (symbol, tf, ts, kind, price)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_eq_liquidity",
+      "index_name": "idx_features_eq_liquidity_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 622592,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_eq_liquidity_symbol ON public.features_eq_liquidity USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_open_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 6291456,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_open_lifecycle ON public.features_zone USING btree (symbol, ts) WHERE ((mitigated_at IS NULL) AND (invalidated_at IS NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_open_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1138688,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_open_lifecycle ON public.features_order_block USING btree (symbol, ts) WHERE ((mitigated_at IS NULL) AND (invalidated_at IS NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_open_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8790016,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_ifvg_open_lifecycle ON public.features_ifvg USING btree (symbol, ts) WHERE ((mitigated_at IS NULL) AND (invalidated_at IS NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_open_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 12525568,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_sweep_open_lifecycle ON public.features_sweep USING btree (symbol, ts) WHERE (mitigated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_open_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 2179072,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_structure_open_lifecycle ON public.features_structure USING btree (symbol, ts) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_htf_bias",
+      "index_name": "features_htf_bias_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 46538752,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_htf_bias_pkey ON public.features_htf_bias USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_htf_bias",
+      "index_name": "idx_features_htf_bias_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 46178304,
+      "scans": 130,
+      "definition": "CREATE INDEX idx_features_htf_bias_symbol ON public.features_htf_bias USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_spread",
+      "index_name": "features_spread_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 4030464,
+      "scans": 17,
+      "definition": "CREATE UNIQUE INDEX features_spread_pkey ON public.features_spread USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_spread",
+      "index_name": "idx_features_spread_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 4104192,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_spread_symbol ON public.features_spread USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_cover",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 181559296,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_pit_cover ON public.features_zone USING btree (symbol, tf, ts DESC) INCLUDE (zone_kind, fill_pct, top, bottom, strength_score, first_touch_at, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_pit_cover",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 56745984,
+      "scans": 121,
+      "definition": "CREATE INDEX idx_features_structure_pit_cover ON public.features_structure USING btree (symbol, tf, ts DESC) INCLUDE (event_type, direction, level, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pricing",
+      "index_name": "idx_features_pricing_pit_cover",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 48119808,
+      "scans": 1956,
+      "definition": "CREATE INDEX idx_features_pricing_pit_cover ON public.features_pricing USING btree (symbol, tf, ts DESC) INCLUDE (\"position\")"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_cover",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 30466048,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_pit_cover ON public.features_order_block USING btree (symbol, tf, ts DESC) INCLUDE (ob_kind, top, bottom, strength_score, first_touch_at, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_pit_cover",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 142557184,
+      "scans": 242,
+      "definition": "CREATE INDEX idx_features_ifvg_pit_cover ON public.features_ifvg USING btree (symbol, tf, ts DESC) INCLUDE (direction, top, bottom, strength_score, first_touch_at, mitigated_at, invalidated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "pipeline_trigger_state",
+      "index_name": "idx_pipeline_trigger_state_updated",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 114688,
+      "scans": 2,
+      "definition": "CREATE INDEX idx_pipeline_trigger_state_updated ON public.pipeline_trigger_state USING btree (updated_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_outcomes",
+      "index_name": "zone_outcomes_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 158113792,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX zone_outcomes_pkey ON public.zone_outcomes USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_outcomes",
+      "index_name": "idx_zone_outcomes_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 109322240,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_zone_outcomes_lookup ON public.zone_outcomes USING btree (symbol, tf, zone_kind, formation_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "setup_evaluations_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 245760,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX setup_evaluations_pkey ON public.setup_evaluations USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_symbol_tf",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 450560,
+      "scans": 57,
+      "definition": "CREATE INDEX idx_setup_evaluations_symbol_tf ON public.setup_evaluations USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_grade",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 131072,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_setup_evaluations_grade ON public.setup_evaluations USING btree (grade, outcome)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "backtest_results_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 155648,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX backtest_results_pkey ON public.backtest_results USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_run_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73728,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_run_id ON public.backtest_results USING btree (run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_symbol_tf",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 155648,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_symbol_tf ON public.backtest_results USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_grade",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 65536,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_grade ON public.backtest_results USING btree (grade, outcome)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_runs",
+      "index_name": "backtest_runs_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 4,
+      "definition": "CREATE UNIQUE INDEX backtest_runs_pkey ON public.backtest_runs USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_jobs",
+      "index_name": "feature_jobs_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 1908736,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_jobs_pkey ON public.feature_jobs USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_jobs",
+      "index_name": "feature_jobs_symbol_tf_ts_feature_name_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 7127040,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_jobs_symbol_tf_ts_feature_name_key ON public.feature_jobs USING btree (symbol, tf, ts, feature_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_jobs",
+      "index_name": "idx_feature_jobs_pending",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 393216,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_feature_jobs_pending ON public.feature_jobs USING btree (status, created_at) WHERE (status = 'pending'::text)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_jobs",
+      "index_name": "idx_feature_jobs_symbol_tf_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 851968,
+      "scans": 5,
+      "definition": "CREATE INDEX idx_feature_jobs_symbol_tf_ts ON public.feature_jobs USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "calibration_tuning",
+      "index_name": "calibration_tuning_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE UNIQUE INDEX calibration_tuning_pkey ON public.calibration_tuning USING btree (symbol, tf, grade)"
+    },
+    {
+      "schema": "public",
+      "table_name": "calibration_tuning",
+      "index_name": "idx_calibration_tuning_symbol_tf",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_calibration_tuning_symbol_tf ON public.calibration_tuning USING btree (symbol, tf)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_unique_setup",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE UNIQUE INDEX idx_live_signal_unique_setup ON public.live_signal USING btree (deployment_id, symbol, ts, strategy_id, side)"
+    },
+    {
+      "schema": "public",
+      "table_name": "pipeline_trigger_state",
+      "index_name": "idx_pipeline_trigger_state_symbol_bucket",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73728,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX idx_pipeline_trigger_state_symbol_bucket ON public.pipeline_trigger_state USING btree (symbol, bucket)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_terminal_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_position_commands_terminal_status ON public.position_commands USING btree (terminal_key_id, status)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "setup_evaluations_unique_order_setup",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX setup_evaluations_unique_order_setup ON public.setup_evaluations USING btree (symbol, tf, ts, direction, order_id) WHERE (order_id IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "orders_fingerprint_idx",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX orders_fingerprint_idx ON public.orders USING btree (signal_fingerprint) WHERE (signal_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "live_signal_fingerprint_idx",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX live_signal_fingerprint_idx ON public.live_signal USING btree (signal_fingerprint) WHERE (signal_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_sequence_number",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX idx_position_commands_sequence_number ON public.position_commands USING btree (sequence_number)"
+    },
+    {
+      "schema": "public",
+      "table_name": "position_commands",
+      "index_name": "idx_position_commands_pending_seq",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_position_commands_pending_seq ON public.position_commands USING btree (status, sequence_number) WHERE (status = 'pending'::text)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "live_signal_rejection_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 11345920,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX live_signal_rejection_pkey ON public.live_signal_rejection USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_created",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 5955584,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_rejection_created ON public.live_signal_rejection USING btree (created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_symbol",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8265728,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_rejection_symbol ON public.live_signal_rejection USING btree (symbol, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal_rejection",
+      "index_name": "idx_live_signal_rejection_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 12238848,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_rejection_strategy ON public.live_signal_rejection USING btree (strategy_id, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_families",
+      "index_name": "strategy_families_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 33,
+      "definition": "CREATE UNIQUE INDEX strategy_families_pkey ON public.strategy_families USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_variants",
+      "index_name": "strategy_variants_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 11,
+      "definition": "CREATE UNIQUE INDEX strategy_variants_pkey ON public.strategy_variants USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_variants",
+      "index_name": "idx_strategy_variants_family_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 22,
+      "definition": "CREATE INDEX idx_strategy_variants_family_id ON public.strategy_variants USING btree (family_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_variants",
+      "index_name": "idx_strategy_variants_is_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE INDEX idx_strategy_variants_is_active ON public.strategy_variants USING btree (is_active)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_variant_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_variant_id ON public.orders USING btree (variant_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_family_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_family_id ON public.orders USING btree (family_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "processed_ea_events",
+      "index_name": "processed_ea_events_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX processed_ea_events_pkey ON public.processed_ea_events USING btree (idempotency_key)"
+    },
+    {
+      "schema": "public",
+      "table_name": "processed_ea_events",
+      "index_name": "idx_processed_ea_events_order_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_processed_ea_events_order_id ON public.processed_ea_events USING btree (order_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "lifecycle_refresh_state",
+      "index_name": "lifecycle_refresh_state_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 16,
+      "definition": "CREATE UNIQUE INDEX lifecycle_refresh_state_pkey ON public.lifecycle_refresh_state USING btree (symbol, table_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_distinct",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 26714112,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_pit_distinct ON public.features_order_block USING btree (symbol, tf, ob_kind, ts DESC) INCLUDE (is_fresh, invalidated_at, strength_score, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_pit_distinct",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 64708608,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_structure_pit_distinct ON public.features_structure USING btree (symbol, tf, event_type, direction, ts DESC) INCLUDE (level, invalidated_at, strength)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_variant_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 237568,
+      "scans": 6,
+      "definition": "CREATE INDEX idx_backtest_results_variant_id ON public.backtest_results USING btree (variant_id, symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_family_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 204800,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_family_id ON public.backtest_results USING btree (family_id, symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_runs",
+      "index_name": "idx_backtest_runs_variant_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_runs_variant_id ON public.backtest_runs USING btree (variant_id, symbol, tf, generated_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_fresh",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40124416,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_pit_fresh ON public.features_zone USING btree (symbol, tf, ts DESC) INCLUDE (zone_kind, top, bottom, strength_score) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_ifvg",
+      "index_name": "idx_features_ifvg_pit_fresh",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73007104,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_ifvg_pit_fresh ON public.features_ifvg USING btree (symbol, tf, ts DESC) INCLUDE (direction, top, bottom, strength_score) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_pit_fresh",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 11886592,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_pit_fresh ON public.features_order_block USING btree (symbol, tf, ts DESC) INCLUDE (ob_kind, top, bottom, strength_score) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_source",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 57344,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_source ON public.backtest_results USING btree (source, grade, outcome)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_lifecycle_scan",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 7774208,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_lifecycle_scan ON public.features_zone USING btree (symbol, ts) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_market_levels_view_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8314880,
+      "scans": 242,
+      "definition": "CREATE INDEX idx_market_levels_view_lookup ON public.features_zone USING btree (symbol, tf, zone_kind, ts DESC) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_market_levels_view_ob_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1433600,
+      "scans": 242,
+      "definition": "CREATE INDEX idx_market_levels_view_ob_lookup ON public.features_order_block USING btree (symbol, tf, ob_kind, ts DESC) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_heat_run_id",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 65536,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_heat_run_id ON public.backtest_results USING btree (heat_run_id) WHERE (heat_run_id IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "backtest_results",
+      "index_name": "idx_backtest_results_heat_dropped",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_backtest_results_heat_dropped ON public.backtest_results USING btree (run_id, heat_dropped) WHERE (heat_dropped = true)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_moving_average",
+      "index_name": "features_moving_average_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 542482432,
+      "scans": 7340,
+      "definition": "CREATE UNIQUE INDEX features_moving_average_pkey ON public.features_moving_average USING btree (symbol, tf, ts, ma_type, period, fast_period, slow_period)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_moving_average",
+      "index_name": "idx_features_moving_average_cross_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 252305408,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_moving_average_cross_lookup ON public.features_moving_average USING btree (symbol, tf, ts DESC, ma_type, fast_period, slow_period)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_touch",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 22331392,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_touch ON public.features_zone USING btree (symbol, tf, ts DESC, touch_count) WHERE (touch_count > 0)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_retest",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 18006016,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_retest ON public.features_zone USING btree (symbol, tf, ts DESC, retest_count) WHERE (retest_count > 0)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_outcomes",
+      "index_name": "zone_outcomes_unique",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 473243648,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX zone_outcomes_unique ON public.zone_outcomes USING btree (symbol, tf, zone_kind, direction, top, bottom, formation_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "risk_state",
+      "index_name": "risk_state_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX risk_state_pkey ON public.risk_state USING btree (scope)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session",
+      "index_name": "features_session_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 20561920,
+      "scans": 29,
+      "definition": "CREATE UNIQUE INDEX features_session_pkey ON public.features_session USING btree (symbol, ts, tf)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_coverage",
+      "index_name": "candle_coverage_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_coverage_pkey ON public.candle_coverage USING btree (symbol, tf)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_coverage",
+      "index_name": "idx_candle_coverage_refreshed",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_candle_coverage_refreshed ON public.candle_coverage USING btree (refreshed_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_target_type",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 26927104,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_sweep_target_type ON public.features_sweep USING btree (symbol, tf, target_type, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_volatility_profile",
+      "index_name": "market_volatility_profile_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX market_volatility_profile_pkey ON public.market_volatility_profile USING btree (symbol, tf, period, session, lookback_days)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_producer_runs",
+      "index_name": "feature_producer_runs_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 659668992,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_producer_runs_pkey ON public.feature_producer_runs USING btree (run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_producer_runs",
+      "index_name": "idx_fpr_sfts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 3464216576,
+      "scans": 568,
+      "definition": "CREATE INDEX idx_fpr_sfts ON public.feature_producer_runs USING btree (symbol, feature_table, tf, status, finished_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quality",
+      "index_name": "candle_quality_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_quality_pkey ON public.candle_quality USING btree (symbol, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_direction_state",
+      "index_name": "features_direction_state_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 7610368,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_direction_state_pkey ON public.features_direction_state USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_direction_state",
+      "index_name": "idx_features_direction_state_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 7462912,
+      "scans": 12,
+      "definition": "CREATE INDEX idx_features_direction_state_lookup ON public.features_direction_state USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_direction_state",
+      "index_name": "idx_features_direction_state_pit",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 18669568,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_direction_state_pit ON public.features_direction_state USING btree (symbol, tf, ts DESC) INCLUDE (direction, regime, agreement, htf_state, confidence)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "idx_features_zone_pit_distinct",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 193142784,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_zone_pit_distinct ON public.features_zone USING btree (symbol, tf, zone_kind, ts DESC) INCLUDE (direction, is_fresh, quality_score, rank_score, invalidated_at, strength_score, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_fvg",
+      "index_name": "features_fvg_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_fvg_pkey ON public.features_fvg USING btree (symbol, tf, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_fvg",
+      "index_name": "idx_features_fvg_symbol_tf_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_fvg_symbol_tf_ts ON public.features_fvg USING btree (symbol, tf, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "candles_1m_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candles_1m_pkey ON public.candles_1m USING btree (symbol, broker, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_symbol_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_candles_1m_symbol_ts ON public.candles_1m USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_candles_1m_ts ON public.candles_1m USING btree (ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "lifecycle_refresh_state_tf",
+      "index_name": "lifecycle_refresh_state_tf_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX lifecycle_refresh_state_tf_pkey ON public.lifecycle_refresh_state_tf USING btree (symbol, table_name, tf)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_touch_events",
+      "index_name": "zone_touch_events_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 62480384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX zone_touch_events_pkey ON public.zone_touch_events USING btree (zone_id, touch_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_touch_events",
+      "index_name": "idx_zone_touch_events_symbol_tf_touch",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 5840896,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_zone_touch_events_symbol_tf_touch ON public.zone_touch_events USING btree (symbol, tf, touch_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "zone_touch_event_refresh_state",
+      "index_name": "zone_touch_event_refresh_state_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX zone_touch_event_refresh_state_pkey ON public.zone_touch_event_refresh_state USING btree (symbol, tf)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_zone_objects",
+      "index_name": "market_zone_objects_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 483328,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX market_zone_objects_pkey ON public.market_zone_objects USING btree (zone_object_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_zone_objects",
+      "index_name": "idx_market_zone_objects_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 90112,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_market_zone_objects_lookup ON public.market_zone_objects USING btree (symbol, tf, zone_kind, direction, time_bucket DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_zone_objects",
+      "index_name": "idx_market_zone_objects_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_market_zone_objects_active ON public.market_zone_objects USING btree (symbol, tf, zone_kind, direction, midpoint) WHERE (invalidated_at IS NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "strategy_signal_candidates_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX strategy_signal_candidates_pkey ON public.strategy_signal_candidates USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_strategy_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_strategy_signal_candidates_strategy_ts ON public.strategy_signal_candidates USING btree (strategy_id, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_stage",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_strategy_signal_candidates_stage ON public.strategy_signal_candidates USING btree (strategy_id, decision_stage) WHERE (decision_stage <> 'executed'::text)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "idx_strategy_signal_candidates_symbol_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_strategy_signal_candidates_symbol_ts ON public.strategy_signal_candidates USING btree (symbol, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_signal_candidates",
+      "index_name": "uq_strategy_signal_candidates_identity",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_strategy_signal_candidates_identity ON public.strategy_signal_candidates USING btree (source, strategy_id, symbol, COALESCE(tf, ''::text), ts, COALESCE(side, ''::text), COALESCE(fingerprint, ''::text), decision_stage)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candles_1m",
+      "index_name": "idx_candles_1m_fx_tradable_check",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_candles_1m_fx_tradable_check ON public.candles_1m USING btree (symbol, ts) WHERE (symbol = ANY (ARRAY['EURUSD'::text, 'GBPUSD'::text, 'USDJPY'::text, 'USDCHF'::text, 'USDCAD'::text, 'AUDUSD'::text, 'NZDUSD'::text, 'USDSEK'::text]))"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_atr",
+      "index_name": "idx_features_atr_zero_check",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1138688,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_atr_zero_check ON public.features_atr USING btree (symbol, tf, ts) WHERE ((value = (0)::double precision) OR (value IS NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone",
+      "index_name": "features_zone_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 113590272,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_zone_pkey ON public.features_zone USING btree (symbol, tf, ts, zone_kind, direction, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_zone_retest",
+      "index_name": "features_zone_retest_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 313524224,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_zone_retest_pkey ON public.features_zone_retest USING btree (symbol, tf, ts, zone_kind, top, bottom)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_status_hash",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 876544,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_setup_evaluations_status_hash ON public.setup_evaluations USING btree (setup_status, context_hash) WHERE (setup_status IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "setup_evaluations",
+      "index_name": "idx_setup_evaluations_context_hash",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 729088,
+      "scans": 300,
+      "definition": "CREATE UNIQUE INDEX idx_setup_evaluations_context_hash ON public.setup_evaluations USING btree (context_hash) WHERE (context_hash IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_5m_canonical",
+      "index_name": "candles_5m_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 30507008,
+      "scans": 3756056,
+      "definition": "CREATE UNIQUE INDEX candles_5m_canonical_pkey ON market.candles_5m_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_15m_canonical",
+      "index_name": "candles_15m_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 10133504,
+      "scans": 1261770,
+      "definition": "CREATE UNIQUE INDEX candles_15m_canonical_pkey ON market.candles_15m_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1h_canonical",
+      "index_name": "candles_1h_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 2441216,
+      "scans": 320958,
+      "definition": "CREATE UNIQUE INDEX candles_1h_canonical_pkey ON market.candles_1h_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_4h_canonical",
+      "index_name": "candles_4h_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 622592,
+      "scans": 83943,
+      "definition": "CREATE UNIQUE INDEX candles_4h_canonical_pkey ON market.candles_4h_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1d_utc_canonical",
+      "index_name": "candles_1d_utc_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 114688,
+      "scans": 25161,
+      "definition": "CREATE UNIQUE INDEX candles_1d_utc_canonical_pkey ON market.candles_1d_utc_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1d_ny_canonical",
+      "index_name": "candles_1d_ny_canonical_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 114688,
+      "scans": 23720,
+      "definition": "CREATE UNIQUE INDEX candles_1d_ny_canonical_pkey ON market.candles_1d_ny_canonical USING btree (symbol, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_5m_canonical",
+      "index_name": "idx_candles_5m_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16121856,
+      "scans": 4104,
+      "definition": "CREATE INDEX idx_candles_5m_canonical_ts ON market.candles_5m_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_15m_canonical",
+      "index_name": "idx_candles_15m_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 5414912,
+      "scans": 4147,
+      "definition": "CREATE INDEX idx_candles_15m_canonical_ts ON market.candles_15m_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1h_canonical",
+      "index_name": "idx_candles_1h_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1343488,
+      "scans": 4083,
+      "definition": "CREATE INDEX idx_candles_1h_canonical_ts ON market.candles_1h_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_4h_canonical",
+      "index_name": "idx_candles_4h_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 335872,
+      "scans": 3995,
+      "definition": "CREATE INDEX idx_candles_4h_canonical_ts ON market.candles_4h_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1d_utc_canonical",
+      "index_name": "idx_candles_1d_utc_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 81920,
+      "scans": 3227,
+      "definition": "CREATE INDEX idx_candles_1d_utc_canonical_ts ON market.candles_1d_utc_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candles_1d_ny_canonical",
+      "index_name": "idx_candles_1d_ny_canonical_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73728,
+      "scans": 4287,
+      "definition": "CREATE INDEX idx_candles_1d_ny_canonical_ts ON market.candles_1d_ny_canonical USING btree (ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_config_snapshot",
+      "index_name": "feature_config_snapshot_content_hash_bin_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX feature_config_snapshot_content_hash_bin_key ON public.feature_config_snapshot USING btree (content_hash_bin)"
+    },
+    {
+      "schema": "public",
+      "table_name": "strategy_settings_snapshot",
+      "index_name": "strategy_settings_snapshot_content_hash_bin_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX strategy_settings_snapshot_content_hash_bin_key ON public.strategy_settings_snapshot USING btree (content_hash_bin)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_order_block",
+      "index_name": "idx_features_order_block_logical_id_observation",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1671168,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_order_block_logical_id_observation ON public.features_order_block USING btree (logical_id) WHERE (logical_id IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_volatility_normalized",
+      "index_name": "features_volatility_normalized_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 3481600,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_volatility_normalized_pkey ON public.features_volatility_normalized USING btree (symbol, tf, period, session, ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_volatility_normalized",
+      "index_name": "idx_features_volatility_normalized_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 3399680,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_volatility_normalized_lookup ON public.features_volatility_normalized USING btree (symbol, tf, period, session, ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_run",
+      "index_name": "signal_replay_run_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX signal_replay_run_pkey ON public.signal_replay_run USING btree (run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_run",
+      "index_name": "idx_signal_replay_run_variant",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_signal_replay_run_variant ON public.signal_replay_run USING btree (variant_id, symbol, created_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_result",
+      "index_name": "signal_replay_result_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX signal_replay_result_pkey ON public.signal_replay_result USING btree (result_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_result",
+      "index_name": "signal_replay_result_run_id_symbol_evaluation_ts_strategy_i_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX signal_replay_result_run_id_symbol_evaluation_ts_strategy_i_key ON public.signal_replay_result USING btree (run_id, symbol, evaluation_ts, strategy_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "signal_replay_result",
+      "index_name": "idx_signal_replay_result_mismatch",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_signal_replay_result_mismatch ON public.signal_replay_result USING btree (run_id, mismatch_class, evaluation_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "compiled_strategy_snapshot",
+      "index_name": "compiled_strategy_snapshot_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX compiled_strategy_snapshot_pkey ON public.compiled_strategy_snapshot USING btree (snapshot_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "compiled_strategy_snapshot",
+      "index_name": "compiled_strategy_snapshot_hash_unique",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX compiled_strategy_snapshot_hash_unique ON public.compiled_strategy_snapshot USING btree (content_hash_bin)"
+    },
+    {
+      "schema": "public",
+      "table_name": "compiled_strategy_snapshot",
+      "index_name": "idx_compiled_strategy_snapshot_strategy",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_compiled_strategy_snapshot_strategy ON public.compiled_strategy_snapshot USING btree (strategy_id, activated_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_deployment",
+      "index_name": "idx_live_deployment_compiled_snapshot",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_deployment_compiled_snapshot ON public.live_deployment USING btree (compiled_strategy_snapshot_id) WHERE (compiled_strategy_snapshot_id IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "features_push_pull_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_push_pull_pkey ON public.features_push_pull USING btree (symbol, tf, ts, pattern_name)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "idx_features_push_pull_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_push_pull_lookup ON public.features_push_pull USING btree (symbol, tf, ts DESC, pattern_name, direction)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "idx_features_push_pull_dir",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_push_pull_dir ON public.features_push_pull USING btree (symbol, tf, direction, ts DESC, confidence DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_push_pull",
+      "index_name": "features_push_pull_ts_idx",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX features_push_pull_ts_idx ON public.features_push_pull USING btree (ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_dedup_v2",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX idx_live_signal_dedup_v2 ON public.live_signal USING btree (symbol, strategy_id, signal_fingerprint, date_trunc('hour'::text, (ts AT TIME ZONE 'UTC'::text))) WHERE (signal_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_plan_registry",
+      "index_name": "progressive_plan_registry_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_plan_registry_pkey ON public.progressive_plan_registry USING btree (plan_hash)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_instance",
+      "index_name": "progressive_setup_instance_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 155648,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_instance_pkey ON public.progressive_setup_instance USING btree (setup_instance_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_instance",
+      "index_name": "idx_progressive_setup_instance_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 122880,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_setup_instance_active ON public.progressive_setup_instance USING btree (strategy_id, symbol, updated_at DESC) WHERE (status = ANY (ARRAY['active'::text, 'entry_ready'::text]))"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_event_inbox",
+      "index_name": "progressive_setup_event_inbox_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 425984,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_event_inbox_pkey ON public.progressive_setup_event_inbox USING btree (event_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_event_inbox",
+      "index_name": "idx_progressive_setup_event_pending",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 335872,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_setup_event_pending ON public.progressive_setup_event_inbox USING btree (occurred_at, event_id) WHERE (processing_status = 'pending'::text)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_event_inbox",
+      "index_name": "idx_progressive_setup_event_instance",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 647168,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_setup_event_instance ON public.progressive_setup_event_inbox USING btree (setup_instance_id, occurred_at, event_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_node",
+      "index_name": "progressive_setup_node_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 458752,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_node_pkey ON public.progressive_setup_node USING btree (setup_instance_id, node_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_node",
+      "index_name": "idx_progressive_setup_node_source",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 147456,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_setup_node_source ON public.progressive_setup_node USING btree (source_feature, source_symbol, source_tf, source_ts, source_key) WHERE ((status = 'satisfied'::text) AND (source_feature IS NOT NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_node",
+      "index_name": "uq_progressive_setup_node_exclusive_evidence",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_progressive_setup_node_exclusive_evidence ON public.progressive_setup_node USING btree (source_feature, source_symbol, source_tf, source_ts, source_key) WHERE ((status = 'satisfied'::text) AND (consumption_policy = 'exclusive_setup'::text) AND (source_feature IS NOT NULL))"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "progressive_setup_transition_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 65536,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_transition_pkey ON public.progressive_setup_transition USING btree (transition_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "progressive_setup_transition_transition_fingerprint_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 245760,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_transition_transition_fingerprint_key ON public.progressive_setup_transition USING btree (transition_fingerprint)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "progressive_setup_transition_setup_instance_id_sequence_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 262144,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_transition_setup_instance_id_sequence_key ON public.progressive_setup_transition USING btree (setup_instance_id, sequence)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "progressive_setup_transition_setup_instance_id_event_id_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 499712,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_setup_transition_setup_instance_id_event_id_key ON public.progressive_setup_transition USING btree (setup_instance_id, event_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_setup_transition",
+      "index_name": "idx_progressive_setup_transition_timeline",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 262144,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_setup_transition_timeline ON public.progressive_setup_transition USING btree (setup_instance_id, sequence)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_checkpoint",
+      "index_name": "progressive_shadow_checkpoint_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_shadow_checkpoint_pkey ON public.progressive_shadow_checkpoint USING btree (plan_hash, node_id, symbol)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_checkpoint",
+      "index_name": "idx_progressive_shadow_checkpoint_source",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_shadow_checkpoint_source ON public.progressive_shadow_checkpoint USING btree (source_feature, symbol, source_tf, last_source_ts, last_source_key)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "index_name": "progressive_shadow_canary_run_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 49152,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX progressive_shadow_canary_run_pkey ON public.progressive_shadow_canary_run USING btree (run_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "index_name": "idx_progressive_shadow_canary_run_plan_clock",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 253952,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_shadow_canary_run_plan_clock ON public.progressive_shadow_canary_run USING btree (plan_hash, symbol, data_clock DESC, run_id DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "progressive_shadow_canary_run",
+      "index_name": "idx_progressive_shadow_canary_run_status",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 81920,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_progressive_shadow_canary_run_status ON public.progressive_shadow_canary_run USING btree (status, started_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_window_occurrences",
+      "index_name": "market_window_occurrences_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX market_window_occurrences_pkey ON public.market_window_occurrences USING btree (window_id, policy_version, trading_date, symbol_class)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_window_occurrences",
+      "index_name": "idx_market_window_occurrences_active",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_market_window_occurrences_active ON public.market_window_occurrences USING btree (starts_at, ends_at, window_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_range_v2",
+      "index_name": "features_session_range_v2_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 1957888,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_session_range_v2_pkey ON public.features_session_range_v2 USING btree (symbol, tf, session_id, trading_date, range_kind, as_of_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_session_range_v2",
+      "index_name": "idx_features_session_range_v2_asof",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 1875968,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_session_range_v2_asof ON public.features_session_range_v2 USING btree (symbol, tf, session_id, range_kind, as_of_ts DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_level_v2",
+      "index_name": "features_liquidity_level_v2_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 917504,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_liquidity_level_v2_pkey ON public.features_liquidity_level_v2 USING btree (level_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_level_v2",
+      "index_name": "idx_features_liquidity_level_v2_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 3129344,
+      "scans": 8,
+      "definition": "CREATE INDEX idx_features_liquidity_level_v2_lookup ON public.features_liquidity_level_v2 USING btree (symbol, scope, class, source_tf, known_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_level_v2",
+      "index_name": "idx_features_liquidity_level_v2_lifecycle",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 3145728,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_liquidity_level_v2_lifecycle ON public.features_liquidity_level_v2 USING btree (symbol, valid_from, valid_to, swept_at, broken_at, mitigated_at)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_event_v2",
+      "index_name": "features_liquidity_event_v2_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 311296,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX features_liquidity_event_v2_pkey ON public.features_liquidity_event_v2 USING btree (event_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_event_v2",
+      "index_name": "idx_features_liquidity_event_v2_known",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 163840,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_liquidity_event_v2_known ON public.features_liquidity_event_v2 USING btree (symbol, source_tf, known_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_liquidity_event_v2",
+      "index_name": "idx_features_liquidity_event_v2_level",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 344064,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_liquidity_event_v2_level ON public.features_liquidity_event_v2 USING btree (level_id, known_at DESC)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_thesis_fingerprint",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_live_signal_thesis_fingerprint ON public.live_signal USING btree (thesis_fingerprint) WHERE (thesis_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "live_signal",
+      "index_name": "idx_live_signal_thesis_dedup",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX idx_live_signal_thesis_dedup ON public.live_signal USING btree (symbol, strategy_id, thesis_fingerprint) WHERE (thesis_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "index_name": "idx_orders_thesis_fingerprint",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_orders_thesis_fingerprint ON public.orders USING btree (thesis_fingerprint) WHERE (thesis_fingerprint IS NOT NULL)"
+    },
+    {
+      "schema": "public",
+      "table_name": "market_volatility_profile_pit",
+      "index_name": "market_volatility_profile_pit_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 147456,
+      "scans": 379,
+      "definition": "CREATE UNIQUE INDEX market_volatility_profile_pit_pkey ON public.market_volatility_profile_pit USING btree (symbol, tf, period, session, lookback_days, as_of_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_pivot",
+      "index_name": "idx_features_pivot_confirmation_ts",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 14737408,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_pivot_confirmation_ts ON public.features_pivot USING btree (symbol, tf, confirmation_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_available_at",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 2203648,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_structure_available_at ON public.features_structure USING btree (symbol, tf, available_at_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_sweep",
+      "index_name": "idx_features_sweep_available_at",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8593408,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_sweep_available_at ON public.features_sweep USING btree (symbol, tf, available_at_ts)"
+    },
+    {
+      "schema": "public",
+      "table_name": "features_structure",
+      "index_name": "idx_features_structure_source_level",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 6807552,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_features_structure_source_level ON public.features_structure USING btree (symbol, tf, source_level_id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quarantine",
+      "index_name": "candle_quarantine_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 65536,
+      "scans": 323,
+      "definition": "CREATE UNIQUE INDEX candle_quarantine_pkey ON public.candle_quarantine USING btree (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quarantine",
+      "index_name": "candle_quarantine_symbol_broker_timeframe_event_time_detect_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 172032,
+      "scans": 6,
+      "definition": "CREATE UNIQUE INDEX candle_quarantine_symbol_broker_timeframe_event_time_detect_key ON public.candle_quarantine USING btree (symbol, broker, timeframe, event_time, detector_version)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quarantine",
+      "index_name": "idx_candle_quarantine_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73728,
+      "scans": 1373062,
+      "definition": "CREATE INDEX idx_candle_quarantine_lookup ON public.candle_quarantine USING btree (symbol, timeframe, event_time)"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quarantine",
+      "index_name": "idx_candle_quarantine_blocking",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 73728,
+      "scans": 1,
+      "definition": "CREATE INDEX idx_candle_quarantine_blocking ON public.candle_quarantine USING btree (symbol, broker, timeframe, event_time) WHERE ((approved_at IS NULL) OR (decision <> 'KEEP'::text))"
+    },
+    {
+      "schema": "public",
+      "table_name": "candle_quarantine",
+      "index_name": "idx_candle_quarantine_active_blocking",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 57344,
+      "scans": 3855,
+      "definition": "CREATE INDEX idx_candle_quarantine_active_blocking ON public.candle_quarantine USING btree (symbol, broker, timeframe, event_time) WHERE ((superseded_at IS NULL) AND ((approved_at IS NULL) OR (decision <> 'KEEP'::text)))"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_eligibility",
+      "index_name": "candle_eligibility_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 163307520,
+      "scans": 234008,
+      "definition": "CREATE UNIQUE INDEX candle_eligibility_pkey ON market.candle_eligibility USING btree (symbol, broker, timeframe, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_eligibility",
+      "index_name": "idx_candle_eligibility_state",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 155574272,
+      "scans": 6070320,
+      "definition": "CREATE INDEX idx_candle_eligibility_state ON market.candle_eligibility USING btree (symbol, timeframe, ts, state)"
+    },
+    {
+      "schema": "public",
+      "table_name": "feature_cache",
+      "index_name": "idx_feature_cache_trusted",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_feature_cache_trusted ON public.feature_cache USING btree (feature_name, input_hash) WHERE (lineage_state = 'trusted_current'::text)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "index_name": "candle_replacement_evidence_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_replacement_evidence_pkey ON market.candle_replacement_evidence USING btree (id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "index_name": "candle_replacement_evidence_symbol_timeframe_event_time_blo_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_replacement_evidence_symbol_timeframe_event_time_blo_key ON market.candle_replacement_evidence USING btree (symbol, timeframe, event_time, blocked_broker, alternate_broker, validator_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "index_name": "idx_candle_replacement_review",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 3,
+      "definition": "CREATE INDEX idx_candle_replacement_review ON market.candle_replacement_evidence USING btree (symbol, event_time, decision)"
+    },
+    {
+      "schema": "market",
+      "table_name": "detector_config",
+      "index_name": "detector_config_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE UNIQUE INDEX detector_config_pkey ON market.detector_config USING btree (detector_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "detector_config",
+      "index_name": "uq_detector_config_one_active",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE UNIQUE INDEX uq_detector_config_one_active ON market.detector_config USING btree (status) WHERE (status = 'active'::text)"
+    },
+    {
+      "schema": "market",
+      "table_name": "trusted_windows",
+      "index_name": "trusted_windows_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX trusted_windows_pkey ON market.trusted_windows USING btree (window_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "trusted_windows",
+      "index_name": "idx_trusted_windows_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 41,
+      "definition": "CREATE INDEX idx_trusted_windows_lookup ON market.trusted_windows USING btree (symbol, timeframe, status, window_start, window_end)"
+    },
+    {
+      "schema": "market",
+      "table_name": "trusted_windows",
+      "index_name": "uq_trusted_windows_candidate_identity",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_trusted_windows_candidate_identity ON market.trusted_windows USING btree (symbol, timeframe, window_start, window_end, detector_version) WHERE (status = 'candidate'::text)"
+    },
+    {
+      "schema": "market",
+      "table_name": "golden_corridor_sets",
+      "index_name": "golden_corridor_sets_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX golden_corridor_sets_pkey ON market.golden_corridor_sets USING btree (corridor_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "golden_corridor_sets",
+      "index_name": "uq_golden_corridor_active_span",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_golden_corridor_active_span ON market.golden_corridor_sets USING btree (symbol, timeframe, window_start, window_end) WHERE active"
+    },
+    {
+      "schema": "market",
+      "table_name": "golden_corridor_sets",
+      "index_name": "ix_golden_corridor_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX ix_golden_corridor_lookup ON market.golden_corridor_sets USING btree (symbol, timeframe, window_start, window_end) WHERE active"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_requests",
+      "index_name": "candle_requests_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_requests_pkey ON market.candle_requests USING btree (request_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_requests",
+      "index_name": "candle_requests_status_idx",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX candle_requests_status_idx ON market.candle_requests USING btree (status, requested_at)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_source_artifacts",
+      "index_name": "candle_source_artifacts_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_source_artifacts_pkey ON market.candle_source_artifacts USING btree (artifact_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_source_artifacts",
+      "index_name": "candle_source_artifacts_request_id_payload_sha256_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_source_artifacts_request_id_payload_sha256_key ON market.candle_source_artifacts USING btree (request_id, payload_sha256)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_bar_lineage",
+      "index_name": "candle_bar_lineage_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_bar_lineage_pkey ON market.candle_bar_lineage USING btree (lineage_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_bar_lineage",
+      "index_name": "candle_bar_lineage_symbol_broker_ts_artifact_id_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_bar_lineage_symbol_broker_ts_artifact_id_key ON market.candle_bar_lineage USING btree (symbol, broker, ts, artifact_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_bar_lineage",
+      "index_name": "candle_bar_lineage_bar_idx",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX candle_bar_lineage_bar_idx ON market.candle_bar_lineage USING btree (symbol, broker, ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "candle_producer_lineage_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_producer_lineage_pkey ON market.candle_producer_lineage USING btree (lineage_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "candle_producer_lineage_symbol_broker_candle_ts_source_key__key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 40960,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_producer_lineage_symbol_broker_candle_ts_source_key__key ON market.candle_producer_lineage USING btree (symbol, broker, candle_ts, source_key, producer_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "candle_producer_lineage_symbol_candle_ts_producer_run_id_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_producer_lineage_symbol_candle_ts_producer_run_id_key ON market.candle_producer_lineage USING btree (symbol, candle_ts, producer_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "candle_producer_lineage_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 33,
+      "definition": "CREATE INDEX candle_producer_lineage_lookup ON market.candle_producer_lineage USING btree (symbol, candle_ts, producer_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_runs",
+      "index_name": "candle_ingestion_runs_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_ingestion_runs_pkey ON market.candle_ingestion_runs USING btree (run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_runs",
+      "index_name": "idx_cir_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 1,
+      "definition": "CREATE INDEX idx_cir_lookup ON market.candle_ingestion_runs USING btree (symbol, timeframe, broker, status, started_at DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_runs",
+      "index_name": "idx_cir_artifact",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_cir_artifact ON market.candle_ingestion_runs USING btree (artifact_id) WHERE (artifact_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_reverification_evidence",
+      "index_name": "candle_reverification_evidence_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_reverification_evidence_pkey ON market.candle_reverification_evidence USING btree (evidence_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_reverification_evidence",
+      "index_name": "candle_reverification_evidenc_symbol_timeframe_anchor_ts_br_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_reverification_evidenc_symbol_timeframe_anchor_ts_br_key ON market.candle_reverification_evidence USING btree (symbol, timeframe, anchor_ts, broker, check_type, evidence_source)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_reverification_evidence",
+      "index_name": "idx_cre_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_cre_lookup ON market.candle_reverification_evidence USING btree (symbol, timeframe, anchor_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_producer_lineage",
+      "index_name": "idx_cpl_ingestion_run",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 16384,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_cpl_ingestion_run ON market.candle_producer_lineage USING btree (ingestion_run_id) WHERE (ingestion_run_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_calendar_policy",
+      "index_name": "candle_calendar_policy_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_calendar_policy_pkey ON market.candle_calendar_policy USING btree (calendar_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_calendar_policy",
+      "index_name": "candle_calendar_policy_policy_id_effective_from_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_calendar_policy_policy_id_effective_from_key ON market.candle_calendar_policy USING btree (policy_id, effective_from)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_authority_snapshot",
+      "index_name": "candle_authority_snapshot_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_authority_snapshot_pkey ON market.candle_authority_snapshot USING btree (authority_snapshot_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_authority_snapshot",
+      "index_name": "candle_authority_snapshot_symbol_broker_policy_version_quar_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_authority_snapshot_symbol_broker_policy_version_quar_key ON market.candle_authority_snapshot USING btree (symbol, broker, policy_version, quarantine_version, calendar_version, effective_from)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_authority_snapshot",
+      "index_name": "candle_authority_snapshot_nonoverlap",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 2,
+      "definition": "CREATE INDEX candle_authority_snapshot_nonoverlap ON market.candle_authority_snapshot USING gist (symbol, broker, tstzrange(effective_from, effective_to, '[)'::text))"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_authority_snapshot",
+      "index_name": "idx_candle_authority_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_candle_authority_lookup ON market.candle_authority_snapshot USING btree (symbol, broker, effective_from, effective_to)"
+    },
+    {
+      "schema": "market",
+      "table_name": "xauusd_expected_minute",
+      "index_name": "xauusd_expected_minute_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX xauusd_expected_minute_pkey ON market.xauusd_expected_minute USING btree (expected_set_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "xauusd_expected_minute",
+      "index_name": "xauusd_expected_minute_interval_start_interval_end_minute_t_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX xauusd_expected_minute_interval_start_interval_end_minute_t_key ON market.xauusd_expected_minute USING btree (interval_start, interval_end, minute_ts, calendar_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "index_name": "candle_quarantine_evidence_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_quarantine_evidence_pkey ON market.candle_quarantine_evidence USING btree (quarantine_evidence_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "index_name": "candle_quarantine_evidence_symbol_broker_candle_ts_policy_v_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_quarantine_evidence_symbol_broker_candle_ts_policy_v_key ON market.candle_quarantine_evidence USING btree (symbol, broker, candle_ts, policy_version, evidence_sha256)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "index_name": "idx_candle_quarantine_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 1,
+      "definition": "CREATE INDEX idx_candle_quarantine_lookup ON market.candle_quarantine_evidence USING btree (symbol, broker, candle_ts, recorded_at DESC)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "index_name": "uq_quarantine_one_successor",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_quarantine_one_successor ON market.candle_quarantine_evidence USING btree (supersedes_quarantine_evidence_id) WHERE (supersedes_quarantine_evidence_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "xauusd_expected_minute",
+      "index_name": "idx_xauusd_expected_minute_interval",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE INDEX idx_xauusd_expected_minute_interval ON market.xauusd_expected_minute USING btree (interval_start, interval_end, minute_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_authority_bundle",
+      "index_name": "htf_authority_bundle_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_authority_bundle_pkey ON market.htf_authority_bundle USING btree (authority_bundle_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_authority_bundle",
+      "index_name": "htf_authority_bundle_symbol_timeframe_interval_start_interv_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_authority_bundle_symbol_timeframe_interval_start_interv_key ON market.htf_authority_bundle USING btree (symbol, timeframe, interval_start, interval_end, calendar_version, parent_identity_sha256)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_authority_bundle_parent",
+      "index_name": "htf_authority_bundle_parent_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_authority_bundle_parent_pkey ON market.htf_authority_bundle_parent USING btree (authority_bundle_id, parent_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_authority_bundle_parent",
+      "index_name": "htf_authority_bundle_parent_authority_bundle_id_raw_evidenc_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_authority_bundle_parent_authority_bundle_id_raw_evidenc_key ON market.htf_authority_bundle_parent USING btree (authority_bundle_id, raw_evidence_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_run_evidence",
+      "index_name": "candle_ingestion_run_evidence_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX candle_ingestion_run_evidence_pkey ON market.candle_ingestion_run_evidence USING btree (ingestion_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "candle_ingestion_run_evidence",
+      "index_name": "uq_cire_identity",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_cire_identity ON market.candle_ingestion_run_evidence USING btree (symbol, broker, timeframe, ingestion_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "raw_candle_evidence_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX raw_candle_evidence_pkey ON market.raw_candle_evidence USING btree (raw_evidence_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key ON market.raw_candle_evidence USING btree (ingestion_run_id, source_key, candle_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX raw_candle_evidence_raw_evidence_id_ingestion_run_id_key ON market.raw_candle_evidence USING btree (raw_evidence_id, ingestion_run_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key ON market.raw_candle_evidence USING btree (raw_evidence_id, ingestion_run_id, symbol, broker, timeframe, candle_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "uq_raw_one_successor",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_raw_one_successor ON market.raw_candle_evidence USING btree (supersedes_raw_evidence_id) WHERE (supersedes_raw_evidence_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "raw_candle_evidence",
+      "index_name": "idx_raw_candle_evidence_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 6,
+      "definition": "CREATE INDEX idx_raw_candle_evidence_lookup ON market.raw_candle_evidence USING btree (symbol, timeframe, candle_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "canonical_candle_selection_lineage_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX canonical_candle_selection_lineage_pkey ON market.canonical_candle_selection_lineage USING btree (canonical_lineage_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "canonical_candle_selection_li_symbol_timeframe_candle_ts_ca_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX canonical_candle_selection_li_symbol_timeframe_candle_ts_ca_key ON market.canonical_candle_selection_lineage USING btree (symbol, timeframe, candle_ts, canonical_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "canonical_candle_selection_li_symbol_timeframe_candle_ts_c_key1",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX canonical_candle_selection_li_symbol_timeframe_candle_ts_c_key1 ON market.canonical_candle_selection_lineage USING btree (symbol, timeframe, candle_ts, canonical_version, raw_evidence_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "uq_canonical_one_successor",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_canonical_one_successor ON market.canonical_candle_selection_lineage USING btree (supersedes_canonical_lineage_id) WHERE (supersedes_canonical_lineage_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "canonical_candle_selection_lineage",
+      "index_name": "idx_canonical_candle_lineage_lookup",
+      "unique": false,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 6,
+      "definition": "CREATE INDEX idx_canonical_candle_lineage_lookup ON market.canonical_candle_selection_lineage USING btree (symbol, timeframe, candle_ts, canonical_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_lineage",
+      "index_name": "htf_candle_derivation_lineage_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_candle_derivation_lineage_pkey ON market.htf_candle_derivation_lineage USING btree (derivation_id)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_lineage",
+      "index_name": "htf_candle_derivation_lineage_symbol_timeframe_candle_ts_ca_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_candle_derivation_lineage_symbol_timeframe_candle_ts_ca_key ON market.htf_candle_derivation_lineage USING btree (symbol, timeframe, candle_ts, canonical_version)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_lineage",
+      "index_name": "uq_derivation_one_successor",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": false,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX uq_derivation_one_successor ON market.htf_candle_derivation_lineage USING btree (supersedes_derivation_id) WHERE (supersedes_derivation_id IS NOT NULL)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_child",
+      "index_name": "htf_candle_derivation_child_pkey",
+      "unique": true,
+      "primary": true,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_candle_derivation_child_pkey ON market.htf_candle_derivation_child USING btree (derivation_id, child_ts)"
+    },
+    {
+      "schema": "market",
+      "table_name": "htf_candle_derivation_child",
+      "index_name": "htf_candle_derivation_child_derivation_id_child_raw_evidenc_key",
+      "unique": true,
+      "primary": false,
+      "constraint_owned": true,
+      "bytes": 8192,
+      "scans": 0,
+      "definition": "CREATE UNIQUE INDEX htf_candle_derivation_child_derivation_id_child_raw_evidenc_key ON market.htf_candle_derivation_child USING btree (derivation_id, child_raw_evidence_id)"
+    }
+  ]
+}

@@ -1,0 +1,494 @@
+{
+  "database": {
+    "database_name": "tradzfx_v2",
+    "server_version": "17.9",
+    "database_user": "postgres"
+  },
+  "relations": [
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence",
+      "relkind": "r",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "57344",
+      "total_size": "56 kB"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key",
+      "relkind": "i",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "8192",
+      "total_size": "8192 bytes"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence_pkey",
+      "relkind": "i",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "8192",
+      "total_size": "8192 bytes"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_key",
+      "relkind": "i",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "8192",
+      "total_size": "8192 bytes"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key",
+      "relkind": "i",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "8192",
+      "total_size": "8192 bytes"
+    },
+    {
+      "schema_name": "market",
+      "relation_name": "raw_candle_evidence_raw_evidence_id_seq",
+      "relkind": "S",
+      "relispartition": false,
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "total_bytes": "8192",
+      "total_size": "8192 bytes"
+    }
+  ],
+  "children": [],
+  "tables": [
+    {
+      "schemaname": "market",
+      "tablename": "raw_candle_evidence",
+      "rowsecurity": false,
+      "hasindexes": true,
+      "hasrules": false
+    }
+  ],
+  "columns": [
+    {
+      "ordinal_position": 1,
+      "column_name": "raw_evidence_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 2,
+      "column_name": "ingestion_run_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 3,
+      "column_name": "source_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 4,
+      "column_name": "symbol",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 5,
+      "column_name": "timeframe",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 6,
+      "column_name": "broker",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 7,
+      "column_name": "candle_ts",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 8,
+      "column_name": "o",
+      "data_type": "double precision",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 53,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 9,
+      "column_name": "h",
+      "data_type": "double precision",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 53,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 10,
+      "column_name": "l",
+      "data_type": "double precision",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 53,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 11,
+      "column_name": "c",
+      "data_type": "double precision",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 53,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 12,
+      "column_name": "v",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 13,
+      "column_name": "spread",
+      "data_type": "double precision",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 53,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 14,
+      "column_name": "digits",
+      "data_type": "smallint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 16,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 15,
+      "column_name": "content_sha256",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 16,
+      "column_name": "hash_algorithm",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    },
+    {
+      "ordinal_position": 17,
+      "column_name": "supersedes_raw_evidence_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 18,
+      "column_name": "authority_snapshot_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0
+    },
+    {
+      "ordinal_position": 19,
+      "column_name": "recorded_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null
+    }
+  ],
+  "constraints": [
+    {
+      "conname": "raw_candle_evidence_c_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK (((c)::text <> ALL (ARRAY['NaN'::text, 'Infinity'::text, '-Infinity'::text])))"
+    },
+    {
+      "conname": "raw_candle_evidence_content_sha256_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK ((content_sha256 ~ '^[0-9a-f]{64}$'::text))"
+    },
+    {
+      "conname": "raw_candle_evidence_h_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK (((h)::text <> ALL (ARRAY['NaN'::text, 'Infinity'::text, '-Infinity'::text])))"
+    },
+    {
+      "conname": "raw_candle_evidence_hash_algorithm_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK ((hash_algorithm = 'sha256-v1-utc-canonical-number'::text))"
+    },
+    {
+      "conname": "raw_candle_evidence_l_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK (((l)::text <> ALL (ARRAY['NaN'::text, 'Infinity'::text, '-Infinity'::text])))"
+    },
+    {
+      "conname": "raw_candle_evidence_o_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK (((o)::text <> ALL (ARRAY['NaN'::text, 'Infinity'::text, '-Infinity'::text])))"
+    },
+    {
+      "conname": "raw_candle_evidence_spread_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK (((spread IS NULL) OR ((spread)::text <> ALL (ARRAY['NaN'::text, 'Infinity'::text, '-Infinity'::text]))))"
+    },
+    {
+      "conname": "raw_candle_evidence_timeframe_check",
+      "contype": "c",
+      "convalidated": true,
+      "definition": "CHECK ((timeframe = '1m'::text))"
+    },
+    {
+      "conname": "raw_candle_evidence_authority_snapshot_id_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "definition": "FOREIGN KEY (authority_snapshot_id) REFERENCES market.candle_authority_snapshot(authority_snapshot_id)"
+    },
+    {
+      "conname": "raw_candle_evidence_ingestion_run_id_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "definition": "FOREIGN KEY (ingestion_run_id) REFERENCES market.candle_ingestion_run_evidence(ingestion_run_id)"
+    },
+    {
+      "conname": "raw_candle_evidence_supersedes_fk",
+      "contype": "f",
+      "convalidated": true,
+      "definition": "FOREIGN KEY (supersedes_raw_evidence_id) REFERENCES market.raw_candle_evidence(raw_evidence_id)"
+    },
+    {
+      "conname": "raw_candle_evidence_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "definition": "PRIMARY KEY (raw_evidence_id)"
+    },
+    {
+      "conname": "raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key",
+      "contype": "u",
+      "convalidated": true,
+      "definition": "UNIQUE (ingestion_run_id, source_key, candle_ts)"
+    },
+    {
+      "conname": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_key",
+      "contype": "u",
+      "convalidated": true,
+      "definition": "UNIQUE (raw_evidence_id, ingestion_run_id)"
+    },
+    {
+      "conname": "raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key",
+      "contype": "u",
+      "convalidated": true,
+      "definition": "UNIQUE (raw_evidence_id, ingestion_run_id, symbol, broker, timeframe, candle_ts)"
+    }
+  ],
+  "indexes": [
+    {
+      "index_name": "market.raw_candle_evidence_pkey",
+      "index_size": "8192 bytes",
+      "indisunique": true,
+      "indisprimary": true,
+      "indisvalid": true,
+      "index_def": "CREATE UNIQUE INDEX raw_candle_evidence_pkey ON market.raw_candle_evidence USING btree (raw_evidence_id)"
+    },
+    {
+      "index_name": "market.raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key",
+      "index_size": "8192 bytes",
+      "indisunique": true,
+      "indisprimary": false,
+      "indisvalid": true,
+      "index_def": "CREATE UNIQUE INDEX raw_candle_evidence_ingestion_run_id_source_key_candle_ts_key ON market.raw_candle_evidence USING btree (ingestion_run_id, source_key, candle_ts)"
+    },
+    {
+      "index_name": "market.raw_candle_evidence_raw_evidence_id_ingestion_run_id_key",
+      "index_size": "8192 bytes",
+      "indisunique": true,
+      "indisprimary": false,
+      "indisvalid": true,
+      "index_def": "CREATE UNIQUE INDEX raw_candle_evidence_raw_evidence_id_ingestion_run_id_key ON market.raw_candle_evidence USING btree (raw_evidence_id, ingestion_run_id)"
+    },
+    {
+      "index_name": "market.raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key",
+      "index_size": "8192 bytes",
+      "indisunique": true,
+      "indisprimary": false,
+      "indisvalid": true,
+      "index_def": "CREATE UNIQUE INDEX raw_candle_evidence_raw_evidence_id_ingestion_run_id_symbol_key ON market.raw_candle_evidence USING btree (raw_evidence_id, ingestion_run_id, symbol, broker, timeframe, candle_ts)"
+    },
+    {
+      "index_name": "market.uq_raw_one_successor",
+      "index_size": "8192 bytes",
+      "indisunique": true,
+      "indisprimary": false,
+      "indisvalid": true,
+      "index_def": "CREATE UNIQUE INDEX uq_raw_one_successor ON market.raw_candle_evidence USING btree (supersedes_raw_evidence_id) WHERE (supersedes_raw_evidence_id IS NOT NULL)"
+    },
+    {
+      "index_name": "market.idx_raw_candle_evidence_lookup",
+      "index_size": "8192 bytes",
+      "indisunique": false,
+      "indisprimary": false,
+      "indisvalid": true,
+      "index_def": "CREATE INDEX idx_raw_candle_evidence_lookup ON market.raw_candle_evidence USING btree (symbol, timeframe, candle_ts)"
+    }
+  ],
+  "triggers": [
+    {
+      "tgname": "trg_raw_candle_evidence_append_only",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_raw_candle_evidence_append_only BEFORE DELETE OR UPDATE ON market.raw_candle_evidence FOR EACH ROW EXECUTE FUNCTION market.reject_candle_provenance_mutation()"
+    },
+    {
+      "tgname": "trg_validate_raw_candle_evidence",
+      "tgenabled": "O",
+      "trigger_def": "CREATE TRIGGER trg_validate_raw_candle_evidence BEFORE INSERT ON market.raw_candle_evidence FOR EACH ROW EXECUTE FUNCTION market.validate_candle_provenance_insert()"
+    }
+  ],
+  "objects": [
+    {
+      "table_schema": "market",
+      "table_name": "candle_ingestion_run_evidence",
+      "table_type": "BASE TABLE"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_quarantine_evidence",
+      "table_type": "BASE TABLE"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_replacement_evidence",
+      "table_type": "BASE TABLE"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "candle_reverification_evidence",
+      "table_type": "BASE TABLE"
+    },
+    {
+      "table_schema": "market",
+      "table_name": "raw_candle_evidence",
+      "table_type": "BASE TABLE"
+    }
+  ],
+  "views": [],
+  "policies": [],
+  "functions": [
+    {
+      "schema_name": "market",
+      "function_name": "validate_15m_derivation_children",
+      "function_def": "CREATE OR REPLACE FUNCTION market.validate_15m_derivation_children()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nDECLARE d RECORD; n INTEGER;\nBEGIN\n  SELECT * INTO d FROM market.htf_candle_derivation_lineage WHERE derivation_id = NEW.derivation_id;\n  IF d.timeframe = '15m' AND d.eligibility_state = 'PROVEN' THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM market.canonical_candle_selection_lineage l\n      WHERE l.canonical_lineage_id = d.canonical_lineage_id\n        AND l.symbol = d.symbol AND l.timeframe = d.timeframe\n        AND l.candle_ts = d.candle_ts\n        AND l.canonical_version = d.canonical_version\n        AND l.quarantine_state IN ('NONE','RELEASED')\n    ) THEN\n      RAISE EXCEPTION '15m derivation % has no eligible canonical parent', d.derivation_id;\n    END IF;\n    SELECT count(*) INTO n FROM market.htf_candle_derivation_child WHERE derivation_id = d.derivation_id;\n    IF d.calendar_state <> 'VALID'\n       OR d.child_count <> n\n       OR n <> 15\n       OR EXISTS (\n      SELECT 1 FROM market.htf_candle_derivation_child c\n      WHERE c.derivation_id = d.derivation_id\n        AND (c.child_ts <> date_trunc('minute', c.child_ts)\n          OR c.child_ts <> d.candle_ts + ((extract(epoch FROM (c.child_ts - d.candle_ts))::bigint / 60) * interval '1 minute'))\n    ) OR EXISTS (\n      SELECT 1 FROM market.htf_candle_derivation_child c\n      WHERE c.derivation_id = d.derivation_id\n        AND (c.child_ts < d.candle_ts\n          OR c.child_ts >= d.candle_ts + interval '15 minutes')\n    ) OR EXISTS (\n      SELECT 1\n      FROM market.htf_candle_derivation_child c\n      JOIN market.raw_candle_evidence r ON r.raw_evidence_id = c.child_raw_evidence_id\n      WHERE c.derivation_id = d.derivation_id\n        AND c.child_content_sha256 <> r.content_sha256\n    ) OR EXISTS (\n      SELECT 1\n      FROM market.htf_candle_derivation_child c\n      JOIN market.canonical_candle_selection_lineage l\n        ON l.canonical_lineage_id = c.child_canonical_lineage_id\n      WHERE c.derivation_id = d.derivation_id\n        AND (l.symbol, l.timeframe, l.candle_ts, l.canonical_version)\n            IS DISTINCT FROM (c.child_symbol, c.child_timeframe, c.child_ts, c.child_canonical_version)\n    ) OR EXISTS (\n      SELECT 1\n      FROM market.htf_candle_derivation_child c\n      JOIN market.canonical_candle_selection_lineage l\n        ON l.canonical_lineage_id = c.child_canonical_lineage_id\n      WHERE c.derivation_id = d.derivation_id\n        AND l.quarantine_state NOT IN ('NONE','RELEASED')\n    ) THEN\n      RAISE EXCEPTION '15m derivation % requires exactly 15 aligned 1m children', d.derivation_id;\n    END IF;\n  END IF;\n  RETURN NEW;\nEND $function$\n"
+    },
+    {
+      "schema_name": "market",
+      "function_name": "validate_authority_bundle_set",
+      "function_def": "CREATE OR REPLACE FUNCTION market.validate_authority_bundle_set(p_bundle_id bigint)\n RETURNS void\n LANGUAGE plpgsql\n STABLE\nAS $function$\nDECLARE\n  b RECORD;\n  expected_count INTEGER;\n  actual_count INTEGER;\n  missing_count INTEGER;\n  unexpected_count INTEGER;\n  unresolved_count INTEGER;\nBEGIN\n  SELECT * INTO STRICT b FROM market.htf_authority_bundle\n  WHERE authority_bundle_id = p_bundle_id\n  FOR SHARE;\n  SELECT count(*) INTO expected_count\n  FROM market.xauusd_expected_minutes(b.interval_start, b.interval_end, b.calendar_version);\n  SELECT count(*) INTO actual_count\n  FROM market.htf_authority_bundle_parent WHERE authority_bundle_id = p_bundle_id;\n  SELECT count(*) INTO missing_count\n  FROM market.xauusd_expected_minutes(b.interval_start, b.interval_end, b.calendar_version) e\n  WHERE NOT EXISTS (SELECT 1 FROM market.htf_authority_bundle_parent p\n                    WHERE p.authority_bundle_id = p_bundle_id AND p.parent_ts = e.minute_ts);\n  SELECT count(*) INTO unexpected_count\n  FROM market.htf_authority_bundle_parent p\n  WHERE p.authority_bundle_id = p_bundle_id\n    AND NOT EXISTS (SELECT 1 FROM market.xauusd_expected_minutes(b.interval_start, b.interval_end, b.calendar_version) e\n                    WHERE e.minute_ts = p.parent_ts);\n  SELECT count(*) INTO unresolved_count\n  FROM market.htf_authority_bundle_parent p\n  WHERE p.authority_bundle_id = p_bundle_id\n    AND market.resolve_quarantine_evidence(\n      b.symbol, (SELECT r.broker FROM market.raw_candle_evidence r WHERE r.raw_evidence_id = p.raw_evidence_id),\n      p.parent_ts, (SELECT a.policy_version\n            FROM market.candle_authority_snapshot a\n            WHERE a.authority_snapshot_id = p.authority_snapshot_id)) IS NULL;\n  IF EXISTS (\n    SELECT 1\n    FROM market.htf_authority_bundle_parent p\n    LEFT JOIN market.raw_candle_evidence r ON r.raw_evidence_id = p.raw_evidence_id\n    LEFT JOIN market.candle_ingestion_run_evidence ir ON ir.ingestion_run_id = r.ingestion_run_id\n    LEFT JOIN market.candle_authority_snapshot a ON a.authority_snapshot_id = p.authority_snapshot_id\n    WHERE p.authority_bundle_id = p_bundle_id\n      AND (r.raw_evidence_id IS NULL\n        OR r.symbol IS DISTINCT FROM b.symbol\n        OR r.timeframe IS DISTINCT FROM '1m'\n        OR r.candle_ts IS DISTINCT FROM p.parent_ts\n        OR r.source_key IS DISTINCT FROM p.source_key\n        OR r.authority_snapshot_id IS DISTINCT FROM p.authority_snapshot_id\n        OR ir.symbol IS DISTINCT FROM r.symbol\n        OR ir.broker IS DISTINCT FROM r.broker\n        OR ir.timeframe IS DISTINCT FROM r.timeframe\n        OR ir.status IS DISTINCT FROM 'success'\n        OR a.symbol IS DISTINCT FROM r.symbol\n        OR a.broker IS DISTINCT FROM r.broker\n        OR a.calendar_version IS DISTINCT FROM b.calendar_version\n        OR a.effective_from > r.candle_ts\n        OR (a.effective_to IS NOT NULL AND r.candle_ts >= a.effective_to)\n        OR p.parent_content_sha256 IS DISTINCT FROM r.content_sha256\n        OR p.quarantine_evidence_id IS DISTINCT FROM market.resolve_quarantine_evidence(\n          r.symbol, r.broker, r.candle_ts, a.policy_version))\n  ) THEN\n    RAISE EXCEPTION 'authority bundle % contains parent identity mismatch', p_bundle_id;\n  END IF;\n  IF actual_count <> expected_count OR missing_count <> 0 OR unexpected_count <> 0 OR unresolved_count <> 0 THEN\n    RAISE EXCEPTION 'authority bundle % set mismatch: expected %, actual %, missing %, unexpected %, unresolved %',\n      p_bundle_id, expected_count, actual_count, missing_count, unexpected_count, unresolved_count;\n  END IF;\nEND;\n$function$\n"
+    },
+    {
+      "schema_name": "market",
+      "function_name": "validate_candle_provenance_insert",
+      "function_def": "CREATE OR REPLACE FUNCTION market.validate_candle_provenance_insert()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nDECLARE r RECORD; s RECORD; p RECORD;\n  cycle_found BOOLEAN;\nBEGIN\n  IF TG_TABLE_NAME = 'candle_ingestion_run_evidence' THEN\n    SELECT * INTO s FROM market.candle_ingestion_runs WHERE run_id = NEW.ingestion_run_id FOR KEY SHARE;\n    IF NOT FOUND OR s.status IS DISTINCT FROM 'success'\n       OR s.symbol IS DISTINCT FROM NEW.symbol\n       OR s.broker IS DISTINCT FROM NEW.broker\n       OR s.timeframe IS DISTINCT FROM NEW.timeframe\n       OR s.batch_start_ts > NEW.batch_start_ts\n       OR s.batch_end_ts < NEW.batch_end_ts THEN\n      RAISE EXCEPTION 'ingestion run % is not successful', NEW.ingestion_run_id;\n    END IF;\n  ELSIF TG_TABLE_NAME = 'canonical_candle_selection_lineage' THEN\n    IF NEW.supersedes_canonical_lineage_id = NEW.canonical_lineage_id THEN\n      RAISE EXCEPTION 'canonical lineage cannot supersede itself';\n    END IF;\n    IF NEW.supersedes_canonical_lineage_id IS NOT NULL THEN\n      SELECT * INTO p FROM market.canonical_candle_selection_lineage WHERE canonical_lineage_id = NEW.supersedes_canonical_lineage_id;\n      IF NOT FOUND OR (p.symbol,p.timeframe,p.candle_ts) IS DISTINCT FROM (NEW.symbol,NEW.timeframe,NEW.candle_ts) THEN\n        RAISE EXCEPTION 'canonical supersession changes identity';\n      END IF;\n    END IF;\n    IF NEW.selection_fingerprint <> encode(digest(\n      jsonb_build_array(NEW.symbol, NEW.timeframe, NEW.candle_ts,\n        NEW.canonical_version, NEW.raw_evidence_id, NEW.raw_ingestion_run_id,\n        NEW.raw_symbol, NEW.raw_broker, NEW.raw_timeframe, NEW.raw_candle_ts,\n        NEW.broker_policy_id, NEW.broker_policy_version, NEW.selection_reason,\n        NEW.quarantine_state)::text, 'sha256'), 'hex') THEN\n      RAISE EXCEPTION 'canonical selection fingerprint does not match canonical serialization';\n    END IF;\n    IF NEW.supersedes_canonical_lineage_id IS NOT NULL THEN\n      WITH RECURSIVE chain(canonical_lineage_id) AS (\n        SELECT NEW.supersedes_canonical_lineage_id\n        UNION ALL\n        SELECT x.supersedes_canonical_lineage_id\n        FROM market.canonical_candle_selection_lineage x JOIN chain c\n          ON x.canonical_lineage_id = c.canonical_lineage_id\n        WHERE x.supersedes_canonical_lineage_id IS NOT NULL\n      ) SELECT EXISTS (SELECT 1 FROM chain WHERE canonical_lineage_id = NEW.canonical_lineage_id)\n        INTO cycle_found;\n      IF cycle_found THEN RAISE EXCEPTION 'canonical supersession cycle detected'; END IF;\n    END IF;\n  ELSIF TG_TABLE_NAME = 'raw_candle_evidence' THEN\n    IF NEW.authority_snapshot_id IS DISTINCT FROM\n       market.resolve_candle_authority(NEW.symbol, NEW.broker, NEW.candle_ts) THEN\n      RAISE EXCEPTION 'caller-selected authority snapshot is not database-resolved authority';\n    END IF;\n    SELECT * INTO p FROM market.candle_authority_snapshot\n      WHERE authority_snapshot_id = NEW.authority_snapshot_id\n        AND symbol = NEW.symbol AND broker = NEW.broker\n        AND effective_from <= NEW.candle_ts\n        AND (effective_to IS NULL OR NEW.candle_ts < effective_to);\n    IF NOT FOUND OR NOT p.broker_allowed OR p.quarantine_state NOT IN ('NONE','RELEASED') THEN\n      RAISE EXCEPTION 'raw evidence % lacks active admissible authority snapshot', NEW.source_key;\n    END IF;\n    IF NEW.supersedes_raw_evidence_id IS NOT NULL THEN\n      SELECT * INTO p FROM market.raw_candle_evidence\n       WHERE raw_evidence_id = NEW.supersedes_raw_evidence_id;\n      IF NOT FOUND OR (p.symbol,p.broker,p.timeframe,p.candle_ts) IS DISTINCT FROM\n         (NEW.symbol,NEW.broker,NEW.timeframe,NEW.candle_ts) THEN\n        RAISE EXCEPTION 'raw supersession changes identity';\n      END IF;\n      WITH RECURSIVE chain(raw_evidence_id) AS (\n        SELECT NEW.supersedes_raw_evidence_id\n        UNION ALL\n        SELECT x.supersedes_raw_evidence_id\n        FROM market.raw_candle_evidence x JOIN chain c\n          ON x.raw_evidence_id = c.raw_evidence_id\n        WHERE x.supersedes_raw_evidence_id IS NOT NULL\n      ) SELECT EXISTS (SELECT 1 FROM chain WHERE raw_evidence_id = NEW.raw_evidence_id)\n        INTO cycle_found;\n      IF cycle_found THEN RAISE EXCEPTION 'raw supersession cycle detected'; END IF;\n    END IF;\n    IF NEW.content_sha256 <> market.raw_candle_hash(\n      NEW.symbol, NEW.broker, NEW.timeframe, NEW.candle_ts,\n      NEW.o, NEW.h, NEW.l, NEW.c, NEW.v, NEW.spread, NEW.digits) THEN\n      RAISE EXCEPTION 'caller content hash does not match database canonical hash';\n    END IF;\n    NEW.content_sha256 := market.raw_candle_hash(\n      NEW.symbol, NEW.broker, NEW.timeframe, NEW.candle_ts,\n      NEW.o, NEW.h, NEW.l, NEW.c, NEW.v, NEW.spread, NEW.digits);\n  ELSIF TG_TABLE_NAME = 'htf_candle_derivation_lineage' THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM market.htf_authority_bundle b\n      WHERE b.authority_bundle_id = NEW.authority_bundle_id\n        AND b.symbol = NEW.symbol AND b.timeframe = NEW.timeframe\n        AND b.interval_start = NEW.candle_ts\n        AND b.interval_end = NEW.candle_ts + CASE NEW.timeframe\n          WHEN '15m' THEN interval '15 minutes'\n          WHEN '5m' THEN interval '5 minutes'\n          WHEN '1h' THEN interval '1 hour'\n          WHEN '4h' THEN interval '4 hours'\n          WHEN '1d' THEN interval '1 day'\n          ELSE interval '0 seconds'\n        END\n    ) THEN\n      RAISE EXCEPTION 'HTF derivation authority bundle does not match interval';\n    END IF;\n    IF NEW.supersedes_derivation_id = NEW.derivation_id THEN\n      RAISE EXCEPTION 'derivation cannot supersede itself';\n    END IF;\n    IF NEW.eligibility_state = 'PROVEN' AND NEW.timeframe <> '15m' THEN\n      RAISE EXCEPTION 'only 15m derivations may be PROVEN';\n    END IF;\n    IF NEW.canonical_lineage_id IS NOT NULL AND NOT EXISTS (\n      SELECT 1 FROM market.canonical_candle_selection_lineage l\n      WHERE l.canonical_lineage_id = NEW.canonical_lineage_id\n        AND l.symbol = NEW.symbol AND l.timeframe = NEW.timeframe\n        AND l.candle_ts = NEW.candle_ts\n        AND l.canonical_version = NEW.canonical_version\n    ) THEN\n      RAISE EXCEPTION 'derivation canonical parent identity/version mismatch';\n    END IF;\n    IF NEW.supersedes_derivation_id IS NOT NULL THEN\n      WITH RECURSIVE chain(derivation_id) AS (\n        SELECT NEW.supersedes_derivation_id\n        UNION ALL\n        SELECT x.supersedes_derivation_id\n        FROM market.htf_candle_derivation_lineage x JOIN chain c\n          ON x.derivation_id = c.derivation_id\n        WHERE x.supersedes_derivation_id IS NOT NULL\n      ) SELECT EXISTS (SELECT 1 FROM chain WHERE derivation_id = NEW.derivation_id)\n        INTO cycle_found;\n      IF cycle_found THEN RAISE EXCEPTION 'derivation supersession cycle detected'; END IF;\n    END IF;\n  END IF;\n  RETURN NEW;\nEND $function$\n"
+    }
+  ],
+  "counts": [
+    {
+      "raw_parent_count": "0"
+    }
+  ],
+  "summary": {
+    "base_table_exists": true,
+    "partitioned": false,
+    "child_count": 0,
+    "raw_parent_count": "0",
+    "alternate_object_count": 5,
+    "rls_enabled": false,
+    "view_reference_count": 0,
+    "function_reference_count": 3,
+    "status": "READ_ONLY_AUDIT"
+  },
+  "authority": "NON_AUTHORITATIVE",
+  "accounting": {
+    "database_writes": 0,
+    "source_state_changes": 0,
+    "artifact_writes": 1
+  },
+  "sha256": "2a58b909f69bc6280af4c525b4b47671dcb4680ecc077b20e6257318edfc6a6a"
+}

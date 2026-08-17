@@ -1,6 +1,7 @@
 id: watukushay_no1
 familyId: watukushay
 active: true
+dxyDependency: not_required
 name: Watukushay No.1
 version: 2.0.0
 description: >

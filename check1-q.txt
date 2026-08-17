@@ -1,0 +1,32 @@
+◇ injected env (17) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+eligibility by state:
+  CLEAN: 27556
+  BLOCKED: 2759
+non-CLEAN rows (policy-filtered): 17
+  2026-07-01T06:06:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-01T06:17:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-01T20:55:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-01T22:05:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-02T12:30:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-02T20:55:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-02T22:05:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-03T17:01:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-07T20:55:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-07T22:05:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-08T20:55:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-08T22:05:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-09T20:55:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-09T22:05:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-12T22:04:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-13T14:16:00.000Z state=BLOCKED broker=1x Trade Ltd.
+  2026-07-14T12:30:00.000Z state=BLOCKED broker=1x Trade Ltd.
+by day:
+  2026-07-01: 4
+  2026-07-02: 3
+  2026-07-03: 1
+  2026-07-07: 2
+  2026-07-08: 2
+  2026-07-09: 2
+  2026-07-12: 1
+  2026-07-13: 1
+  2026-07-14: 1

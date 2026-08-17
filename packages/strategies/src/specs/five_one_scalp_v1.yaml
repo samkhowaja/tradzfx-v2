@@ -1,6 +1,7 @@
 id: five_one_scalp_v1
 familyId: five_one_scalp
 active: true
+dxyDependency: not_required
 experimental: true
 name: "5m Setup / 1m Entry Scalp"
 version: "1.1.0"

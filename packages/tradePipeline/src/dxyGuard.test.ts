@@ -20,6 +20,11 @@ const spec = (withCorrelation: boolean): StrategySpec => ({
   gates: [],
 });
 
+const policySpec = (dxyDependency: "required" | "optional" | "not_required"): StrategySpec => ({
+  ...spec(true),
+  dxyDependency,
+});
+
 describe("DXY execution guard", () => {
   it("finds optional correlation dependencies", () => {
     expect(findNonAuthoritativeDxyDependency(spec(true))).toBe("features_correlation@15m");
@@ -32,5 +37,13 @@ describe("DXY execution guard", () => {
     );
     expect(() => assertExecutionAllowedByDxyPolicy(spec(true), true)).not.toThrow();
     expect(() => assertExecutionAllowedByDxyPolicy(spec(false), false)).not.toThrow();
+  });
+
+  it("gates only required DXY consumers", () => {
+    expect(() => assertExecutionAllowedByDxyPolicy(policySpec("required"), false)).toThrow(
+      `${DXY_NON_AUTHORITATIVE_BLOCKED}:features_correlation@15m`,
+    );
+    expect(() => assertExecutionAllowedByDxyPolicy(policySpec("optional"), false)).not.toThrow();
+    expect(() => assertExecutionAllowedByDxyPolicy(policySpec("not_required"), false)).not.toThrow();
   });
 });

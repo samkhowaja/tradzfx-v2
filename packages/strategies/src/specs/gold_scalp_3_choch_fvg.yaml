@@ -1,6 +1,7 @@
 id: gold_scalp_3_choch_fvg
 familyId: gold_scalp_3_choch_fvg
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Gold Scalp 3 — HTF CHoCH + FVG + iFVG"
 version: "1.0.0"

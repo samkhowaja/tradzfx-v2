@@ -1,6 +1,7 @@
 id: keylevel_bounce_v1_wider
 familyId: keylevel_bounce
 active: true
+dxyDependency: not_required
 name: Key-Level Bounce V1 (wider SL)
 version: 1.0.0
 description: |

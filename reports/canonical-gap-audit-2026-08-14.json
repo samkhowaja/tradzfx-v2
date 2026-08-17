@@ -1,0 +1,3459 @@
+{
+  "summary": {
+    "generatedAt": "2026-08-14T01:58:56.168Z",
+    "symbolScope": "ALL",
+    "activeRows": 699,
+    "supersededRows": 697,
+    "byStatus": {
+      "ok_cert_blocked": 545,
+      "ok_flowing": 104,
+      "ok_gap_present": 34,
+      "ok_gap_absent": 8,
+      "ok_hole": 8
+    },
+    "anomalyCount": 0,
+    "excludeHoles": 8,
+    "unknownBlocking": 545
+  },
+  "bySymbol": {
+    "AUDUSD": {
+      "exclude_holes": 0,
+      "unknown_blocking": 40,
+      "keep_flowing": 12,
+      "anomalies": 3
+    },
+    "DXY": {
+      "exclude_holes": 3,
+      "unknown_blocking": 0,
+      "keep_flowing": 2,
+      "anomalies": 4
+    },
+    "EURUSD": {
+      "exclude_holes": 0,
+      "unknown_blocking": 43,
+      "keep_flowing": 21,
+      "anomalies": 3
+    },
+    "GBPUSD": {
+      "exclude_holes": 0,
+      "unknown_blocking": 62,
+      "keep_flowing": 24,
+      "anomalies": 3
+    },
+    "NZDUSD": {
+      "exclude_holes": 2,
+      "unknown_blocking": 41,
+      "keep_flowing": 6,
+      "anomalies": 4
+    },
+    "USDCAD": {
+      "exclude_holes": 0,
+      "unknown_blocking": 1,
+      "keep_flowing": 0,
+      "anomalies": 3
+    },
+    "USDCHF": {
+      "exclude_holes": 0,
+      "unknown_blocking": 21,
+      "keep_flowing": 8,
+      "anomalies": 4
+    },
+    "USDJPY": {
+      "exclude_holes": 0,
+      "unknown_blocking": 68,
+      "keep_flowing": 2,
+      "anomalies": 3
+    },
+    "USDSEK": {
+      "exclude_holes": 0,
+      "unknown_blocking": 73,
+      "keep_flowing": 14,
+      "anomalies": 2
+    },
+    "XAUUSD": {
+      "exclude_holes": 3,
+      "unknown_blocking": 196,
+      "keep_flowing": 15,
+      "anomalies": 13
+    }
+  },
+  "anomalies": [],
+  "holes": [
+    {
+      "id": "654",
+      "symbol": "DXY",
+      "eventTime": "2026-07-07T21:04:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v2-calendar",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    },
+    {
+      "id": "1086",
+      "symbol": "DXY",
+      "eventTime": "2026-07-07T21:04:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v3-robust",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    },
+    {
+      "id": "655",
+      "symbol": "DXY",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v2-calendar",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    },
+    {
+      "id": "769",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v2-calendar",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman-row-review"
+    },
+    {
+      "id": "1168",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v3-robust",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman-row-review"
+    },
+    {
+      "id": "1032",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-13T14:16:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v2-calendar",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    },
+    {
+      "id": "1033",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v2-calendar",
+      "flags": [
+        "LARGE_JUMP_RELATIVE"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    },
+    {
+      "id": "1371",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "decision": "EXCLUDE",
+      "detector": "candle-detector-v3-robust",
+      "flags": [
+        "LARGE_JUMP_ROBUST"
+      ],
+      "inCanonical": false,
+      "status": "ok_hole",
+      "approvedBy": "salman"
+    }
+  ],
+  "blocking": [
+    {
+      "id": "1081",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-03-26T20:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "621",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-13T14:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1061",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-13T14:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "622",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1062",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "623",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:16:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1063",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:16:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "624",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:17:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1064",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:17:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "625",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:21:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1065",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:21:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "626",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:23:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "627",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "628",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:27:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "629",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:34:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "630",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:35:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "631",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:47:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "632",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-15T21:48:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "633",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-19T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1066",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-19T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "634",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T01:56:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1067",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T01:56:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "635",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T01:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1068",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T01:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "636",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T02:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1069",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-04-27T02:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "637",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-06T01:51:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1070",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-06T01:51:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "638",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1071",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "639",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1072",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "640",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1073",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "641",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1074",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-11T21:12:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "647",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1085",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "648",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1080",
+      "symbol": "AUDUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1109",
+      "symbol": "EURUSD",
+      "eventTime": "2026-03-08T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "659",
+      "symbol": "EURUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1090",
+      "symbol": "EURUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1110",
+      "symbol": "EURUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "661",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1092",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "662",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1093",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "663",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1094",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "664",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:09:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1095",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:09:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "665",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1096",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:18:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "666",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1097",
+      "symbol": "EURUSD",
+      "eventTime": "2026-04-30T22:19:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "667",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "668",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "669",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "670",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:27:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "671",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:29:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "672",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "673",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:52:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "674",
+      "symbol": "EURUSD",
+      "eventTime": "2026-05-28T22:53:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "675",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-05T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1098",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-05T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "690",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1104",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "691",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1105",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "692",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1106",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:12:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "693",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1107",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "694",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1108",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:19:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "695",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:20:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "696",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:23:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "697",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:24:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "698",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:25:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "699",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "700",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:29:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "701",
+      "symbol": "EURUSD",
+      "eventTime": "2026-06-18T21:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "707",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1114",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "708",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1115",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "709",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1116",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "710",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:09:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1117",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:09:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "711",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:10:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1118",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T21:10:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "712",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T22:22:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1119",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T22:22:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "713",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T22:23:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1120",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-04-30T22:23:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "714",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-08T20:58:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1121",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-08T20:58:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "715",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-10T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1122",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-10T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "716",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1123",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "717",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1124",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "718",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1125",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "719",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1126",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-14T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "720",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1127",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "721",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1128",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "722",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1129",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:15:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "723",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:16:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1130",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:16:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "724",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1131",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:18:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "725",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T21:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "726",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T22:36:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1132",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T22:36:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "727",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T22:38:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1133",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-05-18T22:38:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "728",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-05T20:58:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1134",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-05T20:58:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "736",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "738",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-17T21:17:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "739",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1140",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "740",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1141",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "741",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1142",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:14:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "742",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1143",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T21:15:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "743",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:37:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1144",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:37:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "744",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:38:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1145",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:38:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "745",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:57:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1146",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:57:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "746",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:58:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1147",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-06-18T22:58:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1151",
+      "symbol": "GBPUSD",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "751",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-12T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1152",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-12T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "752",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-13T14:06:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1153",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-13T14:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "753",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-16T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1154",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-16T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "754",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-21T01:52:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1155",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-21T01:52:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "755",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-21T01:56:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1156",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-21T01:56:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "756",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-27T01:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1157",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-27T01:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "757",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-27T01:56:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1158",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-04-27T01:56:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "758",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-05-10T21:06:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1159",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-05-10T21:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "759",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-06T01:47:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1160",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-06T01:47:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "760",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1161",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "761",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:06:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1162",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "762",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:07:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1163",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:07:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "763",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1164",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "764",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1165",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "765",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1166",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:15:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "766",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "767",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-11T21:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "771",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1170",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:12:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "772",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1171",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "773",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-06-17T21:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1178",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "776",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1172",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1175",
+      "symbol": "NZDUSD",
+      "eventTime": "2026-07-14T15:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1182",
+      "symbol": "USDCAD",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "787",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-06T01:50:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1183",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-06T01:50:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1194",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T20:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "788",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1184",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "789",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1185",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "790",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1186",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "791",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:09:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1187",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:09:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "792",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1188",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "793",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "794",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "795",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "796",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:25:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "797",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "798",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:43:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "799",
+      "symbol": "USDCHF",
+      "eventTime": "2026-06-11T21:44:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1198",
+      "symbol": "USDCHF",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "810",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-29T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1199",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-29T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "811",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1200",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "812",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1201",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "813",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1202",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "814",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1203",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "815",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:07:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1204",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:07:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "816",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "817",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "818",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "819",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "820",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "821",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "822",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:19:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "823",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:29:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "824",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "825",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:39:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "826",
+      "symbol": "USDJPY",
+      "eventTime": "2026-04-30T21:40:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "827",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-04T03:45:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1205",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-04T03:45:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "828",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1206",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "829",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1207",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "830",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:10:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1208",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:10:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "831",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1209",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:12:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "832",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1210",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "833",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "834",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:17:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "835",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "836",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:21:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "837",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:23:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "838",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:29:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "839",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "840",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:34:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "841",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:35:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "842",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:36:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "843",
+      "symbol": "USDJPY",
+      "eventTime": "2026-05-06T21:38:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "844",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1211",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "845",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1212",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "846",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:10:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1213",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:10:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "847",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1214",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "848",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1215",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "849",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "850",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:22:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "851",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:24:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "852",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:25:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "853",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "854",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:28:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "855",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:29:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "856",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:43:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "857",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:45:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "858",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:53:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "859",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-02T21:54:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1220",
+      "symbol": "USDJPY",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1255",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-02T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1256",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-02T21:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1257",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-02T21:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1258",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-06T21:19:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "865",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-12T21:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1221",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-12T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "866",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:07:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1222",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:07:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "867",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:13:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1223",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:13:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "868",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:14:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1224",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-13T14:14:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "869",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-15T21:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1225",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-15T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "870",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-16T21:40:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1226",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-16T21:40:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "871",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-16T21:42:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1227",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-16T21:42:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "872",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-17T00:17:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1228",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-17T00:17:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "873",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-17T00:18:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1229",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-17T00:18:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "874",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-25T01:50:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1230",
+      "symbol": "USDSEK",
+      "eventTime": "2026-04-25T01:50:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "878",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-21T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1233",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-21T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "879",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-21T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1234",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-21T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "880",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-24T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1235",
+      "symbol": "USDSEK",
+      "eventTime": "2026-05-24T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "881",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-06T01:50:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1236",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-06T01:50:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "882",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1237",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "883",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1238",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "884",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:07:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1239",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:07:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "885",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1240",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "886",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1241",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "887",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-11T21:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "889",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1243",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "890",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1244",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:04:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "891",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1245",
+      "symbol": "USDSEK",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1262",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "898",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1247",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "899",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:15:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1248",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:15:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "900",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:16:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1249",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:16:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "901",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:26:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1250",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:26:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "902",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-08T21:27:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "903",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1251",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-14T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1259",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-14T15:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "904",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1252",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "905",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:08:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1253",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:08:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "906",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:10:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "907",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:11:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "908",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:28:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "909",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:48:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "910",
+      "symbol": "USDSEK",
+      "eventTime": "2026-07-15T21:50:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "911",
+      "symbol": "USDSEK",
+      "eventTime": "2026-08-02T21:49:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1254",
+      "symbol": "USDSEK",
+      "eventTime": "2026-08-02T21:49:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1375",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-03-23T11:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1376",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-03-24T11:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1377",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-03-24T20:24:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1378",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-03-26T20:11:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "929",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-07T19:45:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "930",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-07T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1269",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-07T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "931",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-12T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1270",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-12T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "932",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-13T15:03:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1271",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-13T15:03:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "933",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-13T18:12:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1272",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-13T18:12:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "934",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T12:09:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1273",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T12:09:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "935",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1274",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "936",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1275",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-15T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "937",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-16T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1276",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-16T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "938",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-16T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1277",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-16T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "939",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-17T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1278",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-17T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "940",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-19T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1279",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-19T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "941",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-20T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1280",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-20T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "942",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-21T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1281",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-21T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "943",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-21T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1282",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-21T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "944",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-24T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1283",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-24T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "945",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-27T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1284",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-27T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "946",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-27T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1285",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-27T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "947",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-28T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1286",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-28T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "948",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-28T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1287",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-28T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "949",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-29T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1288",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-29T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "950",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-29T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1289",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-29T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "951",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-30T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1290",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-30T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "952",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-30T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1291",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-04-30T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "953",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-04T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1292",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-04T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "954",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-04T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1293",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-04T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "955",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-06T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1294",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-06T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "956",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-06T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1295",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-06T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "957",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-11T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1296",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-11T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "958",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-11T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1297",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-11T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "959",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-14T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1298",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-14T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "960",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-14T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1299",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-14T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "961",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-15T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1300",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-15T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "962",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-18T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1301",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-18T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "963",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-18T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1302",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-18T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "964",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-19T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1303",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-19T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "965",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-19T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1304",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-19T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "966",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-20T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1305",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-20T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "967",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-20T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1306",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-20T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "969",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-26T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1308",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-26T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "970",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-26T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1309",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-26T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "971",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-27T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1310",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-27T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "972",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-27T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1311",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-27T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "973",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-28T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1312",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-28T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "974",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-28T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1313",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-28T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "975",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-29T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1314",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-05-29T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "976",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-01T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1315",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-01T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "977",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-01T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1316",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-01T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "978",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-03T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1317",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-03T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "979",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-03T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1318",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-03T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "980",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-05T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1319",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-05T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "981",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-08T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1320",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-08T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "982",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-09T21:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1321",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-09T21:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "983",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-09T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1322",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-09T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "984",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T07:45:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1323",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T07:45:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "985",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T07:57:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1324",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T07:57:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "986",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1325",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "987",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1326",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "988",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1327",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-10T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "989",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T17:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1328",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T17:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "990",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T20:59:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1329",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T20:59:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "991",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T22:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1330",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-11T22:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "992",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-12T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1331",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-12T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "994",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-15T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1333",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-15T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "995",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T18:00:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1334",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T18:00:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "996",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1335",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "997",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1336",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-17T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "998",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-18T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1337",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-18T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "999",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-18T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1338",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-18T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1000",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-19T17:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1339",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-19T17:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1001",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1340",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1002",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1341",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1003",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T23:09:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1342",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T23:09:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1004",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T23:10:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1343",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-23T23:10:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1005",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T12:25:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1344",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T12:25:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1006",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1345",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1007",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1346",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-24T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1008",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1347",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1009",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1348",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1010",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1349",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-25T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1011",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-26T20:50:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1350",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-26T20:50:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1012",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-29T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1351",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-29T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1013",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-29T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1352",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-29T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1014",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T01:07:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1353",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T01:07:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1015",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1354",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1016",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1355",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-06-30T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1017",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T06:06:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1356",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T06:06:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1018",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T06:17:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1357",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T06:17:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1019",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1358",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1020",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1359",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-01T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1021",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T12:30:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1360",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T12:30:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1022",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1361",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1023",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1362",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-02T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1024",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-03T17:01:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1363",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-03T17:01:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1025",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-07T20:55:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1364",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-07T20:55:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1380",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-07T21:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    },
+    {
+      "id": "1026",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-07T22:05:00.000Z",
+      "detector": "candle-detector-v2-calendar"
+    },
+    {
+      "id": "1365",
+      "symbol": "XAUUSD",
+      "eventTime": "2026-07-07T22:05:00.000Z",
+      "detector": "candle-detector-v3-robust"
+    }
+  ]
+}

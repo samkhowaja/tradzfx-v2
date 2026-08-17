@@ -1,6 +1,7 @@
 id: 10xroi_v1_1m_fixedpip
 familyId: 10xroi
 active: true
+dxyDependency: not_required
 name: "10XROI V1 — 1m fixed pip"
 version: "1.0.0"
 description: "10XROI on 1m TF. Fixed 25-pip SL, 125-pip TP (5:1). 1m push-pull + daily bias + candle confirmation."

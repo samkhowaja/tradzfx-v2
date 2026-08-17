@@ -1,0 +1,2471 @@
+◇ injected env (17) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+
+=== slice (1) ===
+[
+  {
+    "strategy": "watukushay_no1",
+    "symbol": "XAUUSD",
+    "from_ts": "2026-07-19T00:00:00.000Z",
+    "to_ts": "2026-07-23T00:00:00.000Z"
+  }
+]
+
+=== live_signal (1) ===
+[
+  {
+    "signal_id": "3ebf5f38-3515-49b8-b280-67edecfb2669",
+    "deployment_id": "cf31edf0-9b28-4544-b0c6-ee859e3e10c7",
+    "symbol": "XAUUSD",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "strategy_id": "watukushay_no1",
+    "side": "buy",
+    "entry_type": "market",
+    "entry_price": 4156.07,
+    "stop_loss": 4145.9839999999995,
+    "take_profit": 4166.156,
+    "confidence": 70,
+    "source_json": {
+      "ts": "2026-07-22T14:00:00.000Z",
+      "side": "buy",
+      "atr_5": 20.172000000000118,
+      "atr_1h": 20.172000000000118,
+      "symbol": "XAUUSD",
+      "ma_fast": 4123.896000000001,
+      "ma_slow": 4059.76932,
+      "stop_loss": 4145.9839999999995,
+      "entry_price": 4156.07,
+      "strategy_id": "watukushay_no1",
+      "take_profit": 4166.156,
+      "bias_direction": "bullish",
+      "pricing_position": "premium",
+      "planned_entry_price": 4156.07,
+      "signal_reference_price": 4123.896000000001
+    },
+    "gate_trace_run_id": "42c44080-1fdc-45e7-9cff-ef7e242081d8",
+    "created_at": "2026-07-22T14:18:55.251Z",
+    "signal_fingerprint": "b63752983bc37f6b8d76671480b85b07654f0934dae41d9ccf9d1cd642bc2fd0",
+    "thesis_fingerprint": null
+  }
+]
+
+=== live_deployment (5) ===
+[
+  {
+    "deployment_id": "97dd859d-41d1-4631-8427-f078d34dae28",
+    "strategy_id": "watukushay_no1",
+    "strategy_snapshot_id": "83277636-17ce-4c2c-b7e2-79c8f5e836e9",
+    "feature_snapshot_id": "d9b1100b-b8ff-4d57-8516-b23522f7776f",
+    "mode": "paper",
+    "started_at": "2026-07-25T05:45:24.300Z",
+    "ended_at": null,
+    "is_active": true,
+    "metadata_json": {},
+    "compiled_strategy_snapshot_id": "3cc229b0-0a14-4bf3-9222-ee4bf7d2d708"
+  },
+  {
+    "deployment_id": "cf31edf0-9b28-4544-b0c6-ee859e3e10c7",
+    "strategy_id": "watukushay_no1",
+    "strategy_snapshot_id": "d2ea14bf-2d96-48fc-aada-45fd79ccb93e",
+    "feature_snapshot_id": "d9b1100b-b8ff-4d57-8516-b23522f7776f",
+    "mode": "paper",
+    "started_at": "2026-07-22T03:36:35.746Z",
+    "ended_at": "2026-07-25T05:45:24.300Z",
+    "is_active": false,
+    "metadata_json": {},
+    "compiled_strategy_snapshot_id": "071d8e9e-f1ac-4eae-90b7-095c772a04c4"
+  },
+  {
+    "deployment_id": "b4059e3a-dabb-4290-adff-fdf3e4d2943d",
+    "strategy_id": "watukushay_no1",
+    "strategy_snapshot_id": "2043c051-d18b-4fe1-8b8f-af4d19ad224f",
+    "feature_snapshot_id": "0309c7dc-6d1e-40f9-99b2-1bf467c22d2f",
+    "mode": "paper",
+    "started_at": "2026-07-20T16:45:06.611Z",
+    "ended_at": "2026-07-22T03:36:35.746Z",
+    "is_active": false,
+    "metadata_json": {},
+    "compiled_strategy_snapshot_id": "efc0f176-7b26-4d0c-b136-608e47914ff5"
+  },
+  {
+    "deployment_id": "6bc9a6a6-0733-4a4f-a240-87a2c52be7af",
+    "strategy_id": "watukushay_no1",
+    "strategy_snapshot_id": "2043c051-d18b-4fe1-8b8f-af4d19ad224f",
+    "feature_snapshot_id": "0309c7dc-6d1e-40f9-99b2-1bf467c22d2f",
+    "mode": "paper",
+    "started_at": "2026-07-20T16:15:07.641Z",
+    "ended_at": "2026-07-20T16:45:06.611Z",
+    "is_active": false,
+    "metadata_json": {},
+    "compiled_strategy_snapshot_id": "4d87f3fb-27c8-4d6d-95bd-312cc87515d1"
+  },
+  {
+    "deployment_id": "f3248f08-9b92-4a87-b483-e383896557df",
+    "strategy_id": "watukushay_no1",
+    "strategy_snapshot_id": "f0590097-639b-4ea0-940a-3f94719eb846",
+    "feature_snapshot_id": "6127168a-65e5-4ea6-934f-d0f86ccbc3c7",
+    "mode": "live",
+    "started_at": "2026-07-14T17:54:57.052Z",
+    "ended_at": null,
+    "is_active": true,
+    "metadata_json": {},
+    "compiled_strategy_snapshot_id": null
+  }
+]
+
+=== canonical coverage (1) ===
+[
+  {
+    "rows": 172388,
+    "min_ts": "2025-01-02T02:03:00.000Z",
+    "max_ts": "2026-08-10T07:33:00.000Z",
+    "slice_rows": 4352
+  }
+]
+
+=== candle_quarantine schema (17) ===
+[
+  {
+    "column_name": "id",
+    "data_type": "bigint"
+  },
+  {
+    "column_name": "symbol",
+    "data_type": "text"
+  },
+  {
+    "column_name": "broker",
+    "data_type": "text"
+  },
+  {
+    "column_name": "timeframe",
+    "data_type": "text"
+  },
+  {
+    "column_name": "event_time",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "raw_source_key",
+    "data_type": "text"
+  },
+  {
+    "column_name": "flags",
+    "data_type": "ARRAY"
+  },
+  {
+    "column_name": "severity",
+    "data_type": "text"
+  },
+  {
+    "column_name": "detector_version",
+    "data_type": "text"
+  },
+  {
+    "column_name": "detector_params",
+    "data_type": "jsonb"
+  },
+  {
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "approved_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "approved_by",
+    "data_type": "text"
+  },
+  {
+    "column_name": "decision",
+    "data_type": "text"
+  },
+  {
+    "column_name": "notes",
+    "data_type": "text"
+  },
+  {
+    "column_name": "superseded_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "superseded_by",
+    "data_type": "text"
+  }
+]
+
+=== backtest_results schema (29) ===
+[
+  {
+    "column_name": "id",
+    "data_type": "bigint"
+  },
+  {
+    "column_name": "run_id",
+    "data_type": "text"
+  },
+  {
+    "column_name": "symbol",
+    "data_type": "text"
+  },
+  {
+    "column_name": "tf",
+    "data_type": "text"
+  },
+  {
+    "column_name": "ts",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "grade",
+    "data_type": "text"
+  },
+  {
+    "column_name": "direction",
+    "data_type": "text"
+  },
+  {
+    "column_name": "confidence",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "entry_zone",
+    "data_type": "jsonb"
+  },
+  {
+    "column_name": "stop_loss",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "take_profit",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "risk_reward",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "outcome",
+    "data_type": "text"
+  },
+  {
+    "column_name": "outcome_r",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "exit_price",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "exit_ts",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "bars_held",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "htf_state",
+    "data_type": "text"
+  },
+  {
+    "column_name": "session_name",
+    "data_type": "text"
+  },
+  {
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "column_name": "effective_entry",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "max_adverse_r",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "max_favorable_r",
+    "data_type": "double precision"
+  },
+  {
+    "column_name": "variant_id",
+    "data_type": "text"
+  },
+  {
+    "column_name": "family_id",
+    "data_type": "text"
+  },
+  {
+    "column_name": "strategy_id",
+    "data_type": "text"
+  },
+  {
+    "column_name": "source",
+    "data_type": "text"
+  },
+  {
+    "column_name": "heat_dropped",
+    "data_type": "boolean"
+  },
+  {
+    "column_name": "heat_run_id",
+    "data_type": "text"
+  }
+]
+
+=== candle quarantine (1) ===
+[
+  {
+    "id": "590",
+    "symbol": "XAUUSD",
+    "broker": "1x Trade Ltd.",
+    "timeframe": "1m",
+    "event_time": "2026-07-19T22:05:00.000Z",
+    "raw_source_key": "XAUUSD|1x Trade Ltd.|2026-07-19T22:05:00.000Z",
+    "flags": [
+      "UNEXPECTED_GAP"
+    ],
+    "severity": "MEDIUM",
+    "detector_version": "candle-detector-v1",
+    "detector_params": {
+      "relativeJump": 0.005
+    },
+    "created_at": "2026-08-03T05:07:38.225Z",
+    "approved_at": null,
+    "approved_by": null,
+    "decision": "UNKNOWN",
+    "notes": null,
+    "superseded_at": "2026-08-03T11:43:59.472Z",
+    "superseded_by": "candle-detector-v2-calendar"
+  }
+]
+
+=== backtest exact timestamp (1) ===
+[
+  {
+    "id": "5044",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4145.351,
+      "tp": 4166.789,
+      "entry": 4156.07,
+      "entryType": "market"
+    },
+    "stop_loss": 4145.351,
+    "take_profit": 4166.789,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": -1,
+    "exit_price": 4145.351,
+    "exit_ts": "2026-07-22T15:36:00.000Z",
+    "bars_held": 96,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4152.03,
+    "max_adverse_r": 1.0600389279832063,
+    "max_favorable_r": 2.0946249438539466,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": false,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  }
+]
+
+=== setup evaluations exact timestamp (11) ===
+[
+  {
+    "id": "19910",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 31,
+    "entry_zone": null,
+    "stop_loss": 4150.719999999999,
+    "take_profit": 4168.43,
+    "risk_reward": 2.3102803738317275,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Missing HTF bias or price"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Entry validated by indicator/pullback signal; zone not required"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 2.3:1 (good)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at ATR-based fallback (0.00000 price units)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is <10% of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 53.5p exceeds 50p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Session OFF_HOURS is not a killzone"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 3.5p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Low volatility — reduce size"
+      }
+    ],
+    "warnings": [],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-08-11T16:28:10.001Z",
+    "setup_status": "waiting",
+    "context_hash": "cb001393a63cb4049b2fbb45d695cb6c",
+    "invalidated_at": null,
+    "evaluator_id": "setup_engine",
+    "evaluator_version": "1.0.3",
+    "setup_engine_version": "1.0.3",
+    "strategy_id": "watukushay_no1",
+    "strategy_family_id": "watukushay",
+    "strategy_spec_version": "1.1.0",
+    "signal_context_hash": "cb001393a63cb4049b2fbb45d695cb6c",
+    "evaluation_environment": "pit"
+  },
+  {
+    "id": "17000",
+    "symbol": "XAUUSD",
+    "tf": "5m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 42,
+    "entry_zone": {
+      "top": 4018.4,
+      "bottom": 4017.9,
+      "zoneId": "fvg-bullish-4018.4-4017.9",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.14,
+    "take_profit": 4158.49,
+    "risk_reward": 2.6021505376362173,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is a retest candidate (already tapped once)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 2.6:1 (good)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 9.3p within 98.18249999999921p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-26T05:06:57.642Z",
+    "setup_status": "waiting",
+    "context_hash": "d586aa41d11d3f6d3175341585bd6098",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "14791",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 48,
+    "entry_zone": {
+      "top": 4018.4,
+      "bottom": 4010.4,
+      "zoneId": "fvg-bullish-4018.4-4010.4",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4139.66,
+    "take_profit": 4191.2,
+    "risk_reward": 2.140767824497283,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 2.1:1 (good)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural supply level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is <10% of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 164.1p within 224.45250000000027p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: NY"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 3.5p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-25T18:09:42.331Z",
+    "setup_status": "waiting",
+    "context_hash": "b8e205d02822c8fca6a7e9f6df26fa21",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13325",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:35:27.959Z",
+    "setup_status": "waiting",
+    "context_hash": "b017f190251358d69165197d8eaed672",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13280",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:35:18.422Z",
+    "setup_status": "waiting",
+    "context_hash": "c32c6a71cb23e9e3c0b8c3d7ac583bec",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13235",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:35:07.904Z",
+    "setup_status": "waiting",
+    "context_hash": "7587ea56ecc2055561c8548797a31a0f",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13190",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:34:58.244Z",
+    "setup_status": "waiting",
+    "context_hash": "12c8a0eeaac279cccc4b4df31ae265f3",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13145",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:34:47.679Z",
+    "setup_status": "waiting",
+    "context_hash": "9ae685d6ed82378b6676fb5e1c0976ef",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "13114",
+    "symbol": "XAUUSD",
+    "tf": "15m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 46,
+    "entry_zone": {
+      "top": 4126.3,
+      "bottom": 4125.900000000001,
+      "zoneId": "fvg-bullish-4126.3-4125.900000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4155.0599999999995,
+    "take_profit": 4159.53,
+    "risk_reward": 3.4257425742567214,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 3.4:1 (excellent)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.1p within 124.74749999999992p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.2p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:34:37.634Z",
+    "setup_status": "waiting",
+    "context_hash": "c18634b35da8954088d5f23691a20c09",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "12522",
+    "symbol": "XAUUSD",
+    "tf": "1m",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 39,
+    "entry_zone": {
+      "top": 4153.5,
+      "bottom": 4153.400000000001,
+      "zoneId": "fvg-bullish-4153.5-4153.400000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4154.9800000000005,
+    "take_profit": 4158.57,
+    "risk_reward": 2.2935779816529838,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is far from active zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is a retest candidate (already tapped once)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 2.3:1 (good)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is a large fraction of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 10.9p within 42.61499999999909p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Session ASIA is not a killzone"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 4.9p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [],
+    "block_reasons": [],
+    "order_id": null,
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-23T00:34:09.550Z",
+    "setup_status": "waiting",
+    "context_hash": "9105cc78cbb55c883728c6de5b72c916",
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  },
+  {
+    "id": "10196",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "C",
+    "direction": "long",
+    "confidence": 60,
+    "entry_zone": {
+      "top": 4151.6,
+      "bottom": 4150.400000000001,
+      "zoneId": "fvg-bearish-4151.6-4150.400000000001",
+      "zoneType": "fvg"
+    },
+    "stop_loss": 4139.718,
+    "take_profit": 4179.79,
+    "risk_reward": 2.5997125404238464,
+    "evidence": [
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long HTF bias confirms long"
+      },
+      {
+        "data": {},
+        "type": "htf_bias",
+        "weight": 0.35,
+        "description": "Strong long LTF bias supports setup"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price is inside fvg zone"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Price outside OTE — consider waiting"
+      },
+      {
+        "data": {},
+        "type": "zone",
+        "weight": 0.3,
+        "description": "Zone is fresh (untapped)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Risk/reward 2.6:1 (good)"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop placed at structural low level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Target placed at structural high level"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Spread is <10% of stop distance"
+      },
+      {
+        "data": {},
+        "type": "risk",
+        "weight": 0.2,
+        "description": "Stop 111.3p within 219.70500000000038p max"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Active session: OVERLAP"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "Spread 2.9p is healthy"
+      },
+      {
+        "data": {},
+        "type": "session",
+        "weight": 0.15,
+        "description": "High volatility — wider stops required"
+      }
+    ],
+    "warnings": [
+      "Price not in OTE zone - entry may be extended"
+    ],
+    "block_reasons": [],
+    "order_id": "6dc5848b-68d0-4f59-b2c5-d13826eec130",
+    "outcome": null,
+    "outcome_r": null,
+    "created_at": "2026-07-22T14:18:55.251Z",
+    "setup_status": null,
+    "context_hash": null,
+    "invalidated_at": null,
+    "evaluator_id": null,
+    "evaluator_version": null,
+    "setup_engine_version": null,
+    "strategy_id": null,
+    "strategy_family_id": null,
+    "strategy_spec_version": null,
+    "signal_context_hash": null,
+    "evaluation_environment": null
+  }
+]
+
+=== live snapshot identities (1) ===
+[
+  {
+    "deployment_id": "cf31edf0-9b28-4544-b0c6-ee859e3e10c7",
+    "strategy_snapshot_id": "d2ea14bf-2d96-48fc-aada-45fd79ccb93e",
+    "feature_snapshot_id": "d9b1100b-b8ff-4d57-8516-b23522f7776f",
+    "compiled_strategy_snapshot_id": "071d8e9e-f1ac-4eae-90b7-095c772a04c4",
+    "snapshot_id": "d9b1100b-b8ff-4d57-8516-b23522f7776f",
+    "content_hash": "bdb580b54e1b4f4f87931f3430dfde45af5ccaa87e87f7e036452971d8b27888",
+    "strategy_id": "watukushay_no1",
+    "strategy_version": "1.1.0",
+    "name": "v2-default",
+    "spec_json": {
+      "id": "watukushay_no1",
+      "live": {
+        "mode": "paper",
+        "lotSize": 0.01,
+        "maxSpreadPips": 3,
+        "accountBalance": 10000,
+        "accountCurrency": "USD",
+        "cooldownMinutes": 60,
+        "riskPerTradePct": 1,
+        "signalTtlMinutes": 60,
+        "maxPositionsTotal": 6,
+        "maxSlippagePoints": 20,
+        "maxPositionsPerSymbol": 2
+      },
+      "name": "Watukushay No.1",
+      "risk": {
+        "sl": "atr(1h) * 0.5",
+        "tp": "sl * 1.0",
+        "minRR": 1,
+        "maxFillBars": 2,
+        "timeoutBars": 8
+      },
+      "entry": [],
+      "gates": [
+        {
+          "id": "volatility_gate",
+          "name": "volatility",
+          "params": {
+            "maxAtr5Pips": 500,
+            "regimeRelax": {
+              "tf": "1h",
+              "mode": "bypass",
+              "enabled": true,
+              "regimeIn": [
+                "trending"
+              ],
+              "agreement": true
+            },
+            "maxAtrPercentile": 0.95,
+            "sessionMaxAtrPercentile": {
+              "NY": 0.95
+            }
+          }
+        },
+        {
+          "id": "spread_gate",
+          "name": "spread",
+          "params": {
+            "maxSpreadPips": 3
+          }
+        },
+        {
+          "id": "portfolio_heat",
+          "name": "portfolioHeat",
+          "params": {
+            "maxConcurrentTotal": 3,
+            "maxConcurrentPerSymbol": 1
+          }
+        },
+        {
+          "id": "session_gate",
+          "name": "session",
+          "params": {
+            "allowed": [
+              "LONDON",
+              "OVERLAP",
+              "NY"
+            ]
+          }
+        },
+        {
+          "id": "rate_limit",
+          "name": "rateLimit",
+          "params": {
+            "maxSignalsPerDay": 5,
+            "maxSignalsPerHour": 2
+          }
+        }
+      ],
+      "setup": [
+        {
+          "id": "bias",
+          "tf": "1h",
+          "feature": "features_bias",
+          "required": true,
+          "predicate": "direction != 'neutral'"
+        },
+        {
+          "id": "rsi",
+          "tf": "1h",
+          "feature": "features_indicator",
+          "groupBy": [
+            "indicator_name",
+            "period"
+          ],
+          "required": true,
+          "predicate": "indicator_name = 'rsi' AND period = 20 AND ((features_bias.direction = 'bullish' AND value < 28) OR (features_bias.direction = 'bearish' AND value > 72))"
+        }
+      ],
+      "steps": [
+        {
+          "id": "bias",
+          "tf": "1h",
+          "feature": "features_bias",
+          "required": true,
+          "predicate": "direction != 'neutral'"
+        },
+        {
+          "id": "ma_fast",
+          "tf": "1h",
+          "feature": "features_moving_average",
+          "groupBy": [
+            "ma_type",
+            "period"
+          ],
+          "required": true,
+          "dependsOn": [
+            "bias"
+          ],
+          "predicate": "ma_type = 'sma' AND period = 15 AND value > 0",
+          "autoAlignDirection": false
+        },
+        {
+          "id": "ma_slow",
+          "tf": "1h",
+          "feature": "features_moving_average",
+          "groupBy": [
+            "ma_type",
+            "period"
+          ],
+          "required": true,
+          "dependsOn": [
+            "ma_fast"
+          ],
+          "predicate": "ma_type = 'sma' AND period = 250 AND value > 0",
+          "autoAlignDirection": false
+        }
+      ],
+      "active": false,
+      "filters": {
+        "symbols": [
+          "EURUSD",
+          "GBPUSD",
+          "AUDUSD",
+          "NZDUSD",
+          "USDCAD",
+          "USDCHF",
+          "USDJPY",
+          "XAUUSD"
+        ],
+        "sessions": [
+          "LONDON",
+          "OVERLAP",
+          "NY"
+        ]
+      },
+      "version": "1.1.0",
+      "familyId": "watukushay",
+      "description": "RSI pullback strategy per Daniel Pinto's Watukushay FE system. Enters in the direction of the 1h bias on RSI-20 confirmation. Optimal thresholds: short at 72, long at 28.\n",
+      "signalSource": "moving_average",
+      "signalSourceConfig": {
+        "maType": "sma",
+        "fastPeriod": 15,
+        "slowPeriod": 250
+      }
+    },
+    "live_overrides_json": null,
+    "created_at": "2026-07-22T03:36:34.611Z",
+    "content_hash_bin": {
+      "type": "Buffer",
+      "data": [
+        189,
+        181,
+        128,
+        181,
+        78,
+        27,
+        79,
+        79,
+        135,
+        147,
+        31,
+        52,
+        48,
+        223,
+        222,
+        69,
+        175,
+        92,
+        202,
+        168,
+        126,
+        135,
+        247,
+        224,
+        54,
+        69,
+        41,
+        113,
+        216,
+        178,
+        120,
+        136
+      ]
+    },
+    "engine_version": "2.0.0",
+    "feature_definitions": [
+      {
+        "name": "features_atr",
+        "version": "1.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_bias",
+        "version": "3.0.0",
+        "dependencies": [
+          "features_structure",
+          "features_htf_bias",
+          "features_atr",
+          "features_pivot"
+        ]
+      },
+      {
+        "name": "features_bollinger",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_candle_pattern",
+        "version": "1.4.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_correlation",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_direction_state",
+        "version": "1.0.0",
+        "dependencies": [
+          "features_bias",
+          "features_htf_bias"
+        ]
+      },
+      {
+        "name": "features_displacement",
+        "version": "1.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_eq_liquidity",
+        "version": "1.1.0",
+        "dependencies": [
+          "features_pivot",
+          "features_atr"
+        ]
+      },
+      {
+        "name": "features_htf_bias",
+        "version": "3.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_ifvg",
+        "version": "1.4.1",
+        "dependencies": []
+      },
+      {
+        "name": "features_indicator",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_keltner",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_liquidity_pools",
+        "version": "1.1.1",
+        "dependencies": [
+          "features_sweep"
+        ]
+      },
+      {
+        "name": "features_moving_average",
+        "version": "2.0.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_opening_range",
+        "version": "1.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_order_block",
+        "version": "1.4.1",
+        "dependencies": [
+          "features_structure"
+        ]
+      },
+      {
+        "name": "features_pivot",
+        "version": "1.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_pricing",
+        "version": "2.1.0",
+        "dependencies": [
+          "features_pivot",
+          "features_atr"
+        ]
+      },
+      {
+        "name": "features_push_pull",
+        "version": "1.0.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_session",
+        "version": "1.2.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_session_hl",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_spread",
+        "version": "1.0.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_structure",
+        "version": "2.1.0",
+        "dependencies": [
+          "features_pivot",
+          "features_atr",
+          "features_htf_bias"
+        ]
+      },
+      {
+        "name": "features_sweep",
+        "version": "1.4.0",
+        "dependencies": [
+          "features_pivot",
+          "features_atr",
+          "features_structure"
+        ]
+      },
+      {
+        "name": "features_time_of_day_edge",
+        "version": "1.1.0",
+        "dependencies": []
+      },
+      {
+        "name": "features_volatility_normalized",
+        "version": "1.0.0",
+        "dependencies": [
+          "features_atr"
+        ]
+      },
+      {
+        "name": "features_zone",
+        "version": "2.2.0",
+        "dependencies": [
+          "features_pivot",
+          "features_atr",
+          "features_htf_bias",
+          "features_structure"
+        ]
+      },
+      {
+        "name": "features_zone_retest",
+        "version": "1.1.0",
+        "dependencies": [
+          "features_zone"
+        ]
+      }
+    ],
+    "created_by": null,
+    "notes": null
+  }
+]
+
+=== backtest nearby XAUUSD (5) ===
+[
+  {
+    "id": "5042",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T12:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4118.623,
+      "tp": 4131.257,
+      "entry": 4124.94,
+      "entryType": "market"
+    },
+    "stop_loss": 4118.623,
+    "take_profit": 4131.257,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": 0,
+    "exit_price": 4118.55,
+    "exit_ts": "2026-07-22T12:01:00.000Z",
+    "bars_held": 1,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4118.55,
+    "max_adverse_r": 0,
+    "max_favorable_r": 0,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": false,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  },
+  {
+    "id": "5043",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T13:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4108.865000000001,
+      "tp": 4128.255,
+      "entry": 4118.56,
+      "entryType": "market"
+    },
+    "stop_loss": 4108.865000000001,
+    "take_profit": 4128.255,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": -1,
+    "exit_price": 4108.865000000001,
+    "exit_ts": "2026-07-22T13:01:00.000Z",
+    "bars_held": 1,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4155.91,
+    "max_adverse_r": 0,
+    "max_favorable_r": 0,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": false,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  },
+  {
+    "id": "5044",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T14:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4145.351,
+      "tp": 4166.789,
+      "entry": 4156.07,
+      "entryType": "market"
+    },
+    "stop_loss": 4145.351,
+    "take_profit": 4166.789,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": -1,
+    "exit_price": 4145.351,
+    "exit_ts": "2026-07-22T15:36:00.000Z",
+    "bars_held": 96,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4152.03,
+    "max_adverse_r": 1.0600389279832063,
+    "max_favorable_r": 2.0946249438539466,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": false,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  },
+  {
+    "id": "5045",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T15:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4140.447,
+      "tp": 4163.993,
+      "entry": 4152.22,
+      "entryType": "market"
+    },
+    "stop_loss": 4140.447,
+    "take_profit": 4163.993,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": -1,
+    "exit_price": 4140.447,
+    "exit_ts": "2026-07-22T16:38:00.000Z",
+    "bars_held": 98,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4158.71,
+    "max_adverse_r": 1.0014783989486964,
+    "max_favorable_r": 0.03066308930626965,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": true,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  },
+  {
+    "id": "5046",
+    "run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "XAUUSD",
+    "tf": "1h",
+    "ts": "2026-07-22T16:00:00.000Z",
+    "grade": "A",
+    "direction": "buy",
+    "confidence": 0,
+    "entry_zone": {
+      "sl": 4146.450999999999,
+      "tp": 4170.929,
+      "entry": 4158.69,
+      "entryType": "market"
+    },
+    "stop_loss": 4146.450999999999,
+    "take_profit": 4170.929,
+    "risk_reward": 1,
+    "outcome": "loss",
+    "outcome_r": -1,
+    "exit_price": 4146.450999999999,
+    "exit_ts": "2026-07-22T16:01:00.000Z",
+    "bars_held": 1,
+    "htf_state": null,
+    "session_name": null,
+    "created_at": "2026-07-26T04:59:11.763Z",
+    "effective_entry": 4147.65,
+    "max_adverse_r": 2.0016680567127505,
+    "max_favorable_r": 0.1834862385322423,
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1",
+    "source": "pit",
+    "heat_dropped": false,
+    "heat_run_id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675"
+  }
+]
+
+=== backtest_runs (20) ===
+[
+  {
+    "id": "watukushay_no1-2026-04-27T04:49:00.000Z-2026-07-26T04:49:00.000Z-90cc3675",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-27T04:49:00.000Z",
+    "end_ts": "2026-07-26T04:49:00.000Z",
+    "sample_count": 209,
+    "generated_at": "2026-07-26T04:59:11.763Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-21T17:18:00.000Z-2026-07-20T17:18:00.000Z-83b2a24d",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-21T17:18:00.000Z",
+    "end_ts": "2026-07-20T17:18:00.000Z",
+    "sample_count": 63,
+    "generated_at": "2026-07-20T17:18:49.401Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-20T23:15:00.000Z-2026-07-19T23:15:00.000Z-c0d27201",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-20T23:15:00.000Z",
+    "end_ts": "2026-07-19T23:15:00.000Z",
+    "sample_count": 204,
+    "generated_at": "2026-07-19T23:16:05.162Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-20T23:14:00.000Z-2026-07-19T23:14:00.000Z-4eb5e3a6",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-20T23:14:00.000Z",
+    "end_ts": "2026-07-19T23:14:00.000Z",
+    "sample_count": 106,
+    "generated_at": "2026-07-19T23:14:55.551Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-19T15:02:00.000Z-2026-07-18T15:02:00.000Z-d1cfff67",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-19T15:02:00.000Z",
+    "end_ts": "2026-07-18T15:02:00.000Z",
+    "sample_count": 147,
+    "generated_at": "2026-07-18T15:06:08.987Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-19T14:15:00.000Z-2026-07-18T14:15:00.000Z-01a09898",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-19T14:15:00.000Z",
+    "end_ts": "2026-07-18T14:15:00.000Z",
+    "sample_count": 92,
+    "generated_at": "2026-07-18T14:19:57.520Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-19T14:11:00.000Z-2026-07-18T14:11:00.000Z-8dc95d59",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-19T14:11:00.000Z",
+    "end_ts": "2026-07-18T14:11:00.000Z",
+    "sample_count": 77,
+    "generated_at": "2026-07-18T14:20:00.827Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-19T13:22:00.000Z-2026-07-18T13:22:00.000Z-2a738dde",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-19T13:22:00.000Z",
+    "end_ts": "2026-07-18T13:22:00.000Z",
+    "sample_count": 51,
+    "generated_at": "2026-07-18T13:32:00.077Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-04T02:25:00.000Z-2026-07-03T02:25:00.000Z-88b5669b",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-04T02:25:00.000Z",
+    "end_ts": "2026-07-03T02:25:00.000Z",
+    "sample_count": 1,
+    "generated_at": "2026-07-03T02:32:19.085Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-04T02:23:00.000Z-2026-07-03T02:23:00.000Z-a19fc986",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-04T02:23:00.000Z",
+    "end_ts": "2026-07-03T02:23:00.000Z",
+    "sample_count": 30,
+    "generated_at": "2026-07-03T02:32:19.150Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_no1-2026-04-04T02:21:00.000Z-2026-07-03T02:21:00.000Z-1d7b455a",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-04T02:21:00.000Z",
+    "end_ts": "2026-07-03T02:21:00.000Z",
+    "sample_count": 37,
+    "generated_at": "2026-07-03T02:32:20.193Z",
+    "variant_id": "watukushay_no1",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_no1"
+  },
+  {
+    "id": "watukushay_fe-2026-04-27T04:53:00.000Z-2026-07-26T04:53:00.000Z-dad97c14",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-27T04:53:00.000Z",
+    "end_ts": "2026-07-26T04:53:00.000Z",
+    "sample_count": 7,
+    "generated_at": "2026-07-26T05:03:24.984Z",
+    "variant_id": "watukushay_fe",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_fe"
+  },
+  {
+    "id": "watukushay_fe-2026-04-19T15:01:00.000Z-2026-07-18T15:01:00.000Z-66c0ca84",
+    "symbol": "ALL",
+    "tf": "1h",
+    "start_ts": "2026-04-19T15:01:00.000Z",
+    "end_ts": "2026-07-18T15:01:00.000Z",
+    "sample_count": 1,
+    "generated_at": "2026-07-18T15:05:54.996Z",
+    "variant_id": "watukushay_fe",
+    "family_id": "watukushay",
+    "strategy_id": "watukushay_fe"
+  },
+  {
+    "id": "waqar_v2_xau_sweep_20pip-2026-04-25T20:10:00.000Z-2026-07-24T20:10:00.000Z-5a97f9b8",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T20:10:00.000Z",
+    "end_ts": "2026-07-24T20:10:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T20:11:39.801Z",
+    "variant_id": "waqar_v2_xau_sweep_20pip",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_sweep_20pip"
+  },
+  {
+    "id": "waqar_v2_xau_sweep_20pip-2026-04-25T18:40:00.000Z-2026-07-24T18:40:00.000Z-1d35f619",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T18:40:00.000Z",
+    "end_ts": "2026-07-24T18:40:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T18:41:15.908Z",
+    "variant_id": "waqar_v2_xau_sweep_20pip",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_sweep_20pip"
+  },
+  {
+    "id": "waqar_v2_xau_sweep_15pip-2026-04-25T20:10:00.000Z-2026-07-24T20:10:00.000Z-9e589857",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T20:10:00.000Z",
+    "end_ts": "2026-07-24T20:10:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T20:11:23.394Z",
+    "variant_id": "waqar_v2_xau_sweep_15pip",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_sweep_15pip"
+  },
+  {
+    "id": "waqar_v2_xau_sweep_15pip-2026-04-25T18:40:00.000Z-2026-07-24T18:40:00.000Z-c78ffc26",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T18:40:00.000Z",
+    "end_ts": "2026-07-24T18:40:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T18:41:05.923Z",
+    "variant_id": "waqar_v2_xau_sweep_15pip",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_sweep_15pip"
+  },
+  {
+    "id": "waqar_v2_xau_research-2026-04-25T20:10:00.000Z-2026-07-24T20:10:00.000Z-9d5f1aa5",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T20:10:00.000Z",
+    "end_ts": "2026-07-24T20:10:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T20:11:05.028Z",
+    "variant_id": "waqar_v2_xau_research",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_research"
+  },
+  {
+    "id": "waqar_v2_xau_research-2026-04-25T18:39:00.000Z-2026-07-24T18:39:00.000Z-5474b413",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-25T18:39:00.000Z",
+    "end_ts": "2026-07-24T18:39:00.000Z",
+    "sample_count": 88,
+    "generated_at": "2026-07-24T18:40:08.854Z",
+    "variant_id": "waqar_v2_xau_research",
+    "family_id": "waqar_v2",
+    "strategy_id": "waqar_v2_xau_research"
+  },
+  {
+    "id": "smart_risk_ob_ifvg_1m-2026-04-27T04:51:00.000Z-2026-07-26T04:51:00.000Z-ab964b30",
+    "symbol": "ALL",
+    "tf": "15m",
+    "start_ts": "2026-04-27T04:51:00.000Z",
+    "end_ts": "2026-07-26T04:51:00.000Z",
+    "sample_count": 62,
+    "generated_at": "2026-07-26T05:01:37.575Z",
+    "variant_id": "smart_risk_ob_ifvg_1m",
+    "family_id": "smart_risk_ob_ifvg_1m",
+    "strategy_id": "smart_risk_ob_ifvg_1m"
+  }
+]

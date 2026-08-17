@@ -1,6 +1,7 @@
 id: waqar_ebook_v1
 familyId: waqar_v2
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Waqar Asim Scalp — Ebook Faithful"
 version: "1.0.0"

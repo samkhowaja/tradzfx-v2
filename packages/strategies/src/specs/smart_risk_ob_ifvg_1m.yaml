@@ -1,6 +1,7 @@
 id: smart_risk_ob_ifvg_1m
 familyId: smart_risk_ob_ifvg_1m
 active: true
+dxyDependency: not_required
 name: "Smart Risk Scalp 1 — OB + iFVG"
 version: "1.0.1"
 description: >

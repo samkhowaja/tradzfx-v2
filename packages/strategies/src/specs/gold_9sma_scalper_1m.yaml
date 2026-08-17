@@ -2,6 +2,7 @@ id: gold_9sma_scalper_1m
 familyId: gold_9sma_scalper
 setupFamily: trend_pullback
 active: true
+dxyDependency: not_required
 experimental: true
 name: "Gold 9SMA Scalper 1m"
 version: "2.0.0"

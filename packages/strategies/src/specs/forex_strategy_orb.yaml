@@ -1,6 +1,7 @@
 id: forex_strategy_orb
 familyId: forex_strategy_orb
 active: true
+dxyDependency: not_required
 name: "Displacement ORB"
 version: "1.1.0"
 description: >

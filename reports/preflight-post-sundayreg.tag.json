@@ -1,0 +1,40 @@
+{
+  "artifact": "reports/preflight-post-sundayreg.json",
+  "taggedAt": "2026-08-13",
+  "commit": "5031f17",
+  "parentCommits": ["c6b3662"],
+  "supersedingCommit": "dfac03a (codifies 01:59 in STRUCTURAL_BROKER_HOLES, evidence-pending; preflight verdicts byte-identical, confirmed by reports/preflight-post-codify.json)",
+  "registry": {
+    "name": "SUNDAY_SESSION_BY_SYMBOL_DATE",
+    "file": "packages/shared/src/utils/marketCalendar.ts",
+    "version": "2026-08-13.1",
+    "entries": {
+      "XAUUSD": ["2026-07-12", "2026-07-19", "2026-07-26", "2026-08-02", "2026-08-09"]
+    }
+  },
+  "validator": "candle-eligibility-v1",
+  "detector": "candle-detector-v1",
+  "htfSourceVersion": "canonical-1m-raw-lineage-v2-calendar-aware",
+  "window": {
+    "strategy": "watukushay_no1",
+    "symbol": "XAUUSD",
+    "timeframe": "15m",
+    "from": "2026-07-19T00:00:00Z",
+    "to": "2026-07-23T00:00:00Z"
+  },
+  "verdict": {
+    "overallStatus": "FAIL",
+    "realMissingBars": ["2026-07-19T01:59:00.000Z"],
+    "holeClassification": "STRUCTURAL_BROKER_HOLE (codified dfac03a, class 3 provenance PENDING - stays BLOCKING until CopyRates artifact)",
+    "countingArtifact": "1m expected-present=29 = 28 daily break-edge bars + 1 real hole",
+    "blockingReasons": [
+      "structural broker hole 2026-07-19T01:59Z (uncodified)",
+      "trustedWindow BLOCKED_UNKNOWN 2026-07-08T03:33Z -> 2026-07-18T01:34Z (pending §5 step 3)"
+    ]
+  },
+  "gates": {
+    "permission": "INACTIVE",
+    "technicalEligibility": "BLOCKED_UNKNOWN"
+  },
+  "doc": "docs/sunday-session-registry-and-0159-hole-2026-08-13.md"
+}

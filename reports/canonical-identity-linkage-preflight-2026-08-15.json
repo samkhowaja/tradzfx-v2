@@ -1,0 +1,3514 @@
+{
+  "schema": "canonical-identity-provenance-linkage-preflight-readonly-v1",
+  "authority": "NON_AUTHORITATIVE",
+  "canonical_edge": "2026-08-15T07:53:27.144Z",
+  "transaction": "REPEATABLE READ READ ONLY",
+  "database_writes": 0,
+  "source_state_changes": 0,
+  "active_quarantine_rows": 699,
+  "counts": {
+    "unique_match": 0,
+    "ambiguous_match": 0,
+    "orphan_match": 699,
+    "missing_source_key": 0
+  },
+  "details": [
+    {
+      "quarantine_id": "620",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1060",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "621",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-13T14:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1061",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-13T14:05:00.000Z"
+    },
+    {
+      "quarantine_id": "622",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1062",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "623",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "1063",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "624",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "1064",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "625",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:21:00.000Z"
+    },
+    {
+      "quarantine_id": "1065",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:21:00.000Z"
+    },
+    {
+      "quarantine_id": "626",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:23:00.000Z"
+    },
+    {
+      "quarantine_id": "627",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "628",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:27:00.000Z"
+    },
+    {
+      "quarantine_id": "629",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:34:00.000Z"
+    },
+    {
+      "quarantine_id": "630",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:35:00.000Z"
+    },
+    {
+      "quarantine_id": "631",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:47:00.000Z"
+    },
+    {
+      "quarantine_id": "632",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-15T21:48:00.000Z"
+    },
+    {
+      "quarantine_id": "633",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-19T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1066",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-19T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "634",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "1067",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "635",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1068",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T01:59:00.000Z"
+    },
+    {
+      "quarantine_id": "636",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T02:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1069",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-04-27T02:00:00.000Z"
+    },
+    {
+      "quarantine_id": "637",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-06T01:51:00.000Z"
+    },
+    {
+      "quarantine_id": "1070",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-06T01:51:00.000Z"
+    },
+    {
+      "quarantine_id": "638",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1071",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "639",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1072",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "640",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1073",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "641",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1074",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-11T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "642",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1075",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "643",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1076",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "644",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1077",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "645",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1078",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "646",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1079",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "647",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "648",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1080",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1081",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|MT5|1m|2026-03-26T20:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1082",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|OANDA Corporation|1m|2026-07-10T02:34:00.000Z"
+    },
+    {
+      "quarantine_id": "1083",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1084",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "1085",
+      "type": "ORPHAN",
+      "identity": "AUDUSD|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "654",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-07T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1086",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-07T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "655",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "656",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-07T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1087",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-07T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "657",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-15T13:47:00.000Z"
+    },
+    {
+      "quarantine_id": "1088",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-15T13:47:00.000Z"
+    },
+    {
+      "quarantine_id": "658",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1089",
+      "type": "ORPHAN",
+      "identity": "DXY|synthetic|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "659",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1090",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "660",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1091",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-12T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "661",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1092",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "662",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1093",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "663",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1094",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:08:00.000Z"
+    },
+    {
+      "quarantine_id": "664",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1095",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:09:00.000Z"
+    },
+    {
+      "quarantine_id": "665",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:18:00.000Z"
+    },
+    {
+      "quarantine_id": "1096",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:18:00.000Z"
+    },
+    {
+      "quarantine_id": "666",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:19:00.000Z"
+    },
+    {
+      "quarantine_id": "1097",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-04-30T22:19:00.000Z"
+    },
+    {
+      "quarantine_id": "667",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:18:00.000Z"
+    },
+    {
+      "quarantine_id": "668",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:19:00.000Z"
+    },
+    {
+      "quarantine_id": "669",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:26:00.000Z"
+    },
+    {
+      "quarantine_id": "670",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:27:00.000Z"
+    },
+    {
+      "quarantine_id": "671",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:29:00.000Z"
+    },
+    {
+      "quarantine_id": "672",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:30:00.000Z"
+    },
+    {
+      "quarantine_id": "673",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:52:00.000Z"
+    },
+    {
+      "quarantine_id": "674",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-05-28T22:53:00.000Z"
+    },
+    {
+      "quarantine_id": "675",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1098",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "676",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1099",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "677",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1100",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "678",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1101",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "679",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1102",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "680",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1103",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "681",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "682",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "683",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "684",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:20:00.000Z"
+    },
+    {
+      "quarantine_id": "685",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:21:00.000Z"
+    },
+    {
+      "quarantine_id": "686",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:41:00.000Z"
+    },
+    {
+      "quarantine_id": "687",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:42:00.000Z"
+    },
+    {
+      "quarantine_id": "688",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:47:00.000Z"
+    },
+    {
+      "quarantine_id": "689",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-17T21:48:00.000Z"
+    },
+    {
+      "quarantine_id": "690",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1104",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "691",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1105",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "692",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1106",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "693",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1107",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "694",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "1108",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "695",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:20:00.000Z"
+    },
+    {
+      "quarantine_id": "696",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:23:00.000Z"
+    },
+    {
+      "quarantine_id": "697",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:24:00.000Z"
+    },
+    {
+      "quarantine_id": "698",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:25:00.000Z"
+    },
+    {
+      "quarantine_id": "699",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "700",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:29:00.000Z"
+    },
+    {
+      "quarantine_id": "701",
+      "type": "ORPHAN",
+      "identity": "EURUSD|1x Trade Ltd.|1m|2026-06-18T21:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1109",
+      "type": "ORPHAN",
+      "identity": "EURUSD|MT5|1m|2026-03-08T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1110",
+      "type": "ORPHAN",
+      "identity": "EURUSD|MT5|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1111",
+      "type": "ORPHAN",
+      "identity": "EURUSD|OANDA Corporation|1m|2026-07-10T02:40:00.000Z"
+    },
+    {
+      "quarantine_id": "1112",
+      "type": "ORPHAN",
+      "identity": "EURUSD|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1113",
+      "type": "ORPHAN",
+      "identity": "EURUSD|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "707",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1114",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "708",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1115",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "709",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1116",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "710",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1117",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "711",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1118",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "712",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:22:00.000Z"
+    },
+    {
+      "quarantine_id": "1119",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:22:00.000Z"
+    },
+    {
+      "quarantine_id": "713",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:23:00.000Z"
+    },
+    {
+      "quarantine_id": "1120",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-04-30T22:23:00.000Z"
+    },
+    {
+      "quarantine_id": "714",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-08T20:58:00.000Z"
+    },
+    {
+      "quarantine_id": "1121",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-08T20:58:00.000Z"
+    },
+    {
+      "quarantine_id": "715",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-10T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1122",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-10T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "716",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1123",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "717",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1124",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "718",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1125",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "719",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1126",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-14T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "720",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1127",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "721",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1128",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "722",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "1129",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "723",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "1130",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "724",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "1131",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "725",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "726",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:36:00.000Z"
+    },
+    {
+      "quarantine_id": "1132",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:36:00.000Z"
+    },
+    {
+      "quarantine_id": "727",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:38:00.000Z"
+    },
+    {
+      "quarantine_id": "1133",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-05-18T22:38:00.000Z"
+    },
+    {
+      "quarantine_id": "728",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-05T20:58:00.000Z"
+    },
+    {
+      "quarantine_id": "1134",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-05T20:58:00.000Z"
+    },
+    {
+      "quarantine_id": "729",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1135",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "730",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1136",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "731",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1137",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "732",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1138",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "733",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1139",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "734",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "735",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "736",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "737",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "738",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-17T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "739",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1140",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "740",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1141",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "741",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "1142",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "742",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "1143",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "743",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:37:00.000Z"
+    },
+    {
+      "quarantine_id": "1144",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:37:00.000Z"
+    },
+    {
+      "quarantine_id": "744",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:38:00.000Z"
+    },
+    {
+      "quarantine_id": "1145",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:38:00.000Z"
+    },
+    {
+      "quarantine_id": "745",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:57:00.000Z"
+    },
+    {
+      "quarantine_id": "1146",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:57:00.000Z"
+    },
+    {
+      "quarantine_id": "746",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:58:00.000Z"
+    },
+    {
+      "quarantine_id": "1147",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-06-18T22:58:00.000Z"
+    },
+    {
+      "quarantine_id": "1381",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-22T10:20:00.000Z"
+    },
+    {
+      "quarantine_id": "1382",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-23T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1383",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-23T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1384",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-28T14:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1385",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-29T18:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1386",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-29T18:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1387",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-29T18:33:00.000Z"
+    },
+    {
+      "quarantine_id": "1388",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-29T18:35:00.000Z"
+    },
+    {
+      "quarantine_id": "1389",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-29T18:43:00.000Z"
+    },
+    {
+      "quarantine_id": "1390",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-30T12:42:00.000Z"
+    },
+    {
+      "quarantine_id": "1391",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|1x Trade Ltd.|1m|2026-07-30T14:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1148",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|OANDA Corporation|1m|2026-07-10T02:39:00.000Z"
+    },
+    {
+      "quarantine_id": "1149",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1150",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "1151",
+      "type": "ORPHAN",
+      "identity": "GBPUSD|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "751",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-12T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1152",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-12T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "752",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-13T14:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1153",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-13T14:06:00.000Z"
+    },
+    {
+      "quarantine_id": "753",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-16T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1154",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-16T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "754",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:52:00.000Z"
+    },
+    {
+      "quarantine_id": "1155",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:52:00.000Z"
+    },
+    {
+      "quarantine_id": "755",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "1156",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-21T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "756",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1157",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:55:00.000Z"
+    },
+    {
+      "quarantine_id": "757",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "1158",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-04-27T01:56:00.000Z"
+    },
+    {
+      "quarantine_id": "758",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-05-10T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1159",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-05-10T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "759",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-06T01:47:00.000Z"
+    },
+    {
+      "quarantine_id": "1160",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-06T01:47:00.000Z"
+    },
+    {
+      "quarantine_id": "760",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1161",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "761",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1162",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "762",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1163",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "763",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1164",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "764",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1165",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "765",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "1166",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "766",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "767",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-11T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "768",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1167",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "769",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1168",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "770",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1169",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "771",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1170",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "772",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1171",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "773",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "774",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "775",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-06-17T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "776",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1172",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1173",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|MT5|1m|2026-06-22T21:27:00.000Z"
+    },
+    {
+      "quarantine_id": "1174",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|OANDA Corporation|1m|2026-07-10T02:33:00.000Z"
+    },
+    {
+      "quarantine_id": "1175",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|OANDA Corporation|1m|2026-07-14T15:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1176",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1177",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "1178",
+      "type": "ORPHAN",
+      "identity": "NZDUSD|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1179",
+      "type": "ORPHAN",
+      "identity": "USDCAD|OANDA Corporation|1m|2026-07-10T02:34:00.000Z"
+    },
+    {
+      "quarantine_id": "1180",
+      "type": "ORPHAN",
+      "identity": "USDCAD|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1181",
+      "type": "ORPHAN",
+      "identity": "USDCAD|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "1182",
+      "type": "ORPHAN",
+      "identity": "USDCAD|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "787",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "1183",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "788",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1184",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "789",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1185",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "790",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1186",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "791",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1187",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "792",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1188",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "793",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "794",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "795",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "796",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:25:00.000Z"
+    },
+    {
+      "quarantine_id": "797",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "798",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:43:00.000Z"
+    },
+    {
+      "quarantine_id": "799",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-11T21:44:00.000Z"
+    },
+    {
+      "quarantine_id": "800",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1189",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "801",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1190",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "802",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1191",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "803",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1192",
+      "type": "ORPHAN",
+      "identity": "USDCHF|1x Trade Ltd.|1m|2026-06-17T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1193",
+      "type": "ORPHAN",
+      "identity": "USDCHF|OANDA Corporation|1m|2026-05-15T04:48:00.000Z"
+    },
+    {
+      "quarantine_id": "1194",
+      "type": "ORPHAN",
+      "identity": "USDCHF|OANDA Corporation|1m|2026-06-11T20:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1195",
+      "type": "ORPHAN",
+      "identity": "USDCHF|OANDA Corporation|1m|2026-07-09T19:44:00.000Z"
+    },
+    {
+      "quarantine_id": "1196",
+      "type": "ORPHAN",
+      "identity": "USDCHF|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1197",
+      "type": "ORPHAN",
+      "identity": "USDCHF|OANDA Corporation|1m|2026-08-03T06:53:00.000Z"
+    },
+    {
+      "quarantine_id": "1198",
+      "type": "ORPHAN",
+      "identity": "USDCHF|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "810",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-29T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1199",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-29T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "811",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1200",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "812",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1201",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "813",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1202",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "814",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1203",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "815",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1204",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "816",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "817",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "818",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "819",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "820",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "821",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "822",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "823",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:29:00.000Z"
+    },
+    {
+      "quarantine_id": "824",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:30:00.000Z"
+    },
+    {
+      "quarantine_id": "825",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:39:00.000Z"
+    },
+    {
+      "quarantine_id": "826",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-04-30T21:40:00.000Z"
+    },
+    {
+      "quarantine_id": "827",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-04T03:45:00.000Z"
+    },
+    {
+      "quarantine_id": "1205",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-04T03:45:00.000Z"
+    },
+    {
+      "quarantine_id": "828",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1206",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "829",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1207",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "830",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1208",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "831",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1209",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "832",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1210",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "833",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "834",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "835",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:18:00.000Z"
+    },
+    {
+      "quarantine_id": "836",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:21:00.000Z"
+    },
+    {
+      "quarantine_id": "837",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:23:00.000Z"
+    },
+    {
+      "quarantine_id": "838",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:29:00.000Z"
+    },
+    {
+      "quarantine_id": "839",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:30:00.000Z"
+    },
+    {
+      "quarantine_id": "840",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:34:00.000Z"
+    },
+    {
+      "quarantine_id": "841",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:35:00.000Z"
+    },
+    {
+      "quarantine_id": "842",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:36:00.000Z"
+    },
+    {
+      "quarantine_id": "843",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-05-06T21:38:00.000Z"
+    },
+    {
+      "quarantine_id": "844",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1211",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "845",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1212",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "846",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1213",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "847",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1214",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "848",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1215",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "849",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:14:00.000Z"
+    },
+    {
+      "quarantine_id": "850",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:22:00.000Z"
+    },
+    {
+      "quarantine_id": "851",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:24:00.000Z"
+    },
+    {
+      "quarantine_id": "852",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:25:00.000Z"
+    },
+    {
+      "quarantine_id": "853",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "854",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:28:00.000Z"
+    },
+    {
+      "quarantine_id": "855",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:29:00.000Z"
+    },
+    {
+      "quarantine_id": "856",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:43:00.000Z"
+    },
+    {
+      "quarantine_id": "857",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:45:00.000Z"
+    },
+    {
+      "quarantine_id": "858",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:53:00.000Z"
+    },
+    {
+      "quarantine_id": "859",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-02T21:54:00.000Z"
+    },
+    {
+      "quarantine_id": "860",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-31T08:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1216",
+      "type": "ORPHAN",
+      "identity": "USDJPY|1x Trade Ltd.|1m|2026-07-31T08:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1217",
+      "type": "ORPHAN",
+      "identity": "USDJPY|OANDA Corporation|1m|2026-07-10T02:40:00.000Z"
+    },
+    {
+      "quarantine_id": "1218",
+      "type": "ORPHAN",
+      "identity": "USDJPY|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1219",
+      "type": "ORPHAN",
+      "identity": "USDJPY|OANDA Corporation|1m|2026-08-03T06:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1220",
+      "type": "ORPHAN",
+      "identity": "USDJPY|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "865",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-12T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1221",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-12T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "866",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1222",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:07:00.000Z"
+    },
+    {
+      "quarantine_id": "867",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1223",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:13:00.000Z"
+    },
+    {
+      "quarantine_id": "868",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:14:00.000Z"
+    },
+    {
+      "quarantine_id": "1224",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-13T14:14:00.000Z"
+    },
+    {
+      "quarantine_id": "869",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-15T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1225",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-15T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "870",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:40:00.000Z"
+    },
+    {
+      "quarantine_id": "1226",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:40:00.000Z"
+    },
+    {
+      "quarantine_id": "871",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:42:00.000Z"
+    },
+    {
+      "quarantine_id": "1227",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-16T21:42:00.000Z"
+    },
+    {
+      "quarantine_id": "872",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:17:00.000Z"
+    },
+    {
+      "quarantine_id": "1228",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:17:00.000Z"
+    },
+    {
+      "quarantine_id": "873",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:18:00.000Z"
+    },
+    {
+      "quarantine_id": "1229",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-17T00:18:00.000Z"
+    },
+    {
+      "quarantine_id": "874",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-25T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "1230",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-04-25T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "875",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1231",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "876",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1232",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "877",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-17T21:30:00.000Z"
+    },
+    {
+      "quarantine_id": "878",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1233",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "879",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1234",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-21T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "880",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-24T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1235",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-05-24T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "881",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "1236",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-06T01:50:00.000Z"
+    },
+    {
+      "quarantine_id": "882",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1237",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "883",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1238",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "884",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1239",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:07:00.000Z"
+    },
+    {
+      "quarantine_id": "885",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1240",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "886",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1241",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "887",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-11T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "888",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1242",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "889",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1243",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "890",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1244",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:04:00.000Z"
+    },
+    {
+      "quarantine_id": "891",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1245",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "892",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1246",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:09:00.000Z"
+    },
+    {
+      "quarantine_id": "893",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "894",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:12:00.000Z"
+    },
+    {
+      "quarantine_id": "895",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:13:00.000Z"
+    },
+    {
+      "quarantine_id": "896",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:17:00.000Z"
+    },
+    {
+      "quarantine_id": "897",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-06-17T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "898",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1247",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:03:00.000Z"
+    },
+    {
+      "quarantine_id": "899",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "1248",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:15:00.000Z"
+    },
+    {
+      "quarantine_id": "900",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "1249",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:16:00.000Z"
+    },
+    {
+      "quarantine_id": "901",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "1250",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:26:00.000Z"
+    },
+    {
+      "quarantine_id": "902",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-08T21:27:00.000Z"
+    },
+    {
+      "quarantine_id": "903",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1251",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "904",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1252",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "905",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1253",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "906",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:10:00.000Z"
+    },
+    {
+      "quarantine_id": "907",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:11:00.000Z"
+    },
+    {
+      "quarantine_id": "908",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:28:00.000Z"
+    },
+    {
+      "quarantine_id": "909",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:48:00.000Z"
+    },
+    {
+      "quarantine_id": "910",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-07-15T21:50:00.000Z"
+    },
+    {
+      "quarantine_id": "911",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-08-02T21:49:00.000Z"
+    },
+    {
+      "quarantine_id": "1254",
+      "type": "ORPHAN",
+      "identity": "USDSEK|1x Trade Ltd.|1m|2026-08-02T21:49:00.000Z"
+    },
+    {
+      "quarantine_id": "1255",
+      "type": "ORPHAN",
+      "identity": "USDSEK|MT5|1m|2026-04-02T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1256",
+      "type": "ORPHAN",
+      "identity": "USDSEK|MT5|1m|2026-04-02T21:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1257",
+      "type": "ORPHAN",
+      "identity": "USDSEK|MT5|1m|2026-04-02T21:08:00.000Z"
+    },
+    {
+      "quarantine_id": "1258",
+      "type": "ORPHAN",
+      "identity": "USDSEK|MT5|1m|2026-04-06T21:19:00.000Z"
+    },
+    {
+      "quarantine_id": "1259",
+      "type": "ORPHAN",
+      "identity": "USDSEK|OANDA Corporation|1m|2026-07-14T15:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1260",
+      "type": "ORPHAN",
+      "identity": "USDSEK|OANDA Corporation|1m|2026-07-17T23:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1261",
+      "type": "ORPHAN",
+      "identity": "USDSEK|OANDA Corporation|1m|2026-08-03T06:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1262",
+      "type": "ORPHAN",
+      "identity": "USDSEK|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    },
+    {
+      "quarantine_id": "923",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2025-07-20T02:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1263",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2025-07-20T02:00:00.000Z"
+    },
+    {
+      "quarantine_id": "924",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2025-12-31T20:54:00.000Z"
+    },
+    {
+      "quarantine_id": "1264",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2025-12-31T20:54:00.000Z"
+    },
+    {
+      "quarantine_id": "925",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-01T10:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1265",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-01T10:03:00.000Z"
+    },
+    {
+      "quarantine_id": "926",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T02:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1266",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T02:04:00.000Z"
+    },
+    {
+      "quarantine_id": "927",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T14:13:00.000Z"
+    },
+    {
+      "quarantine_id": "1267",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-01-02T14:13:00.000Z"
+    },
+    {
+      "quarantine_id": "928",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T04:38:00.000Z"
+    },
+    {
+      "quarantine_id": "1268",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T04:38:00.000Z"
+    },
+    {
+      "quarantine_id": "929",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T19:45:00.000Z"
+    },
+    {
+      "quarantine_id": "930",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1269",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-07T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "931",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-12T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1270",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-12T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "932",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T15:03:00.000Z"
+    },
+    {
+      "quarantine_id": "1271",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T15:03:00.000Z"
+    },
+    {
+      "quarantine_id": "933",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T18:12:00.000Z"
+    },
+    {
+      "quarantine_id": "1272",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-13T18:12:00.000Z"
+    },
+    {
+      "quarantine_id": "934",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T12:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1273",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T12:09:00.000Z"
+    },
+    {
+      "quarantine_id": "935",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1274",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "936",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1275",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-15T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "937",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1276",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "938",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1277",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-16T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "939",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-17T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1278",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-17T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "940",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-19T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1279",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-19T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "941",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-20T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1280",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-20T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "942",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1281",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "943",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1282",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-21T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "944",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-24T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1283",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-24T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "945",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1284",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "946",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1285",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-27T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "947",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1286",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "948",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1287",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-28T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "949",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1288",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "950",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1289",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-29T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "951",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1290",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "952",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1291",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-04-30T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "953",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1292",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "954",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1293",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-04T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "955",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1294",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "956",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1295",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-06T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "957",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1296",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "958",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1297",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-11T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "959",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1298",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "960",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1299",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-14T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "961",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-15T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1300",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-15T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "962",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1301",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "963",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1302",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-18T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "964",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1303",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "965",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1304",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-19T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "966",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1305",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "967",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1306",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-20T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "968",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-24T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1307",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-24T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "969",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1308",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "970",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1309",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-26T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "971",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1310",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "972",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1311",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-27T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "973",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1312",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "974",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1313",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-28T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "975",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-29T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1314",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-05-29T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "976",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1315",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "977",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1316",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-01T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "978",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1317",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "979",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1318",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-03T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "980",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1319",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-05T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "981",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-08T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1320",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-08T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "982",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1321",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T21:00:00.000Z"
+    },
+    {
+      "quarantine_id": "983",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1322",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-09T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "984",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:45:00.000Z"
+    },
+    {
+      "quarantine_id": "1323",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:45:00.000Z"
+    },
+    {
+      "quarantine_id": "985",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:57:00.000Z"
+    },
+    {
+      "quarantine_id": "1324",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T07:57:00.000Z"
+    },
+    {
+      "quarantine_id": "986",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1325",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "987",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1326",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "988",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1327",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-10T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "989",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T17:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1328",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T17:30:00.000Z"
+    },
+    {
+      "quarantine_id": "990",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "1329",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T20:59:00.000Z"
+    },
+    {
+      "quarantine_id": "991",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1330",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-11T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "992",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-12T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1331",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-12T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "993",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-14T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1332",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-14T22:01:00.000Z"
+    },
+    {
+      "quarantine_id": "994",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-15T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1333",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-15T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "995",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T18:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1334",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T18:00:00.000Z"
+    },
+    {
+      "quarantine_id": "996",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1335",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "997",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1336",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-17T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "998",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1337",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "999",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1338",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-18T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1000",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-19T17:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1339",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-19T17:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1001",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1340",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1002",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1341",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1003",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1342",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:09:00.000Z"
+    },
+    {
+      "quarantine_id": "1004",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1343",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-23T23:10:00.000Z"
+    },
+    {
+      "quarantine_id": "1005",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T12:25:00.000Z"
+    },
+    {
+      "quarantine_id": "1344",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T12:25:00.000Z"
+    },
+    {
+      "quarantine_id": "1006",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1345",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1007",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1346",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-24T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1008",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1347",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1009",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1348",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1010",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1349",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-25T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1011",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-26T20:50:00.000Z"
+    },
+    {
+      "quarantine_id": "1350",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-26T20:50:00.000Z"
+    },
+    {
+      "quarantine_id": "1012",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1351",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1013",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1352",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-29T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1014",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T01:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1353",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T01:07:00.000Z"
+    },
+    {
+      "quarantine_id": "1015",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1354",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1016",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1355",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-06-30T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1017",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1356",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:06:00.000Z"
+    },
+    {
+      "quarantine_id": "1018",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:17:00.000Z"
+    },
+    {
+      "quarantine_id": "1357",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T06:17:00.000Z"
+    },
+    {
+      "quarantine_id": "1019",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1358",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1020",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1359",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-01T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1021",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1360",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1022",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1361",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1023",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1362",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-02T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1024",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-03T17:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1363",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-03T17:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1025",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1364",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1026",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1365",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-07T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1393",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-08T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1394",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-08T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1395",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-09T20:55:00.000Z"
+    },
+    {
+      "quarantine_id": "1396",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-09T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1397",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-12T22:04:00.000Z"
+    },
+    {
+      "quarantine_id": "1032",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-13T14:16:00.000Z"
+    },
+    {
+      "quarantine_id": "1033",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1371",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-14T12:30:00.000Z"
+    },
+    {
+      "quarantine_id": "1034",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-26T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1372",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-26T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1035",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-29T18:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1373",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-07-29T18:00:00.000Z"
+    },
+    {
+      "quarantine_id": "1036",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-08-02T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1374",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|1x Trade Ltd.|1m|2026-08-02T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1375",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|MT5|1m|2026-03-23T11:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1376",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|MT5|1m|2026-03-24T11:01:00.000Z"
+    },
+    {
+      "quarantine_id": "1377",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|MT5|1m|2026-03-24T20:24:00.000Z"
+    },
+    {
+      "quarantine_id": "1378",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|MT5|1m|2026-03-26T20:11:00.000Z"
+    },
+    {
+      "quarantine_id": "1379",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|MT5|1m|2026-07-05T22:05:00.000Z"
+    },
+    {
+      "quarantine_id": "1380",
+      "type": "ORPHAN",
+      "identity": "XAUUSD|smoke-test|1m|2026-07-07T21:05:00.000Z"
+    }
+  ],
+  "status": "BLOCKED_LINKAGE_PREFLIGHT",
+  "sha256": "0ae03ccdf071166c185c73cad0daf58431abaad84e15fb15e17170c0f9ce3515"
+}

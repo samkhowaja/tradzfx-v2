@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-08-13T00:00:00.000Z",
+  "scaffoldOnly": false,
+  "reviewer": "human-cluster-review",
+  "note": "Unit D row-level EXCLUDE (sibling-locked v2+v3 pair). 10.05 ATR single-broker NZDUSD jump, dual-detector agreement, DXY-contradict. Chart verdict: feed corruption.",
+  "provenance": {
+    "clustersFile": "reports/adjudication-clusters-v4-2026-08-13.json",
+    "scaffoldFile": "reports/adjudication-decisions-v4-2026-08-13.scaffold.json",
+    "unit": "D (NZDUSD 2026-06-17T21:06:00Z)",
+    "siblingLock": "both active detector rows (v2 769, v3 1168) decided together; superseded sibling 235 untouched"
+  },
+  "proposals": [
+    {
+      "quarantineId": "769",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "timeframe": "1m",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "proposedDecision": "EXCLUDE",
+      "humanReviewed": true,
+      "detectorVersion": "candle-detector-v2-calendar",
+      "flags": ["LARGE_JUMP_RELATIVE"],
+      "jumpAtr": 10.04773269689751,
+      "dxySign": "contradict",
+      "basis": "[ROW-EXCLUDE unit-D sibling-locked with 1168] 10.05x ATR single-broker (1x Trade Ltd.) NZDUSD jump; v2+v3 dual-detector agreement; dxySign=contradict vs FOMC USD complex; chart verdict: feed corruption, not a real macro move."
+    },
+    {
+      "quarantineId": "1168",
+      "symbol": "NZDUSD",
+      "broker": "1x Trade Ltd.",
+      "timeframe": "1m",
+      "eventTime": "2026-06-17T21:06:00.000Z",
+      "proposedDecision": "EXCLUDE",
+      "humanReviewed": true,
+      "detectorVersion": "candle-detector-v3-robust",
+      "flags": ["LARGE_JUMP_ROBUST"],
+      "jumpAtr": 10.04773269689751,
+      "dxySign": "contradict",
+      "basis": "[ROW-EXCLUDE unit-D sibling-locked with 769] 10.05x ATR single-broker (1x Trade Ltd.) NZDUSD jump; v2+v3 dual-detector agreement; dxySign=contradict vs FOMC USD complex; chart verdict: feed corruption, not a real macro move."
+    }
+  ]
+}

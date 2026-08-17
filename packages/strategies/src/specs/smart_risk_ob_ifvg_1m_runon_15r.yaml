@@ -1,6 +1,7 @@
 id: smart_risk_ob_ifvg_1m_runon_15r
 familyId: smart_risk_ob_ifvg_1m
 active: true
+dxyDependency: not_required
 name: Smart Risk Scalp 1 — OB + iFVG (run-on to next pivot, 1.5R floor) [PRIMARY]
 version: 1.0.2
 description: >

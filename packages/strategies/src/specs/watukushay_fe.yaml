@@ -1,6 +1,7 @@
 id: watukushay_fe
 familyId: watukushay
 active: true
+dxyDependency: not_required
 name: Watukushay FE
 version: 1.1.0
 description: >

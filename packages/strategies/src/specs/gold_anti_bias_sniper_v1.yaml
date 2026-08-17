@@ -1,6 +1,7 @@
 id: gold_anti_bias_sniper_v1
 familyId: gold_anti_bias_sniper
 active: true
+dxyDependency: not_required
 name: "Gold Anti-Bias Sniper V1"
 version: "1.0.0"
 signalSource: "zone"
